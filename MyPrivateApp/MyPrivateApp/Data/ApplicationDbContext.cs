@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Data.Contact;
+using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Data
 {
