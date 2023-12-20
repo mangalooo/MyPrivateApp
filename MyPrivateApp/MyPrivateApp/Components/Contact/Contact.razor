@@ -1,0 +1,554 @@
+﻿@page "/Contact"
+
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@rendermode InteractiveServer
+
+@inject ApplicationDbContext db;
+
+<PageTitle>Kontakter</PageTitle>
+
+<h1 style="text-align:center"> Kontakter </h1>
+
+<br />
+
+<div style="text-align:center">
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesContactForm" hidden="@ShowOrHideCreateButton">Skapa ny kontakt</button>
+</div>
+
+<br />
+<br />
+
+<div class="container">
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <EditForm Model="contact" OnSubmit="CreateOrUpdateContact" FormName="Test" Enhance hidden="@(!HideNewOrChangesContactFields)">
+
+                     <DataAnnotationsValidator />
+
+                     <ValidationSummary class="text-danger" role="alert" />
+
+                     <div class="row">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="Name"> Namn </label>
+                                 <ValidationMessage For="() => contact.Name" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="row">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputDate @bind-Value="contact.Birthday" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Birthday">Födelsedag </label>
+                                 <ValidationMessage For="() => contact.Birthday" class="text-danger" />
+                             </div>
+                         </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="Address"> Adress </label>
+                                 <ValidationMessage For="() => contact.Address" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="row">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="contact.PostCode" class="form-control" disabled="@DisabledForm" />
+                                 <label for="PostCode">Postnummer </label>
+                                 <ValidationMessage For="() => contact.PostCode" class="text-danger" />
+                             </div>
+                         </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.City" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="City"> Stad </label>
+                                 <ValidationMessage For="() => contact.City" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <br />
+                     <button class="btn btn-outline-secondary btn-sm" @onclick="@HideEmailFields">Visa fler e-post fält</button>
+
+                     <div class="row">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.PrivateMail" class="form-control" disabled="@DisabledForm" />
+                                 <label for="PrivateMail">E-post </label>
+                                 <ValidationMessage For="() => contact.PrivateMail" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="row" hidden="@(!ShowOrHideExtraEmail)">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.WorkEMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="WorkEMail"> E-post jobb </label>
+                                 <ValidationMessage For="() => contact.WorkEMail" class="text-danger" />
+                             </div>
+                         </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.ExtraMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="ExtraMail"> E-post extra </label>
+                                 <ValidationMessage For="() => contact.ExtraMail" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <br />
+                     <button class="btn btn-outline-secondary btn-sm" @onclick="@HideNumbersFields">Visa fler nummer fält</button>
+
+                     <div class="row">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.PhoneNumber" class="form-control" disabled="@DisabledForm" />
+                                 <label for="PhoneNumber">Mobil nummer </label>
+                                 <ValidationMessage For="() => contact.PhoneNumber" class="text-danger" />
+                             </div>
+                         </div>
+                         <div class="col" hidden="@(!HideExtraNumbers)">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="HomePhoneNumber">Hem nummer </label>
+                                 <ValidationMessage For="() => contact.HomePhoneNumber" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="row" hidden="@(!HideExtraNumbers)">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.WorkPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="WorkPhoneNumber"> Jobb nummer </label>
+                                 <ValidationMessage For="() => contact.WorkPhoneNumber" class="text-danger" />
+                             </div>
+                         </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.ExtraPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="ExtraPhoneNumber"> Extra nummer </label>
+                                 <ValidationMessage For="() => contact.ExtraPhoneNumber" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="row">
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="HomePage"> Hemsida </label>
+                                 <ValidationMessage For="() => contact.HomePage" class="text-danger" />
+                             </div>
+                         </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputTextArea @bind-Value="contact.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="Notes"> Antecklingar </label>
+                                 <ValidationMessage For="() => contact.Notes" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <br />
+
+                     <div class="form-group" style="text-align:center">
+                         <label for="ChristmasCard"> Julkort </label>
+                         <InputCheckbox @bind-Value="contact.ChristmasCard" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                         <ValidationMessage For="() => contact.ChristmasCard" class="text-danger" />
+
+                         <label for="Relatives"> Släkt </label>
+                         <InputCheckbox @bind-Value="contact.Relatives" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                         <ValidationMessage For="() => contact.Relatives" class="text-danger" />
+
+                         <label for="Friends"> Vänner </label>
+                         <InputCheckbox @bind-Value="contact.Friends" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                         <ValidationMessage For="() => contact.Friends" class="text-danger" />
+
+                         <label for="Colleagues"> Kollegor </label>
+                         <InputCheckbox @bind-Value="contact.Colleagues" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                         <ValidationMessage For="() => contact.Colleagues" class="text-danger" />
+                     </div>
+
+                     <br />
+
+                     <div style="text-align:center">
+                         <button hidden="@ShowOrHideAddNewContactButton" @onclick="HideNewOrChangesContactForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
+                     </div>
+
+                     <div style="text-align:center">
+                         <button @onclick="HideNewOrChangesContactForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                     </div>
+
+                     <br />
+
+                     <div style="text-align:center">
+                         <button @onclick="ShowOrHideCreateButtonOnBackButton" type="submit" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                     </div>
+
+                     <br />
+                     <br />
+                 </EditForm>
+             </div>
+
+             <div class="card-body">
+                 <QuickGrid Items="@ContactsQueryable" Pagination="pagination">
+
+                     <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true">
+                         <ColumnOptions>
+                             <div class="search-box">
+                                 <input type="search" autofocus @onchange="SearchFirstName" />
+                             </div>
+                         </ColumnOptions>
+                     </PropertyColumn>
+
+                     <PropertyColumn Title="Födelsedag" Property="@(c => c.Birthday)" Format="yyyy-MM-dd" Sortable="true" />
+                     <PropertyColumn Title="Ålder" Property="@(c => GetAge(c.Birthday))" Sortable="true" />
+                     <TemplateColumn Title="Ändringar">
+
+                         <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button>
+                         <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button>
+                         <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button>
+
+                         <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                             <div class="modal-dialog" role="document">
+                                 <div class="modal-content">
+                                     <div class="modal-header">
+                                         <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
+                                     </div>
+                                     <div class="modal-footer">
+                                         <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteContact(context))"> Ta bort kontakt </button>
+                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+
+                        @if (ShowBackdrop)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+
+                    </TemplateColumn>
+                </QuickGrid>
+
+                <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                <br />
+                <br />
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
+@code
+{
+    // Modol window settings
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool ShowOrHideExtraEmail { get; set; } = false;
+    private bool HideExtraNumbers { get; set; } = false;
+    private bool HideNewOrChangesContactFields { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewContactButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<ContactsViewModels> ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+    [SupplyParameterFromForm]
+    private ContactsViewModels contact { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        ConvertListToQueryable();
+    }
+
+    public Contacts GetContact(int? id) => db.Contacts.FirstOrDefault(r => r.ContactsId == id);
+
+    private void CreateOrUpdateContact()
+    {
+        DisabledForm = false;
+
+        Contacts getDbContactModel;
+        Contacts changesToModel;
+
+        // Update contact
+        if (contact.ContactsId > 0)
+        {
+            ShowOrHideCreateButton = true;
+
+            Contacts c = db.Contacts.FirstOrDefault(p => p.ContactsId == contact.ContactsId);
+
+            if (c is null) return;
+
+            getDbContactModel = GetContact(contact.ContactsId);
+
+            changesToModel = changesContactToModel(contact);
+
+            getDbContactModel.Name = changesToModel.Name;
+            getDbContactModel.Birthday = changesToModel.Birthday;
+            getDbContactModel.Address = changesToModel.Address;
+            getDbContactModel.PostCode = changesToModel.PostCode;
+            getDbContactModel.PrivateMail = changesToModel.PrivateMail;
+            getDbContactModel.WorkEMail = changesToModel.WorkEMail;
+            getDbContactModel.ExtraMail = changesToModel.ExtraMail;
+            getDbContactModel.PhoneNumber = changesToModel.PhoneNumber;
+            getDbContactModel.HomePhoneNumber = changesToModel.HomePhoneNumber;
+            getDbContactModel.WorkPhoneNumber = changesToModel.WorkPhoneNumber;
+            getDbContactModel.ExtraPhoneNumber = changesToModel.ExtraPhoneNumber;
+            getDbContactModel.City = changesToModel.City;
+            getDbContactModel.HomePage = changesToModel.HomePage;
+            getDbContactModel.Notes = changesToModel.Notes;
+            getDbContactModel.ChristmasCard = changesToModel.ChristmasCard;
+            getDbContactModel.Friends = changesToModel.Friends;
+            getDbContactModel.Relatives = changesToModel.Relatives;
+            getDbContactModel.Colleagues = changesToModel.Colleagues;
+
+            db.SaveChanges();
+
+            contact = new();
+            GetDataAgain();
+
+            return;
+        }
+
+        if (string.IsNullOrEmpty(contact.Name)) return;
+
+        // Add new contact
+        getDbContactModel = GetContact(contact.ContactsId);
+        changesToModel = changesContactToModel(contact);
+        db.Contacts.Add(changesToModel);
+        db.SaveChanges();
+        contact = new();
+        GetDataAgain();
+
+        return;
+    }
+
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.Contacts.Count() == 0) return;
+
+        foreach (Contacts model in db.Contacts.OrderBy(c => c.ContactsId))
+        {
+            ContactsViewModels contact = ChangeFromModelToViewModel(model);
+            ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
+    public ContactsViewModels ChangeFromModelToViewModel(Contacts model)
+    {
+        DateTime birthday = DateTime.Parse(model.Birthday);
+
+        ContactsViewModels vm = new()
+            {
+                ContactsId = model.ContactsId,
+                Name = model.Name,
+                Birthday = birthday,
+                Address = model.Address,
+                PostCode = model.PostCode,
+                PrivateMail = model.PrivateMail,
+                WorkEMail = model.WorkEMail,
+                ExtraMail = model.ExtraMail,
+                PhoneNumber = model.PhoneNumber,
+                HomePhoneNumber = model.HomePhoneNumber,
+                WorkPhoneNumber = model.WorkPhoneNumber,
+                ExtraPhoneNumber = model.ExtraPhoneNumber,
+                City = model.City,
+                HomePage = model.HomePage,
+                Notes = model.Notes,
+                ChristmasCard = model.ChristmasCard,
+                Friends = model.Friends,
+                Relatives = model.Relatives,
+                Colleagues = model.Colleagues
+            };
+
+        return vm;
+    }
+
+    // Clear container and reload
+    private void GetDataAgain()
+    {
+        ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+        ConvertListToQueryable();
+    }
+
+    private void InfoContact(ContactsViewModels incomingModel)
+    {
+        HideNewOrChangesContactForm();
+        ShowOrHideAddNewContactButton = true;
+        DisabledForm = true;
+        contact = incomingModel;
+    }
+
+    private void EditContact(ContactsViewModels incomingModel)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewContactButton = true;
+        HideNewOrChangesContactFields = true;
+        contact = incomingModel;
+    }
+
+    private void DeleteContact(ContactsViewModels incomingModel)
+    {
+        if (db.Contacts.Count() == 0) return;
+
+        Contacts contacts = changesContactToModel(incomingModel);
+
+        db.ChangeTracker.Clear();
+        db.Contacts.Remove(contacts);
+        db.SaveChanges();
+
+        GetDataAgain();
+    }
+
+    private void SearchFirstName(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Name!.Contains(e.Value!.ToString()!, StringComparison.CurrentCultureIgnoreCase));
+            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+            if (result.Count() == 0) return;
+
+            if (result.Any())
+                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
+                {
+                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+                }
+
+            return;
+        }
+
+        GetDataAgain();
+    }
+
+    // private void SearchLastName(ChangeEventArgs e)
+    // {
+    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
+    //     {
+    //         IEnumerable<Contacts> result = db.Contacts.Where(c => c.LastName!.Contains(e.Value!.ToString()!, StringComparison.CurrentCultureIgnoreCase));
+    //         ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+    //         if (result.Count() == 0) return;
+
+    //         if (result.Any())
+    //             foreach (var contact in result.OrderBy(c => c.ContactsId))
+    //                 ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+
+    //         return;
+    //     }
+
+    //     GetDataAgain();
+    // }
+
+    private int GetAge(DateTime birthDate)
+    {
+        return DateTime.Now.Year - birthDate.Year;
+    }
+
+    private void HideNumbersFields()
+    {
+        HideExtraNumbers = !HideExtraNumbers;
+    }
+
+    private void HideEmailFields()
+    {
+        ShowOrHideExtraEmail = !ShowOrHideExtraEmail;
+    }
+
+    private void HideNewOrChangesContactForm()
+    {
+        HideNewOrChangesContactFields = !HideNewOrChangesContactFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void ShowOrHideCreateButtonOnBackButton()
+    {
+        HideNewOrChangesContactFields = !HideNewOrChangesContactFields;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = true;
+    }
+
+    private void OpenDeleteWindow()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
+
+    private Contacts changesContactToModel(ContactsViewModels vm)
+    {
+        Contacts contacts = new()
+        {
+            ContactsId = vm.ContactsId,
+            Name = vm.Name,
+            Birthday = vm.Birthday.ToString("yyyy-MM-dd"),
+            Address = vm.Address,
+            PostCode = vm.PostCode,
+            PrivateMail = vm.PrivateMail,
+            WorkEMail = vm.WorkEMail,
+            ExtraMail = vm.ExtraMail,
+            PhoneNumber = vm.PhoneNumber,
+            HomePhoneNumber = vm.HomePhoneNumber,
+            WorkPhoneNumber = vm.WorkPhoneNumber,
+            ExtraPhoneNumber = vm.ExtraPhoneNumber,
+            City = vm.City,
+            HomePage = vm.HomePage,
+            Notes = vm.Notes,
+            ChristmasCard = vm.ChristmasCard,
+            Friends = vm.Friends,
+            Relatives = vm.Relatives,
+            Colleagues = vm.Colleagues
+        };
+
+        return contacts;
+    }
+}
+
+
+   @*  <InputSelect @bind-Value="Model!.Classification">
+                <option value="">Select classification ...</option>
+                <option value="Exploration">Exploration</option>
+                <option value="Diplomacy">Diplomacy</option>
+                <option value="Defense">Defense</option>
+            </InputSelect>
+
+
+    *@
