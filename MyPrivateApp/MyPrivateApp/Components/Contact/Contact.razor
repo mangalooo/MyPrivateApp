@@ -8,6 +8,7 @@
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db;
+@inject NavigationManager Navigation
 
 <PageTitle>Kontakter</PageTitle>
 
@@ -27,7 +28,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <EditForm Model="contact" OnSubmit="CreateOrUpdateContact" FormName="Test" Enhance hidden="@(!HideNewOrChangesContactFields)">
+                <EditForm Model="contact" OnSubmit="CreateOrUpdateContact" FormName="CreateOrUpdateContact" Enhance hidden="@(!HideNewOrChangesContactFields)">
 
                      <DataAnnotationsValidator />
 
@@ -194,13 +195,36 @@
                      <br />
 
                      <div style="text-align:center">
-                         <button @onclick="ShowOrHideCreateButtonOnBackButton" type="submit" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                         <button @onclick="RefreshPage" type="submit" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
                      </div>
 
                      <br />
                      <br />
                  </EditForm>
              </div>
+
+             <div align="center">
+                 <div class="form-check-inline">
+                     <label class="form-check-label">
+                         Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <label class="form-check-label">
+                         Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <label class="form-check-label">
+                         Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <label class="form-check-label">
+                         Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
+                    </label>
+                </div>
+            </div>
 
              <div class="card-body">
                  <QuickGrid Items="@ContactsQueryable" Pagination="pagination">
@@ -279,10 +303,7 @@
     [SupplyParameterFromForm]
     private ContactsViewModels contact { get; set; } = new();
 
-    protected override void OnInitialized()
-    {
-        ConvertListToQueryable();
-    }
+    protected override void OnInitialized() => ConvertListToQueryable();
 
     public Contacts GetContact(int? id) => db.Contacts.FirstOrDefault(r => r.ContactsId == id);
 
@@ -328,7 +349,7 @@
             db.SaveChanges();
 
             contact = new();
-            GetDataAgain();
+            Navigation.Refresh(true);
 
             return;
         }
@@ -341,7 +362,7 @@
         db.Contacts.Add(changesToModel);
         db.SaveChanges();
         contact = new();
-        GetDataAgain();
+        Navigation.Refresh(true);
 
         return;
     }
@@ -350,6 +371,8 @@
     private void ConvertListToQueryable()
     {
         if (db.Contacts.Count() == 0) return;
+
+        ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
         foreach (Contacts model in db.Contacts.OrderBy(c => c.ContactsId))
         {
@@ -365,36 +388,29 @@
         DateTime birthday = DateTime.Parse(model.Birthday);
 
         ContactsViewModels vm = new()
-            {
-                ContactsId = model.ContactsId,
-                Name = model.Name,
-                Birthday = birthday,
-                Address = model.Address,
-                PostCode = model.PostCode,
-                PrivateMail = model.PrivateMail,
-                WorkEMail = model.WorkEMail,
-                ExtraMail = model.ExtraMail,
-                PhoneNumber = model.PhoneNumber,
-                HomePhoneNumber = model.HomePhoneNumber,
-                WorkPhoneNumber = model.WorkPhoneNumber,
-                ExtraPhoneNumber = model.ExtraPhoneNumber,
-                City = model.City,
-                HomePage = model.HomePage,
-                Notes = model.Notes,
-                ChristmasCard = model.ChristmasCard,
-                Friends = model.Friends,
-                Relatives = model.Relatives,
-                Colleagues = model.Colleagues
-            };
+        {
+            ContactsId = model.ContactsId,
+            Name = model.Name,
+            Birthday = birthday,
+            Address = model.Address,
+            PostCode = model.PostCode,
+            PrivateMail = model.PrivateMail,
+            WorkEMail = model.WorkEMail,
+            ExtraMail = model.ExtraMail,
+            PhoneNumber = model.PhoneNumber,
+            HomePhoneNumber = model.HomePhoneNumber,
+            WorkPhoneNumber = model.WorkPhoneNumber,
+            ExtraPhoneNumber = model.ExtraPhoneNumber,
+            City = model.City,
+            HomePage = model.HomePage,
+            Notes = model.Notes,
+            ChristmasCard = model.ChristmasCard,
+            Friends = model.Friends,
+            Relatives = model.Relatives,
+            Colleagues = model.Colleagues
+        };
 
         return vm;
-    }
-
-    // Clear container and reload
-    private void GetDataAgain()
-    {
-        ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-        ConvertListToQueryable();
     }
 
     private void InfoContact(ContactsViewModels incomingModel)
@@ -424,7 +440,7 @@
         db.Contacts.Remove(contacts);
         db.SaveChanges();
 
-        GetDataAgain();
+        Navigation.Refresh(true);
     }
 
     private void SearchFirstName(ChangeEventArgs e)
@@ -446,42 +462,117 @@
             return;
         }
 
-        GetDataAgain();
+        Navigation.Refresh(true);
     }
 
-    // private void SearchLastName(ChangeEventArgs e)
-    // {
-    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
-    //     {
-    //         IEnumerable<Contacts> result = db.Contacts.Where(c => c.LastName!.Contains(e.Value!.ToString()!, StringComparison.CurrentCultureIgnoreCase));
-    //         ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+    private void SearchChristmasCard(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
 
-    //         if (result.Count() == 0) return;
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.ChristmasCard == true);
+            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
-    //         if (result.Any())
-    //             foreach (var contact in result.OrderBy(c => c.ContactsId))
-    //                 ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+            if (result.Count() == 0) return;
+            
 
-    //         return;
-    //     }
+            if (result.Any())
+                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
+                {
+                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+                }
 
-    //     GetDataAgain();
-    // }
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchRelatives(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Relatives == true);
+            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+            if (result.Count() == 0) return;
+
+
+            if (result.Any())
+                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
+                {
+                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+                }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchFriends(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Friends == true);
+            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+            if (result.Count() == 0) return;
+
+
+            if (result.Any())
+                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
+                {
+                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+                }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchColleagues(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Colleagues == true);
+            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+            if (result.Count() == 0) return;
+
+
+            if (result.Any())
+                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
+                {
+                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+                }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
 
     private int GetAge(DateTime birthDate)
     {
         return DateTime.Now.Year - birthDate.Year;
     }
 
-    private void HideNumbersFields()
-    {
-        HideExtraNumbers = !HideExtraNumbers;
-    }
+    private void HideNumbersFields() => HideExtraNumbers = !HideExtraNumbers;
 
-    private void HideEmailFields()
-    {
-        ShowOrHideExtraEmail = !ShowOrHideExtraEmail;
-    }
+    private void HideEmailFields() => ShowOrHideExtraEmail = !ShowOrHideExtraEmail;
 
     private void HideNewOrChangesContactForm()
     {
@@ -490,12 +581,7 @@
         ShowOrHideEditButton = true;
     }
 
-    private void ShowOrHideCreateButtonOnBackButton()
-    {
-        HideNewOrChangesContactFields = !HideNewOrChangesContactFields;
-        ShowOrHideCreateButton = false;
-        ShowOrHideEditButton = true;
-    }
+    private void RefreshPage() => Navigation.Refresh(true);
 
     private void OpenDeleteWindow()
     {

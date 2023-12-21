@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MagnusPrivateApp.ViewModels
+namespace MyPrivateApp.Client.ViewModels
 {
     public class TripsViewModel
     {
@@ -20,16 +20,16 @@ namespace MagnusPrivateApp.ViewModels
         [Required(ErrorMessage = "Countries_Error_Date")]
         [Display(Name = "Countries_Text_Date")]
         [DataType(DataType.Date)]
-        public string? Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "Countries_Error_HowLongTravel")]
         [Display(Name = "Countries_Text_HowLongTravel")]
-        [DataType(DataType.Text)]
-        public string? HowLongTravel { get; set; }
+        [DataType(DataType.DateTime)]
+        public DateTime HowLongTravel { get; set; }
 
         [Required(ErrorMessage = "Countries_Error_TravelBuddies")]
         [Display(Name = "Countries_Text_TravelBuddies")]
-        [DataType(DataType.Text)]
+        [DataType(DataType.MultilineText)]
         public string? TravelBuddies { get; set; }
 
         [Required(ErrorMessage = "Countries_Error_Description")]

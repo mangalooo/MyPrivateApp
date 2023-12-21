@@ -23,8 +23,8 @@ namespace MyPrivateApp.Data.Models
         [StringLength(50)]
         public string? HowLongTravel { get; set; }
 
-        [DataType(DataType.Text)]
-        [StringLength(50)]
+        [DataType(DataType.MultilineText)]
+        [StringLength(500)]
         public string? TravelBuddies { get; set; }
 
         [DataType(DataType.MultilineText)]

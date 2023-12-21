@@ -10,5 +10,6 @@ namespace MyPrivateApp.Data
             : base(options) {}
 
         public DbSet<Contacts> Contacts { get; set; } // Kontakter
+        public DbSet<Trips> Trips { get; set; } // Resor
     }
 }
