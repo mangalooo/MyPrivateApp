@@ -367,14 +367,7 @@
         Navigation.Refresh(true);
     }
 
-    private int HowLongTravel(DateTime outDate, DateTime homeDate)
-    {
-        double getResult = (outDate - homeDate).TotalDays;
-        string removeMinus = getResult.ToString().Substring(1);
-        int result = int.Parse(removeMinus);
-
-        return result;
-    }
+    private double HowLongTravel(DateTime outDate, DateTime homeDate) => (homeDate - outDate).TotalDays;
 
     private void HideNewOrChangesTripForm()
     {
