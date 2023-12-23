@@ -112,19 +112,25 @@
              <div class="card-body">
                  <QuickGrid Items="@TripsQueryable" Pagination="pagination">
 
-                     <PropertyColumn Title="Datum utresa" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" >
-@*                          <ColumnOptions>
+                     <PropertyColumn Title="Datum utresa" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                     <PropertyColumn Title="Dagar borta" Property="@(c => HowLongTravel(c.Date ,c.HowLongTravel))" Sortable="true" />
+                     <PropertyColumn Title="Land" Property="@(c => c.Country)" Sortable="true" >
+                         <ColumnOptions>
                              <div class="search-box">
-                                 <input type="search" autofocus @onchange="SearchFirstName" />
+                                 <input type="search" autofocus @onchange="SearchCountry" />
                              </div>
-                         </ColumnOptions> *@
+                         </ColumnOptions>
                      </PropertyColumn>
-
-                     <PropertyColumn Title="Datum hemresa" Property="@(c => c.HowLongTravel)" Format="yyyy-MM-dd" Sortable="true" />
-                     @* <PropertyColumn Title="Ålder" Property="@(c => HowLongTravel(c.Birthday))" Sortable="true" /> *@
+                     <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" >
+                                                  <ColumnOptions>
+                             <div class="search-box">
+                                 <input type="search" autofocus @onchange="SearchPlace" />
+                             </div>
+                         </ColumnOptions>
+                     </PropertyColumn>
                      <TemplateColumn Title="Ändringar">
 
-                         @* <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoTrip(context))"> All info </button>
+                         <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoTrip(context))"> All info </button>
                          <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditTrip(context))"> Ändra </button>
                          <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button>
 
@@ -145,7 +151,7 @@
                          @if (ShowBackdrop)
                         {
                             <div class="modal-backdrop fade show"></div>
-                        } *@
+                        }
 
                     </TemplateColumn>
                 </QuickGrid>
@@ -317,11 +323,11 @@
         Navigation.Refresh(true);
     }
 
-@*     private void SearchFirstName(ChangeEventArgs e)
+    private void SearchCountry(ChangeEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            IEnumerable<Trips> result = db.Trips.Where(c => c.Country!.Contains(e.Value!.ToString()!, StringComparison.CurrentCultureIgnoreCase));
+            IEnumerable<Trips> result = db.Trips.Where(c => c.Country == e.Value!.ToString());
             TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
 
             if (result.Count() == 0) return;
@@ -337,13 +343,38 @@
         }
 
         Navigation.Refresh(true);
-    } *@
+    }
 
-
-  @*private int HowLongTravel(DateTime outDate, DateTime homeDate)
+    private void SearchPlace(ChangeEventArgs e)
     {
-        return out - in;
-    } *@
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<Trips> result = db.Trips.Where(c => c.Place == e.Value!.ToString());
+            TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
+
+            if (result.Count() == 0) return;
+
+            if (result.Any())
+                foreach (Trips model in result.OrderBy(c => c.TripsId))
+                {
+                    TripsViewModel trip = ChangeFromModelToViewModel(model);
+                    TripsQueryable = TripsQueryable.Concat(new[] { trip }.AsQueryable());
+                }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private int HowLongTravel(DateTime outDate, DateTime homeDate)
+    {
+        double getResult = (outDate - homeDate).TotalDays;
+        string removeMinus = getResult.ToString().Substring(1);
+        int result = int.Parse(removeMinus);
+
+        return result;
+    }
 
     private void HideNewOrChangesTripForm()
     {

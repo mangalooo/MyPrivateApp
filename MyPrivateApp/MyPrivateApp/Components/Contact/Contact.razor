@@ -238,7 +238,13 @@
                      </PropertyColumn>
 
                      <PropertyColumn Title="Födelsedag" Property="@(c => c.Birthday)" Format="yyyy-MM-dd" Sortable="true" />
-                     <PropertyColumn Title="Ålder" Property="@(c => GetAge(c.Birthday))" Sortable="true" />
+                     <PropertyColumn Title="Ålder" Property="@(c => GetAge(c.Birthday))" Sortable="true" >
+                        <ColumnOptions>
+                             <div class="search-box">
+                                 <input type="search" autofocus @onchange="SearchAge" />
+                             </div>
+                         </ColumnOptions>
+                     </PropertyColumn>
                      <TemplateColumn Title="Ändringar">
 
                          <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button>
@@ -463,7 +469,33 @@
         }
 
         Navigation.Refresh(true);
+    }  
+    
+    private void SearchAge(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<Contacts> result = db.Contacts;
+            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+            if (result.Count() == 0) return;
+
+            if (result.Any())
+                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
+                {
+                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
+
+                    if (e.Value.ToString() == GetAge(contact.Birthday).ToString())
+                        ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+                }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
     }
+
+    private int GetAge(DateTime birthDate) => DateTime.Now.Year - birthDate.Year;
 
     private void SearchChristmasCard(ChangeEventArgs e)
     {
@@ -563,11 +595,6 @@
         }
 
         Navigation.Refresh(true);
-    }
-
-    private int GetAge(DateTime birthDate)
-    {
-        return DateTime.Now.Year - birthDate.Year;
     }
 
     private void HideNumbersFields() => HideExtraNumbers = !HideExtraNumbers;
