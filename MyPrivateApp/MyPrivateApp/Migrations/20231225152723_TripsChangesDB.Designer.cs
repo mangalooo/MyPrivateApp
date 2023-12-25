@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231225152723_TripsChangesDB")]
+    partial class TripsChangesDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,37 +300,6 @@ namespace MyPrivateApp.Migrations
                     b.HasKey("ContactsId");
 
                     b.ToTable("Contacts");
-                });
-
-            modelBuilder.Entity("MyPrivateApp.Data.Models.FrozenFoods", b =>
-                {
-                    b.Property<int>("FrozenFoodsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FrozenFoodsId"));
-
-                    b.Property<string>("Date")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FreezerCompartment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Weight")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WildMeat")
-                        .HasColumnType("int");
-
-                    b.HasKey("FrozenFoodsId");
-
-                    b.ToTable("FrozenFoods");
                 });
 
             modelBuilder.Entity("MyPrivateApp.Data.Models.Trips", b =>

@@ -7,33 +7,37 @@ namespace MyPrivateApp.Client.ViewModels
         [Key]
         public int TripsId { get; set; }
 
-        [Required(ErrorMessage = "Countries_Error_Country")]
-        [Display(Name = "Countries_Text_Country")]
+        [Required(ErrorMessage = "Skriv in ett eller flera länder")]
+        [Display(Name = "Land")]
         [DataType(DataType.Text)]
         public string? Country { get; set; }
 
-        [Required(ErrorMessage = "Countries_Error_Place")]
-        [Display(Name = "Countries_Text_Place")]
+        [Required(ErrorMessage = "Skriv in ett eller flera städer/platser")]
+        [Display(Name = "Stad/ställe")]
         [DataType(DataType.Text)]
         public string? Place { get; set; }
 
-        [Required(ErrorMessage = "Countries_Error_Date")]
-        [Display(Name = "Countries_Text_Date")]
+        [Required(ErrorMessage = "Skriv ett datum")]
+        [Display(Name = "Datum")]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
-        [Required(ErrorMessage = "Countries_Error_HowLongTravel")]
-        [Display(Name = "Countries_Text_HowLongTravel")]
+        [Required(ErrorMessage = "Skriv vilket datum då åkte hem")]
+        [Display(Name = "Vilket datum åkte du hem?")]
         [DataType(DataType.DateTime)]
-        public DateTime HowLongTravel { get; set; }
+        public DateTime HomeDate { get; set; }
 
-        [Required(ErrorMessage = "Countries_Error_TravelBuddies")]
-        [Display(Name = "Countries_Text_TravelBuddies")]
+        [Display(Name = "Hur många dagar var resan?")]
+        [DataType(DataType.DateTime)]
+        public double HowManyDays { get; set; }
+
+        [Required(ErrorMessage = "Vilka resta du med?")]
+        [Display(Name = "Vem reste du med?")]
         [DataType(DataType.MultilineText)]
         public string? TravelBuddies { get; set; }
 
-        [Required(ErrorMessage = "Countries_Error_Description")]
-        [Display(Name = "Countries_Text_Description")]
+        [Required(ErrorMessage = "Skriv in en resebeskrivning")]
+        [Display(Name = "Beskrivning:")]
         [DataType(DataType.MultilineText)]
         public string? Description { get; set; }
     }

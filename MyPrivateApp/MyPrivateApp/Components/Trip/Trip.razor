@@ -44,9 +44,9 @@
                          </div>
                          <div class="col">
                              <div class="form-floating">
-                                 <InputDate @bind-Value="trip.HowLongTravel" class="form-control" disabled="@DisabledForm" />
-                                 <label for="HowLongTravel"> Dag för hemresa </label>
-                                 <ValidationMessage For="() => trip.HowLongTravel" class="text-danger" />
+                                 <InputDate @bind-Value="trip.HomeDate" class="form-control" disabled="@DisabledForm" />
+                                 <label for="HomeDate"> Dag för hemresa </label>
+                                 <ValidationMessage For="() => trip.HomeDate" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -113,7 +113,7 @@
                  <QuickGrid Items="@TripsQueryable" Pagination="pagination">
 
                      <PropertyColumn Title="Datum utresa" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                     <PropertyColumn Title="Dagar borta" Property="@(c => HowLongTravel(c.Date ,c.HowLongTravel))" Sortable="true" />
+                     <PropertyColumn Title="Dagar borta" Property="@(c => c.HowManyDays)" Sortable="true" />
                      <PropertyColumn Title="Land" Property="@(c => c.Country)" Sortable="true" >
                          <ColumnOptions>
                              <div class="search-box">
@@ -217,9 +217,10 @@
             getDbTripModel.Date = changesToModel.Date;
             getDbTripModel.Country = changesToModel.Country;
             getDbTripModel.Description = changesToModel.Description;
-            getDbTripModel.HowLongTravel = changesToModel.HowLongTravel;
+            getDbTripModel.HomeDate = changesToModel.HomeDate;
             getDbTripModel.TravelBuddies = changesToModel.TravelBuddies;
             getDbTripModel.Place = changesToModel.Place;
+            getDbTripModel.HowManyDays = HowLongTravel(DateTime.Parse(changesToModel.Date), DateTime.Parse(changesToModel.HomeDate));
 
             db.SaveChanges();
 
@@ -261,7 +262,7 @@
     public TripsViewModel ChangeFromModelToViewModel(Trips model)
     {
         DateTime outDate = DateTime.Parse(model.Date);
-        DateTime homeDate = DateTime.Parse(model.HowLongTravel);
+        DateTime homeDate = DateTime.Parse(model.HomeDate);
 
         TripsViewModel vm = new()
             {
@@ -269,9 +270,10 @@
                 Date = outDate,
                 Country = model.Country,
                 Description = model.Description,
-                HowLongTravel = homeDate,
+                HomeDate = homeDate,
                 TravelBuddies = model.TravelBuddies,
-                Place = model.Place
+                Place = model.Place,
+                HowManyDays = model.HowManyDays
             };
 
         return vm;
@@ -285,9 +287,10 @@
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 Country = vm.Country,
                 Description = vm.Description,
-                HowLongTravel = vm.HowLongTravel.ToString("yyyy-MM-dd"),
+                HomeDate = vm.HomeDate.ToString("yyyy-MM-dd"),
                 TravelBuddies = vm.TravelBuddies,
-                Place = vm.Place
+                Place = vm.Place,
+                HowManyDays = HowLongTravel(vm.Date, vm.HomeDate)
             };
 
         return trips;

@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\Trips\**" />
+    <Content Remove="Data\Trips\**" />
+    <EmbeddedResource Remove="Data\Trips\**" />
+    <None Remove="Data\Trips\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MyPrivateApp.Client\MyPrivateApp.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
@@ -15,10 +22,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\Trips\" />
   </ItemGroup>
 
 </Project>

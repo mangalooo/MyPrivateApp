@@ -21,7 +21,11 @@ namespace MyPrivateApp.Data.Models
 
         [DataType(DataType.Text)]
         [StringLength(50)]
-        public string? HowLongTravel { get; set; }
+        public string? HomeDate { get; set; }
+
+        [DataType(DataType.Text)]
+        [StringLength(50)]
+        public double HowManyDays { get; set; }
 
         [DataType(DataType.MultilineText)]
         [StringLength(500)]
