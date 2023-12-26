@@ -10,7 +10,7 @@
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 
-<PageTitle>Kontakter</PageTitle>
+<PageTitle> Kontakter </PageTitle>
 
 <h1 style="text-align:center"> Kontakter </h1>
 
@@ -207,27 +207,27 @@
                  <div class="form-check-inline">
                      <label class="form-check-label">
                          Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
-                    </label>
-                </div>
-                <div class="form-check-inline">
-                    <label class="form-check-label">
+                     </label>
+                 </div>
+                 <div class="form-check-inline">
+                     <label class="form-check-label">
                          Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
-                    </label>
-                </div>
-                <div class="form-check-inline">
-                    <label class="form-check-label">
+                     </label>
+                 </div>
+                 <div class="form-check-inline">
+                     <label class="form-check-label">
                          Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
-                    </label>
-                </div>
-                <div class="form-check-inline">
-                    <label class="form-check-label">
+                     </label>
+                 </div>
+                 <div class="form-check-inline">
+                     <label class="form-check-label">
                          Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
-                    </label>
-                </div>
-            </div>
+                     </label>
+                 </div>
+             </div>
 
              <div class="card-body">
-                 <QuickGrid Items="@ContactsQueryable" Pagination="pagination">
+                 <QuickGrid Items="@ContactsQueryable" Pagination="pagination" align="center">
 
                      <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true">
                          <ColumnOptions>
@@ -237,9 +237,8 @@
                          </ColumnOptions>
                      </PropertyColumn>
 
-                     <PropertyColumn Title="Födelsedag" Property="@(c => c.Birthday)" Format="yyyy-MM-dd" Sortable="true" />
-                     <PropertyColumn Title="Ålder" Property="@(c => GetAge(c.Birthday))" Sortable="true" >
-                        <ColumnOptions>
+                     <PropertyColumn Title="Ålder" Property="@(c => GetAge(c.Birthday))" Sortable="true">
+                         <ColumnOptions>
                              <div class="search-box">
                                  <input type="search" autofocus @onchange="SearchAge" />
                              </div>
@@ -265,12 +264,13 @@
                              </div>
                          </div>
 
-                        @if (ShowBackdrop)
+                         @if (ShowBackdrop)
                         {
                             <div class="modal-backdrop fade show"></div>
                         }
 
                     </TemplateColumn>
+
                 </QuickGrid>
 
                 <div class="card-footer"><Paginator State="@pagination" /></div>
@@ -394,27 +394,27 @@
         DateTime birthday = DateTime.Parse(model.Birthday);
 
         ContactsViewModels vm = new()
-        {
-            ContactsId = model.ContactsId,
-            Name = model.Name,
-            Birthday = birthday,
-            Address = model.Address,
-            PostCode = model.PostCode,
-            PrivateMail = model.PrivateMail,
-            WorkEMail = model.WorkEMail,
-            ExtraMail = model.ExtraMail,
-            PhoneNumber = model.PhoneNumber,
-            HomePhoneNumber = model.HomePhoneNumber,
-            WorkPhoneNumber = model.WorkPhoneNumber,
-            ExtraPhoneNumber = model.ExtraPhoneNumber,
-            City = model.City,
-            HomePage = model.HomePage,
-            Notes = model.Notes,
-            ChristmasCard = model.ChristmasCard,
-            Friends = model.Friends,
-            Relatives = model.Relatives,
-            Colleagues = model.Colleagues
-        };
+            {
+                ContactsId = model.ContactsId,
+                Name = model.Name,
+                Birthday = birthday,
+                Address = model.Address,
+                PostCode = model.PostCode,
+                PrivateMail = model.PrivateMail,
+                WorkEMail = model.WorkEMail,
+                ExtraMail = model.ExtraMail,
+                PhoneNumber = model.PhoneNumber,
+                HomePhoneNumber = model.HomePhoneNumber,
+                WorkPhoneNumber = model.WorkPhoneNumber,
+                ExtraPhoneNumber = model.ExtraPhoneNumber,
+                City = model.City,
+                HomePage = model.HomePage,
+                Notes = model.Notes,
+                ChristmasCard = model.ChristmasCard,
+                Friends = model.Friends,
+                Relatives = model.Relatives,
+                Colleagues = model.Colleagues
+            };
 
         return vm;
     }
@@ -469,8 +469,8 @@
         }
 
         Navigation.Refresh(true);
-    }  
-    
+    }
+
     private void SearchAge(ChangeEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
@@ -507,7 +507,7 @@
             ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
             if (result.Count() == 0) return;
-            
+
 
             if (result.Any())
                 foreach (Contacts model in result.OrderBy(c => c.ContactsId))
@@ -597,7 +597,11 @@
         Navigation.Refresh(true);
     }
 
-    private void HideNumbersFields() => HideExtraNumbers = !HideExtraNumbers;
+    private void HideNumbersFields()
+    {
+        DisabledForm = true;
+        HideExtraNumbers = !HideExtraNumbers;
+    }
 
     private void HideEmailFields() => ShowOrHideExtraEmail = !ShowOrHideExtraEmail;
 
@@ -629,27 +633,27 @@
     private Contacts changesContactToModel(ContactsViewModels vm)
     {
         Contacts contacts = new()
-        {
-            ContactsId = vm.ContactsId,
-            Name = vm.Name,
-            Birthday = vm.Birthday.ToString("yyyy-MM-dd"),
-            Address = vm.Address,
-            PostCode = vm.PostCode,
-            PrivateMail = vm.PrivateMail,
-            WorkEMail = vm.WorkEMail,
-            ExtraMail = vm.ExtraMail,
-            PhoneNumber = vm.PhoneNumber,
-            HomePhoneNumber = vm.HomePhoneNumber,
-            WorkPhoneNumber = vm.WorkPhoneNumber,
-            ExtraPhoneNumber = vm.ExtraPhoneNumber,
-            City = vm.City,
-            HomePage = vm.HomePage,
-            Notes = vm.Notes,
-            ChristmasCard = vm.ChristmasCard,
-            Friends = vm.Friends,
-            Relatives = vm.Relatives,
-            Colleagues = vm.Colleagues
-        };
+            {
+                ContactsId = vm.ContactsId,
+                Name = vm.Name,
+                Birthday = vm.Birthday.ToString("yyyy-MM-dd"),
+                Address = vm.Address,
+                PostCode = vm.PostCode,
+                PrivateMail = vm.PrivateMail,
+                WorkEMail = vm.WorkEMail,
+                ExtraMail = vm.ExtraMail,
+                PhoneNumber = vm.PhoneNumber,
+                HomePhoneNumber = vm.HomePhoneNumber,
+                WorkPhoneNumber = vm.WorkPhoneNumber,
+                ExtraPhoneNumber = vm.ExtraPhoneNumber,
+                City = vm.City,
+                HomePage = vm.HomePage,
+                Notes = vm.Notes,
+                ChristmasCard = vm.ChristmasCard,
+                Friends = vm.Friends,
+                Relatives = vm.Relatives,
+                Colleagues = vm.Colleagues
+            };
 
         return contacts;
     }
