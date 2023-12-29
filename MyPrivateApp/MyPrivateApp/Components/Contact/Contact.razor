@@ -42,9 +42,6 @@
                                  <ValidationMessage For="() => contact.Name" class="text-danger" />
                              </div>
                          </div>
-                     </div>
-
-                     <div class="row">
                          <div class="col">
                              <div class="form-floating">
                                  <InputDate @bind-Value="contact.Birthday" class="form-control" disabled="@DisabledForm" />
@@ -52,6 +49,11 @@
                                  <ValidationMessage For="() => contact.Birthday" class="text-danger" />
                              </div>
                          </div>
+                     </div>
+
+                     <br />
+
+                     <div class="row">
                          <div class="col">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
@@ -59,9 +61,6 @@
                                  <ValidationMessage For="() => contact.Address" class="text-danger" />
                              </div>
                          </div>
-                     </div>
-
-                     <div class="row">
                          <div class="col">
                              <div class="form-floating">
                                  <InputNumber @bind-Value="contact.PostCode" class="form-control" disabled="@DisabledForm" />
@@ -69,11 +68,23 @@
                                  <ValidationMessage For="() => contact.PostCode" class="text-danger" />
                              </div>
                          </div>
+                     </div>
+
+                     <br />
+
+                     <div class="row">
                          <div class="col">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.City" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="City"> Stad </label>
                                  <ValidationMessage For="() => contact.City" class="text-danger" />
+                             </div>
+                         </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="contact.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <label for="HomePage"> Hemsida </label>
+                                 <ValidationMessage For="() => contact.HomePage" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -128,6 +139,8 @@
                          </div>
                      </div>
 
+                     <br />
+
                      <div class="row" hidden="@(!HideExtraNumbers)">
                          <div class="col">
                              <div class="form-floating">
@@ -146,13 +159,6 @@
                      </div>
 
                      <div class="row">
-                         <div class="col">
-                             <div class="form-floating">
-                                 <InputText @bind-Value="contact.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                 <label for="HomePage"> Hemsida </label>
-                                 <ValidationMessage For="() => contact.HomePage" class="text-danger" />
-                             </div>
-                         </div>
                          <div class="col">
                              <div class="form-floating">
                                  <InputTextArea @bind-Value="contact.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />

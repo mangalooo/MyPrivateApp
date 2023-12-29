@@ -45,11 +45,13 @@
                          <div class="col">
                              <div class="form-floating">
                                  <InputDate @bind-Value="trip.HomeDate" class="form-control" disabled="@DisabledForm" />
-                                 <label for="HomeDate"> Dag för hemresa </label>
+                                 <label for="HomeDate"> Hem </label>
                                  <ValidationMessage For="() => trip.HomeDate" class="text-danger" />
                              </div>
                          </div>
                      </div>
+
+                     <br />
 
                      <div class="row">
                          <div class="col">
@@ -68,6 +70,8 @@
                          </div>
                      </div>
 
+                     <br />
+
                      <div class="row">
                          <div class="col">
                              <div class="form-floating">
@@ -78,10 +82,12 @@
                          </div>
                      </div>
 
+                     <br />
+
                      <div class="row">
                          <div class="col">
                              <div class="form-floating">
-                                 <InputText @bind-Value="trip.Description" class="form-control" disabled="@DisabledForm" />
+                                 <InputTextArea @bind-Value="trip.Description" class="form-control" disabled="@DisabledForm" />
                                  <label for="Description"> Beskrivning </label>
                                  <ValidationMessage For="() => trip.Description" class="text-danger" />
                              </div>
@@ -112,7 +118,7 @@
              <div class="card-body">
                  <QuickGrid Items="@TripsQueryable" Pagination="pagination" align="center">
 
-                     <PropertyColumn Title="Datum utresa" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                     <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                      <PropertyColumn Title="Dagar" Property="@(c => c.HowManyDays)" Sortable="true" />
                      <PropertyColumn Title="Land" Property="@(c => c.Country)" Sortable="true" >
                          <ColumnOptions>
@@ -122,7 +128,7 @@
                          </ColumnOptions>
                      </PropertyColumn>
                      <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" >
-                                                  <ColumnOptions>
+                         <ColumnOptions>
                              <div class="search-box">
                                  <input type="search" autofocus @onchange="SearchPlace" />
                              </div>

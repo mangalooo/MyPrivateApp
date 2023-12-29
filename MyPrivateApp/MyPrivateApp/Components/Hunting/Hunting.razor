@@ -18,7 +18,7 @@
 <br />
 
 <div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesHuntingForm" hidden="@ShowOrHideCreateButton">Skapa nytt jakt tillfälle</button>
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesHuntingForm" hidden="@ShowOrHideCreateButton">Skapa nytt jakt</button>
 </div>
 
 <br />
@@ -35,28 +35,30 @@
                      <ValidationSummary class="text-danger" role="alert" />
 
                      <div class="row">
-                         <div class="col">
+                         <div class="col-md-6">
                              <div class="form-floating">
                                  <InputDate @bind-Value="hunting.Date" class="form-control" disabled="@DisabledForm" />
                                  <label for="Date"> Datum </label>
                                  <ValidationMessage For="() => hunting.Date" class="text-danger" />
                              </div>
                          </div>
+                     </div>
+
+                    <br />
+
+                     <div class="row">
                          <div class="col">
                              <div class="form-floating">
                                  <InputSelect @bind-Value="hunting.WildAnimal" class="form-control" placeholder="" disabled="@DisabledForm">
-                                    @foreach (object wildAnimal in Enum.GetValues(typeof(WildAnimal)))
+                                     @foreach (object wildAnimal in Enum.GetValues(typeof(WildAnimal)))
                                     {
                                         <option value="@wildAnimal">@wildAnimal</option>
                                     }
                                 </InputSelect>
-                                <label for="wildAnimal"> Vilket vilt </label>
+                                <label for="wildAnimal"> Vilt </label>
                                 <ValidationMessage For="() => hunting.WildAnimal" class="text-danger" />
                             </div>
                         </div>
-                     </div>
-
-                     <div class="row">
                          <div class="col">
                              <div class="form-floating">
                                  <InputText @bind-Value="hunting.Type" class="form-control" placeholder="" disabled="@DisabledForm" />
@@ -64,16 +66,18 @@
                                  <ValidationMessage For="() => hunting.Type" class="text-danger" />
                              </div>
                          </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
                         <div class="col">
                             <div class="form-floating">
                                 <InputText @bind-Value="hunting.Dog" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="Dog"> Hund? </label>
+                                <label for="Dog"> Hund </label>
                                 <ValidationMessage For="() => hunting.Dog" class="text-danger" />
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col">
                             <div class="form-floating">
                                 <InputSelect @bind-Value="hunting.HuntingPlaces" class="form-control" placeholder="" disabled="@DisabledForm">
@@ -86,6 +90,11 @@
                                 <ValidationMessage For="() => hunting.HuntingPlaces" class="text-danger" />
                             </div>
                         </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
                         <div class="col">
                             <div class="form-floating">
                                 <InputTextArea @bind-Value="hunting.Description" class="form-control" disabled="@DisabledForm" />
@@ -98,7 +107,7 @@
                     <br />
 
                     <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewHuntingButton" @onclick="HideNewOrChangesHuntingForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny frysvara </button>
+                        <button hidden="@ShowOrHideAddNewHuntingButton" @onclick="HideNewOrChangesHuntingForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny jakt </button>
                     </div>
 
                     <div style="text-align:center">
@@ -119,7 +128,7 @@
             <div class="card-body">
                 <QuickGrid Items="@huntingQueryable" Pagination="pagination" align="center">
 
-                    <PropertyColumn Title="Vilt " Property="@(c => c.WildAnimal)" Sortable="true">
+                    <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
                         <ColumnOptions>
                             <div class="search-box">
                                 <input type="search" autofocus @onchange="SearchWildAnimal" />
