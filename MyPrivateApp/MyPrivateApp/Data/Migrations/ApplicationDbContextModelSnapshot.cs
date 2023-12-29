@@ -308,21 +308,33 @@ namespace MyPrivateApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FrozenFoodsId"));
 
                     b.Property<string>("Date")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("FreezerCompartment")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Freezer")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.Property<int>("FreezerCompartment")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
 
                     b.Property<int>("Weight")
                         .HasColumnType("int");
 
                     b.Property<int>("WildMeat")
+                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     b.HasKey("FrozenFoodsId");

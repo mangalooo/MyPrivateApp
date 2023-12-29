@@ -12,8 +12,8 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231225154605_FrozenFoodsChangesDb")]
-    partial class FrozenFoodsChangesDb
+    [Migration("20231229133333_ChangeFrozenFoodDB_AddNumber")]
+    partial class ChangeFrozenFoodDB_AddNumber
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,34 +24,6 @@ namespace MyPrivateApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("MagnusPrivateApp.Data.Model.FrozenFoods", b =>
-                {
-                    b.Property<int>("FreezerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FreezerId"));
-
-                    b.Property<string>("Date")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FreezerCompartment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Weight")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WildMeat")
-                        .HasColumnType("int");
-
-                    b.HasKey("FreezerId");
-
-                    b.ToTable("FrozenFoods");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -328,6 +300,85 @@ namespace MyPrivateApp.Migrations
                     b.HasKey("ContactsId");
 
                     b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("MyPrivateApp.Data.Models.FrozenFoods", b =>
+                {
+                    b.Property<int>("FrozenFoodsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FrozenFoodsId"));
+
+                    b.Property<string>("Date")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Freezer")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.Property<int>("FreezerCompartment")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Weight")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WildMeat")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.HasKey("FrozenFoodsId");
+
+                    b.ToTable("FrozenFoods");
+                });
+
+            modelBuilder.Entity("MyPrivateApp.Data.Models.Huntings", b =>
+                {
+                    b.Property<int>("HuntingsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HuntingsId"));
+
+                    b.Property<string>("Date")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Dog")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("HuntingPlaces")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("WildAnimal")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.HasKey("HuntingsId");
+
+                    b.ToTable("Huntings");
                 });
 
             modelBuilder.Entity("MyPrivateApp.Data.Models.Trips", b =>

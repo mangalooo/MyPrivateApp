@@ -18,7 +18,7 @@
 <br />
 
 <div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesFrozenFoodForm" hidden="@ShowOrHideCreateButton">Skapa ny resa</button>
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesFrozenFoodForm" hidden="@ShowOrHideCreateButton">Skapa ny frysvara</button>
 </div>
 
 <br />
@@ -35,6 +35,20 @@
 
                      <ValidationSummary class="text-danger" role="alert" />
 
+                     <br />
+
+                     <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-floating">
+                                 <InputDate @bind-Value="frozenFood.Date" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Date"> Datum </label>
+                                 <ValidationMessage For="() => frozenFood.Date" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <br />
+
                      <div class="row">
                          <div class="col">
                              <div class="form-floating">
@@ -45,41 +59,62 @@
                          </div>
                          <div class="col">
                              <div class="form-floating">
-                                 <InputDate @bind-Value="frozenFood.Date" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Date"> Datum </label>
-                                 <ValidationMessage For="() => frozenFood.Date" class="text-danger" />
-                             </div>
-                         </div>
-                     </div>
-
-                     <div class="row">
-                         <div class="col">
-                             <div class="form-floating">
-                                 <InputText @bind-Value="frozenFood.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                 <label for="FreezerCompartment"> Frysfack </label>
-                                 <ValidationMessage For="() => frozenFood.FreezerCompartment" class="text-danger" />
-                             </div>
-                         </div>
-                         <div class="col">
-                             <div class="form-floating">
-                                 <InputSelect @bind-Value="frozenFood.WildMeat" class="form-control" placeholder="" disabled="@DisabledForm" >
-                                    @foreach (object wildMeat in Enum.GetValues(typeof(WildMeat)))
+                                 <InputSelect @bind-Value="frozenFood.WildMeat" class="form-control" placeholder="" disabled="@DisabledForm">
+                                     @foreach (object wildMeat in Enum.GetValues(typeof(WildMeat)))
                                     {
                                         <option value="@wildMeat">@wildMeat</option>
                                     }
-                                  </InputSelect>
-                                 <label for="WildMeat"> Vilket vilt? </label>
-                                 <ValidationMessage For="() => frozenFood.WildMeat" class="text-danger" />
-                             </div>
-                         </div>
-                     </div>
+                                </InputSelect>
+                                <label for="WildMeat"> Vilt </label>
+                                <ValidationMessage For="() => frozenFood.WildMeat" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
 
                      <div class="row">
                          <div class="col">
                              <div class="form-floating">
-                                 <InputNumber @bind-Value="frozenFood.Weight" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Weight"> Vikt (gram) </label>
-                                 <ValidationMessage For="() => frozenFood.Weight" class="text-danger" />
+                                 <InputSelect @bind-Value="frozenFood.Freezer" class="form-control" placeholder="" disabled="@DisabledForm">
+                                     @foreach (object freezer in Enum.GetValues(typeof(Freezer)))
+                                    {
+                                        <option value="@freezer">@freezer</option>
+                                    }
+                                </InputSelect>
+                                <label for="Freezer"> Frys </label>
+                                <ValidationMessage For="() => frozenFood.Freezer" class="text-danger" />
+                            </div>
+                        </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                <InputSelect @bind-Value="frozenFood.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object freezerCompartment in Enum.GetValues(typeof(FreezerCompartment)))
+                                    {
+                                        <option value="@freezerCompartment">@freezerCompartment</option>
+                                    }
+                                  </InputSelect>
+                                <label for="FreezerCompartment"> Frysfack </label>
+                                <ValidationMessage For="() => frozenFood.FreezerCompartment" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+                        <div class="col">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="frozenFood.Weight" class="form-control" disabled="@DisabledForm" />
+                                <label for="Weight"> Vikt (gram) </label>
+                                <ValidationMessage For="() => frozenFood.Weight" class="text-danger" />
+                            </div>
+                        </div>
+                         <div class="col">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="frozenFood.Number" class="form-control" disabled="@DisabledForm" />
+                                <label for="Number"> Antal </label>
+                                <ValidationMessage For="() => frozenFood.Number" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -211,6 +246,8 @@
 
             getDbFrozenFoodModel.Date = changesToModel.Date;
             getDbFrozenFoodModel.Name = changesToModel.Name;
+            getDbFrozenFoodModel.Number = changesToModel.Number;
+            getDbFrozenFoodModel.Freezer = changesToModel.Freezer;
             getDbFrozenFoodModel.FreezerCompartment = changesToModel.FreezerCompartment;
             getDbFrozenFoodModel.WildMeat = changesToModel.WildMeat;
             getDbFrozenFoodModel.Weight = changesToModel.Weight;
@@ -262,6 +299,8 @@
                 FrozenFoodId = model.FrozenFoodsId,
                 Name = model.Name,
                 Date = date,
+                Number = model.Number,
+                Freezer = model.Freezer,
                 FreezerCompartment = model.FreezerCompartment,
                 WildMeat = model.WildMeat,
                 Weight = model.Weight,
@@ -278,6 +317,8 @@
                 FrozenFoodsId = vm.FrozenFoodId,
                 Name = vm.Name,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
+                Number = vm.Number,
+                Freezer = vm.Freezer,
                 FreezerCompartment = vm.FreezerCompartment,
                 WildMeat = vm.WildMeat,
                 Weight = vm.Weight,
