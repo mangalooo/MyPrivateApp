@@ -1,0 +1,30 @@
+﻿@page "/SharesPurchased"
+
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@rendermode InteractiveServer
+
+@inject ApplicationDbContext db;
+@inject NavigationManager Navigation
+
+<PageTitle> Köpta aktier </PageTitle>
+
+<h1 style="text-align:center"> Köpta aktier </h1>
+
+<br />
+<div align="center">
+    <div style="text-align:center" class="btn-group" role="group" aria-label="Basic outlined example">
+        <NavLink href="Shares" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+        <NavLink href="SharesPurchased" type="button" class="btn btn-outline-dark btn-sm"> Köpta </NavLink>
+        <NavLink href="SharesSold" type="button" class="btn btn-outline-dark btn-sm">Sålda</NavLink>
+        <NavLink href="SharesDividend" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
+        <NavLink href="SharesTaxAndBrokerage" type="button" class="btn btn-outline-dark btn-sm">Skatter</NavLink>
+    </div>
+</div>
+
+@code {
+
+}
