@@ -28,7 +28,7 @@ namespace MyPrivateApp.Client.ViewModels
         [Required(ErrorMessage = "Du måste skriva var djuret sköts")]
         [Display(Name = "Plats")]
         [DataType(DataType.Text)]
-        public string? Place { get; set; }
+        public HuntingPlaces HuntingPlaces { get; set; }
 
         [Display(Name = "Beskrivning")]
         [DataType(DataType.MultilineText)]

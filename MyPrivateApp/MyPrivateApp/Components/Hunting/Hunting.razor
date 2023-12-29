@@ -45,7 +45,7 @@
                          <div class="col">
                              <div class="form-floating">
                                  <InputSelect @bind-Value="hunting.WildAnimal" class="form-control" placeholder="" disabled="@DisabledForm">
-                                     @foreach (object wildAnimal in Enum.GetValues(typeof(WildAnimal)))
+                                    @foreach (object wildAnimal in Enum.GetValues(typeof(WildAnimal)))
                                     {
                                         <option value="@wildAnimal">@wildAnimal</option>
                                     }
@@ -76,9 +76,14 @@
                     <div class="row">
                         <div class="col">
                             <div class="form-floating">
-                                <InputText @bind-Value="hunting.Place" class="form-control" disabled="@DisabledForm" />
-                                <label for="Place"> Plats </label>
-                                <ValidationMessage For="() => hunting.Place" class="text-danger" />
+                                <InputSelect @bind-Value="hunting.HuntingPlaces" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+                                    {
+                                        <option value="@huntingPlaces">@huntingPlaces</option>
+                                    }
+                                </InputSelect>
+                                <label for="huntingPlaces"> Vilket vilt </label>
+                                <ValidationMessage For="() => hunting.HuntingPlaces" class="text-danger" />
                             </div>
                         </div>
                         <div class="col">
@@ -112,7 +117,7 @@
             </div>
 
             <div class="card-body">
-                <QuickGrid Items="@huntingQueryable" Pagination="pagination">
+                <QuickGrid Items="@huntingQueryable" Pagination="pagination" align="center">
 
                     <PropertyColumn Title="Vilt " Property="@(c => c.WildAnimal)" Sortable="true">
                         <ColumnOptions>
@@ -121,8 +126,8 @@
                             </div>
                         </ColumnOptions>
                     </PropertyColumn>
-                    <PropertyColumn Title="Hur många år" Property="@(c => HowManyYears(c.Date))" Sortable="true" />
-                    <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                    <PropertyColumn Title="År" Property="@(c => HowManyYears(c.Date))" Sortable="true" />
+                    <PropertyColumn Title="Plats" Property="@(c => c.HuntingPlaces)" Sortable="true">
                         <ColumnOptions>
                             <div class="search-box">
                                 <input type="search" autofocus @onchange="SearchPlace" />
@@ -139,7 +144,7 @@
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
+                                        <h5 class="modal-title"> Vill du ta bort jakten? </h5>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteHunting(context))"> Ta bort kontakt </button>
@@ -219,7 +224,7 @@
             getDbHuntingModel.WildAnimal = changesToModel.WildAnimal;
             getDbHuntingModel.Type = changesToModel.Type;
             getDbHuntingModel.Dog = changesToModel.Dog;
-            getDbHuntingModel.Place = changesToModel.Place;
+            getDbHuntingModel.HuntingPlaces = changesToModel.HuntingPlaces;
             getDbHuntingModel.Description = changesToModel.Description;
 
             db.SaveChanges();
@@ -230,7 +235,7 @@
             return;
         }
 
-        if (string.IsNullOrEmpty(hunting.Place)) return;
+        if (hunting.Date != DateTime.MinValue) return;
 
         // Add new hunting
         getDbHuntingModel = GetHunting(hunting.HuntingsId);
@@ -270,7 +275,7 @@
                 WildAnimal = model.WildAnimal,
                 Type = model.Type,
                 Dog = model.Dog,
-                Place = model.Place,
+                HuntingPlaces = model.HuntingPlaces,
                 Description = model.Description
             };
 
@@ -286,7 +291,7 @@
                 WildAnimal = vm.WildAnimal,
                 Type = vm.Type,
                 Dog = vm.Dog,
-                Place = vm.Place,
+                HuntingPlaces = vm.HuntingPlaces,
                 Description = vm.Description
             };
 
@@ -322,22 +327,66 @@
 
         Navigation.Refresh(true);
     }
-    
+
     private void SearchPlace(ChangeEventArgs e)
     {
+        huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            IEnumerable<Huntings> result = db.Huntings.Where(c => c.Place == e.Value!.ToString());
-            huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+            string getName = string.Empty;
 
-            if (result.Count() == 0) return;
+            foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+            {
+                getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
 
-            if (result.Any())
-                foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
+                if (getName == e.Value.ToString().ToLower())
+                    break;
+            }
+
+            if (getName != string.Empty)
+            {
+                IEnumerable<Huntings> result = null;
+
+                switch (getName.ToLower())
                 {
-                    HuntingViewModels hunting = ChangeFromModelToViewModel(model);
-                    huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
+                    case "Välj":
+                        break;
+
+                    case "habäck":
+                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Habäck);
+                        break;
+
+                    case "dalsjöfors":
+                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Dalsjöfors);
+                        break;
+
+                    case "karlabo":
+                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Karlabo);
+                        break;
+
+                    case "skog":
+                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Skog);
+                        break;
+                        
+                    case "smältryd":
+                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Smältryd);
+                        break;
+
+                    case "övrigt":
+                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Övrigt);
+                        break;
                 }
+
+                if (result == null || result.Count() == 0) return;
+
+                if (result.Any())
+                    foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
+                    {
+                        HuntingViewModels hunting = ChangeFromModelToViewModel(model);
+                        huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
+                    }
+            }
 
             return;
         }
@@ -347,27 +396,59 @@
 
     private void SearchWildAnimal(ChangeEventArgs e)
     {
+        huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            int getNumber = 0;
+            string getName = string.Empty;
 
             foreach (int wildAnimal in Enum.GetValues(typeof(WildAnimal)))
             {
-                string getName = Enum.GetName(typeof(WildAnimal), wildAnimal);
+                getName = Enum.GetName(typeof(WildAnimal), wildAnimal).ToLower();
 
-                if (getName == e.Value.ToString())
-                {
-                    getNumber = wildAnimal;
+                if (getName == e.Value.ToString().ToLower())
                     break;
-                }
             }
 
-            if (getNumber == 0)
+            if (getName != string.Empty)
             {
-                IEnumerable<Huntings> result = db.Huntings.Where(c => c.WildAnimal.ToString() == getNumber.ToString());
-                huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+                IEnumerable<Huntings> result = null;
 
-                if (result.Count() == 0) return;
+                switch (getName.ToLower())
+                {
+                    case "Välj":
+                        break;
+
+                    case "hare":
+                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Hare);
+                        break;
+
+                    case "lo":
+                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Lo);
+                        break;
+
+                    case "rådjur":
+                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Rådjur);
+                        break;
+
+                    case "räv":
+                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Räv);
+                        break;
+
+                    case "vildsvin":
+                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Vildsvin);
+                        break;
+
+                    case "älg":
+                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Älg);
+                        break;
+
+                    case "övrigt":
+                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Övrigt);
+                        break;
+                }
+
+                if (result == null || result.Count() == 0) return;
 
                 if (result.Any())
                     foreach (Huntings model in result.OrderBy(c => c.HuntingsId))

@@ -106,7 +106,7 @@
              </div>
 
              <div class="card-body">
-                 <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination">
+                <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
 
                      <PropertyColumn Title="Namn " Property="@(c => c.Name)" Sortable="true" >
                          <ColumnOptions>
@@ -115,8 +115,8 @@
                              </div>
                          </ColumnOptions>
                      </PropertyColumn>
-                     <PropertyColumn Title="År i frysen" Property="@(c => HowLongTimeInFreezer(c.Date))" Sortable="true" />
-                     <PropertyColumn Title="Kött?" Property="@(c => c.WildMeat)" Sortable="true">
+                     <PropertyColumn Title="År" Property="@(c => HowLongTimeInFreezer(c.Date))" Sortable="true" />
+                     <PropertyColumn Title="Vara" Property="@(c => c.WildMeat)" Sortable="true">
                          <ColumnOptions>
                              <div class="search-box">
                                  <input type="search" autofocus @onchange="SearchWildMeat" />
@@ -133,7 +133,7 @@
                              <div class="modal-dialog" role="document">
                                  <div class="modal-content">
                                      <div class="modal-header">
-                                         <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
+                                         <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
                                      </div>
                                      <div class="modal-footer">
                                          <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteFrozenFood(context))"> Ta bort kontakt </button>

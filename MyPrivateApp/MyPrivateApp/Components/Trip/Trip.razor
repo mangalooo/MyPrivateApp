@@ -110,10 +110,10 @@
              </div>
 
              <div class="card-body">
-                 <QuickGrid Items="@TripsQueryable" Pagination="pagination">
+                 <QuickGrid Items="@TripsQueryable" Pagination="pagination" align="center">
 
                      <PropertyColumn Title="Datum utresa" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                     <PropertyColumn Title="Dagar borta" Property="@(c => c.HowManyDays)" Sortable="true" />
+                     <PropertyColumn Title="Dagar" Property="@(c => c.HowManyDays)" Sortable="true" />
                      <PropertyColumn Title="Land" Property="@(c => c.Country)" Sortable="true" >
                          <ColumnOptions>
                              <div class="search-box">
@@ -138,7 +138,7 @@
                              <div class="modal-dialog" role="document">
                                  <div class="modal-content">
                                      <div class="modal-header">
-                                         <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
+                                         <h5 class="modal-title"> Vill du ta bort resan? </h5>
                                      </div>
                                      <div class="modal-footer">
                                          <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteTrip(context))"> Ta bort kontakt </button>

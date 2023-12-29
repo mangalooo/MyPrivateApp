@@ -24,7 +24,8 @@ namespace MyPrivateApp.Data.Models
         public string? Dog { get; set; }
 
         [DataType(DataType.Text)]
-        public string? Place { get; set; }
+        [StringLength(50)]
+        public HuntingPlaces HuntingPlaces { get; set; }
 
         [DataType(DataType.Text)]
         [StringLength(50)]

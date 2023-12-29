@@ -16,7 +16,6 @@ namespace MyPrivateApp.Components.Enum
     {
         Välj,
         Hare,
-        Ko,
         Lo,
         Rådjur,
         Räv,
@@ -30,5 +29,16 @@ namespace MyPrivateApp.Components.Enum
         Välj,
         Inbetalning,
         Utbetalning
+    }
+
+    public enum HuntingPlaces
+    {
+        Välj,
+        Habäck,
+        Dalsjöfors,
+        Karlabo,
+        Skog,
+        Smältryd,
+        Övrigt
     }
 }
