@@ -143,7 +143,14 @@
              <div class="card-body">
                 <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
 
-                     <PropertyColumn Title="Namn " Property="@(c => c.Name)" Sortable="true" >
+                    <PropertyColumn Title="Vara" Property="@(c => c.WildMeat)" Sortable="true">
+                        <ColumnOptions>
+                            <div class="search-box">
+                                <input type="search" autofocus @onchange="SearchWildMeat" />
+                            </div>
+                        </ColumnOptions>
+                    </PropertyColumn>
+                     <PropertyColumn Title="Typ" Property="@(c => c.Name)" Sortable="true" >
                          <ColumnOptions>
                              <div class="search-box">
                                  <input type="search" autofocus @onchange="SearchName" />
@@ -151,14 +158,19 @@
                          </ColumnOptions>
                      </PropertyColumn>
                      <PropertyColumn Title="År" Property="@(c => HowLongTimeInFreezer(c.Date))" Sortable="true" />
-                     <PropertyColumn Title="Vara" Property="@(c => c.WildMeat)" Sortable="true">
-                         <ColumnOptions>
-                             <div class="search-box">
-                                 <input type="search" autofocus @onchange="SearchWildMeat" />
-                             </div>
-                         </ColumnOptions>
-                     </PropertyColumn>
+                     
                      <TemplateColumn Title="Ändringar">
+
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Dropdown button
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            </ul>
+                        </div>
 
                          <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoFrozenFood(context))"> All info </button>
                          <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditFrozenFood(context))"> Ändra </button>
