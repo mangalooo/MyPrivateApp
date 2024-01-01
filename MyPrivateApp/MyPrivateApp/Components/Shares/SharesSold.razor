@@ -1,6 +1,7 @@
 ﻿@page "/SharesSold"
 
 @using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -10,7 +11,7 @@
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 
-<PageTitle> Sålda aktier </PageTitle>
+<PageTitle> Aktier </PageTitle>
 
 <br />
 
@@ -21,6 +22,7 @@
         <NavLink href="SharesSold" type="button" class="btn btn-outline-dark btn-sm">Sålda</NavLink>
         <NavLink href="SharesDividend" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
         <NavLink href="SharesTaxAndBrokerage" type="button" class="btn btn-outline-dark btn-sm">Skatter</NavLink>
+        <NavLink href="Imports" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
     </div>
 </div>
 
