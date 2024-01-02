@@ -252,6 +252,9 @@
                              </div>
                          </ColumnOptions>
                      </PropertyColumn>
+
+                     <PropertyColumn Title="Dagar" Property="@(c => GetDaysToNextBirthday(c.Birthday))" Sortable="true" />
+  
                      <TemplateColumn Title="Ändringar">
 
                          <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button>
@@ -505,6 +508,30 @@
 
     private int GetAge(DateTime birthDate) => DateTime.Now.Year - birthDate.Year;
 
+    private int GetDaysToNextBirthday(DateTime birthDate) 
+    {
+        DateTime date = DateTime.Now;
+        DateTime birthDay = new DateTime(date.Year, birthDate.Month, birthDate.Day);
+
+        string getDays = (birthDay - date).TotalDays.ToString();
+        string result = getDays.Substring(0, getDays.LastIndexOf(','));
+
+        if (getDays.Substring(0,1) == "-")
+        {
+            DateTime firstDayOfThisYear = new DateTime(date.Year, 1, 1);
+            DateTime lastDayOfThisYear = new DateTime(date.Year, 12, 31);
+            double getDaysOfThisYear = (lastDayOfThisYear - firstDayOfThisYear).TotalDays;
+            string getDaysOfThisYearToString = getDaysOfThisYear.ToString();
+            int totalDaysOfThisYear = int.Parse(getDaysOfThisYearToString);
+            result = result.Substring(1);
+            int getNumber = int.Parse(result);
+            int count = totalDaysOfThisYear - getNumber;
+            result = count.ToString();
+        }
+
+        return int.Parse(result);
+    }
+
     private void SearchChristmasCard(ChangeEventArgs e)
     {
         string trueOrFalse = e.Value.ToString();
@@ -666,14 +693,3 @@
         return contacts;
     }
 }
-
-
-   @*  <InputSelect @bind-Value="Model!.Classification">
-                <option value="">Select classification ...</option>
-                <option value="Exploration">Exploration</option>
-                <option value="Diplomacy">Diplomacy</option>
-                <option value="Defense">Defense</option>
-            </InputSelect>
-
-
-    *@

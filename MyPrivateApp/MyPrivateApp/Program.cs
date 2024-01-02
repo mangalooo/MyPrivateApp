@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Client.Pages;
 using MyPrivateApp.Components;
 using MyPrivateApp.Components.Account;
 using MyPrivateApp.Data;
