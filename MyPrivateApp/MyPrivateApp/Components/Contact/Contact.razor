@@ -95,8 +95,6 @@
 
                      <br />
 
-                     <button class="btn btn-outline-secondary btn-sm" @onclick="@HideEmailFields">Visa fler e-post fält</button>
-
                      <div class="row">
 
                          <div id="mobile" class="col-4" />
@@ -108,14 +106,14 @@
                                  <ValidationMessage For="() => contact.PrivateMail" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col-4" hidden="@(ShowOrHideExtraEmail)">
+                         <div class="col-4">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.WorkEMail" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="WorkEMail"> E-post jobb </label>
                                  <ValidationMessage For="() => contact.WorkEMail" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col-4" hidden="@(ShowOrHideExtraEmail)">
+                         <div class="col-4">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.ExtraMail" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="ExtraMail"> E-post extra </label>
@@ -125,8 +123,6 @@
                      </div>
 
                      <br />
-
-                     <button class="btn btn-outline-secondary btn-sm" @onclick="@HideNumbersFields">Visa fler nummer fält</button>
 
                      <div class="row">
 
@@ -139,21 +135,21 @@
                                  <ValidationMessage For="() => contact.PhoneNumber" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col-3" hidden="@(HideExtraNumbers)">
+                         <div class="col-3">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="HomePhoneNumber"> Hem nummer </label>
                                  <ValidationMessage For="() => contact.HomePhoneNumber" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col-3" hidden="@(HideExtraNumbers)">
+                         <div class="col-3">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.WorkPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="WorkPhoneNumber"> Jobb nummer </label>
                                  <ValidationMessage For="() => contact.WorkPhoneNumber" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col-3" hidden="@(HideExtraNumbers)">
+                         <div class="col-3">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.ExtraPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="ExtraPhoneNumber"> Extra nummer </label>
@@ -446,8 +442,6 @@
     public bool ShowBackdrop = false;
 
     // Hide button and fields
-    private bool ShowOrHideExtraEmail { get; set; } = true;
-    private bool HideExtraNumbers { get; set; } = true;
     private bool HideNewOrChangesContactFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
@@ -769,19 +763,6 @@
 
         Navigation.Refresh(true);
     }
-
-    private void HideNumbersFields()
-    {
-        DisabledForm = true;
-        HideExtraNumbers = !HideExtraNumbers;
-    }
-
-    private void HideEmailFields()
-    {
-        DisabledForm = true;
-        ShowOrHideExtraEmail = !ShowOrHideExtraEmail;
-    }
-
 
     private void HideNewOrChangesContactForm()
     {

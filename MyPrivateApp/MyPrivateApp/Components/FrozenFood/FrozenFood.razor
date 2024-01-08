@@ -134,6 +134,19 @@
 
                     <br />
 
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <InputTextArea @bind-Value="frozenFood.Notes" class="form-control" disabled="@DisabledForm" />
+                                <label for="Notes"> Anteckningar </label>
+                                <ValidationMessage For="() => frozenFood.Notes" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <br />
+
                     <div style="text-align:center">
                         <button hidden="@ShowOrHideAddNewFrozenFoodButton" @onclick="HideNewOrChangesFrozenFoodForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny frysvara </button>
                     </div>
@@ -157,7 +170,7 @@
             <div id="desktop">
                 <div class="card-body">
                     <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
-                        
+
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
 
                         <PropertyColumn Title="Varor" Property="@(c => c.WildMeat)" Sortable="true">
@@ -191,6 +204,7 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoFrozenFood(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditFrozenFood(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
