@@ -25,11 +25,11 @@ namespace MyPrivateApp.Components.Enum
     public enum FreezerCompartment
     {
         Välj,
-        Fack_1,
-        Fack_2,
-        Fack_3,
-        Fack_4,
-        Fack_5,
+        Ett,
+        Två,
+        Tre,
+        Fyra,
+        Fem,
         Övrigt
     }
 

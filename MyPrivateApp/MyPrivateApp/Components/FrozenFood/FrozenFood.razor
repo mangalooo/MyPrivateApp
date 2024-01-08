@@ -17,11 +17,12 @@
 
 <br />
 
-<div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesFrozenFoodForm" hidden="@ShowOrHideCreateButton">Skapa ny frysvara</button>
+<div hidden="@ShowOrHideCreateButton" style="text-align:center">
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesFrozenFoodForm">Skapa ny frysvara</button>
+    <br />
 </div>
 
-<br />
+
 <br />
 
 <div class="container">
@@ -38,7 +39,10 @@
                      <br />
 
                      <div class="row">
-                         <div class="col-md-6">
+
+                         <div id="mobile" class="col-6" />
+
+                         <div class="col-6">
                              <div class="form-floating">
                                  <InputDate @bind-Value="frozenFood.Date" class="form-control" disabled="@DisabledForm" />
                                  <label for="Date"> Datum </label>
@@ -50,14 +54,17 @@
                      <br />
 
                      <div class="row">
-                         <div class="col">
+
+                         <div id="mobile" class="col-6" />
+
+                         <div class="col-6">
                              <div class="form-floating">
                                  <InputText @bind-Value="frozenFood.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Name"> Namn </label>
                                  <ValidationMessage For="() => frozenFood.Name" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col">
+                         <div class="col-6">
                              <div class="form-floating">
                                  <InputSelect @bind-Value="frozenFood.WildMeat" class="form-control" placeholder="" disabled="@DisabledForm">
                                      @foreach (object wildMeat in Enum.GetValues(typeof(WildMeat)))
@@ -73,11 +80,14 @@
 
                     <br />
 
-                     <div class="row">
-                         <div class="col">
-                             <div class="form-floating">
-                                 <InputSelect @bind-Value="frozenFood.Freezer" class="form-control" placeholder="" disabled="@DisabledForm">
-                                     @foreach (object freezer in Enum.GetValues(typeof(Freezer)))
+                    <div class="row">
+
+                        <div id="mobile" class="col-6" />
+
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <InputSelect @bind-Value="frozenFood.Freezer" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object freezer in Enum.GetValues(typeof(Freezer)))
                                     {
                                         <option value="@freezer">@freezer</option>
                                     }
@@ -86,124 +96,194 @@
                                 <ValidationMessage For="() => frozenFood.Freezer" class="text-danger" />
                             </div>
                         </div>
-                         <div class="col">
-                             <div class="form-floating">
+                        <div class="col-6">
+                            <div class="form-floating">
                                 <InputSelect @bind-Value="frozenFood.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object freezerCompartment in Enum.GetValues(typeof(FreezerCompartment)))
                                     {
                                         <option value="@freezerCompartment">@freezerCompartment</option>
                                     }
-                                  </InputSelect>
+                                </InputSelect>
                                 <label for="FreezerCompartment"> Frysfack </label>
                                 <ValidationMessage For="() => frozenFood.FreezerCompartment" class="text-danger" />
-                             </div>
-                         </div>
-                     </div>
+                            </div>
+                        </div>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div class="row">
-                        <div class="col">
+                    <div class="row">
+
+                        <div id="mobile" class="col-6" />
+
+                        <div class="col-6">
                             <div class="form-floating">
                                 <InputNumber @bind-Value="frozenFood.Weight" class="form-control" disabled="@DisabledForm" />
                                 <label for="Weight"> Vikt (gram) </label>
                                 <ValidationMessage For="() => frozenFood.Weight" class="text-danger" />
                             </div>
                         </div>
-                         <div class="col">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="frozenFood.Number" class="form-control" disabled="@DisabledForm" />
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="frozenFood.Number" class="form-control" disabled="@DisabledForm" />
                                 <label for="Number"> Antal </label>
                                 <ValidationMessage For="() => frozenFood.Number" class="text-danger" />
-                             </div>
-                         </div>
-                     </div>
-
-                     <br />
-
-                     <div style="text-align:center">
-                         <button hidden="@ShowOrHideAddNewFrozenFoodButton" @onclick="HideNewOrChangesFrozenFoodForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny frysvara </button>
-                     </div>
-
-                     <div style="text-align:center">
-                         <button @onclick="HideNewOrChangesFrozenFoodForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
-                     </div>
-
-                     <br />
-
-                     <div style="text-align:center">
-                         <button @onclick="RefreshPage" type="submit" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
-                     </div>
-
-                     <br />
-                     <br />
-                 </EditForm>
-             </div>
-
-             <div class="card-body">
-                <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
-
-                    <PropertyColumn Title="Vara" Property="@(c => c.WildMeat)" Sortable="true">
-                        <ColumnOptions>
-                            <div class="search-box">
-                                <input type="search" autofocus @onchange="SearchWildMeat" />
                             </div>
-                        </ColumnOptions>
-                    </PropertyColumn>
-                     <PropertyColumn Title="Typ" Property="@(c => c.Name)" Sortable="true" >
-                         <ColumnOptions>
-                             <div class="search-box">
-                                 <input type="search" autofocus @onchange="SearchName" />
-                             </div>
-                         </ColumnOptions>
-                     </PropertyColumn>
-                     <PropertyColumn Title="År" Property="@(c => HowLongTimeInFreezer(c.Date))" Sortable="true" />
-                     
-                     <TemplateColumn Title="Ändringar">
-
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Dropdown button
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
                         </div>
+                    </div>
 
-                         <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoFrozenFood(context))"> All info </button>
-                         <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditFrozenFood(context))"> Ändra </button>
-                         <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button>
+                    <br />
 
-                         <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                             <div class="modal-dialog" role="document">
-                                 <div class="modal-content">
-                                     <div class="modal-header">
-                                         <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
-                                     </div>
-                                     <div class="modal-footer">
-                                         <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteFrozenFood(context))"> Ta bort kontakt </button>
-                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
+                    <div style="text-align:center">
+                        <button hidden="@ShowOrHideAddNewFrozenFoodButton" @onclick="HideNewOrChangesFrozenFoodForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny frysvara </button>
+                    </div>
 
-                        @if (ShowBackdrop)
-                        {
-                            <div class="modal-backdrop fade show"></div>
-                        }
+                    <div style="text-align:center">
+                        <button @onclick="HideNewOrChangesFrozenFoodForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                    </div>
 
-                    </TemplateColumn>
-                </QuickGrid>
+                    <br />
 
-                <div class="card-footer"><Paginator State="@pagination" /></div>
+                    <div style="text-align:center">
+                        <button @onclick="RefreshPage" type="submit" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                    </div>
 
-                <br />
-                <br />
-
+                    <br />
+                    <br />
+                </EditForm>
             </div>
+
+            @* Desktop screen *@
+            <div id="desktop">
+                <div class="card-body">
+                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
+                        
+                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+
+                        <PropertyColumn Title="Varor" Property="@(c => c.WildMeat)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchWildMeat" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+                        <PropertyColumn Title="Typ" Property="@(c => c.Name)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchName" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+                        <PropertyColumn Title="År" Property="@(c => HowLongTimeInFreezer(c.Date))" Sortable="true" />
+
+                        <PropertyColumn Title="Frys" Property="@(c => c.Freezer)" Sortable="true" />
+
+                        <PropertyColumn Title="Frysfack" Property="@(c => c.FreezerCompartment)" Sortable="true" />
+
+                        <PropertyColumn Title="Vikt" Property="@(c => c.Weight)" Sortable="true" />
+
+                        <PropertyColumn Title="Antal" Property="@(c => c.Number)" Sortable="true" />
+
+                        <TemplateColumn Title="Ändra">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditFrozenFood(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteFrozenFood(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* Mobile screen *@
+            <div id="mobile">
+                <div class="card-body">
+                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
+
+                        <PropertyColumn Title="Varor" Property="@(c => c.WildMeat)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchWildMeat" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="År" Property="@(c => HowLongTimeInFreezer(c.Date))" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoFrozenFood(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditFrozenFood(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteFrozenFood(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -394,19 +474,63 @@
 
     private void SearchWildMeat(ChangeEventArgs e)
     {
+        frozenFoodQueryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.WildMeat.ToString() == e.Value!.ToString());
-            frozenFoodQueryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            string getName = string.Empty;
 
-            if (result.Count() == 0) return;
+            foreach (int wildMeat in Enum.GetValues(typeof(WildMeat)))
+            {
+                getName = Enum.GetName(typeof(WildMeat), wildMeat).ToLower();
 
-            if (result.Any())
-                foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
+                if (getName == e.Value.ToString().ToLower())
+                    break;
+            }
+
+            if (getName != string.Empty)
+            {
+                IEnumerable<FrozenFoods> result = null;
+
+                switch (getName.ToLower())
                 {
-                    FrozenFoodViewModel frozenFood = ChangeFromModelToViewModel(model);
-                    frozenFoodQueryable = frozenFoodQueryable.Concat(new[] { frozenFood }.AsQueryable());
+                    case "Välj":
+                        break;
+
+                    case "hare":
+                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Hare);
+                        break;
+
+                    case "ko":
+                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Ko);
+                        break;
+
+                    case "rådjur":
+                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Rådjur);
+                        break;
+
+                    case "vildsvin":
+                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Vildsvin);
+                        break;
+
+                    case "älg":
+                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Älg);
+                        break;
+
+                    case "övrigt":
+                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Övrigt);
+                        break;
                 }
+
+                if (result == null || result.Count() == 0) return;
+
+                if (result.Any())
+                    foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
+                    {
+                        FrozenFoodViewModel frozenFood = ChangeFromModelToViewModel(model);
+                        frozenFoodQueryable = frozenFoodQueryable.Concat(new[] { frozenFood }.AsQueryable());
+                    }
+            }
 
             return;
         }
