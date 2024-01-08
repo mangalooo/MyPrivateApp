@@ -226,8 +226,8 @@
              </div>
 
              <div id="mobile">
-                <div class="card-body">
-                    <QuickGrid Items="@ContactsQueryable" Pagination="pagination" align="center">
+                 <div class="card-body">
+                     <QuickGrid Items="@ContactsQueryable" Pagination="pagination" align="center">
 
                          <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true">
                              <ColumnOptions>
@@ -237,11 +237,18 @@
                              </ColumnOptions>
                          </PropertyColumn>
 
-                         <TemplateColumn Title="Ändringar">
+                         <TemplateColumn>
 
-                             <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button>
-                             <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button>
-                             <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button>
+                             <div class="btn-group" role="group">
+                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" >
+                                 Info    
+                                 </button>
+                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                 </ul>
+                             </div>
 
                              <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
                                  <div class="modal-dialog" role="document">
@@ -298,11 +305,18 @@
 
                         <PropertyColumn Title="Dagar till nästa födelsedag" Property="@(c => GetDaysToNextBirthday(c.Birthday))" Sortable="true" />
 
-                        <TemplateColumn Title="Ändringar">
+                        <TemplateColumn>
 
-                            <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button>
-                            <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button>
-                            <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button>
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                    </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
 
                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
                                 <div class="modal-dialog" role="document">
@@ -486,12 +500,14 @@
         return vm;
     }
 
-    private void InfoContact(ContactsViewModels incomingModel)
+    private object InfoContact(ContactsViewModels incomingModel)
     {
         HideNewOrChangesContactForm();
         ShowOrHideAddNewContactButton = true;
         DisabledForm = true;
         contact = incomingModel;
+
+        return null;
     }
 
     private void EditContact(ContactsViewModels incomingModel)
