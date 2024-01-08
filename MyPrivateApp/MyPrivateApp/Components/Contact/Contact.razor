@@ -18,16 +18,17 @@
 
 <br />
 
+<div align="center" hidden="@ShowOrHideCreateButton">
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesContactForm"> Skapa ny kontakt</button>
 
-<div align="center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesContactForm" hidden="@ShowOrHideCreateButton">Skapa ny kontakt</button>
+    <br />
 </div>
 
-<br />
+
 <br />
 
 <div class="container">
-    <div class="col-md-12">
+    <div>
         <div class="card">
             <div class="card-header">
                 <EditForm Model="contact" OnSubmit="CreateOrUpdateContact" FormName="CreateOrUpdateContact" Enhance hidden="@(!HideNewOrChangesContactFields)">
@@ -37,9 +38,12 @@
                      <ValidationSummary class="text-danger" role="alert" />
 
                      <div class="row">
+
+                         <div id="mobile" class="col-4" />
+
                          <div class="col-4">
                              <div class="form-floating">
-                                 <InputText @bind-Value="contact.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                 <InputText @bind-Value="contact.Name" class="form-control" disabled="@DisabledForm" />
                                  <label for="Name"> Namn </label>
                                  <ValidationMessage For="() => contact.Name" class="text-danger" />
                              </div>
@@ -47,7 +51,7 @@
                          <div class="col-4">
                              <div class="form-floating">
                                  <InputDate @bind-Value="contact.Birthday" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Birthday">Födelsedag </label>
+                                 <label for="Birthday"> Födelsedag </label>
                                  <ValidationMessage For="() => contact.Birthday" class="text-danger" />
                              </div>
                          </div>
@@ -63,6 +67,9 @@
                      <br />
 
                      <div class="row">
+
+                         <div id="mobile" class="col-4" />
+
                          <div class="col-4">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
@@ -73,7 +80,7 @@
                          <div class="col-4">
                              <div class="form-floating">
                                  <InputNumber @bind-Value="contact.PostCode" class="form-control" disabled="@DisabledForm" />
-                                 <label for="PostCode">Postnummer </label>
+                                 <label for="PostCode"> Postnummer </label>
                                  <ValidationMessage For="() => contact.PostCode" class="text-danger" />
                              </div>
                          </div>
@@ -87,13 +94,17 @@
                      </div>
 
                      <br />
+
                      <button class="btn btn-outline-secondary btn-sm" @onclick="@HideEmailFields">Visa fler e-post fält</button>
 
                      <div class="row">
+
+                         <div id="mobile" class="col-4" />
+
                          <div class="col-4">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.PrivateMail" class="form-control" disabled="@DisabledForm" />
-                                 <label for="PrivateMail">E-post </label>
+                                 <label for="PrivateMail"> E-post </label>
                                  <ValidationMessage For="() => contact.PrivateMail" class="text-danger" />
                              </div>
                          </div>
@@ -114,20 +125,24 @@
                      </div>
 
                      <br />
+
                      <button class="btn btn-outline-secondary btn-sm" @onclick="@HideNumbersFields">Visa fler nummer fält</button>
 
                      <div class="row">
+
+                         <div id="mobile" class="col-3" />
+
                          <div class="col-3">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.PhoneNumber" class="form-control" disabled="@DisabledForm" />
-                                 <label for="PhoneNumber">Mobil nummer </label>
+                                 <label for="PhoneNumber"> Mobil nummer </label>
                                  <ValidationMessage For="() => contact.PhoneNumber" class="text-danger" />
                              </div>
                          </div>
                          <div class="col-3" hidden="@(HideExtraNumbers)">
                              <div class="form-floating">
                                  <InputText @bind-Value="contact.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                 <label for="HomePhoneNumber">Hem nummer </label>
+                                 <label for="HomePhoneNumber"> Hem nummer </label>
                                  <ValidationMessage For="() => contact.HomePhoneNumber" class="text-danger" />
                              </div>
                          </div>
@@ -161,7 +176,8 @@
 
                      <br />
 
-                     <div class="form-group" align="center">
+                     @* Desktop screen *@
+                     <div id="desktop" class="form-group" align="center">
                          <label for="ChristmasCard"> Julkort </label>
                          <InputCheckbox @bind-Value="contact.ChristmasCard" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
                          <ValidationMessage For="() => contact.ChristmasCard" class="text-danger" />
@@ -177,6 +193,32 @@
                          <label for="Colleagues"> Kollegor </label>
                          <InputCheckbox @bind-Value="contact.Colleagues" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
                          <ValidationMessage For="() => contact.Colleagues" class="text-danger" />
+                     </div>
+
+                     @* Mobile screen *@
+                     <div id="mobile">
+                         <div class="form-check">
+                             <InputCheckbox id="ChristmasCard" @bind-Value="contact.ChristmasCard" class="form-check-input" disabled="@DisabledForm" />
+                             <label class="form-check-label" for="ChristmasCard"> Julkort </label>
+                             <ValidationMessage For="() => contact.ChristmasCard" class="text-danger" />
+                         </div>
+
+                         <div class="form-check">
+                             <InputCheckbox id="Relatives" @bind-Value="contact.Relatives" class="form-check-input" disabled="@DisabledForm" />
+                             <label class="form-check-label" for="Relatives"> Släkting </label>
+                             <ValidationMessage For="() => contact.Relatives" class="text-danger" />
+                         </div>
+                         <div class="form-check">
+                             <InputCheckbox id="Friends" @bind-Value="contact.Friends" class="form-check-input" disabled="@DisabledForm" />
+                             <label class="form-check-label" for="Friends"> Vän </label>
+                             <ValidationMessage For="() => contact.Friends" class="text-danger" />
+                         </div>
+                         <div class="form-check">
+                             <InputCheckbox id="Colleagues" @bind-Value="contact.Colleagues" class="form-check-input" disabled="@DisabledForm" />
+                             <label class="form-check-label" for="Colleagues"> Kollega </label>
+                             <ValidationMessage For="() => contact.Colleagues" class="text-danger" />
+                         </div>
+
                      </div>
 
                      <br />
@@ -197,12 +239,15 @@
 
                      <br />
                      <br />
+
                  </EditForm>
+
              </div>
 
              <br />
 
-             <div align="center">
+             @* Desktop screen *@
+             <div id="desktop" align="center">
                  <div class="form-check-inline">
                      <label class="form-check-label">
                          Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
@@ -225,6 +270,35 @@
                  </div>
              </div>
 
+             @* Mobile screen *@
+             <div class="row" align="center" id="mobile">
+                 <div class="form-check-inline">
+
+                     <label class="form-check-label">
+                         Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
+                     </label>
+
+                     <label class="form-check-label">
+                         Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
+                     </label>
+
+                 </div>
+             </div>
+             <div class="row" align="center" id="mobile">
+                 <div class="form-check-inline">
+
+                     <label class="form-check-label">
+                         Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
+                     </label>
+
+                     <label class="form-check-label">
+                         Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
+                     </label>
+
+                 </div>
+             </div>
+
+             @* Mobile screen *@
              <div id="mobile">
                  <div class="card-body">
                      <QuickGrid Items="@ContactsQueryable" Pagination="pagination" align="center">
@@ -240,8 +314,8 @@
                          <TemplateColumn>
 
                              <div class="btn-group" role="group">
-                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" >
-                                 Info    
+                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                     Info
                                  </button>
                                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                      <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button></li>
@@ -279,10 +353,9 @@
                     <br />
 
                 </div>
-
-
             </div>
 
+            @* Desktop screen *@
             <div id="desktop">
                 <div class="card-body">
                     <QuickGrid Items="@ContactsQueryable" Pagination="pagination" align="center">
@@ -310,7 +383,7 @@
                             <div class="btn-group" role="group">
                                 <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     Info
-                                    </button>
+                                </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button></li>
@@ -338,7 +411,6 @@
                             }
 
                         </TemplateColumn>
-
                     </QuickGrid>
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
@@ -364,6 +436,9 @@
 
 @code
 {
+    [SupplyParameterFromForm]
+    private ContactsViewModels contact { get; set; } = new();
+
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";
@@ -383,14 +458,7 @@
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<ContactsViewModels> ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
-    [SupplyParameterFromForm]
-    private ContactsViewModels contact { get; set; } = new();
-
-    protected override async void OnInitialized()
-    {
-        OnAfterRenderAsync(true);
-        ConvertListToQueryable();
-    }
+    protected override void OnInitialized() => ConvertListToQueryable();
 
     private Contacts GetContact(int? id) => db.Contacts.FirstOrDefault(r => r.ContactsId == id);
 
@@ -500,14 +568,12 @@
         return vm;
     }
 
-    private object InfoContact(ContactsViewModels incomingModel)
+    private void InfoContact(ContactsViewModels incomingModel)
     {
         HideNewOrChangesContactForm();
         ShowOrHideAddNewContactButton = true;
         DisabledForm = true;
         contact = incomingModel;
-
-        return null;
     }
 
     private void EditContact(ContactsViewModels incomingModel)

@@ -10,7 +10,6 @@ namespace MyPrivateApp.Client.ViewModels
         [Required(ErrorMessage = "Skriv in personens namn:")]
         [Display(Name = "Namn: ")]
         [DataType(DataType.Text)]
-        [StringLength(50)]
         public string? Name { get; set; }
 
         [Required(ErrorMessage = "Skriv in personens fördelsedag::")]
@@ -21,7 +20,6 @@ namespace MyPrivateApp.Client.ViewModels
         [Required(ErrorMessage = "Skriv in personens adress::")]
         [Display(Name = "Adress: ")]
         [DataType(DataType.Text)]
-        [StringLength(50)]
         public string? Address { get; set; }
 
         [Required(ErrorMessage = "Skriv in personens postnummer:")]
@@ -32,32 +30,26 @@ namespace MyPrivateApp.Client.ViewModels
         [Required(ErrorMessage = "Skriv in personens stad:")]
         [Display(Name = "Stad: ")]
         [DataType(DataType.Text)]
-        [StringLength(50)]
         public string? City { get; set; }
 
         [Display(Name = "E-post: ")]
         [DataType(DataType.EmailAddress)]
-        [StringLength(50)]
         public string? PrivateMail { get; set; }
 
         [Display(Name = "E-post arbete: ")]
         [DataType(DataType.EmailAddress)]
-        [StringLength(50)]
         public string? WorkEMail { get; set; }
 
         [Display(Name = "E-post extra: ")]
         [DataType(DataType.EmailAddress)]
-        [StringLength(50)]
         public string? ExtraMail { get; set; }
 
         [Display(Name = "Mobilnummer: ")]
         [DataType(DataType.PhoneNumber)]
-        [StringLength(20)]
         public string? PhoneNumber { get; set; }
 
         [Display(Name = "Hemnummer: ")]
         [DataType(DataType.PhoneNumber)]
-        [StringLength(20)]
         public string? HomePhoneNumber { get; set; }
 
         [Display(Name = "Arbets nummer: ")]
@@ -66,7 +58,6 @@ namespace MyPrivateApp.Client.ViewModels
 
         [Display(Name = "Extra nummer: ")]
         [DataType(DataType.PhoneNumber)]
-        [StringLength(20)]
         public string? ExtraPhoneNumber { get; set; }
 
         [Display(Name = "Hemsida: ")]
@@ -74,7 +65,6 @@ namespace MyPrivateApp.Client.ViewModels
 
         [Display(Name = "Anteckningar: ")]
         [DataType(DataType.MultilineText)]
-        [StringLength(500)]
         public string? Notes { get; set; }
 
         [Display(Name = "Julkort: ")]

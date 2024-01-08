@@ -64,7 +64,7 @@ h1:focus {
 }
 
 .col-4 {
-    width: 33.33%;
+    width: 33%;
 }
 
 .col-5 {
@@ -100,8 +100,7 @@ h1:focus {
 }
 
 @media only screen and (max-width: 768px) {
-    /* For mobile phones: */
-    [class*="col-"] {
+    div ~ [class*='col-'] {
         width: 100%;
     }
 }
