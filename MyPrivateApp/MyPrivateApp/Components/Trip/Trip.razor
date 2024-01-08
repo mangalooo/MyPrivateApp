@@ -16,16 +16,17 @@
 
 <br />
 
-<div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesTripForm" hidden="@ShowOrHideCreateButton">Skapa ny resa</button>
+<div hidden="@ShowOrHideCreateButton" style="text-align:center">
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesTripForm">Skapa ny resa</button>
+    <br />
 </div>
 
-<br />
+
 <br />
 
 <div class="container">
 
-    <div class="col-md-12">
+    <div class="col-md-16">
         <div class="card">
             <div class="card-header">
                 <EditForm Model="trip" OnSubmit="CreateOrUpdateTrip" FormName="CreateOrUpdateTrip" Enhance hidden="@(!HideNewOrChangesTripFields)">
@@ -35,14 +36,17 @@
                      <ValidationSummary class="text-danger" role="alert" />
 
                      <div class="row">
-                         <div class="col">
+
+                         <div id="mobile" class="col-6" />
+
+                         <div class="col-6">
                              <div class="form-floating">
                                  <InputDate @bind-Value="trip.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Date"> Datum </label>
                                  <ValidationMessage For="() => trip.Date" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col">
+                         <div class="col-6">
                              <div class="form-floating">
                                  <InputDate @bind-Value="trip.HomeDate" class="form-control" disabled="@DisabledForm" />
                                  <label for="HomeDate"> Hem </label>
@@ -54,14 +58,17 @@
                      <br />
 
                      <div class="row">
-                         <div class="col">
+
+                         <div id="mobile" class="col-6" />
+
+                         <div class="col-6">
                              <div class="form-floating">
                                  <InputText @bind-Value="trip.Country" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Country"> Land </label>
                                  <ValidationMessage For="() => trip.Country" class="text-danger" />
                              </div>
                          </div>
-                         <div class="col">
+                         <div class="col-6">
                              <div class="form-floating">
                                  <InputText @bind-Value="trip.Place" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Place"> Plats </label>
@@ -73,7 +80,7 @@
                      <br />
 
                      <div class="row">
-                         <div class="col">
+                         <div class="col-12">
                              <div class="form-floating">
                                  <InputText @bind-Value="trip.TravelBuddies" class="form-control" disabled="@DisabledForm" />
                                  <label for="TravelBuddies"> Medpassagerare</label>
@@ -85,7 +92,7 @@
                      <br />
 
                      <div class="row">
-                         <div class="col">
+                         <div class="col-12">
                              <div class="form-floating">
                                  <InputTextArea @bind-Value="trip.Description" class="form-control" disabled="@DisabledForm" />
                                  <label for="Description"> Beskrivning </label>
@@ -115,58 +122,125 @@
                  </EditForm>
              </div>
 
-             <div class="card-body">
-                 <QuickGrid Items="@TripsQueryable" Pagination="pagination" align="center">
+             @* Desktop screen *@
+             <div id="desktop">
+                 <div id="desktop" class="card-body">
+                     <QuickGrid Items="@TripsQueryable" Pagination="pagination" align="center">
 
-                     <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                     <PropertyColumn Title="Dagar" Property="@(c => c.HowManyDays)" Sortable="true" />
-                     <PropertyColumn Title="Land" Property="@(c => c.Country)" Sortable="true" >
-                         <ColumnOptions>
-                             <div class="search-box">
-                                 <input type="search" autofocus @onchange="SearchCountry" />
+                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                         <PropertyColumn Title="Dagar" Property="@(c => c.HowManyDays)" Sortable="true" />
+                         <PropertyColumn Title="Land" Property="@(c => c.Country)" Sortable="true">
+                             <ColumnOptions>
+                                 <div class="search-box">
+                                     <input type="search" autofocus @onchange="SearchCountry" />
+                                 </div>
+                             </ColumnOptions>
+                         </PropertyColumn>
+                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                             <ColumnOptions>
+                                 <div class="search-box">
+                                     <input type="search" autofocus @onchange="SearchPlace" />
+                                 </div>
+                             </ColumnOptions>
+                         </PropertyColumn>
+                         <PropertyColumn Title="Medpassagerare" Property="@(c => c.TravelBuddies)" Sortable="true" />
+                         <TemplateColumn Title="Ändringar">
+
+                             <div class="btn-group" role="group">
+                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                     Info
+                                 </button>
+                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoTrip(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditTrip(context))"> Ändra </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                 </ul>
                              </div>
-                         </ColumnOptions>
-                     </PropertyColumn>
-                     <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" >
-                         <ColumnOptions>
-                             <div class="search-box">
-                                 <input type="search" autofocus @onchange="SearchPlace" />
-                             </div>
-                         </ColumnOptions>
-                     </PropertyColumn>
-                     <TemplateColumn Title="Ändringar">
 
-                         <button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoTrip(context))"> All info </button>
-                         <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditTrip(context))"> Ändra </button>
-                         <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button>
-
-                         <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                             <div class="modal-dialog" role="document">
-                                 <div class="modal-content">
-                                     <div class="modal-header">
-                                         <h5 class="modal-title"> Vill du ta bort resan? </h5>
-                                     </div>
-                                     <div class="modal-footer">
-                                         <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteTrip(context))"> Ta bort kontakt </button>
-                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                 <div class="modal-dialog" role="document">
+                                     <div class="modal-content">
+                                         <div class="modal-header">
+                                             <h5 class="modal-title"> Vill du ta bort resan? </h5>
+                                         </div>
+                                         <div class="modal-footer">
+                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteTrip(context))"> Ta bort kontakt </button>
+                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                         </div>
                                      </div>
                                  </div>
                              </div>
-                         </div>
 
-                         @if (ShowBackdrop)
-                        {
-                            <div class="modal-backdrop fade show"></div>
-                        }
+                             @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
 
-                    </TemplateColumn>
-                </QuickGrid>
+                        </TemplateColumn>
+                    </QuickGrid>
 
-                <div class="card-footer"><Paginator State="@pagination" /></div>
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                <br />
-                <br />
+                    <br />
+                    <br />
 
+                </div>
+            </div>
+
+            @* Mobile screen *@
+            <div id="mobile">
+                <div class="card-body">
+                    <QuickGrid Items="@TripsQueryable" Pagination="pagination" align="center">
+
+                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchPlace" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoTrip(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditTrip(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort resan? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteTrip(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
             </div>
         </div>
     </div>
@@ -176,7 +250,7 @@
 <br />
 
 @code
- {
+{
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";
