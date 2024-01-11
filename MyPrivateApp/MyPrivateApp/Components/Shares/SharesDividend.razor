@@ -15,15 +15,22 @@
 
 <br />
 
-<div align="center">
-    <div style="text-align:center" class="btn-group" role="group" aria-label="Basic outlined example">
-        <NavLink href="Shares" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-        <NavLink href="SharesPurchased" type="button" class="btn btn-outline-dark btn-sm"> Köpta </NavLink>
-        <NavLink href="SharesSold" type="button" class="btn btn-outline-dark btn-sm">Sålda</NavLink>
-        <NavLink href="SharesDividend" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
-        <NavLink href="SharesTaxAndBrokerage" type="button" class="btn btn-outline-dark btn-sm">Skatter</NavLink>
-        <NavLink href="Imports" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
-    </div>
+<div class="btn-group" role="group">
+    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        Alla aktier sidor
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+        <li class="dropdown-item"><NavLink href="Shares" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesPurchased" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesSold" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesDividend" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesTaxAndBrokerage" type="button" class="btn btn-outline-dark btn-sm">Skatter</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesImports" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesDepositMoney" type="button" class="btn btn-outline-dark btn-sm"> Ta ut eller sätt in pengar </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesInterestRates" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesOtherImports" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesErrorHandling" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+    </ul>
 </div>
 
 <br />
