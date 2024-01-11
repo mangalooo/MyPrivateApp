@@ -1,10 +1,4 @@
-﻿using MagnusPrivateApp.Data;
-using MagnusPrivateApp.Enum;
-using MagnusPrivateApp.Resources;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using MyPrivateApp.Components.Enum;
-using System;
-using System.Collections.Generic;
+﻿using MyPrivateApp.Components.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Components.ViewModels.SharesViewModels

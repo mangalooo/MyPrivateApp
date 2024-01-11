@@ -29,18 +29,17 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Required(ErrorMessage = "Skriv hur många aktier")]
         [Display(Name = "Antal")]
-        [DataType(DataType.Text)]
-        public string? NumberOfSharesString { get; set; }
+        public double NumberOfSharesString { get; set; }
 
         [Required(ErrorMessage = "Skriv in pris per aktie")]
         [Display(Name = "Kurs")]
         [DataType(DataType.Text)]
-        public string? PricePerShareString { get; set; }
+        public double PricePerShare { get; set; }
 
         [Required(ErrorMessage = "Skriv in total summa")]
         [Display(Name = "Belopp")]
         [DataType(DataType.Text)]
-        public string? TotalAmountString { get; set; }
+        public double TotalAmount { get; set; }
 
         [Required(ErrorMessage = "Skriv in courtage")]
         [Display(Name = "Courtage")]

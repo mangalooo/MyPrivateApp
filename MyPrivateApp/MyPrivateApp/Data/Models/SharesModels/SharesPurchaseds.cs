@@ -14,7 +14,6 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public string? Note { get; set; }
         public string? TypeOfShares { get; set; }
         public double PricePerShares { get; set; } // De ska även funka att köpa till fler aktier på denna post
-        public double Dividend { get; set; } //Utdelning // De ska även funka att köpa till fler utdelningar på denna post
         public string? Currency { get; set; }
         public string? ISIN { get; set; }
         public string? Account { get; set; }

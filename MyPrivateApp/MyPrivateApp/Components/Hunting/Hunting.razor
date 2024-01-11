@@ -126,7 +126,7 @@
                     <br />
 
                     <div style="text-align:center">
-                        <button @onclick="RefreshPage" type="submit" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
                     </div>
 
                     <br />
@@ -293,7 +293,7 @@
 
     protected override void OnInitialized() => ConvertListToQueryable();
 
-    private Huntings GetHunting(int? id) => db.Huntings.FirstOrDefault(r => r.HuntingsId == hunting.HuntingsId);
+    private Huntings GetHunting(int? id) => db.Huntings.FirstOrDefault(r => r.HuntingsId == id);
 
     private void CreateOrUpdateHunting()
     {

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Components.Shares;
 using MyPrivateApp.Data.Models;
+using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Data
 {
@@ -13,6 +13,6 @@ namespace MyPrivateApp.Data
         public DbSet<Huntings> Huntings { get; set; } // Resor
 
         // Aktier
-        public DbSet<SharesPurchased> SharesPurchased { get; set; } // Köpta aktier
+        public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; } // Köpta aktier
     }
 }

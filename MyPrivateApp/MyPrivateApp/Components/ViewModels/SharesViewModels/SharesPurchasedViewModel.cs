@@ -10,7 +10,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in datum")]
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
-        public string? DateOfPurchase { get; set; } //  Köp datum
+        public DateTime DateOfPurchase { get; set; } //  Köp datum
 
         [Required(ErrorMessage = "Skriv in ett företagsnamn")]
         [Display(Name = "Företag")]
