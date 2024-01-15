@@ -84,6 +84,9 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
             getDbSharesSoldModel.HowMany = changesToModel.HowMany;
             getDbSharesSoldModel.PricePerShares = changesToModel.PricePerShares;
             getDbSharesSoldModel.PricePerSharesSold = changesToModel.PricePerSharesSold;
+            getDbSharesSoldModel.Currency = changesToModel.Currency;
+            getDbSharesSoldModel.ISIN = changesToModel.ISIN;
+            getDbSharesSoldModel.Account = changesToModel.Account;
             getDbSharesSoldModel.Brokerage = changesToModel.Brokerage;
             getDbSharesSoldModel.TypeOfShares = changesToModel.TypeOfShares;
             getDbSharesSoldModel.MoneyProfitOrLoss = changesToModel.MoneyProfitOrLoss;
@@ -109,6 +112,9 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
                 PricePerShares = vm.PricePerShares,
                 PricePerSharesSold = vm.PricePerSharesSold,
                 Brokerage = vm.Brokerage,
+                Currency = vm.Currency,
+                ISIN = vm.ISIN,
+                Account = vm.Account,
                 TypeOfShares = vm.TypeOfShares,
                 Note = "Köper " + vm.CompanyName + " aktier: " + "Datum: " + vm.DateOfPurchase.ToString().Substring(0, 10) + ", Hur många: " + vm.HowMany +
                        ", Pris per st: " + vm.PricePerShares + ", Summan: " + vm.HowMany * vm.PricePerShares + ", Courtage: " + vm.Brokerage + ". "
@@ -139,6 +145,9 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
                 HowMany = model.HowMany,
                 PricePerShares = model.PricePerShares,
                 PricePerSharesSold = model.PricePerSharesSold,
+                Currency = model.Currency,
+                ISIN = model.ISIN,
+                Account = model.Account,
                 Brokerage = model.Brokerage,
                 TypeOfShares = model.TypeOfShares,
                 MoneyProfitOrLoss = model.MoneyProfitOrLoss,

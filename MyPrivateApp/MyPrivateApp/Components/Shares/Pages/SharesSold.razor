@@ -82,17 +82,17 @@
 
                          <div class="col-3">
                              <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesSolds.HowMany" class="form-control" disabled="@DisabledForm" />
-                                 <label for="HowMany"> Antal </label>
-                                 <ValidationMessage For="() => sharesSolds.HowMany" class="text-danger" />
+                                 <InputText @bind-Value="sharesSolds.ISIN" class="form-control" disabled="@DisabledForm" />
+                                 <label for="ISIN"> ISIN </label>
+                                 <ValidationMessage For="() => sharesSolds.ISIN" class="text-danger" />
                              </div>
                          </div>
 
                          <div class="col-3">
                              <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesSolds.Brokerage" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Brokerage"> Courtage </label>
-                                 <ValidationMessage For="() => sharesSolds.Brokerage" class="text-danger" />
+                                 <InputText @bind-Value="sharesSolds.Account" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Account"> Konto </label>
+                                 <ValidationMessage For="() => sharesSolds.Account" class="text-danger" />
                              </div>
                          </div>
 
@@ -145,6 +145,14 @@
 
                          <div class="col-3">
                              <div class="form-floating">
+                                 <InputNumber @bind-Value="sharesSolds.HowMany" class="form-control" disabled="@DisabledForm" />
+                                 <label for="HowMany"> Antal </label>
+                                 <ValidationMessage For="() => sharesSolds.HowMany" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
                                  <InputNumber @bind-Value="sharesSolds.PricePerShares" class="form-control" disabled="@DisabledForm" />
                                  <label for="PricePerShares"> Pris per aktie </label>
                                  <ValidationMessage For="() => sharesSolds.PricePerShares" class="text-danger" />
@@ -161,6 +169,20 @@
 
                          <div class="col-3">
                              <div class="form-floating">
+                                 <InputNumber @bind-Value="sharesSolds.Brokerage" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Brokerage"> Courtage </label>
+                                 <ValidationMessage For="() => sharesSolds.Brokerage" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+                     <br />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-3" />
+
+                         <div class="col-3">
+                             <div class="form-floating">
                                  <InputNumber @bind-Value="sharesSolds.MoneyProfitOrLoss" class="form-control" disabled="true" />
                                  <label for="MoneyProfitOrLoss"> Vinst/förlust </label>
                                  <ValidationMessage For="() => sharesSolds.MoneyProfitOrLoss" class="text-danger" />
@@ -174,6 +196,15 @@
                                  <ValidationMessage For="() => sharesSolds.PercentProfitOrLoss" class="text-danger" />
                              </div>
                          </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesSolds.Currency" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Currency"> Valuta </label>
+                                 <ValidationMessage For="() => sharesSolds.Currency" class="text-danger" />
+                             </div>
+                         </div>
+
                      </div>
 
                      <br />
@@ -213,43 +244,43 @@
              @* Desktop screen *@
              <div id="desktop">
                  <div class="card-body">
-                     <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination" align="center">
+                     <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
-                        <PropertyColumn Title="Inköpsdatum" Property="@(c => c.DateOfPurchase)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Inköpsvärdet" Property="@(c => c.Amount)" Sortable="true" />
-                        <PropertyColumn Title="Säljsdatum" Property="@(c => c.DateOfSold)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Säljvärdet" Property="@(c => c.AmountSold)" Sortable="true" />
-                        <PropertyColumn Title="Antal" Property="@(c => c.HowMany)" Sortable="true" />
-                        <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
-                        <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLoss)" Sortable="true" />
+                         <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
+                         <PropertyColumn Title="Inköpsdatum" Property="@(c => c.DateOfPurchase)" Format="yyyy-MM-dd" Sortable="true" />
+                         <PropertyColumn Title="Inköpsvärdet" Property="@(c => c.Amount)" Sortable="true" />
+                         <PropertyColumn Title="Säljsdatum" Property="@(c => c.DateOfSold)" Format="yyyy-MM-dd" Sortable="true" />
+                         <PropertyColumn Title="Säljvärdet" Property="@(c => c.AmountSold)" Sortable="true" />
+                         <PropertyColumn Title="Antal" Property="@(c => c.HowMany)" Sortable="true" />
+                         <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
+                         <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLoss)" Sortable="true" />
 
-                        <TemplateColumn Title="Info">
+                         <TemplateColumn Title="Info">
 
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoSharesPurchased(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditSharesPurchased(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
-                                </ul>
-                            </div>
+                             <div class="btn-group" role="group">
+                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                     Info
+                                 </button>
+                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoSharesPurchased(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditSharesPurchased(context))"> Ändra </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                 </ul>
+                             </div>
 
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort sålda aktien? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteSharesPurchased(context))"> Ta bort kontakt </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                 <div class="modal-dialog" role="document">
+                                     <div class="modal-content">
+                                         <div class="modal-header">
+                                             <h5 class="modal-title"> Vill du ta bort sålda aktien? </h5>
+                                         </div>
+                                         <div class="modal-footer">
+                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteSharesPurchased(context))"> Ta bort kontakt </button>
+                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
 
                              @if (ShowBackdrop)
                             {
@@ -270,9 +301,10 @@
             @* Mobile streen *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination" align="center">
+                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
+                        <PropertyColumn Title="%" Property="@(c => c.PercentProfitOrLoss)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 

@@ -17,7 +17,6 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public string? TypeOfShares { get; set; }
         public double PricePerShares { get; set; } // Uträkning nytt värde
         public double PricePerSharesSold { get; set; } // Uträkning nytt värde
-
         public double MoneyProfitOrLoss { get; set; } //Vinst eller förlust i pengar
         public string? PercentProfitOrLoss { get; set; } //Vinst eller förlust i %
         public string? Currency { get; set; }

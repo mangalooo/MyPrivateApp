@@ -199,7 +199,7 @@
             @* Desktop screen *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination" align="center">
+                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">
 
                          <PropertyColumn Title="Datum" Property="@(c => c.DateOfPurchase)" Format="yyyy-MM-dd" Sortable="true" />
                          <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
@@ -255,7 +255,7 @@
             @* Mobile streen *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination" align="center">
+                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
                         

@@ -137,7 +137,7 @@
             @* Desktop screen *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingQueryable" Pagination="pagination" align="center">
+                    <QuickGrid Items="@huntingQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
                             <ColumnOptions>
@@ -204,7 +204,7 @@
             @* Mobile streen *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingQueryable" Pagination="pagination" align="center">
+                    <QuickGrid Items="@huntingQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
                             <ColumnOptions>

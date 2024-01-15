@@ -169,7 +169,7 @@
             @* Desktop screen *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
+                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
 
@@ -243,7 +243,7 @@
             @* Mobile screen *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination" align="center">
+                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Varor" Property="@(c => c.WildMeat)" Sortable="true">
                             <ColumnOptions>

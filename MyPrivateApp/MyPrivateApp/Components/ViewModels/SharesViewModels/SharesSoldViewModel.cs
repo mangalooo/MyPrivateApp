@@ -64,6 +64,18 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Currency)]
         public int Brokerage { get; set; } //Courtage, köp kostnad
 
+        [Display(Name = "Konto")]
+        [DataType(DataType.Currency)]
+        public string? Account { get; set; }
+
+        [Display(Name = "Valuta")]
+        [DataType(DataType.Text)]
+        public string? Currency { get; set; }
+
+        [Display(Name = "ISIN")]
+        [DataType(DataType.Text)]
+        public string? ISIN { get; set; }
+
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]
         public string? Note { get; set; }
