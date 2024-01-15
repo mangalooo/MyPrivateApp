@@ -7,6 +7,7 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.SharesModels
+@using MyPrivateApp.Components.Shares.HelpClasses
 
 @rendermode InteractiveServer
 
@@ -326,10 +327,10 @@
 @code
 {
     // Modol window settings
-    public Guid Guid = Guid.NewGuid();
-    public string ModalDisplay = "none;";
-    public string ModalClass = "";
-    public bool ShowBackdrop = false;
+    private Guid Guid = Guid.NewGuid();
+    private string ModalDisplay = "none;";
+    private string ModalClass = "";
+    private bool ShowBackdrop = false;
 
     // Hide button and fields
     private bool HideNewOrChangesPurchasedSharesFields { get; set; } = false;
@@ -346,102 +347,13 @@
 
     protected override void OnInitialized() => ConvertListToQueryable();
 
-    private bool CheckProfit(double check)
-    {
-        string CheckPlusOrMinute = check.ToString().Substring(0, 1);
-
-        if (CheckPlusOrMinute == "-") return false;
-
-        return true;
-    }
-
-    private SharesSolds GetSharesSolds(int? id) => db.SharesSolds.FirstOrDefault(r => r.SharesSoldId == id);
-
     private void CreateOrUpdatePurchasedShares()
     {
         DisabledForm = false;
 
-        SharesSolds getDbSharesSoldModel;
-        SharesSolds changesToModel;
+        if (sharesSolds.SharesSoldId > 0) ShowOrHideCreateButton = true;
 
-        // Update sold shares
-        if (sharesSolds.SharesSoldId > 0)
-        {
-            ShowOrHideCreateButton = true;
-
-            SharesSolds c = db.SharesSolds.FirstOrDefault(p => p.SharesSoldId == sharesSolds.SharesSoldId);
-
-            if (c is null) return;
-
-            getDbSharesSoldModel = GetSharesSolds(sharesSolds.SharesSoldId);
-
-            changesToModel = changesSharesSoldToModel(sharesSolds);
-
-            getDbSharesSoldModel.DateOfPurchase = changesToModel.DateOfPurchase;
-            getDbSharesSoldModel.Amount = changesToModel.HowMany * changesToModel.PricePerShares;
-            getDbSharesSoldModel.DateOfSold = changesToModel.DateOfSold;
-            getDbSharesSoldModel.AmountSold = changesToModel.AmountSold;
-            getDbSharesSoldModel.CompanyName = changesToModel.CompanyName;
-            getDbSharesSoldModel.HowMany = changesToModel.HowMany;
-            getDbSharesSoldModel.PricePerShares = changesToModel.PricePerShares;
-            getDbSharesSoldModel.PricePerSharesSold = changesToModel.PricePerSharesSold;
-            getDbSharesSoldModel.Brokerage = changesToModel.Brokerage;
-            getDbSharesSoldModel.TypeOfShares = changesToModel.TypeOfShares;
-            getDbSharesSoldModel.MoneyProfitOrLoss = changesToModel.MoneyProfitOrLoss;
-            getDbSharesSoldModel.PercentProfitOrLoss = changesToModel.PercentProfitOrLoss;
-            getDbSharesSoldModel.Note = changesToModel.Note;
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"EditSold {DateTime.Now}: Company: {changesToModel.CompanyName} Date: {changesToModel.DateOfPurchase} Error: {ex.Message}");
-
-                DateTime date = DateTime.Now;
-
-                SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Ändra såld aktie: {DateTime.Now}: Företag: {changesToModel.CompanyName} Datum: {changesToModel.DateOfPurchase} \n Felmeddelande: {ex.Message}"
-                    };
-
-                db.SharesErrorHandlings.Add(sharesErrorHandling);
-                db.SaveChanges();
-            }
-
-            sharesSolds = new();
-            Navigation.Refresh(true);
-
-            return;
-        }
-
-        if (sharesSolds.DateOfPurchase == DateTime.MinValue) return;
-
-        // Add new sold shares
-        changesToModel = changesSharesSoldToModel(sharesSolds);
-
-        try
-        {
-            db.SharesSolds.Add(changesToModel);
-            db.SaveChanges();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"SoldSharesAdd {DateTime.Now}: Company: {changesToModel.CompanyName} Date: {changesToModel.DateOfPurchase} Error: {ex.Message}");
-
-            DateTime date = DateTime.Now;
-
-            SharesErrorHandlings sharesErrorHandling = new()
-                {
-                    Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Såld lägg till: {DateTime.Now}: Företag: {changesToModel.CompanyName} Datum: {changesToModel.DateOfPurchase} \n Felmeddelande: {ex.Message}"
-                };
-
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
-        }
+        SoldSharesHelpClass.CreateOrUpdatePurchasedShares(db, sharesSolds);
 
         sharesSolds = new();
         Navigation.Refresh(true);
@@ -458,65 +370,11 @@
 
         foreach (SharesSolds model in db.SharesSolds.OrderBy(c => c.SharesSoldId))
         {
-            SharesSoldViewModel sharesPurchased = ChangeFromModelToViewModel(model);
+            SharesSoldViewModel sharesPurchased = SoldSharesHelpClass.ChangeFromModelToViewModel(model);
             PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { sharesPurchased }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
-    }
-
-    private SharesSoldViewModel ChangeFromModelToViewModel(SharesSolds model)
-    {
-        DateTime dateOfPurchase = DateTime.Parse(model.DateOfPurchase);
-        DateTime dateOfSold = DateTime.Parse(model.DateOfSold);
-
-        SharesSoldViewModel vm = new()
-            {
-                SharesSoldId = model.SharesSoldId,
-                DateOfPurchase = dateOfPurchase,
-                DateOfSold = dateOfSold,
-                Amount = model.Amount,
-                AmountSold = model.AmountSold,
-                CompanyName = model.CompanyName,
-                HowMany = model.HowMany,
-                PricePerShares = model.PricePerShares,
-                PricePerSharesSold = model.PricePerSharesSold,
-                Brokerage = model.Brokerage,
-                TypeOfShares = model.TypeOfShares,
-                MoneyProfitOrLoss = model.MoneyProfitOrLoss,
-                PercentProfitOrLoss = model.PercentProfitOrLoss,
-                Note = model.Note
-            };
-
-        return vm;
-    }
-
-    private SharesSolds changesSharesSoldToModel(SharesSoldViewModel vm)
-    {
-        SharesSolds sharesSolds = new()
-            {
-                SharesSoldId = vm.SharesSoldId,
-                DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
-                DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd"),
-                Amount = vm.HowMany * vm.PricePerShares,
-                AmountSold = vm.HowMany * vm.PricePerSharesSold,
-                CompanyName = vm.CompanyName,
-                HowMany = vm.HowMany,
-                PricePerShares = vm.PricePerShares,
-                PricePerSharesSold = vm.PricePerSharesSold,
-                Brokerage = vm.Brokerage,
-                TypeOfShares = vm.TypeOfShares,
-                Note = "Köper " + vm.CompanyName + " aktier: " + "Datum: " + vm.DateOfPurchase.ToString().Substring(0, 10) + ", Hur många: " + vm.HowMany +
-                            ", Pris per st: " + vm.PricePerShares + ", Summan: " + vm.HowMany * vm.PricePerShares + ", Courtage: " + vm.Brokerage + ". "
-            };
-
-        sharesSolds.MoneyProfitOrLoss = (sharesSolds.AmountSold - sharesSolds.Amount) - vm.Brokerage;
-
-        double calculateMoneyProfitOrLoss = (sharesSolds.AmountSold / sharesSolds.Amount) - 1;
-
-        sharesSolds.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
-
-        return sharesSolds;
     }
 
     private string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
@@ -542,7 +400,7 @@
     {
         if (db.SharesSolds.Count() == 0) return;
 
-        SharesSolds SharesSold = changesSharesSoldToModel(incomingModel);
+        SharesSolds SharesSold = SoldSharesHelpClass.ChangesSharesSoldToModel(incomingModel);
 
         db.ChangeTracker.Clear();
         db.SharesSolds.Remove(SharesSold);
@@ -550,142 +408,6 @@
 
         Navigation.Refresh(true);
     }
-
-    // private void SearchPlace(ChangeEventArgs e)
-    // {
-    //     PurchasedSharesQueryable = Enumerable.Empty<SharesSoldViewModel>().AsQueryable();
-
-    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
-    //     {
-    //         string getName = string.Empty;
-
-    //         foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
-    //         {
-    //             getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
-
-    //             if (getName == e.Value.ToString().ToLower())
-    //                 break;
-    //         }
-
-    //         if (getName != string.Empty)
-    //         {
-    //             IEnumerable<Huntings> result = null;
-
-    //             switch (getName.ToLower())
-    //             {
-    //                 case "Välj":
-    //                     break;
-
-    //                 case "habäck":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Habäck);
-    //                     break;
-
-    //                 case "dalsjöfors":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Dalsjöfors);
-    //                     break;
-
-    //                 case "karlabo":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Karlabo);
-    //                     break;
-
-    //                 case "skog":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Skog);
-    //                     break;
-
-    //                 case "smältryd":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Smältryd);
-    //                     break;
-
-    //                 case "övrigt":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Övrigt);
-    //                     break;
-    //             }
-
-    //             if (result == null || result.Count() == 0) return;
-
-    //             if (result.Any())
-    //                 foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
-    //                 {
-    //                     SharesSoldViewModel hunting = ChangeFromModelToViewModel(model);
-    //                     PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { hunting }.AsQueryable());
-    //                 }
-    //         }
-
-    //         return;
-    //     }
-
-    //     Navigation.Refresh(true);
-    // }
-
-    // private void SearchWildAnimal(ChangeEventArgs e)
-    // {
-    //     PurchasedSharesQueryable = Enumerable.Empty<HuntPurchasedViewModelingViewModels>().AsQueryable();
-
-    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
-    //     {
-    //         string getName = string.Empty;
-
-    //         foreach (int wildAnimal in Enum.GetValues(typeof(WildAnimal)))
-    //         {
-    //             getName = Enum.GetName(typeof(WildAnimal), wildAnimal).ToLower();
-
-    //             if (getName == e.Value.ToString().ToLower())
-    //                 break;
-    //         }
-
-    //         if (getName != string.Empty)
-    //         {
-    //             IEnumerable<Huntings> result = null;
-
-    //             switch (getName.ToLower())
-    //             {
-    //                 case "Välj":
-    //                     break;
-
-    //                 case "hare":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Hare);
-    //                     break;
-
-    //                 case "lo":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Lo);
-    //                     break;
-
-    //                 case "rådjur":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Rådjur);
-    //                     break;
-
-    //                 case "räv":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Räv);
-    //                     break;
-
-    //                 case "vildsvin":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Vildsvin);
-    //                     break;
-
-    //                 case "älg":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Älg);
-    //                     break;
-
-    //                 case "övrigt":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Övrigt);
-    //                     break;
-    //             }
-
-    //             if (result == null || result.Count() == 0) return;
-
-    //             if (result.Any())
-    //                 foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
-    //                 {
-    //                     SharesSoldViewModel hunting = ChangeFromModelToViewModel(model);
-    //                     PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { hunting }.AsQueryable());
-    //                 }
-    //         }
-
-    //         return;
-    //     }
-
-    //     Navigation.Refresh(true);
-    // }
 
     private void HideNewOrChangesSharesSoldForm()
     {
