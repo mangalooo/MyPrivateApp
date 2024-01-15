@@ -40,6 +40,18 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Text)]
         public string? TypeOfShares { get; set; }
 
+        [Display(Name = "Valuta")]
+        [DataType(DataType.Text)]
+        public string? Currency { get; set; }
+
+        [Display(Name = "ISIN")]
+        [DataType(DataType.Text)]
+        public string? ISIN { get; set; }
+
+        [Display(Name = "Konto")]
+        [DataType(DataType.Text)]
+        public string? Account { get; set; }
+
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]
         public string? Note { get; set; }

@@ -15,7 +15,7 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
 
                 if (c is null) return;
 
-                SharesSolds vm = SetChanges(db, sharesSolds);
+                SharesSolds model = SetChanges(db, sharesSolds);
 
                 try
                 {
@@ -23,14 +23,14 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"EditSold {DateTime.Now}: Company: {vm.CompanyName} Date: {vm.DateOfPurchase} Error: {ex.Message}");
+                    Console.WriteLine($"EditSold {DateTime.Now}: Company: {model.CompanyName} Date: {model.DateOfPurchase} Error: {ex.Message}");
 
                     DateTime date = DateTime.Now;
 
                     SharesErrorHandlings sharesErrorHandling = new()
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Ändra såld aktie: {DateTime.Now}: Företag: {vm.CompanyName} Datum: {vm.DateOfPurchase} \n Felmeddelande: {ex.Message}"
+                        ErrorMessage = $"Ändra såld aktie: {DateTime.Now}: Företag: {model.CompanyName} Datum: {model.DateOfPurchase} \n Felmeddelande: {ex.Message}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);

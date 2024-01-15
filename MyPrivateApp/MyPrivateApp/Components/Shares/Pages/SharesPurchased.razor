@@ -1,6 +1,7 @@
 ﻿@page "/SharesPurchased"
 
 @using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Shares.HelpClasses
 @using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
@@ -64,14 +65,6 @@
 
                          <div class="col-4">
                              <div class="form-floating">
-                                 <InputDate @bind-Value="sharesPurchased.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
-                                 <label for="DateOfPurchase"> Datum </label>
-                                 <ValidationMessage For="() => sharesPurchased.DateOfPurchase" class="text-danger" />
-                             </div>
-                         </div>
-
-                         <div class="col-4">
-                             <div class="form-floating">
                                  <InputText @bind-Value="sharesPurchased.CompanyName" class="form-control" disabled="@DisabledForm" />
                                  <label for="CompanyName"> Företag </label>
                                  <ValidationMessage For="() => sharesPurchased.CompanyName" class="text-danger" />
@@ -85,6 +78,47 @@
                                  <ValidationMessage For="() => sharesPurchased.TypeOfShares" class="text-danger" />
                              </div>
                          </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesPurchased.ISIN" class="form-control" disabled="@DisabledForm" />
+                                 <label for="ISIN"> ISIN </label>
+                                 <ValidationMessage For="() => sharesPurchased.ISIN" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-4" />
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputDate @bind-Value="sharesPurchased.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
+                                 <label for="DateOfPurchase"> Datum </label>
+                                 <ValidationMessage For="() => sharesPurchased.DateOfPurchase" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesPurchased.Account" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Account"> Konto </label>
+                                 <ValidationMessage For="() => sharesPurchased.Account" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesPurchased.Currency" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Currency"> Valuta </label>
+                                 <ValidationMessage For="() => sharesPurchased.Currency" class="text-danger" />
+                             </div>
+                         </div>
+
                      </div>
 
                      <br />
@@ -111,7 +145,7 @@
 
                          <div class="col-3">
                              <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.Amount" class="form-control" disabled="@DisabledForm" />
+                                 <InputNumber @bind-Value="sharesPurchased.Amount" class="form-control" disabled="true" />
                                  <label for="Amount"> Inköpsvärdet </label>
                                  <ValidationMessage For="() => sharesPurchased.Amount" class="text-danger" />
                              </div>
@@ -138,6 +172,7 @@
                                  <ValidationMessage For="() => sharesPurchased.Note" class="text-danger" />
                              </div>
                          </div>
+
                      </div>
 
                     <br />
@@ -168,9 +203,11 @@
 
                          <PropertyColumn Title="Datum" Property="@(c => c.DateOfPurchase)" Format="yyyy-MM-dd" Sortable="true" />
                          <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
+                         <PropertyColumn Title="Typ" Property="@(c => c.TypeOfShares)" Sortable="true" />
                          <PropertyColumn Title="Antal" Property="@(c => c.HowMany)" Sortable="true" />
                          <PropertyColumn Title="Pris per aktie" Property="@(c => c.PricePerShares)" Sortable="true" />
                          <PropertyColumn Title="Inköpsvärdet" Property="@(c => c.Amount)" Sortable="true" />
+                         <PropertyColumn Title="Valuta" Property="@(c => c.Currency)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -274,6 +311,12 @@
 
 @code
 {
+    [SupplyParameterFromForm]
+    private SharesPurchasedViewModel sharesPurchased { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<SharesPurchasedViewModel> PurchasedSharesQueryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
+
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";
@@ -287,65 +330,7 @@
     private bool ShowOrHideAddNewPurchasedSharesButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesPurchasedViewModel> PurchasedSharesQueryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
-
-    [SupplyParameterFromForm]
-    private SharesPurchasedViewModel sharesPurchased { get; set; } = new();
-
     protected override void OnInitialized() => ConvertListToQueryable();
-
-    private SharesPurchaseds GetSharesPurchased(int? id) => db.SharesPurchaseds.FirstOrDefault(r => r.SharesPurchasedId == id);
-
-    private void CreateOrUpdatePurchasedShares()
-    {
-        DisabledForm = false;
-
-        SharesPurchaseds getDbSharesPurchasedsModel;
-        SharesPurchaseds changesToModel;
-
-        // Update hunting
-        if (sharesPurchased.SharesPurchasedId > 0)
-        {
-            ShowOrHideCreateButton = true;
-
-            SharesPurchaseds c = db.SharesPurchaseds.FirstOrDefault(p => p.SharesPurchasedId == sharesPurchased.SharesPurchasedId);
-
-            if (c is null) return;
-
-            getDbSharesPurchasedsModel = GetSharesPurchased(sharesPurchased.SharesPurchasedId);
-
-            changesToModel = changesSharesPurchasedToModel(sharesPurchased);
-
-            getDbSharesPurchasedsModel.SharesPurchasedId = changesToModel.SharesPurchasedId;
-            getDbSharesPurchasedsModel.DateOfPurchase = changesToModel.DateOfPurchase;
-            getDbSharesPurchasedsModel.CompanyName = changesToModel.CompanyName;
-            getDbSharesPurchasedsModel.HowMany = changesToModel.HowMany;
-            getDbSharesPurchasedsModel.PricePerShares = changesToModel.PricePerShares;
-            getDbSharesPurchasedsModel.Brokerage = changesToModel.Brokerage;
-            getDbSharesPurchasedsModel.Amount = changesToModel.HowMany * changesToModel.PricePerShares;
-            getDbSharesPurchasedsModel.TypeOfShares = changesToModel.TypeOfShares;
-            getDbSharesPurchasedsModel.Note = changesToModel.Note;
-
-            db.SaveChanges();
-
-            sharesPurchased = new();
-            Navigation.Refresh(true);
-
-            return;
-        }
-
-        if (sharesPurchased.DateOfPurchase == DateTime.MinValue) return;
-
-        // Add new hunting
-        changesToModel = changesSharesPurchasedToModel(sharesPurchased);
-        db.SharesPurchaseds.Add(changesToModel);
-        db.SaveChanges();
-        sharesPurchased = new();
-        Navigation.Refresh(true);
-
-        return;
-    }
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -356,49 +341,27 @@
 
         foreach (SharesPurchaseds model in db.SharesPurchaseds.OrderBy(c => c.SharesPurchasedId))
         {
-            SharesPurchasedViewModel sharesPurchased = ChangeFromModelToViewModel(model);
+            SharesPurchasedViewModel sharesPurchased = SharesPurchasedHelpClass.ChangeFromModelToViewModel(model);
             PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { sharesPurchased }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    private SharesPurchasedViewModel ChangeFromModelToViewModel(SharesPurchaseds model)
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    private void CreateOrUpdatePurchasedShares()
     {
-        DateTime date = DateTime.Parse(model.DateOfPurchase);
+        DisabledForm = false;
 
-        SharesPurchasedViewModel vm = new()
-            {
-                SharesPurchasedId = model.SharesPurchasedId,
-                DateOfPurchase = date,
-                CompanyName = model.CompanyName,
-                HowMany = model.HowMany,
-                PricePerShares = model.PricePerShares,
-                Brokerage = model.Brokerage,
-                Amount = model.Amount,
-                TypeOfShares = model.TypeOfShares,
-                Note = model.Note
-            };
+        if (sharesPurchased.SharesPurchasedId > 0) ShowOrHideCreateButton = true;
 
-        return vm;
-    }
+        SharesPurchasedHelpClass.CreateOrUpdatePurchasedShares(db, sharesPurchased);
 
-    private SharesPurchaseds changesSharesPurchasedToModel(SharesPurchasedViewModel vm)
-    {
-        SharesPurchaseds sharesPurchased = new()
-            {
-                DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
-                CompanyName = vm.CompanyName,
-                HowMany = vm.HowMany,
-                PricePerShares = vm.PricePerShares,
-                Brokerage = vm.Brokerage,
-                Amount = vm.HowMany * vm.PricePerShares,
-                TypeOfShares = vm.TypeOfShares,
-                Note = "Köper " + vm.CompanyName + " aktier: " + "Datum: " + vm.DateOfPurchase + ", Hur många: " + vm.HowMany +
-                    ", Pris per st: " + vm.PricePerShares + ", Summan: " + vm.HowMany * vm.PricePerShares + ", Courtage: " + vm.Brokerage + ". "
-            };
+        sharesPurchased = new();
+        Navigation.Refresh(true);
 
-        return sharesPurchased;
+        return;
     }
 
     private void InfoSharesPurchased(SharesPurchasedViewModel incomingModel)
@@ -422,150 +385,10 @@
     {
         if (db.SharesPurchaseds.Count() == 0) return;
 
-        SharesPurchaseds sharesPurchased = changesSharesPurchasedToModel(incomingModel);
-
-        db.ChangeTracker.Clear();
-        db.SharesPurchaseds.Remove(sharesPurchased);
-        db.SaveChanges();
+        SharesPurchasedHelpClass.DeleteSharesPurchased(db, incomingModel);
 
         Navigation.Refresh(true);
     }
-
-    // private void SearchPlace(ChangeEventArgs e)
-    // {
-    //     PurchasedSharesQueryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
-
-    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
-    //     {
-    //         string getName = string.Empty;
-
-    //         foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
-    //         {
-    //             getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
-
-    //             if (getName == e.Value.ToString().ToLower())
-    //                 break;
-    //         }
-
-    //         if (getName != string.Empty)
-    //         {
-    //             IEnumerable<Huntings> result = null;
-
-    //             switch (getName.ToLower())
-    //             {
-    //                 case "Välj":
-    //                     break;
-
-    //                 case "habäck":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Habäck);
-    //                     break;
-
-    //                 case "dalsjöfors":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Dalsjöfors);
-    //                     break;
-
-    //                 case "karlabo":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Karlabo);
-    //                     break;
-
-    //                 case "skog":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Skog);
-    //                     break;
-
-    //                 case "smältryd":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Smältryd);
-    //                     break;
-
-    //                 case "övrigt":
-    //                     result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Övrigt);
-    //                     break;
-    //             }
-
-    //             if (result == null || result.Count() == 0) return;
-
-    //             if (result.Any())
-    //                 foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
-    //                 {
-    //                     SharesPurchasedViewModel hunting = ChangeFromModelToViewModel(model);
-    //                     PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { hunting }.AsQueryable());
-    //                 }
-    //         }
-
-    //         return;
-    //     }
-
-    //     Navigation.Refresh(true);
-    // }
-
-    // private void SearchWildAnimal(ChangeEventArgs e)
-    // {
-    //     PurchasedSharesQueryable = Enumerable.Empty<HuntPurchasedViewModelingViewModels>().AsQueryable();
-
-    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
-    //     {
-    //         string getName = string.Empty;
-
-    //         foreach (int wildAnimal in Enum.GetValues(typeof(WildAnimal)))
-    //         {
-    //             getName = Enum.GetName(typeof(WildAnimal), wildAnimal).ToLower();
-
-    //             if (getName == e.Value.ToString().ToLower())
-    //                 break;
-    //         }
-
-    //         if (getName != string.Empty)
-    //         {
-    //             IEnumerable<Huntings> result = null;
-
-    //             switch (getName.ToLower())
-    //             {
-    //                 case "Välj":
-    //                     break;
-
-    //                 case "hare":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Hare);
-    //                     break;
-
-    //                 case "lo":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Lo);
-    //                     break;
-
-    //                 case "rådjur":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Rådjur);
-    //                     break;
-
-    //                 case "räv":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Räv);
-    //                     break;
-
-    //                 case "vildsvin":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Vildsvin);
-    //                     break;
-
-    //                 case "älg":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Älg);
-    //                     break;
-
-    //                 case "övrigt":
-    //                     result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Övrigt);
-    //                     break;
-    //             }
-
-    //             if (result == null || result.Count() == 0) return;
-
-    //             if (result.Any())
-    //                 foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
-    //                 {
-    //                     SharesPurchasedViewModel hunting = ChangeFromModelToViewModel(model);
-    //                     PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { hunting }.AsQueryable());
-    //                 }
-    //         }
-
-    //         return;
-    //     }
-
-    //     Navigation.Refresh(true);
-    // }
 
     private void HideNewOrChangesSharesPurchasedForm()
     {
@@ -573,8 +396,6 @@
         ShowOrHideCreateButton = true;
         ShowOrHideEditButton = true;
     }
-
-    private void RefreshPage() => Navigation.Refresh(true);
 
     private void OpenDeleteWindow()
     {
