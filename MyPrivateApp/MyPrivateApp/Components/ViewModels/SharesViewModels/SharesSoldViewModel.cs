@@ -9,12 +9,12 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [ScaffoldColumn(false)]
         [Display(Name = "Köpsdatum")]
         [DataType(DataType.Date)]
-        public string? DateOfPurchase { get; set; } //  Köpsdatum. String? 
+        public DateTime DateOfPurchase { get; set; } //  Köpsdatum. String? 
 
         [Required(ErrorMessage = "Skriv in när aktien såldes")]
         [Display(Name = "Säljsdatum")]
         [DataType(DataType.Date)]
-        public string? DateOfSold { get; set; } //  Säljsdatum. String? 
+        public DateTime DateOfSold { get; set; } //  Säljsdatum. String? 
 
         [Required(ErrorMessage = "Shares_Error_Amount")]
         [Display(Name = "Inköpsvärdet")]
@@ -27,14 +27,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public double AmountSold { get; set; } // Totalbelopp från solda värdet 
 
         [ScaffoldColumn(false)]
-        [Display(Name = "Courtage")]
-        [DataType(DataType.Currency)]
-        public int Brokerage { get; set; } //Courtage, köp kostnad
-
-        [ScaffoldColumn(false)]
         [Display(Name = "Företag")]
         [DataType(DataType.Text)]
         public string? CompanyName { get; set; }
+
+        [ScaffoldColumn(false)]
+        [Display(Name = "Typ av aktie")]
+        [DataType(DataType.Text)]
+        public string? TypeOfShares { get; set; }
 
         [ScaffoldColumn(false)]
         [Display(Name = "Antal")]
@@ -50,15 +50,6 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Currency)]
         public double PricePerSharesSold { get; set; } // Uträkning nytt värde
 
-        [Display(Name = "Anteckningar")]
-        [DataType(DataType.MultilineText)]
-        public string? Note { get; set; }
-
-        [ScaffoldColumn(false)]
-        [Display(Name = "Typ av aktie:")]
-        [DataType(DataType.Text)]
-        public string? TypeOfShares { get; set; }
-
         [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust")]
         [DataType(DataType.Currency)]
@@ -67,5 +58,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust i %")]
         public string? PercentProfitOrLoss { get; set; } //Vinst eller förlust i %. Grön och röd färg?
+
+        [ScaffoldColumn(false)]
+        [Display(Name = "Courtage")]
+        [DataType(DataType.Currency)]
+        public int Brokerage { get; set; } //Courtage, köp kostnad
+
+        [Display(Name = "Anteckningar")]
+        [DataType(DataType.MultilineText)]
+        public string? Note { get; set; }
     }
 }

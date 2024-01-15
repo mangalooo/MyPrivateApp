@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240111222844_addSharesSoldTable")]
+    partial class addSharesSoldTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -376,25 +379,6 @@ namespace MyPrivateApp.Migrations
                     b.HasKey("HuntingsId");
 
                     b.ToTable("Huntings");
-                });
-
-            modelBuilder.Entity("MyPrivateApp.Data.Models.SharesModels.SharesErrorHandlings", b =>
-                {
-                    b.Property<int>("ErrorHandlingsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ErrorHandlingsId"));
-
-                    b.Property<string>("Date")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ErrorHandlingsId");
-
-                    b.ToTable("SharesErrorHandlings");
                 });
 
             modelBuilder.Entity("MyPrivateApp.Data.Models.SharesModels.SharesPurchaseds", b =>

@@ -39,6 +39,8 @@
 
 <h1 style="text-align:center"> Köpta aktier </h1>
 
+<br />
+
 <div style="text-align:center">
     <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesSharesPurchasedForm" hidden="@ShowOrHideCreateButton">Köp aktie</button>
 </div>
@@ -109,19 +111,20 @@
 
                          <div class="col-3">
                              <div class="form-floating">
+                                 <InputNumber @bind-Value="sharesPurchased.Amount" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Amount"> Inköpsvärdet </label>
+                                 <ValidationMessage For="() => sharesPurchased.Amount" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
                                  <InputNumber @bind-Value="sharesPurchased.Brokerage" class="form-control" disabled="@DisabledForm" />
                                  <label for="Brokerage"> Courtage </label>
                                  <ValidationMessage For="() => sharesPurchased.Brokerage" class="text-danger" />
                              </div>
                          </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.Amount" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Amount"> Inköpsvärdet </label>
-                                 <ValidationMessage For="() => sharesPurchased.Amount" class="text-danger" />
-                             </div>
-                         </div>
                      </div>
 
                      <br />
