@@ -9,5 +9,6 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public string? Date { get; set; }
         public int Tax { get; set; }
         public int Brokerage { get; set; }
+        public string? Note { get; set; }
     }
 }

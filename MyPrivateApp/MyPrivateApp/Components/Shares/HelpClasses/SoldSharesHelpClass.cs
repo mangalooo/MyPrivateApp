@@ -11,10 +11,6 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
             // Update sold shares
             if (sharesSolds.SharesSoldId > 0)
             {
-                SharesSolds c = db.SharesSolds.FirstOrDefault(p => p.SharesSoldId == sharesSolds.SharesSoldId);
-
-                if (c is null) return;
-
                 SharesSolds model = SetChanges(db, sharesSolds);
 
                 try
@@ -116,11 +112,10 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
                 ISIN = vm.ISIN,
                 Account = vm.Account,
                 TypeOfShares = vm.TypeOfShares,
-                Note = "Köper " + vm.CompanyName + " aktier: " + "Datum: " + vm.DateOfPurchase.ToString().Substring(0, 10) + ", Hur många: " + vm.HowMany +
-                       ", Pris per st: " + vm.PricePerShares + ", Summan: " + vm.HowMany * vm.PricePerShares + ", Courtage: " + vm.Brokerage + ". "
+                Note = vm.Note
             };
 
-            sharesSolds.MoneyProfitOrLoss = (sharesSolds.AmountSold - sharesSolds.Amount) - vm.Brokerage;
+            sharesSolds.MoneyProfitOrLoss = sharesSolds.AmountSold - sharesSolds.Amount;
 
             double calculateMoneyProfitOrLoss = (sharesSolds.AmountSold / sharesSolds.Amount) - 1;
 

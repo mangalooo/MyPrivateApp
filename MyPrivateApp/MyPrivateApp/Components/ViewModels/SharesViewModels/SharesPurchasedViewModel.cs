@@ -55,5 +55,37 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]
         public string? Note { get; set; }
+
+        // Add more
+        [Display(Name = "Köp mer: Datum")]
+        [DataType(DataType.Date)]
+        public DateTime MoreDateOfPurchase { get; set; } //  Köp datum
+
+        [Display(Name = "Köp mer: Antal")]
+        public int MoreHowMany { get; set; }
+
+        [Display(Name = "Köp mer: Pris per aktie")]
+        [DataType(DataType.Currency)]
+        public double MorePricePerShares { get; set; }
+
+        [Display(Name = "Köp mer: Courtage")]
+        [DataType(DataType.Currency)]
+        public int MoreBrokerage { get; set; } //courtage, köp kostnad
+
+        // Sale
+        [Display(Name = "Sälj: Datum")]
+        [DataType(DataType.Date)]
+        public DateTime SaleDateOfPurchase { get; set; } //  Köp datum
+
+        [Display(Name = "Sälj: Antal")]
+        public int SaleHowMany { get; set; }
+
+        [Display(Name = "Sälj: Pris per aktie")]
+        [DataType(DataType.Currency)]
+        public double SalePricePerShares { get; set; }
+
+        [Display(Name = "Sälj: Courtage")]
+        [DataType(DataType.Currency)]
+        public int SaleBrokerage { get; set; } //courtage, köp kostnad
     }
 }
