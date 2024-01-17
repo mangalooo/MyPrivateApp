@@ -2,13 +2,13 @@
 
 namespace MyPrivateApp.Data.Models.SharesModels
 {
-    public class SharesTaxAndBrokerages
+    public class SharesFee
     {
         [Key]
-        public int SharesTaxAndBrokerageId { get; set; }
+        public int SharesFeeId { get; set; }
         public string? Date { get; set; }
-        public int Tax { get; set; }
-        public int Brokerage { get; set; }
+        public double Tax { get; set; }
+        public double Brokerage { get; set; }
         public string? Note { get; set; }
     }
 }

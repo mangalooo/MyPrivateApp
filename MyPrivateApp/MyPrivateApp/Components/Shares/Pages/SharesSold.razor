@@ -27,7 +27,7 @@
         <li class="dropdown-item"><NavLink href="SharesPurchased" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
         <li class="dropdown-item"><NavLink href="SharesSold" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
         <li class="dropdown-item"><NavLink href="SharesDividend" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesTaxAndBrokerage" type="button" class="btn btn-outline-dark btn-sm">Skatter</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
         <li class="dropdown-item"><NavLink href="SharesImports" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
         <li class="dropdown-item"><NavLink href="SharesDepositMoney" type="button" class="btn btn-outline-dark btn-sm"> Ta ut eller sätt in pengar </NavLink></li>
         <li class="dropdown-item"><NavLink href="SharesInterestRates" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
@@ -386,7 +386,7 @@
 
         if (sharesSolds.SharesSoldId > 0) ShowOrHideCreateButton = true;
 
-        SoldSharesHelpClass.CreateOrUpdatePurchasedShares(db, sharesSolds);
+        SharesSoldHelpClass.CreateOrUpdatePurchasedShares(db, sharesSolds);
 
         sharesSolds = new();
         Navigation.Refresh(true);
@@ -403,7 +403,7 @@
 
         foreach (SharesSolds model in db.SharesSolds.OrderBy(c => c.SharesSoldId))
         {
-            SharesSoldViewModel sharesPurchased = SoldSharesHelpClass.ChangeFromModelToViewModel(model);
+            SharesSoldViewModel sharesPurchased = SharesSoldHelpClass.ChangeFromModelToViewModel(model);
             PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { sharesPurchased }.AsQueryable());
         }
 
@@ -433,7 +433,7 @@
     {
         if (db.SharesSolds.Count() == 0) return;
 
-        SharesSolds SharesSold = SoldSharesHelpClass.ChangesSharesSoldToModel(incomingModel);
+        SharesSolds SharesSold = SharesSoldHelpClass.ChangesSharesSoldToModel(incomingModel);
 
         db.ChangeTracker.Clear();
         db.SharesSolds.Remove(SharesSold);

@@ -4,7 +4,7 @@ using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Components.Shares.HelpClasses
 {
-    public class SoldSharesHelpClass
+    public class SharesSoldHelpClass
     {
         public static void CreateOrUpdatePurchasedShares(ApplicationDbContext db, SharesSoldViewModel sharesSolds)
         {
