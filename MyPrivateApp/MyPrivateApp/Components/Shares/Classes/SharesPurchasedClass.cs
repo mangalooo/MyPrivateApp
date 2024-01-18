@@ -2,13 +2,13 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 
-namespace MyPrivateApp.Components.Shares.HelpClasses
+namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesPurchasedHelpClass
     {
         private static SharesPurchaseds GetSharesPurchased(ApplicationDbContext db, int? id) => db.SharesPurchaseds.FirstOrDefault(r => r.SharesPurchasedId == id);
 
-        public static void CreateOrUpdatePurchasedShares(ApplicationDbContext db, SharesPurchasedViewModel sharesPurchased)
+        public static void Update(ApplicationDbContext db, SharesPurchasedViewModel sharesPurchased)
         {
             // Update hunting
             if (sharesPurchased.SharesPurchasedId > 0)
@@ -40,8 +40,11 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
                 }
 
                 return;
-            }
+            } 
+        }
 
+        public static void Create(ApplicationDbContext db, SharesPurchasedViewModel sharesPurchased)
+        {
             if (sharesPurchased.SharesPurchasedId != 0) return;
 
             // Add new hunting
@@ -69,8 +72,6 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
                 db.SaveChanges();
             }
-
-            return;
         }
 
         public static SharesPurchaseds SetChanges(ApplicationDbContext db, SharesPurchasedViewModel vm)
@@ -251,7 +252,7 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
 
                 // Brokerage ska läggas på avgift tabellen!
                 SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(shares.Brokerage, $"Courtage för aktien: {vm.CompanyName}");
-                SharesFeeHelpClass.Create(db, FeeVM);
+                SharesFeeClass.Create(db, FeeVM);
 
                 // Tar bort den köpte aktien som flyttas till sålda aktier
                 DeleteSharesPurchased(db, vm);
@@ -309,7 +310,7 @@ namespace MyPrivateApp.Components.Shares.HelpClasses
 
                 // Brokerage ska läggas på avgift tabellen! (För delarna som såldes)
                 SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(shares.Brokerage, $"Courtage för sålda delar av aktien: {vm.CompanyName}");
-                SharesFeeHelpClass.Create(db, FeeVM);
+                SharesFeeClass.Create(db, FeeVM);
 
                 // Tar bort delar av den köpta aktien som flyttas till sålda aktier
                 EditSellShares(db, vm);

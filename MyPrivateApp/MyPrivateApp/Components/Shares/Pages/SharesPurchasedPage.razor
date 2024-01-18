@@ -1,7 +1,7 @@
-﻿@page "/SharesPurchased"
+﻿@page "/SharesPurchasedPage"
 
 @using MyPrivateApp.Components.Enum
-@using MyPrivateApp.Components.Shares.HelpClasses
+@using MyPrivateApp.Components.Shares.Classes
 @using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
@@ -22,16 +22,16 @@
         Alla aktier sidor
     </button>
     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-        <li class="dropdown-item"><NavLink href="Shares" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesPurchased" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesSold" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesDividend" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
         <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesImports" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesDepositMoney" type="button" class="btn btn-outline-dark btn-sm"> Ta ut eller sätt in pengar </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesInterestRates" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesOtherImports" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesErrorHandling" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Ta ut eller sätt in pengar </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
     </ul>
 </div>
 
@@ -43,7 +43,7 @@
 <br />
 
 <div style="text-align:center" hidden="@ShowOrHideCreateButton">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesSharesPurchasedForm">Köp aktie</button>
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm">Köp aktie</button>
 
     <br />
     <br />
@@ -53,7 +53,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <EditForm Model="sharesPurchased" OnSubmit="CreateOrUpdatePurchasedShares" FormName="CreateOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesPurchasedSharesFields)">
+                <EditForm Model="sharesPurchased" OnSubmit="CreateOrUpdate" FormName="CreateOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -257,22 +257,22 @@
 
                      <br />
 
-                     <div style="text-align:center" hidden="@ShowOrHideAddNewPurchasedSharesButton">
-                         <button @onclick="HideNewOrChangesSharesPurchasedForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till köpt aktie </button>
+                     <div style="text-align:center" hidden="@ShowOrHideAddNewButton">
+                         <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till köpt aktie </button>
 
                          <br />
                          <br />
                      </div>
 
                      <div style="text-align:center" hidden="@ShowOrHideEditButton">
-                         <button @onclick="HideNewOrChangesSharesPurchasedForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                         <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                          
                          <br />
                          <br />
                      </div>
 
                      <div style="text-align:center" hidden="@ShowOrHideButtonAddMoreShares">
-                         <button @onclick="AddMoreSharesButton" type="button" style="text-align:center" class="btn btn-outline-success btn-sm"> Köp mer </button>
+                         <button @onclick="AddMoreButton" type="button" style="text-align:center" class="btn btn-outline-success btn-sm"> Köp mer </button>
 
                          <br />
                          <br />
@@ -289,7 +289,7 @@
                                     <h5> Antal aktier: <strong> @sharesPurchased.SaleHowMany av @sharesPurchased.HowMany? </strong> </h5>
 
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellPurchasedSharesButton(sharesPurchased))"> Sälja </button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton(sharesPurchased))"> Sälja </button>
                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSale()"> Ångra </button>
                                     </div>
                                 </div>
@@ -334,10 +334,10 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoSharesPurchasedShow(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditSharesPurchasedShow(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-success btn-sm" @onclick="@(() => AddMoreSharesShow(context))"> Köp mera </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => SellPurchasedSharesShow(context))"> Sälj </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-success btn-sm" @onclick="@(() => AddMore(context))"> Köp mera </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => Sell(context))"> Sälj </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -349,7 +349,7 @@
                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteSharesPurchased(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
                                         </div>
                                     </div>
@@ -386,10 +386,10 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoSharesPurchasedShow(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditSharesPurchasedShow(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-success btn-sm" @onclick="@(() => AddMoreSharesShow(context))"> Köp mera </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => SellPurchasedSharesShow(context))"> Sälj </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-success btn-sm" @onclick="@(() => AddMore(context))"> Köp mera </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => Sell(context))"> Sälj </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -401,7 +401,7 @@
                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteSharesPurchased(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
                                         </div>
                                     </div>
@@ -451,10 +451,10 @@
     public bool ShowBackdropSale = false;
 
     // Hide button and fields
-    private bool HideNewOrChangesPurchasedSharesFields { get; set; } = false;
+    private bool HideNewOrChangesFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
-    private bool ShowOrHideAddNewPurchasedSharesButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool BuyMore { get; set; } = true;
     private bool ShowOrHideButtonAddMoreShares { get; set; } = true;
@@ -479,15 +479,27 @@
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void CreateOrUpdatePurchasedShares()
+    private void CreateOrUpdate()
     {
         DisabledForm = false;
 
-        if (sharesPurchased.SharesPurchasedId > 0) ShowOrHideCreateButton = true;
+        if (sharesPurchased.SharesPurchasedId > 0)
+        {
+            ShowOrHideCreateButton = true;
 
-        SharesPurchasedHelpClass.CreateOrUpdatePurchasedShares(db, sharesPurchased);
+            SharesPurchasedHelpClass.Update(db, sharesPurchased);
+        }
+        else
+            SharesPurchasedHelpClass.Create(db, sharesPurchased);
 
         sharesPurchased = new();
         Navigation.Refresh(true);
@@ -495,19 +507,19 @@
         return;
     }
 
-    private void AddMoreSharesShow(SharesPurchasedViewModel incomingModel)
+    private void AddMore(SharesPurchasedViewModel incomingModel)
     {
         if (incomingModel == null) return;
 
-        HideNewOrChangesSharesPurchasedForm();
+        HideNewOrChangesForm();
         BuyMore = false;
         DisabledForm = true;
         ShowOrHideButtonAddMoreShares = false;
-        ShowOrHideAddNewPurchasedSharesButton = true;
+        ShowOrHideAddNewButton = true;
         sharesPurchased = incomingModel;
     }
 
-    private void AddMoreSharesButton()
+    private void AddMoreButton()
     {
         SharesPurchasedHelpClass.AddMoreShares(db, sharesPurchased);
 
@@ -515,40 +527,40 @@
         Navigation.Refresh(true);
     }
 
-    private void InfoSharesPurchasedShow(SharesPurchasedViewModel incomingModel)
+    private void Info(SharesPurchasedViewModel incomingModel)
     {
         if (incomingModel == null) return;
 
-        HideNewOrChangesSharesPurchasedForm();
-        ShowOrHideAddNewPurchasedSharesButton = true;
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
         DisabledForm = true;
         sharesPurchased = incomingModel;
     }
 
-    private void EditSharesPurchasedShow(SharesPurchasedViewModel incomingModel)
+    private void Edit(SharesPurchasedViewModel incomingModel)
     {
         if (incomingModel == null) return;
 
         DisabledForm = false;
         ShowOrHideEditButton = false;
-        ShowOrHideAddNewPurchasedSharesButton = true;
-        HideNewOrChangesPurchasedSharesFields = true;
+        ShowOrHideAddNewButton = true;
+        HideNewOrChangesFields = true;
         sharesPurchased = incomingModel;
     }
 
-    private void SellPurchasedSharesShow(SharesPurchasedViewModel incomingModel)
+    private void Sell(SharesPurchasedViewModel incomingModel)
     {
         if (incomingModel == null) return;
 
-        HideNewOrChangesSharesPurchasedForm();
+        HideNewOrChangesForm();
         Sale = false;
         DisabledForm = true;
         ShowOrHideSaleButton = false;
-        ShowOrHideAddNewPurchasedSharesButton = true;
+        ShowOrHideAddNewButton = true;
         sharesPurchased = incomingModel;
     }
 
-    private void SellPurchasedSharesButton(SharesPurchasedViewModel incomingModel)
+    private void SellButton(SharesPurchasedViewModel incomingModel)
     {
         if (incomingModel == null) return;
 
@@ -556,40 +568,6 @@
 
         sharesPurchased = new();
         Navigation.Refresh(true);
-    }
-
-    private void DeleteSharesPurchased(SharesPurchasedViewModel incomingModel)
-    {
-        if (incomingModel == null) return;
-
-        if (db.SharesPurchaseds.Count() == 0) return;
-
-        SharesPurchasedHelpClass.DeleteSharesPurchased(db, incomingModel);
-
-        Navigation.Refresh(true);
-    }
-
-    private void HideNewOrChangesSharesPurchasedForm()
-    {
-        HideNewOrChangesPurchasedSharesFields = !HideNewOrChangesPurchasedSharesFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
-    }
-
-    private void OpenWindowDelete()
-    {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
-    }
-
-    private void CloseWindowDelete()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
     }
 
     private void OpenWindowSale()
@@ -605,6 +583,33 @@
         ModalDisplaySale = "none";
         ModalClassSale = "";
         ShowBackdropSale = false;
+        StateHasChanged();
+    }
+    
+    private void Delete(SharesPurchasedViewModel incomingModel)
+    {
+        if (incomingModel == null) return;
+
+        if (db.SharesPurchaseds.Count() == 0) return;
+
+        SharesPurchasedHelpClass.DeleteSharesPurchased(db, incomingModel);
+
+        Navigation.Refresh(true);
+    }
+
+    private void OpenWindowDelete()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindowDelete()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
         StateHasChanged();
     }
 }

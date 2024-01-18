@@ -2,9 +2,9 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 
-namespace MyPrivateApp.Components.Shares.HelpClasses
+namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesFeeHelpClass
+    public class SharesFeeClass
     {
         public static void Create(ApplicationDbContext db, SharesFeeViewModel vm)
         {

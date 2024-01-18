@@ -7,7 +7,7 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.SharesModels
-@using MyPrivateApp.Components.Shares.HelpClasses
+@using MyPrivateApp.Components.Shares.Classes
 
 @rendermode InteractiveServer
 
@@ -23,16 +23,16 @@
         Alla aktier sidor
     </button>
     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-        <li class="dropdown-item"><NavLink href="Shares" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesPurchased" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesSold" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesDividend" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
         <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesImports" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesDepositMoney" type="button" class="btn btn-outline-dark btn-sm"> Ta ut eller sätt in pengar </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesInterestRates" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesOtherImports" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesErrorHandling" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Ta ut eller sätt in pengar </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+        <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
     </ul>
 </div>
 
@@ -266,10 +266,10 @@
         {
             ShowOrHideCreateButton = true;
 
-            SharesFeeHelpClass.Edit(db, SharesFees);
+            SharesFeeClass.Edit(db, SharesFees);
         }
         else
-            SharesFeeHelpClass.Create(db, SharesFees);
+            SharesFeeClass.Create(db, SharesFees);
 
         SharesFees = new();
         Navigation.Refresh(true);
@@ -286,7 +286,7 @@
 
         foreach (SharesFee model in db.SharesFees.OrderBy(c => c.SharesFeeId))
         {
-            SharesFeeViewModel SharesFees = SharesFeeHelpClass.ChangeFromModelToViewModel(model);
+            SharesFeeViewModel SharesFees = SharesFeeClass.ChangeFromModelToViewModel(model);
             SharesFeeQueryable = SharesFeeQueryable.Concat(new[] { SharesFees }.AsQueryable());
         }
 
@@ -314,7 +314,7 @@
     {
         if (db.SharesFees.Count() == 0) return;
 
-        SharesFeeHelpClass.Delete(db, incomingVM);
+        SharesFeeClass.Delete(db, incomingVM);
 
         SharesFees = new();
         Navigation.Refresh(true);
