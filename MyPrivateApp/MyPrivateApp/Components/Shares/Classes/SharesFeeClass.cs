@@ -27,7 +27,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date} \n Felmeddelande: {ex.Message}"
+                    ErrorMessage =  $"Felmeddelande: {ex.Message}",
+                    Note = $"Avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -62,7 +63,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                     SharesErrorHandlings sharesErrorHandling = new()
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Ändra avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date} \n Felmeddelande: {ex.Message}"
+                        ErrorMessage = $"Felmeddelande: {ex.Message}",
+                        Note = $"Ändra avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -124,7 +126,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                     SharesErrorHandlings sharesErrorHandling = new()
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Ta bort avgifter: {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Datum: {model.Date} \n Felmeddelande: {ex.Message}"
+                        ErrorMessage = $"Felmeddelande: {ex.Message}",
+                        Note = $"Ta bort avgifter: {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Datum: {model.Date}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);

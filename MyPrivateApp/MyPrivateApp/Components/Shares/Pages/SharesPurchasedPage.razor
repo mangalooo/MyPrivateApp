@@ -461,8 +461,6 @@
     private bool Sale { get; set; } = true;
     private bool ShowOrHideSaleButton { get; set; } = true;
 
-    protected override void OnInitialized() => ConvertListToQueryable();
-
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
@@ -478,6 +476,8 @@
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
+
+    protected override void OnInitialized() => ConvertListToQueryable();
 
     private void HideNewOrChangesForm()
     {
@@ -507,64 +507,64 @@
         return;
     }
 
-    private void AddMore(SharesPurchasedViewModel incomingModel)
+    private void AddMore(SharesPurchasedViewModel vm)
     {
-        if (incomingModel == null) return;
+        if (vm == null) return;
 
         HideNewOrChangesForm();
         BuyMore = false;
         DisabledForm = true;
         ShowOrHideButtonAddMoreShares = false;
         ShowOrHideAddNewButton = true;
-        sharesPurchased = incomingModel;
+        sharesPurchased = vm;
     }
 
     private void AddMoreButton()
     {
-        SharesPurchasedHelpClass.AddMoreShares(db, sharesPurchased);
+        SharesPurchasedHelpClass.AddMore(db, sharesPurchased);
 
         sharesPurchased = new();
         Navigation.Refresh(true);
     }
 
-    private void Info(SharesPurchasedViewModel incomingModel)
+    private void Info(SharesPurchasedViewModel vm)
     {
-        if (incomingModel == null) return;
+        if (vm == null) return;
 
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        sharesPurchased = incomingModel;
+        sharesPurchased = vm;
     }
 
-    private void Edit(SharesPurchasedViewModel incomingModel)
+    private void Edit(SharesPurchasedViewModel vm)
     {
-        if (incomingModel == null) return;
+        if (vm == null) return;
 
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
         HideNewOrChangesFields = true;
-        sharesPurchased = incomingModel;
+        sharesPurchased = vm;
     }
 
-    private void Sell(SharesPurchasedViewModel incomingModel)
+    private void Sell(SharesPurchasedViewModel vm)
     {
-        if (incomingModel == null) return;
+        if (vm == null) return;
 
         HideNewOrChangesForm();
         Sale = false;
         DisabledForm = true;
         ShowOrHideSaleButton = false;
         ShowOrHideAddNewButton = true;
-        sharesPurchased = incomingModel;
+        sharesPurchased = vm;
     }
 
-    private void SellButton(SharesPurchasedViewModel incomingModel)
+    private void SellButton(SharesPurchasedViewModel vm)
     {
-        if (incomingModel == null) return;
+        if (vm == null) return;
 
-        SharesPurchasedHelpClass.SellPurchasedShares(db, sharesPurchased);
+        SharesPurchasedHelpClass.Sell(db, sharesPurchased);
 
         sharesPurchased = new();
         Navigation.Refresh(true);
@@ -586,13 +586,13 @@
         StateHasChanged();
     }
     
-    private void Delete(SharesPurchasedViewModel incomingModel)
+    private void Delete(SharesPurchasedViewModel vm)
     {
-        if (incomingModel == null) return;
+        if (vm == null) return;
 
         if (db.SharesPurchaseds.Count() == 0) return;
 
-        SharesPurchasedHelpClass.DeleteSharesPurchased(db, incomingModel);
+        SharesPurchasedHelpClass.Delete(db, vm);
 
         Navigation.Refresh(true);
     }

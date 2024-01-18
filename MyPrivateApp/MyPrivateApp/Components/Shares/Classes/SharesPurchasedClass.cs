@@ -8,16 +8,23 @@ namespace MyPrivateApp.Components.Shares.Classes
     {
         private static SharesPurchaseds GetSharesPurchased(ApplicationDbContext db, int? id) => db.SharesPurchaseds.FirstOrDefault(r => r.SharesPurchasedId == id);
 
-        public static void Update(ApplicationDbContext db, SharesPurchasedViewModel sharesPurchased)
+        public static void Update(ApplicationDbContext db, SharesPurchasedViewModel vm)
         {
             // Update hunting
-            if (sharesPurchased.SharesPurchasedId > 0)
+            if (vm.SharesPurchasedId > 0)
             {
-                SharesPurchaseds c = db.SharesPurchaseds.FirstOrDefault(p => p.SharesPurchasedId == sharesPurchased.SharesPurchasedId);
-
-                if (c is null) return;
-
-                SharesPurchaseds model = SetChanges(db, sharesPurchased);
+                SharesPurchaseds dbModel = GetSharesPurchased(db, vm.SharesPurchasedId);
+                dbModel.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
+                dbModel.CompanyName = vm.CompanyName;
+                dbModel.HowMany = vm.HowMany;
+                dbModel.PricePerShares = vm.PricePerShares;
+                dbModel.Brokerage = vm.Brokerage;
+                dbModel.Currency = vm.Currency;
+                dbModel.ISIN = vm.ISIN;
+                dbModel.Account = vm.Account;
+                dbModel.Amount = vm.HowMany * vm.PricePerShares;
+                dbModel.TypeOfShares = vm.TypeOfShares;
+                dbModel.Note = vm.Note;
 
                 try
                 {
@@ -25,71 +32,53 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"EditPurchasedShares {DateTime.Now}: Company: {model.CompanyName} Date: {model.DateOfPurchase} Error: {ex.Message}");
+                    Console.WriteLine($"EditPurchasedShares {DateTime.Now}: Company: {vm.CompanyName} Date: {vm.DateOfPurchase} Error: {ex.Message}");
 
                     DateTime date = DateTime.Now;
 
                     SharesErrorHandlings sharesErrorHandling = new()
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Ändra köp: {DateTime.Now}: Företag: {model.CompanyName} Datum: {model.DateOfPurchase} \n Felmeddelande: {ex.Message}"
+                        ErrorMessage = $"Felmeddelande: {ex.Message}",
+                        Note = $"Ändra köp: {DateTime.Now}: Företag: {vm.CompanyName} Datum: {vm.DateOfPurchase}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);
                     db.SaveChanges();
                 }
-
-                return;
             } 
         }
 
-        public static void Create(ApplicationDbContext db, SharesPurchasedViewModel sharesPurchased)
+        public static void Create(ApplicationDbContext db, SharesPurchasedViewModel vm)
         {
-            if (sharesPurchased.SharesPurchasedId != 0) return;
+            if (vm.SharesPurchasedId != 0) return;
 
             // Add new hunting
-            SharesPurchaseds changesToModel = ChangesSharesPurchasedToModel(sharesPurchased);
-            changesToModel.Note += "Köper " + changesToModel.CompanyName + " aktier: " + "Datum: " + changesToModel.DateOfPurchase.ToString().Substring(0, 10) + ", Hur många: " + changesToModel.HowMany +
-                        ", Pris per st: " + changesToModel.PricePerShares + ", Summan: " + changesToModel.HowMany * changesToModel.PricePerShares + ", Courtage: " + changesToModel.Brokerage + ". ";
+            SharesPurchaseds model = ChangesFromViewModelToModel(vm);
+            model.Note += "Köper " + model.CompanyName + " aktier: " + "Datum: " + model.DateOfPurchase.ToString()[..10] + ", Hur många: " + model.HowMany +
+                        ", Pris per st: " + model.PricePerShares + ", Summan: " + model.HowMany * model.PricePerShares + ", Courtage: " + model.Brokerage + ". ";
 
             try
             {
-                db.SharesPurchaseds.Add(changesToModel);
+                db.SharesPurchaseds.Add(model);
                 db.SaveChanges();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"AddShares {DateTime.Now}: Company: {changesToModel.CompanyName} Date: {changesToModel.DateOfPurchase} Error: {ex.Message}");
+                Console.WriteLine($"AddShares {DateTime.Now}: Company: {model.CompanyName} Date: {model.DateOfPurchase} Error: {ex.Message}");
 
                 DateTime date = DateTime.Now;
 
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Köp: {DateTime.Now}: Företag: {changesToModel.CompanyName} Datum: {changesToModel.DateOfPurchase} \n Felmeddelande: {ex.Message}"
+                    ErrorMessage = $"Felmeddelande: {ex.Message}",
+                    Note = $"Köp: {DateTime.Now}: Företag: {model.CompanyName} Datum: {model.DateOfPurchase}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
                 db.SaveChanges();
             }
-        }
-
-        public static SharesPurchaseds SetChanges(ApplicationDbContext db, SharesPurchasedViewModel vm)
-        {
-            SharesPurchaseds getDbSharesPurchasedsModel = GetSharesPurchased(db, vm.SharesPurchasedId);
-            getDbSharesPurchasedsModel.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
-            getDbSharesPurchasedsModel.CompanyName = vm.CompanyName;
-            getDbSharesPurchasedsModel.HowMany = vm.HowMany;
-            getDbSharesPurchasedsModel.PricePerShares = vm.PricePerShares;
-            getDbSharesPurchasedsModel.Brokerage = vm.Brokerage;
-            getDbSharesPurchasedsModel.Currency = vm.Currency;
-            getDbSharesPurchasedsModel.ISIN = vm.ISIN;
-            getDbSharesPurchasedsModel.Account = vm.Account;
-            getDbSharesPurchasedsModel.Amount = vm.HowMany * vm.PricePerShares;
-            getDbSharesPurchasedsModel.TypeOfShares = vm.TypeOfShares;
-            getDbSharesPurchasedsModel.Note = vm.Note;
-
-            return getDbSharesPurchasedsModel;
         }
 
         public static SharesPurchasedViewModel ChangeFromModelToViewModel(SharesPurchaseds model)
@@ -115,7 +104,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
-        public static SharesPurchaseds ChangesSharesPurchasedToModel(SharesPurchasedViewModel vm)
+        public static SharesPurchaseds ChangesFromViewModelToModel(SharesPurchasedViewModel vm)
         {
             SharesPurchaseds sharesPurchased = new()
             {
@@ -136,9 +125,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             return sharesPurchased;
         }
 
-        public static void DeleteSharesPurchased(ApplicationDbContext db, SharesPurchasedViewModel incomingModel)
+        public static void Delete(ApplicationDbContext db, SharesPurchasedViewModel incomingModel)
         {
-            SharesPurchaseds sharesPurchasedModel = ChangesSharesPurchasedToModel(incomingModel);
+            SharesPurchaseds sharesPurchasedModel = ChangesFromViewModelToModel(incomingModel);
 
             try
             {
@@ -155,7 +144,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Ta bort: {DateTime.Now}: Företag: {sharesPurchasedModel.CompanyName} Datum: {sharesPurchasedModel.DateOfPurchase} \n Felmeddelande: {ex.Message}"
+                    ErrorMessage = $"Felmeddelande: {ex.Message}",
+                    Note = $"Ta bort: {DateTime.Now}: Företag: {sharesPurchasedModel.CompanyName} Datum: {sharesPurchasedModel.DateOfPurchase}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -163,7 +153,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public static void AddMoreShares(ApplicationDbContext db, SharesPurchasedViewModel moreSharesPurchased)
+        public static void AddMore(ApplicationDbContext db, SharesPurchasedViewModel moreSharesPurchased)
         {
             SharesPurchaseds getDbSharesPurchasedsModel = GetSharesPurchased(db, moreSharesPurchased.SharesPurchasedId);
 
@@ -188,7 +178,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Köp mera: {DateTime.Now}: Företag: {moreSharesPurchased.CompanyName} Datum: {moreSharesPurchased.MoreDateOfPurchase.ToString()[..10]} \n Felmeddelande: {ex.Message}"
+                    ErrorMessage = $"Felmeddelande: {ex.Message}",
+                    Note = $"Köp mera: {DateTime.Now}: Företag: {moreSharesPurchased.CompanyName} Datum: {moreSharesPurchased.MoreDateOfPurchase.ToString()[..10]}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -197,7 +188,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         }
 
         // Säljer hela eller delar av aktien
-        public static void SellPurchasedShares(ApplicationDbContext db, SharesPurchasedViewModel vm)
+        public static void Sell(ApplicationDbContext db, SharesPurchasedViewModel vm)
         {
             SharesPurchaseds getDbSharesPurchasedsModel = GetSharesPurchased(db, vm.SharesPurchasedId);
 
@@ -243,7 +234,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                     SharesErrorHandlings sharesErrorHandling = new()
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Såld lägg till: {DateTime.Now}: Företag: {vm.CompanyName} Datum: {vm.SaleDateOfPurchase.ToString()[..10]} \n Felmeddelande: {ex.Message}"
+                        ErrorMessage = $"Felmeddelande: {ex.Message}",
+                        Note = $"Såld lägg till: {DateTime.Now}: Företag: {vm.CompanyName} Datum: {vm.SaleDateOfPurchase.ToString()[..10]}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -255,7 +247,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesFeeClass.Create(db, FeeVM);
 
                 // Tar bort den köpte aktien som flyttas till sålda aktier
-                DeleteSharesPurchased(db, vm);
+                Delete(db, vm);
             }
             else
             {
@@ -292,7 +284,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"SoldSharesAdd ELSE {DateTime.Now}: Company: {vm.CompanyName} Date: {vm.SaleDateOfPurchase.ToString()[..10]} " +
+                    Console.WriteLine($"Sold same shares {DateTime.Now}: Company: {vm.CompanyName} Date: {vm.SaleDateOfPurchase.ToString()[..10]} " +
                                       $"Error: {ex.Message}");
 
                     DateTime date = DateTime.Now;
@@ -300,8 +292,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                     SharesErrorHandlings sharesErrorHandling = new()
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Såld lägg till annars: {DateTime.Now}: Företag: {vm.CompanyName} Datum: {vm.SaleDateOfPurchase.ToString()[..10]}" +
-                                       $"Felmeddelande: {ex.Message}"
+                        ErrorMessage = $"Felmeddelande: {ex.Message}",
+                        Note = $"Sålt delar av aktien: {DateTime.Now}: Företag: {vm.CompanyName} Datum: {vm.SaleDateOfPurchase.ToString()[..10]}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -313,7 +305,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesFeeClass.Create(db, FeeVM);
 
                 // Tar bort delar av den köpta aktien som flyttas till sålda aktier
-                EditSellShares(db, vm);
+                EditSell(db, vm);
             }
         }
 
@@ -329,7 +321,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             return fee;
         }
 
-        private static void EditSellShares(ApplicationDbContext db, SharesPurchasedViewModel saleSharesPurchased)
+        private static void EditSell(ApplicationDbContext db, SharesPurchasedViewModel saleSharesPurchased)
         {
             try
             {
@@ -349,7 +341,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"EditSellShares {DateTime.Now}: Company: {saleSharesPurchased.CompanyName} Date: {saleSharesPurchased.SaleDateOfPurchase.ToString()[..10]} " +
+                Console.WriteLine($"Delete sold shares: {DateTime.Now}: Company: {saleSharesPurchased.CompanyName} Date: {saleSharesPurchased.SaleDateOfPurchase.ToString()[..10]} " +
                                   $"Error: {ex.Message}");
 
                 DateTime date = DateTime.Now;
@@ -357,8 +349,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Ändra sälj: {DateTime.Now}: Företag: {saleSharesPurchased.CompanyName} Datum: {saleSharesPurchased.SaleDateOfPurchase.ToString()[..10]} \n " +
-                                   $"Felmeddelande: {ex.Message}"
+                    ErrorMessage = $"Felmeddelande: {ex.Message}",
+                    Note = $"Radera sålda aktier: {DateTime.Now}: Företag: {saleSharesPurchased.CompanyName} Datum: {saleSharesPurchased.SaleDateOfPurchase.ToString()[..10]}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);

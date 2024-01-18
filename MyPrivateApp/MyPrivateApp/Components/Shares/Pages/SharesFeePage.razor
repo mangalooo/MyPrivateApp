@@ -237,6 +237,12 @@
 
 @code
 {
+    [SupplyParameterFromForm]
+    private SharesFeeViewModel SharesFees { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<SharesFeeViewModel> SharesFeeQueryable = Enumerable.Empty<SharesFeeViewModel>().AsQueryable();
+
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
     private string ModalDisplay = "none;";
@@ -250,13 +256,32 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesFeeViewModel> SharesFeeQueryable = Enumerable.Empty<SharesFeeViewModel>().AsQueryable();
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.SharesFees.Count() == 0) return;
 
-    [SupplyParameterFromForm]
-    private SharesFeeViewModel SharesFees { get; set; } = new();
+        SharesFeeQueryable = Enumerable.Empty<SharesFeeViewModel>().AsQueryable();
+
+        foreach (SharesFee model in db.SharesFees.OrderBy(c => c.SharesFeeId))
+        {
+            SharesFeeViewModel SharesFees = SharesFeeClass.ChangeFromModelToViewModel(model);
+            SharesFeeQueryable = SharesFeeQueryable.Concat(new[] { SharesFees }.AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
 
     protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
 
     private void CreateOrUpdate()
     {
@@ -275,22 +300,6 @@
         Navigation.Refresh(true);
 
         return;
-    }
-
-    // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
-    {
-        if (db.SharesFees.Count() == 0) return;
-
-        SharesFeeQueryable = Enumerable.Empty<SharesFeeViewModel>().AsQueryable();
-
-        foreach (SharesFee model in db.SharesFees.OrderBy(c => c.SharesFeeId))
-        {
-            SharesFeeViewModel SharesFees = SharesFeeClass.ChangeFromModelToViewModel(model);
-            SharesFeeQueryable = SharesFeeQueryable.Concat(new[] { SharesFees }.AsQueryable());
-        }
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
     private void Info(SharesFeeViewModel incomingVM)
@@ -319,15 +328,6 @@
         SharesFees = new();
         Navigation.Refresh(true);
     }
-
-    private void HideNewOrChangesForm()
-    {
-        HideNewOrChangesFields = !HideNewOrChangesFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
-    }
-
-    private void RefreshPage() => Navigation.Refresh(true);
 
     private void OpenDeleteWindow()
     {

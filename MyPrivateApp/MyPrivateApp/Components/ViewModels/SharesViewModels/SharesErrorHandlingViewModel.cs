@@ -8,10 +8,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
-        public string? Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Display(Name = "Felmeddelande")]
         [DataType(DataType.MultilineText)]
         public string? ErrorMessage { get; set; }
+
+        [Display(Name = "Anteckningar")]
+        [DataType(DataType.MultilineText)]
+        public string? Note { get; set; }
     }
 }
