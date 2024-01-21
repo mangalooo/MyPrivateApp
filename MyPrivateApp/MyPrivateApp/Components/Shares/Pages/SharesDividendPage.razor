@@ -1,15 +1,18 @@
 ﻿@page "/SharesDividendPage"
 
-@using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Shares.Classes
+@using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Data.Models.SharesModels
 
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject ISharesDividendClass SharesDividendClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -38,8 +41,388 @@
 
 <h1 style="text-align:center"> Utdelningar </h1>
 
+<br />
 
+<div style="text-align:center" hidden="@ShowOrHideCreateButton">
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm">Lägg till utdelning</button>
 
-@code {
+    <br />
+    <br />
+</div>
 
+<div class="container">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <EditForm Model="sharesDividend" OnSubmit="AddOrUpdate" FormName="AddOrUpdateSharesDividend" Enhance hidden="@(!HideNewOrChangesFields)">
+
+                     <DataAnnotationsValidator />
+
+                     <ValidationSummary class="text-danger" role="alert" />
+
+                     <br />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-4" />
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesDividend.Company" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Company"> Företag </label>
+                                 <ValidationMessage For="() => sharesDividend.Company" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesDividend.ISIN" class="form-control" disabled="@DisabledForm" />
+                                 <label for="ISIN"> ISIN </label>
+                                 <ValidationMessage For="() => sharesDividend.ISIN" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesDividend.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                 <label for="TypeOfTransaction"> Typ av transaktion </label>
+                                 <ValidationMessage For="() => sharesDividend.TypeOfTransaction" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-4" />
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputDate @bind-Value="sharesDividend.Date" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Date"> Datum </label>
+                                 <ValidationMessage For="() => sharesDividend.Date" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesDividend.AccountNumber" class="form-control" disabled="@DisabledForm" />
+                                 <label for="AccountNumber"> Konto </label>
+                                 <ValidationMessage For="() => sharesDividend.AccountNumber" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="sharesDividend.Currency" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Currency"> Valuta </label>
+                                 <ValidationMessage For="() => sharesDividend.Currency" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-4" />
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="sharesDividend.NumberOfShares" class="form-control" disabled="@DisabledForm" />
+                                 <label for="NumberOfShares"> Antal </label>
+                                 <ValidationMessage For="() => sharesDividend.NumberOfShares" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="sharesDividend.PricePerShare" class="form-control" disabled="@DisabledForm" />
+                                 <label for="PricePerShare"> Pris per aktie </label>
+                                 <ValidationMessage For="() => sharesDividend.PricePerShare" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-4">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="sharesDividend.TotalAmount" class="form-control" disabled="true" />
+                                 <label for="TotalAmount"> Belopp </label>
+                                 <ValidationMessage For="() => sharesDividend.TotalAmount" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+
+                         <div class="col-12">
+                             <div class="form-floating">
+                                 <InputTextArea @bind-Value="sharesDividend.Note" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Note"> Anteckningar </label>
+                                 <ValidationMessage For="() => sharesDividend.Note" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div style="text-align:center" hidden="@ShowOrHideAddNewButton">
+                         <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till utdelning </button>
+
+                         <br />
+                         <br />
+                     </div>
+
+                     <div style="text-align:center" hidden="@ShowOrHideEditButton">
+                         <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                         
+                         <br />
+                         <br />
+                     </div>
+
+                        <br />
+                        <br />
+
+                    <div style="text-align:center">
+                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                    </div>
+
+                    <br />
+                    <br />
+                </EditForm>
+            </div>
+
+            @* Desktop screen *@
+            <div id="desktop">
+                <div class="card-body">
+                    <QuickGrid Items="@SharesDividendQueryable" Pagination="pagination">
+
+                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
+                         <PropertyColumn Title="Typ" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
+                         <PropertyColumn Title="Antal" Property="@(c => c.NumberOfShares)" Sortable="true" />
+                         <PropertyColumn Title="Pris per aktie" Property="@(c => c.PricePerShare)" Sortable="true" />
+                         <PropertyColumn Title="Belopp" Property="@(c => c.TotalAmount)" Sortable="true" />
+                        <PropertyColumn Title="Valuta" Property="@(c => c.Currency)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort aktien? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort utdelningen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* Mobile streen *@
+            <div id="mobile">
+                <div class="card-body">
+                    <QuickGrid Items="@SharesDividendQueryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort aktien? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort utdelaningen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
+@code
+{
+    [SupplyParameterFromForm]
+    private SharesDividendViewModel sharesDividend { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<SharesDividendViewModel> SharesDividendQueryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
+
+    // Modol window settings
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool HideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.SharesDividends.Count() == 0) return;
+
+        SharesDividendQueryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
+
+        foreach (SharesDividend model in db.SharesDividends.OrderBy(c => c.DividendId))
+        {
+            SharesDividendViewModel sharesDividend = SharesDividendClass.ChangeFromModelToViewModel(model);
+            SharesDividendQueryable = SharesDividendQueryable.Concat(new[] { sharesDividend }.AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
+    protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    private void AddOrUpdate()
+    {
+        DisabledForm = false;
+
+        if (sharesDividend.DividendId > 0)
+        {
+            ShowOrHideCreateButton = true;
+
+            SharesDividendClass.Update(db, sharesDividend, false);
+        }
+        else
+            SharesDividendClass.Add(db, sharesDividend, false);
+
+        sharesDividend = new();
+        Navigation.Refresh(true);
+
+        return;
+    }
+
+    private void Info(SharesDividendViewModel vm)
+    {
+        if (vm == null) return;
+
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
+        sharesDividend = vm;
+    }
+
+    private void Edit(SharesDividendViewModel vm)
+    {
+        if (vm == null) return;
+
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        HideNewOrChangesFields = true;
+        sharesDividend = vm;
+    }
+
+    private void Delete(SharesDividendViewModel vm)
+    {
+        if (vm == null) return;
+
+        if (db.SharesPurchaseds.Count() == 0) return;
+
+        SharesDividendClass.Delete(db, vm, false);
+
+        Navigation.Refresh(true);
+    }
+
+    private void OpenWindowDelete()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindowDelete()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
 }

@@ -10,7 +10,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in datum")]
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
-        public string? Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "Skriv in konto nummer")]
         [Display(Name = "Konto")]
@@ -29,7 +29,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Required(ErrorMessage = "Skriv hur många aktier")]
         [Display(Name = "Antal")]
-        public double NumberOfSharesString { get; set; }
+        public double NumberOfShares { get; set; }
 
         [Required(ErrorMessage = "Skriv in pris per aktie")]
         [Display(Name = "Kurs")]
@@ -55,5 +55,9 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Display(Name = "ISIN")]
         [DataType(DataType.Text)]
         public string? ISIN { get; set; }
+
+        [Display(Name = "Anteckningar")]
+        [DataType(DataType.MultilineText)]
+        public string? Note { get; set; }
     }
 }

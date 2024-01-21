@@ -15,6 +15,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();
 builder.Services.AddScoped<ISharesSoldClass, SharesSoldClass>();
+builder.Services.AddScoped<ISharesFeeClass, SharesFeeClass>();
+builder.Services.AddScoped<ISharesDividendClass, SharesDividendClass>();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
