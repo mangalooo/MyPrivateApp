@@ -119,7 +119,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         }
 
         // Selling all or part of the share
-        public void Sell(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import)
+        public void Sell(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import, ISharesFeeClass sharesFeeClass)
         {
             string importTrue = import ? "Ja" : "Nej";
 
@@ -178,7 +178,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 // Brokerage must be added to the fee table!
                 SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(shares.Brokerage, $"Courtage för aktien: {vm.CompanyName}");
-                SharesFeeClass.Create(db, FeeVM);
+                sharesFeeClass.Add(db, FeeVM, import);
 
                 // Removes the bought shares that is moved to sold shares
                 Delete(db, vm, import);
@@ -237,7 +237,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 // Brokerage must be added to the fee table! (For the parts that were sold)
                 SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(shares.Brokerage, $"Courtage för sålda delar av aktien: {vm.CompanyName}");
-                SharesFeeClass.Create(db, FeeVM);
+                sharesFeeClass.Add(db, FeeVM, false);
 
                 // Removes portions of the purchased shares that are moved to sold shares
                 EditSell(db, vm, import);

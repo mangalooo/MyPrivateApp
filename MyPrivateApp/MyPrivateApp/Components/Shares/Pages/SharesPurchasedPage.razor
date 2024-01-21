@@ -13,6 +13,7 @@
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject ISharesPurchasedClass SharesPurchasedClass
+@inject ISharesFeeClass ISharesFeeClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -565,7 +566,7 @@
     {
         if (vm == null) return;
 
-        SharesPurchasedClass.Sell(db, sharesPurchased, false);
+        SharesPurchasedClass.Sell(db, sharesPurchased, false, ISharesFeeClass);
 
         sharesPurchased = new();
         Navigation.Refresh(true);

@@ -4,10 +4,14 @@ using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesFeeClass
+    public class SharesFeeClass : ISharesFeeClass
     {
-        public static void Create(ApplicationDbContext db, SharesFeeViewModel vm)
+        private static SharesFee Get(ApplicationDbContext db, int? id) => db.SharesFees.FirstOrDefault(r => r.SharesFeeId == id);
+
+        public void Add(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
         {
+            string importTrue = import ? "Ja" : "Nej";
+
             if (vm.Date == DateTime.MinValue) return;
 
             // Add new sold shares
@@ -20,7 +24,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"AddFee {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Date: {vm.Date} Error: {ex.Message}");
+                Console.WriteLine($"Add fee {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Date: {vm.Date} Error: {ex.Message}");
 
                 DateTime date = DateTime.Now;
 
@@ -28,7 +32,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
                     ErrorMessage =  $"Felmeddelande: {ex.Message}",
-                    Note = $"Avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
+                    Note = $"Import: {importTrue}, Avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -36,7 +40,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public static void Edit(ApplicationDbContext db, SharesFeeViewModel vm)
+        public void Edit(ApplicationDbContext db, SharesFeeViewModel vm)
         {
             if (vm != null)
             {
@@ -56,7 +60,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"EditTaxAndBrokerage {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Date: {vm.Date} Error: {ex.Message}");
+                    Console.WriteLine($"Edit fee {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Date: {vm.Date} Error: {ex.Message}");
 
                     DateTime date = DateTime.Now;
 
@@ -64,7 +68,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
                         ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Ändra avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
+                        Note = $"Import: Nej, Ändra avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -73,23 +77,40 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        private static SharesFee Get(ApplicationDbContext db, int? id) => db.SharesFees.FirstOrDefault(r => r.SharesFeeId == id);
-
-        private static SharesFee ChangeFromViewModelToModel(SharesFeeViewModel vm)
+        public void Delete(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
         {
-            SharesFee sharesFee = new()
-            {
-                SharesFeeId = vm.SharesFeeId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                Tax = vm.Tax,
-                Brokerage = vm.Brokerage,
-                Note = vm.Note
-            };
+            string importTrue = import ? "Ja" : "Nej";
 
-            return sharesFee;
+            SharesFee model = ChangeFromViewModelToModel(vm);
+
+            if (model != null)
+            {
+                try
+                {
+                    db.ChangeTracker.Clear();
+                    db.SharesFees.Remove(model);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Delete fee {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Date: {model.Date} Error: {ex.Message}");
+
+                    DateTime date = DateTime.Now;
+
+                    SharesErrorHandlings sharesErrorHandling = new()
+                    {
+                        Date = $"{date.Year}-{date.Month}-{date.Day}",
+                        ErrorMessage = $"Felmeddelande: {ex.Message}",
+                        Note = $"Import: {importTrue}, Ta bort avgifter: {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Datum: {model.Date}"
+                    };
+
+                    db.SharesErrorHandlings.Add(sharesErrorHandling);
+                    db.SaveChanges();
+                }
+            }
         }
 
-        public static SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
+        public SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
         {
             DateTime date = DateTime.Parse(model.Date);
 
@@ -105,35 +126,18 @@ namespace MyPrivateApp.Components.Shares.Classes
             return fee;
         }
 
-        public static void Delete(ApplicationDbContext db, SharesFeeViewModel vm)
+        private static SharesFee ChangeFromViewModelToModel(SharesFeeViewModel vm)
         {
-            SharesFee model = ChangeFromViewModelToModel(vm);
-
-            if (model != null)
+            SharesFee sharesFee = new()
             {
-                try
-                {
-                    db.ChangeTracker.Clear();
-                    db.SharesFees.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"DeleteFee {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Date: {model.Date} Error: {ex.Message}");
+                SharesFeeId = vm.SharesFeeId,
+                Date = vm.Date.ToString("yyyy-MM-dd"),
+                Tax = vm.Tax,
+                Brokerage = vm.Brokerage,
+                Note = vm.Note
+            };
 
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Ta bort avgifter: {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Datum: {model.Date}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
-                }
-            }
+            return sharesFee;
         }
     }
 }

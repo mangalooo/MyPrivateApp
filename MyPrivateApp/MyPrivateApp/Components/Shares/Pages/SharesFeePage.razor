@@ -13,6 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject ISharesFeeClass SharesFeeClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -54,7 +55,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <EditForm Model="SharesFees" OnSubmit="CreateOrUpdate" FormName="CreateOrUpdateSharesFees" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="SharesFees" OnSubmit="AddOrUpdate" FormName="AddOrUpdateSharesFees" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -283,7 +284,7 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void CreateOrUpdate()
+    private void AddOrUpdate()
     {
         DisabledForm = false;
 
@@ -294,7 +295,7 @@
             SharesFeeClass.Edit(db, SharesFees);
         }
         else
-            SharesFeeClass.Create(db, SharesFees);
+            SharesFeeClass.Add(db, SharesFees, false);
 
         SharesFees = new();
         Navigation.Refresh(true);
@@ -302,28 +303,28 @@
         return;
     }
 
-    private void Info(SharesFeeViewModel incomingVM)
+    private void Info(SharesFeeViewModel vm)
     {
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        SharesFees = incomingVM;
+        SharesFees = vm;
     }
 
-    private void Edit(SharesFeeViewModel incomingVM)
+    private void Edit(SharesFeeViewModel vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
         HideNewOrChangesFields = true;
-        SharesFees = incomingVM;
+        SharesFees = vm;
     }
 
-    private void Delete(SharesFeeViewModel incomingVM)
+    private void Delete(SharesFeeViewModel vm)
     {
         if (db.SharesFees.Count() == 0) return;
 
-        SharesFeeClass.Delete(db, incomingVM);
+        SharesFeeClass.Delete(db, vm, false);
 
         SharesFees = new();
         Navigation.Refresh(true);
