@@ -10,8 +10,9 @@
 
 @rendermode InteractiveServer
 
-@inject ApplicationDbContext db;
+@inject ApplicationDbContext db
 @inject NavigationManager Navigation
+@inject ISharesPurchasedClass SharesPurchasedClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -53,7 +54,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <EditForm Model="sharesPurchased" OnSubmit="CreateOrUpdate" FormName="CreateOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="sharesPurchased" OnSubmit="AddOrUpdate" FormName="AddOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -470,7 +471,7 @@
 
         foreach (SharesPurchaseds model in db.SharesPurchaseds.OrderBy(c => c.SharesPurchasedId))
         {
-            SharesPurchasedViewModel sharesPurchased = SharesPurchasedHelpClass.ChangeFromModelToViewModel(model);
+            SharesPurchasedViewModel sharesPurchased = SharesPurchasedClass.ChangeFromModelToViewModel(model);
             PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { sharesPurchased }.AsQueryable());
         }
 
@@ -488,7 +489,7 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void CreateOrUpdate()
+    private void AddOrUpdate()
     {
         DisabledForm = false;
 
@@ -496,10 +497,10 @@
         {
             ShowOrHideCreateButton = true;
 
-            SharesPurchasedHelpClass.Update(db, sharesPurchased);
+            SharesPurchasedClass.Update(db, sharesPurchased);
         }
         else
-            SharesPurchasedHelpClass.Create(db, sharesPurchased);
+            SharesPurchasedClass.Add(db, sharesPurchased, false);
 
         sharesPurchased = new();
         Navigation.Refresh(true);
@@ -521,7 +522,7 @@
 
     private void AddMoreButton()
     {
-        SharesPurchasedHelpClass.AddMore(db, sharesPurchased);
+        SharesPurchasedClass.AddMore(db, sharesPurchased, false);
 
         sharesPurchased = new();
         Navigation.Refresh(true);
@@ -564,7 +565,7 @@
     {
         if (vm == null) return;
 
-        SharesPurchasedHelpClass.Sell(db, sharesPurchased);
+        SharesPurchasedClass.Sell(db, sharesPurchased, false);
 
         sharesPurchased = new();
         Navigation.Refresh(true);
@@ -592,7 +593,7 @@
 
         if (db.SharesPurchaseds.Count() == 0) return;
 
-        SharesPurchasedHelpClass.Delete(db, vm);
+        SharesPurchasedClass.Delete(db, vm, false);
 
         Navigation.Refresh(true);
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components;
 using MyPrivateApp.Components.Account;
+using MyPrivateApp.Components.Shares.Classes;
 using MyPrivateApp.Data;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
