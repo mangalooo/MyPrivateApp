@@ -13,6 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject ISharesSoldClass SharesSoldClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -54,7 +55,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <EditForm Model="sharesSold" OnSubmit="CreateOrUpdate" FormName="CreateOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="sharesSold" OnSubmit="AddOrUpdate" FormName="AddOrUpdateSoldShares" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -405,17 +406,17 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void CreateOrUpdate()
+    private void AddOrUpdate()
     {
         DisabledForm = false;
 
         if (sharesSold.SharesSoldId > 0)
         {
             ShowOrHideCreateButton = true;
-            SharesSoldClass.Update(db, sharesSold);
+            SharesSoldClass.Update(db, sharesSold, false);
         }
         else
-            SharesSoldClass.Create(db, sharesSold);
+            SharesSoldClass.Add(db, sharesSold, false);
 
         sharesSold = new();
         Navigation.Refresh(true);
@@ -446,7 +447,7 @@
     {
         if (db.SharesSolds.Count() == 0) return;
 
-        SharesSoldClass.Delete(db, vm);
+        SharesSoldClass.Delete(db, vm, false);
 
         sharesSold = new();
         Navigation.Refresh(true);

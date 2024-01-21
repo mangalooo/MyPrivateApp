@@ -6,7 +6,6 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public interface ISharesPurchasedClass
     {
-        SharesPurchaseds Get(ApplicationDbContext db, int? id);
         void Add(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import);
         void Update(ApplicationDbContext db, SharesPurchasedViewModel vm);
         void AddMore(ApplicationDbContext db, SharesPurchasedViewModel moreSharesPurchased, bool import);

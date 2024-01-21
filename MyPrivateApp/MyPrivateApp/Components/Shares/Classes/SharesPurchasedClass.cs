@@ -6,7 +6,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesPurchasedClass : ISharesPurchasedClass
     {
-        public SharesPurchaseds Get(ApplicationDbContext db, int? id) => db.SharesPurchaseds.FirstOrDefault(r => r.SharesPurchasedId == id);
+        private static SharesPurchaseds Get(ApplicationDbContext db, int? id) => db.SharesPurchaseds.FirstOrDefault(r => r.SharesPurchasedId == id);
 
         public void Add(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import)
         {
@@ -15,7 +15,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm.SharesPurchasedId != 0) return;
 
             SharesPurchaseds model = ChangesFromViewModelToModel(vm);
-            model.Note += $"Import: {importTrue} Köper {model.CompanyName} aktier, Datum: {model.DateOfPurchase.ToString()[..10]}, Hur många: {model.HowMany} " +
+            model.Note += $"Import: {importTrue}, Köper {model.CompanyName} aktier, Datum: {model.DateOfPurchase.ToString()[..10]}, Hur många: {model.HowMany} " +
                           $"Pris per st: {model.PricePerShares}, Summan: {model.HowMany * model.PricePerShares}, Courtage: {model.Brokerage}. ";
 
             try
@@ -245,7 +245,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         }
 
         // Removes portions of the purchased shares that are moved to sold shares
-        private void EditSell(ApplicationDbContext db, SharesPurchasedViewModel saleSharesPurchased, bool import)
+        private static void EditSell(ApplicationDbContext db, SharesPurchasedViewModel saleSharesPurchased, bool import)
         {
             string importTrue = import ? "Ja" : "Nej";
 

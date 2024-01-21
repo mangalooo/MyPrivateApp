@@ -14,6 +14,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();
+builder.Services.AddScoped<ISharesSoldClass, SharesSoldClass>();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
