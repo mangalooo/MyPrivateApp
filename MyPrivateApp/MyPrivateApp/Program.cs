@@ -32,8 +32,7 @@ builder.Services.AddAuthentication(options =>
 
 var connectionString = builder.Configuration.GetConnectionString
     (
-        "Server=mssql9.unoeuro.com;Database=leanderson_nu_db;User Id=leanderson_nu;Password=*******;TrustServerCertificate=true;") ?? 
-        throw new InvalidOperationException("Connection string 'DefaultConnection' not found."
+        "Connection string 'DefaultConnection' not found."
     );
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
