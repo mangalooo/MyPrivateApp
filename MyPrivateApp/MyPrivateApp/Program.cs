@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(options =>
 
 var connectionString = builder.Configuration.GetConnectionString
     (
-        "Connection string 'DefaultConnection' not found."
+        "DefaultConnection" ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.")
     );
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
