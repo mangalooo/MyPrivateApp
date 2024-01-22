@@ -30,7 +30,12 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString
+    (
+        "Server=mssql9.unoeuro.com;Database=leanderson_nu_db;User Id=leanderson_nu;Password=46anerxy;TrustServerCertificate=true;") ?? 
+        throw new InvalidOperationException("Connection string 'DefaultConnection' not found."
+    );
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
