@@ -29,7 +29,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in courtage")]
         [Display(Name = "Courtage")]
         [DataType(DataType.Currency)]
-        public int Brokerage { get; set; } //courtage, köp kostnad
+        public double Brokerage { get; set; } //courtage, köp kostnad
 
         [Required(ErrorMessage = "Skriv in vad aktien kostade totalt")]
         [Display(Name = "Inköpsvärdet")]

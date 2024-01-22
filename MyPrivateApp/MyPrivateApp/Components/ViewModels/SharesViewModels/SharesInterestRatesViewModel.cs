@@ -10,7 +10,11 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in datum")]
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
-        public string? Date { get; set; }
+        public DateTime Date { get; set; }
+
+        [Display(Name = "Konto")]
+        [DataType(DataType.Text)]
+        public string? Account { get; set; }
 
         [Required(ErrorMessage = "Skriv in typ av transaktion")]
         [Display(Name = "Transaktion")]
@@ -20,11 +24,15 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in total summa")]
         [Display(Name = "Belopp")]
         [DataType(DataType.Text)]
-        public string? TotalAmountString { get; set; }
+        public double TotalAmount { get; set; }
 
         [Required(ErrorMessage = "Skriv in valutan")]
         [Display(Name = "Valuta")]
         [DataType(DataType.Text)]
         public string? Currency { get; set; }
+
+        [Display(Name = "Anteckningar")]
+        [DataType(DataType.MultilineText)]
+        public string? Note { get; set; }
     }
 }

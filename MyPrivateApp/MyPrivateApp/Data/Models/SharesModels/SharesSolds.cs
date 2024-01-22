@@ -8,7 +8,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public int SharesSoldId { get; set; }
         public double Amount { get; set; } // Totalbelopp från köpta värdet
         public double AmountSold { get; set; } // Totalbelopp från solda värdet 
-        public int Brokerage { get; set; } //Courtage, köp kostnad
+        public double Brokerage { get; set; } //Courtage, köp kostnad
         public string? CompanyName { get; set; }
         public string? DateOfPurchase { get; set; } //  Köpsdatum. String? 
         public string? DateOfSold { get; set; } //  Säljsdatum. String?

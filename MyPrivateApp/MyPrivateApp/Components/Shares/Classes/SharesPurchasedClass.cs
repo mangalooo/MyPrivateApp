@@ -358,7 +358,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             return sharesPurchased;
         }
 
-        private static SharesFeeViewModel ChangeFromToPurchasedToFeeViewModel(int brokerage, string note)
+        private static SharesFeeViewModel ChangeFromToPurchasedToFeeViewModel(double brokerage, string note)
         {
             SharesFeeViewModel fee = new()
             {

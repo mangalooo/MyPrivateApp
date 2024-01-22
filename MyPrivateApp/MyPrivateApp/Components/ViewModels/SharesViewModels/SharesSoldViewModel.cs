@@ -62,7 +62,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [ScaffoldColumn(false)]
         [Display(Name = "Courtage")]
         [DataType(DataType.Currency)]
-        public int Brokerage { get; set; } //Courtage, köp kostnad
+        public double Brokerage { get; set; } //Courtage, köp kostnad
 
         [Display(Name = "Konto")]
         [DataType(DataType.Currency)]

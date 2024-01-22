@@ -7,7 +7,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         [Key]
         public int SharesPurchasedId { get; set; }
         public double Amount { get; set; } // totalbelopp. De ska även funka att köpa till fler aktier på denna post
-        public int Brokerage { get; set; } //courtage, köp kostnad. De ska även funka att köpa till fler aktier på denna post
+        public double Brokerage { get; set; } //courtage, köp kostnad. De ska även funka att köpa till fler aktier på denna post
         public string? CompanyName { get; set; } 
         public string? DateOfPurchase { get; set; } //  Köp datum
         public int HowMany { get; set; } // De ska även funka att köpa till fler aktier på denna post
