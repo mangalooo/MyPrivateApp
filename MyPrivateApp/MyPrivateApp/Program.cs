@@ -18,6 +18,7 @@ builder.Services.AddScoped<ISharesSoldClass, SharesSoldClass>();
 builder.Services.AddScoped<ISharesFeeClass, SharesFeeClass>();
 builder.Services.AddScoped<ISharesDividendClass, SharesDividendClass>();
 builder.Services.AddScoped<ISharesInterestRatesClass, SharesInterestRatesClass>();
+builder.Services.AddScoped<ISharesOtherImportsClass, SharesOtherImportsClass>();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

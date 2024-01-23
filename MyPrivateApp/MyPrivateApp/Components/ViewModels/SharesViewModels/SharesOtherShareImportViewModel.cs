@@ -10,14 +10,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in datum")]
         [Display(Name = "datum")]
         [DataType(DataType.Date)]
-        public string? Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "Skriv in konto nummer")]
         [Display(Name = "Konto")]
         [DataType(DataType.Text)]
-        public string? AccountNumber { get; set; }
+        public string? Account { get; set; }
 
-        [Required(ErrorMessage = "Skriv in typ av transaktion")]
+        [Required(ErrorMessage = "Skriv in typ av transaktion")] 
         [Display(Name = "Transaktion")]
         [DataType(DataType.Text)]
         public string? TypeOfTransaction { get; set; }
@@ -30,22 +30,22 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv hur många aktier")]
         [Display(Name = "Antal")]
         [DataType(DataType.Text)]
-        public string? NumberOfSharesString { get; set; }
+        public int NumberOfShares { get; set; }
 
         [Required(ErrorMessage = "Skriv in pris per aktie")]
         [Display(Name = "Kurs")]
         [DataType(DataType.Text)]
-        public string? PricePerShareString { get; set; }
+        public double PricePerShare { get; set; }
 
-        [Required(ErrorMessage = "Skriv in total summa")]
+        [Required(ErrorMessage = "Skriv in summa")]
         [Display(Name = "Belopp")]
         [DataType(DataType.Text)]
-        public string? TotalAmountString { get; set; }
+        public double Amount { get; set; }
 
         [Required(ErrorMessage = "Skriv in courtage")]
         [Display(Name = "Courtage")]
         [DataType(DataType.Text)]
-        public string? Brokerage { get; set; }
+        public double Brokerage { get; set; }
 
         [Required(ErrorMessage = "Skriv in valutan")]
         [Display(Name = "Valutan")]
@@ -56,5 +56,9 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Display(Name = "ISIN")]
         [DataType(DataType.Text)]
         public string? ISIN { get; set; }
+
+        [Display(Name = "Anteckningar")]
+        [DataType(DataType.MultilineText)]
+        public string? Note { get; set; }
     }
 }

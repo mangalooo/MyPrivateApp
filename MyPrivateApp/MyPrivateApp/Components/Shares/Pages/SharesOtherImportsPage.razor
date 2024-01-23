@@ -2,14 +2,18 @@
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Shares.Classes
+@using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Data.Models.SharesModels
 
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject ISharesOtherImportsClass SharesOtherImports
 
 <PageTitle> Aktier </PageTitle>
 
@@ -41,6 +45,264 @@
 <br />
 <br />
 
+<div style="text-align:center">
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm" hidden="@ShowOrHideCreateButton"> Lägg till andra importer </button>
+</div>
+
+<br />
+<br />
+
+<div class="container">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <EditForm Model="OtherImports" OnSubmit="AddOrUpdate" FormName="AddOrUpdateOtherImports" Enhance hidden="@(!HideNewOrChangesFields)">
+
+                     <DataAnnotationsValidator />
+
+                     <ValidationSummary class="text-danger" role="alert" />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-3" />
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="OtherImports.Company" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Company"> Företag </label>
+                                 <ValidationMessage For="() => OtherImports.Company" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="OtherImports.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                 <label for="TypeOfTransaction"> Typ av transaktion </label>
+                                 <ValidationMessage For="() => OtherImports.TypeOfTransaction" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="OtherImports.ISIN" class="form-control" disabled="@DisabledForm" />
+                                 <label for="ISIN"> ISIN </label>
+                                 <ValidationMessage For="() => OtherImports.ISIN" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="OtherImports.Account" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Account"> Konto </label>
+                                 <ValidationMessage For="() => OtherImports.Account" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-3" />
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputDate @bind-Value="OtherImports.Date" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Date"> Inköpsdatum </label>
+                                 <ValidationMessage For="() => OtherImports.Date" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="OtherImports.NumberOfShares" class="form-control" disabled="@DisabledForm" />
+                                 <label for="NumberOfShares"> Antal </label>
+                                 <ValidationMessage For="() => OtherImports.NumberOfShares" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="OtherImports.PricePerShare" class="form-control" disabled="@DisabledForm" />
+                                 <label for="PricePerShare"> Pris per aktie </label>
+                                 <ValidationMessage For="() => OtherImports.PricePerShare" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="OtherImports.Amount" class="form-control" disabled="@DisabledForm" />
+                                 <label for="HowMany"> Summan </label>
+                                 <ValidationMessage For="() => OtherImports.Amount" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+                     <br />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-3" />
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="OtherImports.Currency" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Currency"> Valuta </label>
+                                 <ValidationMessage For="() => OtherImports.Currency" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="OtherImports.Brokerage" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Brokerage"> Courtage </label>
+                                 <ValidationMessage For="() => OtherImports.Brokerage" class="text-danger" />
+                             </div>
+                         </div>
+
+
+                         <div class="col-6">
+                             <div class="form-floating">
+                                 <InputTextArea @bind-Value="OtherImports.Note" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Note"> Anteckningar </label>
+                                 <ValidationMessage For="() => OtherImports.Note" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div style="text-align:center">
+                         <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till andra importer </button>
+                     </div>
+
+                     <div style="text-align:center">
+                         <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                     </div>
+
+                     <br />
+
+                     <div style="text-align:center">
+                         <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                     </div>
+
+                     <br />
+                     <br />
+                 </EditForm>
+             </div>
+
+             @* Desktop screen *@
+             <div id="desktop">
+                 <div class="card-body">
+                     <QuickGrid Items="@OtherImportsQueryable" Pagination="pagination">
+
+                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                         <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
+                         <PropertyColumn Title="Typ av transaktion" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
+                         <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+
+                         <TemplateColumn Title="Info">
+
+                             <div class="btn-group" role="group">
+                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                     Info
+                                 </button>
+                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                 </ul>
+                             </div>
+
+                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                 <div class="modal-dialog" role="document">
+                                     <div class="modal-content">
+                                         <div class="modal-header">
+                                             <h5 class="modal-title"> Vill du ta bort andra importer? </h5>
+                                         </div>
+                                         <div class="modal-footer">
+                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+
+                             @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* Mobile streen *@
+            <div id="mobile">
+                <div class="card-body">
+                    <QuickGrid Items="@OtherImportsQueryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
+                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort andra importer? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
 <div class="footer" align="center">
     <p> Copyright 2023 - @DateTime.Now.Year</p>
 </div>
@@ -48,6 +310,114 @@
 <br />
 <br />
 
-@code {
+@* SharesOtherImports *@
 
+@code
+{
+    [SupplyParameterFromForm]
+    private SharesOtherShareImportViewModel OtherImports { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<SharesOtherShareImportViewModel> OtherImportsQueryable = Enumerable.Empty<SharesOtherShareImportViewModel>().AsQueryable();
+
+    // Modol window settings
+    private Guid Guid = Guid.NewGuid();
+    private string ModalDisplay = "none;";
+    private string ModalClass = "";
+    private bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool HideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.SharesOtherImports.Count() == 0) return;
+
+        OtherImportsQueryable = Enumerable.Empty<SharesOtherShareImportViewModel>().AsQueryable();
+
+        foreach (SharesOtherImports model in db.SharesOtherImports.OrderBy(c => c.OtherImportsId))
+        {
+            SharesOtherShareImportViewModel otherImports = SharesOtherImports.ChangeFromModelToViewModel(model);
+            OtherImportsQueryable = OtherImportsQueryable.Concat(new[] { otherImports }.AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
+    protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    private void AddOrUpdate()
+    {
+        DisabledForm = false;
+
+        if (OtherImports.OtherImportsId > 0)
+        {
+            ShowOrHideCreateButton = true;
+            SharesOtherImports.Update(db, OtherImports, false);
+        }
+        else
+            SharesOtherImports.Add(db, OtherImports, false);
+
+        OtherImports = new();
+        Navigation.Refresh(true);
+
+        return;
+    }
+
+    private void Info(SharesOtherShareImportViewModel vm)
+    {
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
+        OtherImports = vm;
+    }
+
+    private void Edit(SharesOtherShareImportViewModel vm)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        HideNewOrChangesFields = true;
+        OtherImports = vm;
+    }
+
+    private void Delete(SharesOtherShareImportViewModel vm)
+    {
+        if (db.SharesOtherImports.Count() == 0) return;
+
+        SharesOtherImports.Delete(db, vm, false);
+
+        OtherImports = new();
+        Navigation.Refresh(true);
+    }
+
+    private void OpenDeleteWindow()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
 }
