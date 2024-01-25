@@ -40,7 +40,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public void Update(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
+        public void Edit(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
         {
             string importTrue = import ? "Ja" : "Nej";
 

@@ -18,22 +18,39 @@
 
 <br />
 
-<div class="btn-group" role="group">
-    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        Alla aktier sidor
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-        <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Ta ut eller sätt in pengar </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-        <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
-    </ul>
+<div id="desktop" style="text-align:center">
+    <div class="btn-group">
+        <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+        <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
+        <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
+        <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
+        <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
+        <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
+        <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
+        <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
+        <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
+        <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+    </div>
+</div>
+
+<div id="mobile">
+    <div class="btn-group" role="group">
+        <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Alla aktier sidor
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+            <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+        </ul>
+    </div>
 </div>
 
 <br />
@@ -181,64 +198,64 @@
 
                      <div style="text-align:center" hidden="@ShowOrHideEditButton">
                          <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
-                         
+
                          <br />
                          <br />
                      </div>
 
-                        <br />
-                        <br />
+                     <br />
+                     <br />
 
-                    <div style="text-align:center">
-                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
-                    </div>
+                     <div style="text-align:center">
+                         <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                     </div>
 
-                    <br />
-                    <br />
-                </EditForm>
-            </div>
+                     <br />
+                     <br />
+                 </EditForm>
+             </div>
 
-            @* Desktop screen *@
-            <div id="desktop">
-                <div class="card-body">
-                    <QuickGrid Items="@SharesDividendQueryable" Pagination="pagination">
+             @* Desktop screen *@
+             <div id="desktop">
+                 <div class="card-body">
+                     <QuickGrid Items="@SharesDividendQueryable" Pagination="pagination">
 
                          <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
+                         <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
                          <PropertyColumn Title="Typ" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
                          <PropertyColumn Title="Antal" Property="@(c => c.NumberOfShares)" Sortable="true" />
                          <PropertyColumn Title="Pris per aktie" Property="@(c => c.PricePerShare)" Sortable="true" />
                          <PropertyColumn Title="Belopp" Property="@(c => c.TotalAmount)" Sortable="true" />
-                        <PropertyColumn Title="Valuta" Property="@(c => c.Currency)" Sortable="true" />
+                         <PropertyColumn Title="Valuta" Property="@(c => c.Currency)" Sortable="true" />
 
-                        <TemplateColumn Title="Info">
+                         <TemplateColumn Title="Info">
 
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
-                                </ul>
-                            </div>
+                             <div class="btn-group" role="group">
+                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                     Info
+                                 </button>
+                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
+                                 </ul>
+                             </div>
 
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort aktien? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort utdelningen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                 <div class="modal-dialog" role="document">
+                                     <div class="modal-content">
+                                         <div class="modal-header">
+                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
+                                         </div>
+                                         <div class="modal-footer">
+                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort utdelningen </button>
+                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
 
-                            @if (ShowBackdrop)
+                             @if (ShowBackdrop)
                             {
                                 <div class="modal-backdrop fade show"></div>
                             }
