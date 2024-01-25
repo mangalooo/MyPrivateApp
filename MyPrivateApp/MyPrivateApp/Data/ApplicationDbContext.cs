@@ -19,6 +19,8 @@ namespace MyPrivateApp.Data
         public DbSet<SharesDividend> SharesDividends { get; set; } // Utdelning
         public DbSet<SharesInterestRates> SharesInterestRates { get; set; } // Räntor
         public DbSet<SharesOtherImports> SharesOtherImports { get; set; } // Andra importer
+        public DbSet<SharesDepositMoney> SharesDepositMoney { get; set; } // Insättning och uttag av min pengar
+        public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; } // Totalt belopp insättning av min pengar
 
         // Felhantering
         public DbSet<SharesErrorHandlings> SharesErrorHandlings { get; set; } // Felhantering aktier

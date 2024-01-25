@@ -54,7 +54,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <EditForm Model="sharesDividend" OnSubmit="AddOrUpdate" FormName="AddOrUpdateSharesDividend" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="sharesDividend" OnSubmit="AddOrEdit" FormName="AddOrEditSharesDividend" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -366,7 +366,7 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void AddOrUpdate()
+    private void AddOrEdit()
     {
         DisabledForm = false;
 
@@ -374,7 +374,7 @@
         {
             ShowOrHideCreateButton = true;
 
-            SharesDividendClass.Update(db, sharesDividend, false);
+            SharesDividendClass.Edit(db, sharesDividend, false);
         }
         else
             SharesDividendClass.Add(db, sharesDividend, false);

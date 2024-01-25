@@ -56,7 +56,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <EditForm Model="OtherImports" OnSubmit="AddOrUpdate" FormName="AddOrUpdateOtherImports" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="OtherImports" OnSubmit="AddOrEdit" FormName="AddOrUpdateOtherImports" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -360,7 +360,7 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void AddOrUpdate()
+    private void AddOrEdit()
     {
         DisabledForm = false;
 

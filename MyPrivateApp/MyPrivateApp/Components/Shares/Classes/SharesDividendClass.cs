@@ -42,16 +42,13 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public void Update(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
+        public void Edit(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
         {
             string importTrue = import ? "Ja" : "Nej";
 
             if (vm.DividendId > 0)
             {
                 SharesDividend dbModel = Get(vm.DividendId, db);
-
-                SharesDividend model = ChangeFromViewModelToModel(vm);
-
                 dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
                 dbModel.AccountNumber = vm.AccountNumber;
                 dbModel.TypeOfTransaction = vm.TypeOfTransaction;
@@ -69,7 +66,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Edit sold shares {DateTime.Now}: Company: {model.Company} Date: {model.Date} Error: {ex.Message}");
+                    Console.WriteLine($"Edit sold shares {DateTime.Now}: Company: {vm.Company} Date: {vm.Date} Error: {ex.Message}");
 
                     DateTime date = DateTime.Now;
 
@@ -77,7 +74,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
                         ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Ändra såld aktie: {DateTime.Now}: Företag: {model.Company} Datum: {model.Date}"
+                        Note = $"Import: {importTrue}, Ändra såld aktie: {DateTime.Now}: Företag: {vm.Company} Datum: {vm.Date}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);

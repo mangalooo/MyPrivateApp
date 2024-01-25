@@ -7,7 +7,7 @@ namespace MyPrivateApp.Components.Shares.Classes
     public interface ISharesOtherImportsClass
     {
         public void Add(ApplicationDbContext db, SharesOtherShareImportViewModel vm, bool import);
-        public void Update(ApplicationDbContext db, SharesOtherShareImportViewModel vm, bool import);
+        public void Edit(ApplicationDbContext db, SharesOtherShareImportViewModel vm, bool import);
         public void Delete(ApplicationDbContext db, SharesOtherShareImportViewModel vm, bool import);
         public SharesOtherShareImportViewModel ChangeFromModelToViewModel(SharesOtherImports model);
     }

@@ -18,7 +18,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public string? Account { get; set; }
 
         [Required(ErrorMessage = "Skriv in typ av transaktion")] 
-        [Display(Name = "Transaktion")]
+        [Display(Name = "typ av transaktion")]
         [DataType(DataType.Text)]
         public string? TypeOfTransaction { get; set; }
 

@@ -41,7 +41,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public void Update(ApplicationDbContext db, SharesPurchasedViewModel vm)
+        public void Edit(ApplicationDbContext db, SharesPurchasedViewModel vm)
         {
             if (vm.SharesPurchasedId > 0)
             {
