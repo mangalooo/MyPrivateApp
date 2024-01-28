@@ -6,5 +6,4 @@ namespace MyPrivateApp.Data
     public class ApplicationUser : IdentityUser
     {
     }
-
 }
