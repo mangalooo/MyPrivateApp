@@ -2,14 +2,19 @@
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Shares.Classes
+@using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Data.Models.SharesModels
+@using OfficeOpenXml;
 
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject ISharesImportsFileClass SharesImportsFileClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -18,11 +23,11 @@
 <div id="desktop" style="text-align:center">
     <div class="btn-group">
         <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+        <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
         <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
         <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
         <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
         <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
-        <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
         <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
         <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
         <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
@@ -37,11 +42,11 @@
         </button>
         <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
             <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+            <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
             <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
             <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
             <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
             <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
             <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
             <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
             <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
@@ -58,6 +63,216 @@
 <br />
 <br />
 
+<div style="text-align:center">
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm" hidden="@ShowOrHideCreateButton"> Ny import </button>
+</div>
+
+<br />
+<br />
+
+<div class="container">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <EditForm Model="SharesImportsFile" OnSubmit="AddOrEdit" FormName="AddOrUpdateSharesImportsFile" Enhance hidden="@(!HideNewOrChangesFields)">
+
+                     <DataAnnotationsValidator />
+
+                     <ValidationSummary class="text-danger" role="alert" />
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-3" />
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputDate @bind-Value="SharesImportsFile.Date" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Date"> Datum </label>
+                                 <ValidationMessage For="() => SharesImportsFile.Date" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputFile class="form-control" accept=".csv" disabled="@DisabledForm" />
+                                 <label for="Tax"> Fil </label>
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputText @bind-Value="SharesImportsFile.FileName" class="form-control" disabled="@true" />
+                                 <label for="FileName"> Filnamn </label>
+                                 <ValidationMessage For="() => SharesImportsFile.FileName" class="text-danger" />
+                             </div>
+                         </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                 <InputNumber @bind-Value="SharesImportsFile.NumbersOfTransaction" class="form-control" disabled="@true" />
+                                 <label for="NumbersOfTransaction"> Antal transaktion </label>
+                                 <ValidationMessage For="() => SharesImportsFile.NumbersOfTransaction" class="text-danger" />
+                             </div>
+                         </div>
+
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+                         <div class="col-12">
+                             <div class="form-floating">
+                                 <InputTextArea @bind-Value="SharesImportsFile.Errors" class="form-control" disabled="@true" />
+                                 <label for="Errors"> Felmedelanden </label>
+                                 <ValidationMessage For="() => SharesImportsFile.Errors" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <br />
+
+                     <div class="row">
+                         <div class="col-12">
+                             <div class="form-floating">
+                                 <InputTextArea @bind-Value="SharesImportsFile.Note" class="form-control" disabled="@DisabledForm" />
+                                 <label for="Note"> Anteckningar </label>
+                                 <ValidationMessage For="() => SharesImportsFile.Note" class="text-danger" />
+                             </div>
+                         </div>
+                     </div>
+
+                     <br />
+
+                     <div style="text-align:center">
+                         <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till import </button>
+                     </div>
+
+                     <div style="text-align:center">
+                         <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                     </div>
+
+                     <br />
+
+                     <div style="text-align:center">
+                         <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                     </div>
+
+                     <br />
+                     <br />
+                 </EditForm>
+             </div>
+
+             @* Desktop screen *@
+             <div id="desktop">
+                 <div class="card-body">
+                     <QuickGrid Items="@SharesImportsFilesQueryable" Pagination="pagination">
+
+                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                         <PropertyColumn Title="Filnamn" Property="@(c => c.FileName)" Sortable="true" />
+                         <PropertyColumn Title="Antal transaktion" Property="@(c => c.NumbersOfTransaction)" Sortable="true" />
+                         <PropertyColumn Title="Felmedelanden" Property="@(c => c.Errors)" Sortable="true" />
+                         <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+
+                         <TemplateColumn Title="Info">
+
+                             <div class="btn-group" role="group">
+                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                     Info
+                                 </button>
+                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                 </ul>
+                             </div>
+
+                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                 <div class="modal-dialog" role="document">
+                                     <div class="modal-content">
+                                         <div class="modal-header">
+                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
+                                         </div>
+                                         <div class="modal-footer">
+                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+
+                             @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* Mobile streen *@
+            <div id="mobile">
+                <div class="card-body">
+                    <QuickGrid Items="@SharesImportsFilesQueryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Filnamn" Property="@(c => c.FileName)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
 <div class="footer" align="center">
     <p> Copyright 2023 - @DateTime.Now.Year</p>
 </div>
@@ -67,4 +282,175 @@
 
 @code {
 
+    [SupplyParameterFromForm]
+    private SharesImportsFileViewModel SharesImportsFile { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<SharesImportsFileViewModel> SharesImportsFilesQueryable = Enumerable.Empty<SharesImportsFileViewModel>().AsQueryable();
+
+    // Modol window settings
+    private Guid Guid = Guid.NewGuid();
+    private string ModalDisplay = "none;";
+    private string ModalClass = "";
+    private bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool HideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.SharesImportsFiles.Count() == 0) return;
+
+        SharesImportsFilesQueryable = Enumerable.Empty<SharesImportsFileViewModel>().AsQueryable();
+
+        foreach (SharesImportsFile model in db.SharesImportsFiles.OrderBy(c => c.SharesImportsFileId))
+        {
+            SharesImportsFileViewModel vm = SharesImportsFileClass.ChangeFromModelToViewModel(model);
+            SharesImportsFilesQueryable = SharesImportsFilesQueryable.Concat(new[] { vm }.AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
+    protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    private void AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (SharesImportsFile.SharesImportsFileId > 0)
+        {
+            ShowOrHideCreateButton = true;
+
+            SharesImportsFileClass.Edit(db, SharesImportsFile);
+        }
+        else
+            SharesImportsFileClass.Add(db, SharesImportsFile, false);
+
+        SharesImportsFile = new();
+        Navigation.Refresh(true);
+
+        return;
+    }
+
+    private void Info(SharesImportsFileViewModel vm)
+    {
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
+        SharesImportsFile = vm;
+    }
+
+    private void Edit(SharesImportsFileViewModel vm)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        HideNewOrChangesFields = true;
+        SharesImportsFile = vm;
+    }
+
+    private void Delete(SharesImportsFileViewModel vm)
+    {
+        if (db.SharesImportsFiles.Count() == 0) return;
+
+        SharesImportsFileClass.Delete(db, vm, false);
+
+        SharesImportsFile = new();
+        Navigation.Refresh(true);
+    }
+
+    private void OpenDeleteWindow()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            // Handle the file here
+            // For Excel files, you might want to use a library like EPPlus to read the Excel data
+
+            // Example: Read Excel data using EPPlus
+            using (var stream = file.OpenReadStream())
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0]; // Assuming the data is in the first worksheet
+
+                    // Now, you can loop through the rows and columns to get the data
+                    for (int row = worksheet.Dimension.Start.Row; row <= worksheet.Dimension.End.Row; row++)
+                    {
+                        for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+                        {
+                            var cellValue = worksheet.Cells[row, col].Text;
+                            // Do something with the cell value
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    async Task ImportExcelFile(InputFileChangeEventArgs e)
+    {
+        foreach (IBrowserFile file in e.GetMultipleFiles(1))
+        {
+            try
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    // copy data from file to memory stream
+                    await file.OpenReadStream().CopyToAsync(ms);
+                    // positions the cursor at the beginning of the memory stream
+                    ms.Position = 0;
+
+                    // create ExcelPackage from memory stream
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (ExcelPackage package = new ExcelPackage(ms))
+                    {
+                        ExcelWorksheet ws = package.Workbook.Worksheets.FirstOrDefault();
+                        int colCount = ws.Dimension.End.Column;
+                        int rowCount = ws.Dimension.End.Row;
+                        object s = ws.Cells[2, 2].Value;
+
+
+                        // rest of the code here...
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+    }
 }

@@ -1,4 +1,4 @@
-﻿namespace MyPrivateApp.Data.Models.SharesModels
+﻿namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesImports
     {
