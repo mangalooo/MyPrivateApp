@@ -61,10 +61,27 @@
 <h1 style="text-align:center"> Importera från Avaza </h1>
 
 <br />
-<br />
 
-<div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm" hidden="@ShowOrHideCreateButton"> Ny import </button>
+<div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+    <br />
+
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny import </button>
+
+    <br />
+    <br />
+</div>
+
+<div hidden="@LoadingDataFromFil">
+    <div class="loading-section">
+        <h2>Laddar importen...</h2>
+        <div class="short-description">Vänta tills laddningen är klar</div>
+        <div class="loader mt-5">
+            <div class="loader-dot dot1"></div>
+            <div class="loader-dot dot2"></div>
+            <div class="loader-dot dot3"></div>
+        </div>
+    </div>
 </div>
 
 <br />
@@ -94,8 +111,8 @@
 
                          <div class="col-3">
                              <div class="form-floating">
-                                 <InputFile class="form-control" accept=".csv" disabled="@DisabledForm" />
-                                 <label for="Tax"> Fil </label>
+                                 <InputFile class="form-control" OnChange="HandleFileChange" accept=".csv" disabled="@UnDisabledFileField" />
+                                 <label for="File"> Fil </label>
                              </div>
                          </div>
 
@@ -180,6 +197,7 @@
                                      Info
                                  </button>
                                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
                                      <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                      <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                      <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
@@ -230,6 +248,7 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
@@ -300,6 +319,8 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool UnDisabledFileField { get; set; } = true;
+    private bool LoadingDataFromFil { get; set; } = true;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -347,6 +368,15 @@
         return;
     }
 
+    private void ImportFile(SharesImportsFileViewModel vm)
+    {
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
+        UnDisabledFileField = false;
+        SharesImportsFile = vm;
+    }
+
     private void Info(SharesImportsFileViewModel vm)
     {
         HideNewOrChangesForm();
@@ -390,38 +420,59 @@
         StateHasChanged();
     }
 
-    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    private void HandleFileChange(InputFileChangeEventArgs e)
     {
+        LoadingDataFromFil = false;
+
+        RefreshPage();
+
+        LoadingDataFromFil = false;
+
         var file = e.File;
 
         if (file != null)
         {
-            // Handle the file here
-            // For Excel files, you might want to use a library like EPPlus to read the Excel data
-
-            // Example: Read Excel data using EPPlus
-            using (var stream = file.OpenReadStream())
+            try
             {
-                using (var package = new OfficeOpenXml.ExcelPackage(stream))
-                {
-                    var worksheet = package.Workbook.Worksheets[0]; // Assuming the data is in the first worksheet
+                // Handle the file here
+                // For Excel files, you might want to use a library like EPPlus to read the Excel data
 
-                    // Now, you can loop through the rows and columns to get the data
-                    for (int row = worksheet.Dimension.Start.Row; row <= worksheet.Dimension.End.Row; row++)
+                // Example: Read Excel data using EPPlus
+                using (var stream = file.OpenReadStream())
+                {
+                    using (var package = new OfficeOpenXml.ExcelPackage(stream))
                     {
-                        for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+                        var worksheet = package.Workbook.Worksheets[0]; // Assuming the data is in the first worksheet
+
+                        // Now, you can loop through the rows and columns to get the data
+                        for (int row = worksheet.Dimension.Start.Row; row <= worksheet.Dimension.End.Row; row++)
                         {
-                            var cellValue = worksheet.Cells[row, col].Text;
-                            // Do something with the cell value
+                            for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+                            {
+                                var cellValue = worksheet.Cells[row, col].Text;
+                                // Do something with the cell value
+                            }
                         }
                     }
                 }
             }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+            
         }
+
+        RefreshPage();
     }
 
     async Task ImportExcelFile(InputFileChangeEventArgs e)
     {
+        RefreshPage();
+
+        LoadingDataFromFil = false;
+
         foreach (IBrowserFile file in e.GetMultipleFiles(1))
         {
             try
@@ -452,5 +503,7 @@
                 throw;
             }
         }
+
+        RefreshPage();
     }
 }

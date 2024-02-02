@@ -22,7 +22,7 @@ namespace MyPrivateApp.Data
         public DbSet<SharesOtherImports> SharesOtherImports { get; set; } // Andra importer
         public DbSet<SharesDepositMoney> SharesDepositMoney { get; set; } // Insättning och uttag av min pengar
         public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; } // Totalt belopp insättning av min pengar
-        public DbSet<SharesImportsFile> SharesImportsFiles { get; set; } // Totalt belopp insättning av min pengar
+        public DbSet<SharesImportsFile> SharesImportsFiles { get; set; } // Information om importerade filer
 
         // Felhantering
         public DbSet<SharesErrorHandlings> SharesErrorHandlings { get; set; } // Felhantering aktier
@@ -31,8 +31,8 @@ namespace MyPrivateApp.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "User", NormalizedName = "USER", Id = Guid.NewGuid().ToString(), ConcurrencyStamp = Guid.NewGuid().ToString() });
-            builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "Admin", NormalizedName = "ADMIN", Id = Guid.NewGuid().ToString(), ConcurrencyStamp = Guid.NewGuid().ToString() });
+            //builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "User", NormalizedName = "USER", Id = Guid.NewGuid().ToString(), ConcurrencyStamp = Guid.NewGuid().ToString() });
+            //builder.Entity<IdentityRole>().HasData(new IdentityRole { Name = "Admin", NormalizedName = "ADMIN", Id = Guid.NewGuid().ToString(), ConcurrencyStamp = Guid.NewGuid().ToString() });
         }
     }
 }
