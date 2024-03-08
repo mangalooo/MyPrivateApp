@@ -12,5 +12,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         void Sell(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import, ISharesFeeClass sharesFeeClass); // Säljer hela eller delar av aktien
         void Delete(ApplicationDbContext db, SharesPurchasedViewModel incomingModel, bool import);
         SharesPurchasedViewModel ChangeFromModelToViewModel(SharesPurchaseds model);
+        SharesPurchasedViewModel ChangeFromImportToViewModel(SharesImports model);
     }
 }

@@ -15,6 +15,7 @@
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 @inject ISharesImportsFileClass SharesImportsFileClass
+@inject ISharesPurchasedClass SharesPurchasedClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -111,7 +112,7 @@
 
                          <div class="col-3">
                              <div class="form-floating">
-                                 <InputFile class="form-control" OnChange="HandleFileChange" accept=".csv" disabled="@UnDisabledFileField" />
+                                 <InputFile class="form-control" OnChange="ImportExcelFile" accept=".csv" disabled="@UnDisabledFileField" />
                                  <label for="File"> Fil </label>
                              </div>
                          </div>
@@ -234,10 +235,11 @@
                 </div>
             </div>
 
+
             @* Mobile streen *@
             <div id="mobile">
-                <div class="card-body">
-                    <QuickGrid Items="@SharesImportsFilesQueryable" Pagination="pagination">
+                <div class="card-body" style="width:auto">
+                    <QuickGrid Items="@SharesImportsFilesQueryable" Pagination="pagination" Virtualize="true">
 
                         <PropertyColumn Title="Filnamn" Property="@(c => c.FileName)" Sortable="true" />
 
@@ -275,6 +277,7 @@
                             }
 
                         </TemplateColumn>
+
                     </QuickGrid>
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
@@ -284,10 +287,11 @@
 
                 </div>
             </div>
-
         </div>
+
     </div>
 </div>
+
 
 <br />
 <br />
@@ -321,6 +325,10 @@
     private bool DisabledForm { get; set; } = false;
     private bool UnDisabledFileField { get; set; } = true;
     private bool LoadingDataFromFil { get; set; } = true;
+
+    // Upload file
+    private InputFile? inputFile;
+    private ElementReference previewImageElem;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -420,90 +428,108 @@
         StateHasChanged();
     }
 
-    private void HandleFileChange(InputFileChangeEventArgs e)
+    private async Task ImportExcelFile(InputFileChangeEventArgs e)
     {
-        LoadingDataFromFil = false;
-
-        RefreshPage();
-
-        LoadingDataFromFil = false;
-
-        var file = e.File;
-
-        if (file != null)
+        try
         {
-            try
+            RefreshPage();
+
+            LoadingDataFromFil = false;
+
+            foreach (IBrowserFile file in e.GetMultipleFiles(1))
             {
-                // Handle the file here
-                // For Excel files, you might want to use a library like EPPlus to read the Excel data
-
-                // Example: Read Excel data using EPPlus
-                using (var stream = file.OpenReadStream())
+                try
                 {
-                    using (var package = new OfficeOpenXml.ExcelPackage(stream))
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        var worksheet = package.Workbook.Worksheets[0]; // Assuming the data is in the first worksheet
+                        // copy data from file to memory stream
+                        await file.OpenReadStream().CopyToAsync(ms);
+                        // positions the cursor at the beginning of the memory stream
+                        ms.Position = 0;
 
-                        // Now, you can loop through the rows and columns to get the data
-                        for (int row = worksheet.Dimension.Start.Row; row <= worksheet.Dimension.End.Row; row++)
+                        // create ExcelPackage from memory stream
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                        using (ExcelPackage package = new ExcelPackage(ms))
                         {
-                            for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+                            ExcelWorksheet ws = package.Workbook.Worksheets.FirstOrDefault();
+                            int colCount = ws.Dimension.End.Column;
+                            int rowCount = ws.Dimension.End.Row;
+
+                            object s = ws.Cells[4, 7].Value;
+
+                            List<SharesImports> importList = new();
+                            SharesImports setImport;
+
+                            for (int i = 2; i < rowCount + 1; i++)
                             {
-                                var cellValue = worksheet.Cells[row, col].Text;
-                                // Do something with the cell value
+                                setImport = new()
+                                {
+                                        Date = ws.Cells[i, 1].Value == null ? string.Empty : ws.Cells[i, 1].Value.ToString(),
+                                        AccountNumber = ws.Cells[i, 2].Value == null ? string.Empty : ws.Cells[i, 2].Value.ToString(),
+                                        TypeOfTransaction = ws.Cells[i, 3].Value == null ? string.Empty : ws.Cells[i, 3].Value.ToString(),
+                                        CompanyOrInformation = ws.Cells[i, 4].Value == null ? string.Empty : ws.Cells[i, 4].Value.ToString(),
+                                        NumberOfSharesString = ws.Cells[i, 5].Value == null ? string.Empty : ws.Cells[i, 5].Value.ToString(),
+                                        PricePerShareString = ws.Cells[i, 6].Value == null ? string.Empty : ws.Cells[i, 6].Value.ToString(),
+                                        AmountString = ws.Cells[i, 7].Value == null ? string.Empty : ws.Cells[i, 7].Value.ToString(),
+                                        BrokerageString = ws.Cells[i, 8].Value == null ? string.Empty : ws.Cells[i, 8].Value.ToString(),
+                                        Currency = ws.Cells[i, 9].Value == null ? string.Empty : ws.Cells[i, 9].Value.ToString(),
+                                        ISIN = ws.Cells[i, 10].Value == null ? string.Empty : ws.Cells[i, 10].Value.ToString()
+                                };
+
+                                importList.Add(setImport);
                             }
+
+                            foreach (var import in importList)
+                            {
+                                switch (import.TypeOfTransaction)
+                                {
+                                    case "Köp":
+                                        SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportToViewModel(import);
+                                        SharesPurchasedClass.Add(db, vm, true);
+                                        break;
+                                    case "Sälj":
+                                        SoldShareImport(import);
+                                        break;
+                                    case "Insättning":
+                                        DepositMoneyImport(import);
+                                        break;
+                                    case "Uttag":
+                                        DepositMoneyImport(import);
+                                        break;
+                                    case "Utdelning":
+                                        DividendImport(import);
+                                        break;
+                                    case "Räntor":
+                                        InterestRatesImport(import);
+                                        break;
+                                    default:
+                                        OtherImports(import);
+                                        break;
+
+                                        // Avgifter?
+                                }
+
+                                Thread.Sleep(2000);
+                            }
+
+
+                            // rest of the code here...
                         }
                     }
                 }
-            }
-            catch (Exception)
-            {
-                
-                throw;
-            }
-            
-        }
-
-        RefreshPage();
-    }
-
-    async Task ImportExcelFile(InputFileChangeEventArgs e)
-    {
-        RefreshPage();
-
-        LoadingDataFromFil = false;
-
-        foreach (IBrowserFile file in e.GetMultipleFiles(1))
-        {
-            try
-            {
-                using (MemoryStream ms = new MemoryStream())
+                catch (Exception ex)
                 {
-                    // copy data from file to memory stream
-                    await file.OpenReadStream().CopyToAsync(ms);
-                    // positions the cursor at the beginning of the memory stream
-                    ms.Position = 0;
-
-                    // create ExcelPackage from memory stream
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                    using (ExcelPackage package = new ExcelPackage(ms))
-                    {
-                        ExcelWorksheet ws = package.Workbook.Worksheets.FirstOrDefault();
-                        int colCount = ws.Dimension.End.Column;
-                        int rowCount = ws.Dimension.End.Row;
-                        object s = ws.Cells[2, 2].Value;
-
-
-                        // rest of the code here...
-                    }
+                    throw;
                 }
             }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
 
-        RefreshPage();
+            RefreshPage();
+        }
+        catch (Exception eede)
+        {
+            string errorMessage = eede.Message;
+            string test = string.Empty;
+        }
+        
     }
 }

@@ -337,6 +337,26 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
+        public SharesPurchasedViewModel ChangeFromImportToViewModel(SharesImports model)
+        {
+            DateTime date = DateTime.Parse(model.Date);
+
+            SharesPurchasedViewModel vm = new()
+            {
+                DateOfPurchase = date,
+                CompanyName = model.CompanyOrInformation,
+                HowMany = int.Parse(model.NumberOfSharesString),
+                PricePerShares = double.Parse(model.PricePerShareString),
+                Brokerage = double.Parse(model.BrokerageString),
+                Currency = model.Currency,
+                ISIN = model.ISIN,
+                Account = model.AccountNumber,
+                Amount = double.Parse(model.AmountString),
+            };
+
+            return vm;
+        }
+
         private static SharesPurchaseds ChangesFromViewModelToModel(SharesPurchasedViewModel vm)
         {
             SharesPurchaseds sharesPurchased = new()
