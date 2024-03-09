@@ -573,7 +573,17 @@
             SharesPurchasedClass.Sell(db, vm, true, SharesFeeClass);
         else
         {
-            // Felmeddelande
+            DateTime date = DateTime.Now;
+
+            SharesErrorHandlings sharesErrorHandling = new()
+                {
+                    Date = $"{date.Year}-{date.Month}-{date.Day}",
+                    ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen.",
+                    Note = $"Import: Ja. Säljdatum: {vm.DateOfPurchase}, Aktien: {vm.CompanyName} ISIN: {vm.ISIN}."
+                };
+
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            db.SaveChanges();
         }
     }
 
