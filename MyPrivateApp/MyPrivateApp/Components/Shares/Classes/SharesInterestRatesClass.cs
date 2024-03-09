@@ -130,6 +130,21 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
+        public SharesInterestRatesViewModel ChangeFromImportToViewModel(SharesImports model)
+        {
+            DateTime date = DateTime.Parse(model.Date);
+
+            SharesInterestRatesViewModel vm = new()
+            {
+                Account = model.AccountNumber,
+                Currency = model.Currency,
+                Date = date,
+                TotalAmount = double.Parse(model.AmountString),
+            };
+
+            return vm;
+        }
+
         private static SharesInterestRates ChangeFromViewModelToModel(SharesInterestRatesViewModel vm)
         {
             SharesInterestRates model = new()

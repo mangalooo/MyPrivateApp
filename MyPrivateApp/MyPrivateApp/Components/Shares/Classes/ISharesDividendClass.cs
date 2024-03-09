@@ -6,9 +6,10 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public interface ISharesDividendClass
     {
-        public void Add(ApplicationDbContext db, SharesDividendViewModel vm, bool import);
-        public void Edit(ApplicationDbContext db, SharesDividendViewModel vm, bool import);
-        public void Delete(ApplicationDbContext db, SharesDividendViewModel vm, bool import);
-        public SharesDividendViewModel ChangeFromModelToViewModel(SharesDividend model);
+        void Add(ApplicationDbContext db, SharesDividendViewModel vm, bool import);
+        void Edit(ApplicationDbContext db, SharesDividendViewModel vm, bool import);
+        void Delete(ApplicationDbContext db, SharesDividendViewModel vm, bool import);
+        SharesDividendViewModel ChangeFromModelToViewModel(SharesDividend model);
+        SharesDividendViewModel ChangeFromImportToViewModel(SharesImports model);
     }
 }

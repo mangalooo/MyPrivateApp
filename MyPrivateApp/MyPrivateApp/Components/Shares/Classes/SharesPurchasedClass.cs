@@ -6,7 +6,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesPurchasedClass : ISharesPurchasedClass
     {
-        private static SharesPurchaseds Get(ApplicationDbContext db, int? id) => db.SharesPurchaseds.FirstOrDefault(r => r.SharesPurchasedId == id);
+        private static SharesPurchaseds Get(ApplicationDbContext db, string? ISIN) => db.SharesPurchaseds.FirstOrDefault(r => r.ISIN == ISIN);
 
         public void Add(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import)
         {
@@ -45,7 +45,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             if (vm.SharesPurchasedId > 0)
             {
-                SharesPurchaseds dbModel = Get(db, vm.SharesPurchasedId);
+                SharesPurchaseds dbModel = Get(db, vm.ISIN);
                 dbModel.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
                 dbModel.CompanyName = vm.CompanyName;
                 dbModel.HowMany = vm.HowMany;
@@ -85,7 +85,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             string importTrue = import ? "Ja" : "Nej";
 
-            SharesPurchaseds getDbSharesPurchasedsModel = Get(db, moreSharesPurchased.SharesPurchasedId);
+            SharesPurchaseds getDbSharesPurchasedsModel = Get(db, moreSharesPurchased.ISIN);
 
             getDbSharesPurchasedsModel.HowMany += moreSharesPurchased.MoreHowMany;
             getDbSharesPurchasedsModel.Brokerage += moreSharesPurchased.MoreBrokerage;
@@ -123,7 +123,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             string importTrue = import ? "Ja" : "Nej";
 
-            SharesPurchaseds getDbSharesPurchasedsModel = Get(db, vm.SharesPurchasedId);
+            SharesPurchaseds getDbSharesPurchasedsModel = Get(db, vm.ISIN);
 
             // Selling the entire share
             if (getDbSharesPurchasedsModel.HowMany == vm.SaleHowMany)
@@ -251,7 +251,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                SharesPurchaseds getDbSharesPurchasedsModel = Get(db, saleSharesPurchased.SharesPurchasedId);
+                SharesPurchaseds getDbSharesPurchasedsModel = Get(db, saleSharesPurchased.ISIN);
 
                 if (getDbSharesPurchasedsModel != null)
                 {

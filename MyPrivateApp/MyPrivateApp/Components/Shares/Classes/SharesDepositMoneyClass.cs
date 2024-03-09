@@ -216,6 +216,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
+        public SharesDepositMoneyViewModel ChangeFromImportToViewModel(SharesImports model)
+        {
+            DateTime date = DateTime.Parse(model.Date);
+
+            SharesDepositMoneyViewModel vm = new()
+            {
+                Account = model.AccountNumber,
+                Currency = model.Currency,
+                Date = date,
+                DepositMoney = double.Parse(model.AmountString),
+                TypeOfTransaction = model.CompanyOrInformation,
+            };
+
+            return vm;
+        }
+
         private static SharesDepositMoney ChangeFromViewModelToModel(SharesDepositMoneyViewModel vm)
         {
             SharesDepositMoney model = new()

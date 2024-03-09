@@ -12,8 +12,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             string importTrue = import ? "Ja" : "Nej";
 
-            if (vm.Date == DateTime.MinValue) return;
-
             // Add new sold shares
             SharesDividend model = ChangeFromViewModelToModel(vm);
 
@@ -26,7 +24,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Sold shares add {DateTime.Now}: Company: {model.Company} Date: {model.Date} Error: {ex.Message}");
+                Console.WriteLine($"Dividend add {DateTime.Now}: Company: {model.Company} Date: {model.Date} Error: {ex.Message}");
 
                 DateTime date = DateTime.Now;
 
@@ -34,7 +32,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
                     ErrorMessage = $"Felmeddelande: {ex.Message}",
-                    Note = $"Import: {importTrue}, Lägg till såld aktie: {DateTime.Now}: Företag: {model.Company} Datum: {model.Date}"
+                    Note = $"Import: {importTrue}, Lägg till utdelning: {DateTime.Now}: Företag: {model.Company} Datum: {model.Date}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -66,7 +64,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Edit sold shares {DateTime.Now}: Company: {vm.Company} Date: {vm.Date} Error: {ex.Message}");
+                    Console.WriteLine($"Edit dividend {DateTime.Now}: Company: {vm.Company} Date: {vm.Date} Error: {ex.Message}");
 
                     DateTime date = DateTime.Now;
 
@@ -74,7 +72,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
                         ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Ändra såld aktie: {DateTime.Now}: Företag: {vm.Company} Datum: {vm.Date}"
+                        Note = $"Import: {importTrue}, Ändra utdelning: {DateTime.Now}: Företag: {vm.Company} Datum: {vm.Date}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -99,7 +97,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"SoldSharesAdd {DateTime.Now}: Company: {model.Company} Date: {model.Date} Error: {ex.Message}");
+                Console.WriteLine($"Delete dividend {DateTime.Now}: Company: {model.Company} Date: {model.Date} Error: {ex.Message}");
 
                 DateTime date = DateTime.Now;
 
@@ -107,7 +105,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
                     ErrorMessage = $"Felmeddelande: {ex.Message}",
-                    Note = $"Import: {importTrue}, Ta bort såld: {DateTime.Now}: Företag: {model.Company} Datum: {model.Date}"
+                    Note = $"Import: {importTrue}, Ta bort utdelning: {DateTime.Now}: Företag: {model.Company} Datum: {model.Date}"
                 };
 
                 db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -132,6 +130,26 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Note = model.Note
+            };
+
+            return vm;
+        }
+
+        public SharesDividendViewModel ChangeFromImportToViewModel(SharesImports model)
+        {
+            DateTime date = DateTime.Parse(model.Date);
+
+            SharesDividendViewModel vm = new()
+            {
+                Date = date,
+                Company = model.CompanyOrInformation,
+                NumberOfShares = int.Parse(model.NumberOfSharesString),
+                PricePerShare = double.Parse(model.PricePerShareString),
+                Brokerage = double.Parse(model.BrokerageString),
+                Currency = model.Currency,
+                ISIN = model.ISIN,
+                AccountNumber = model.AccountNumber,
+                TotalAmount = double.Parse(model.AmountString),
             };
 
             return vm;

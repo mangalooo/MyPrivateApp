@@ -6,7 +6,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesImportsFileClass : ISharesImportsFileClass
     {
-        private static SharesImportsFile Get(ApplicationDbContext db, int? id) => db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == id);
+        private SharesImportsFile Get(ApplicationDbContext db, int? id) => db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == id);
 
         public void Add(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import)
         {

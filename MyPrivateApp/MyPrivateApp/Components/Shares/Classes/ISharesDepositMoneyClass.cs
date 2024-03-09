@@ -10,6 +10,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         void Edit(ApplicationDbContext db, SharesDepositMoneyViewModel vm);
         void Delete(ApplicationDbContext db, SharesDepositMoneyViewModel vm);
         SharesDepositMoneyViewModel ChangeFromModelToViewModel(SharesDepositMoney model);
+        SharesDepositMoneyViewModel ChangeFromImportToViewModel(SharesImports model);
         SharesTotalAmounts GetTotalAmount(ApplicationDbContext db, int? id);
     }
 }

@@ -44,7 +44,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in courtage")]
         [Display(Name = "Courtage")]
         [DataType(DataType.Text)]
-        public string? Brokerage { get; set; }
+        public double Brokerage { get; set; }
 
         [Required(ErrorMessage = "Skriv in valutan")]
         [Display(Name = "Valuta")]
