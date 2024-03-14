@@ -10,8 +10,9 @@ namespace MyPrivateApp.Components.Shares.Classes
         void Edit(ApplicationDbContext db, SharesPurchasedViewModel vm);
         void AddMore(ApplicationDbContext db, SharesPurchasedViewModel moreSharesPurchased, bool import);
         void Sell(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import, ISharesFeeClass sharesFeeClass); // Säljer hela eller delar av aktien
-        void Delete(ApplicationDbContext db, SharesPurchasedViewModel incomingModel, bool import);
+        void Delete(ApplicationDbContext db, SharesPurchaseds incomingModel, SharesPurchasedViewModel vm, bool import);
         SharesPurchasedViewModel ChangeFromModelToViewModel(SharesPurchaseds model);
-        SharesPurchasedViewModel ChangeFromImportToViewModel(SharesImports model);
+        SharesPurchasedViewModel ChangeFromImportSellToViewModel(SharesImports model);
+        SharesPurchasedViewModel ChangeFromImportAddToViewModel(SharesImports model);
     }
 }

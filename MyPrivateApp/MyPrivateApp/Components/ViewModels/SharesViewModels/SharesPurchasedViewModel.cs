@@ -86,6 +86,6 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Sälj: Courtage")]
         [DataType(DataType.Currency)]
-        public int SaleBrokerage { get; set; } //courtage, köp kostnad
+        public double SaleBrokerage { get; set; } //courtage, köp kostnad
     }
 }

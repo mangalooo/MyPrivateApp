@@ -440,7 +440,7 @@
 
             RefreshPage();
 
-            LoadingDataFromFil = false;
+            LoadingDataFromFil = true;
 
             foreach (IBrowserFile file in e.GetMultipleFiles(1))
             {
@@ -551,7 +551,7 @@
 
     private void AddSharesImport(SharesImports import)
     {
-        SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportToViewModel(import);
+        SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportAddToViewModel(import);
         bool sharesExist = db.SharesPurchaseds.Any(r => r.ISIN == import.ISIN);
 
         if (sharesExist)
@@ -562,7 +562,7 @@
 
     private void SoldShareImport(SharesImports import)
     {
-        SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportToViewModel(import);
+        SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportSellToViewModel(import);
         bool sharesExist = db.SharesPurchaseds.Any(r => r.ISIN == import.ISIN);
 
         if (sharesExist)
