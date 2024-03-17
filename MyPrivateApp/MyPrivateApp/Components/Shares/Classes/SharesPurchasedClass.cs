@@ -6,7 +6,9 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesPurchasedClass : ISharesPurchasedClass
     {
-        private static SharesPurchaseds Get(ApplicationDbContext db, string? ISIN) => db.SharesPurchaseds.FirstOrDefault(r => r.ISIN == ISIN);
+        private static SharesPurchaseds? Get(ApplicationDbContext db, string ISIN) => db.SharesPurchaseds.Any(r => r.ISIN == ISIN) ?
+                                                                                            db.SharesPurchaseds.FirstOrDefault(r => r.ISIN == ISIN) :
+                                                                                                throw new Exception("Den köpta aktien hittades inte i databasen!");
 
         public void Add(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import)
         {
@@ -327,12 +329,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                 DateOfPurchase = date,
                 CompanyName = model.CompanyName,
                 HowMany = model.HowMany,
-                PricePerShares = model.PricePerShares,
+                PricePerShares = double.Round(model.PricePerShares, 2, MidpointRounding.AwayFromZero),
                 Brokerage = model.Brokerage,
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.Account,
-                Amount = model.Amount,
+                Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero),
                 TypeOfShares = model.TypeOfShares,
                 Note = model.Note
             };
@@ -349,12 +351,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SaleDateOfPurchase = date,
                 CompanyName = model.CompanyOrInformation,
                 SaleHowMany = int.Parse(model.NumberOfSharesString),
-                SalePricePerShares = double.Parse(model.PricePerShareString),
+                SalePricePerShares = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
                 SaleBrokerage = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Parse(model.AmountString),
+                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
             };
 
             return vm;
@@ -369,12 +371,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                 DateOfPurchase = date,
                 CompanyName = model.CompanyOrInformation,
                 HowMany = int.Parse(model.NumberOfSharesString),
-                PricePerShares = double.Parse(model.PricePerShareString),
+                PricePerShares = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
                 Brokerage = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Parse(model.AmountString),
+                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
             };
 
             return vm;
@@ -388,9 +390,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 CompanyName = vm.CompanyName,
                 HowMany = vm.HowMany,
-                PricePerShares = vm.PricePerShares,
+                PricePerShares = double.Round(vm.PricePerShares, 2, MidpointRounding.AwayFromZero),
                 Brokerage = vm.Brokerage,
-                Amount = vm.HowMany * vm.PricePerShares,
+                Amount = double.Round(vm.HowMany * vm.PricePerShares, 2, MidpointRounding.AwayFromZero),
                 ISIN = vm.ISIN,
                 Currency = vm.Currency,
                 Account = vm.Account,

@@ -118,8 +118,8 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputFile class="form-control" OnChange="ImportExcelFile" accept=".csv" disabled="@UnDisabledFileField" />
-                                <label for="File"> Fil </label>
+                                <InputFile class="form-control" OnChange="ImportExcelFile" accept=".xlsx" disabled="@UnDisabledFileField" />
+                                <label for="File"> Excel fil (.xlsx) </label>
                             </div>
                         </div>
 
@@ -286,7 +286,8 @@
 
                     </QuickGrid>
 
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
+                    @* Test mobile version without pages *@
+                    @* <div class="card-footer"><Paginator State="@pagination" /></div> *@
 
                     <br />
                     <br />
@@ -574,7 +575,7 @@
             SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen.",
+                    ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen!",
                     Note = $"Import: Ja. Säljdatum: {vm.DateOfPurchase}, Aktien: {vm.CompanyName} ISIN: {vm.ISIN}."
                 };
 
