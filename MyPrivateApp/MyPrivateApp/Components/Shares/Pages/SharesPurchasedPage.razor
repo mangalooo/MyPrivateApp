@@ -460,7 +460,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesPurchasedViewModel sharesPurchased { get; set; }
+    private SharesPurchasedViewModel sharesPurchased { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesPurchasedViewModel> PurchasedSharesQueryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
@@ -494,7 +494,7 @@
 
         PurchasedSharesQueryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
 
-        foreach (SharesPurchaseds model in db.SharesPurchaseds.OrderBy(c => c.SharesPurchasedId))
+        foreach (SharesPurchaseds model in db.SharesPurchaseds.OrderBy(c => c.DateOfPurchase))
         {
             SharesPurchasedViewModel sharesPurchased = SharesPurchasedClass.ChangeFromModelToViewModel(model);
             PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { sharesPurchased }.AsQueryable());

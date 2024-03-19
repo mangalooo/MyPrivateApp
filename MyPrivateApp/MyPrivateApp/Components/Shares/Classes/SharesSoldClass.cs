@@ -41,7 +41,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
             }
             else
-                throw new Exception("Lägg till: Hittar ingen data från formuläret eller datum ej i fyllt!");
+                throw new Exception("Lägg till såld: Hittar ingen data från formuläret eller datum ej i fyllt!");
         }
 
         public void Edit(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
@@ -95,10 +95,10 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                 }
                 else
-                    throw new Exception("Ändra: Den sålda aktien hittades inte i databasen!");
+                    throw new Exception("Ändra såld: Aktien hittades inte i databasen!");
             }
             else
-                throw new Exception("Ändra: Den sålda aktien hittades inte i databasen eller saknas data i formuläret!");
+                throw new Exception("Ändra såld: Aktien hittades inte i databasen eller saknas data i formuläret!");
         }
 
         public void Delete(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
@@ -133,7 +133,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
             }
             else
-                throw new Exception("Ta bort: Den sålda aktien hittades inte i databasen!");
+                throw new Exception("Ta bort såld: Den sålda aktien hittades inte i databasen!");
         }
 
         public SharesSoldViewModel ChangeFromModelToViewModel(SharesSolds model)
