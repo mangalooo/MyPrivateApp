@@ -59,11 +59,16 @@
 
 <h1 style="text-align:center"> Manuell hantering </h1>
 
-<br />
-<br />
+<div style="text-align:center" hidden="@ShowOrHideCreateButton">
+    <br />
+    <br />
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Lägg till andra importer </button>
+</div>
 
-<div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm" hidden="@ShowOrHideCreateButton"> Lägg till andra importer </button>
+<div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+    <br />
+    <br />
+    <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
 </div>
 
 <br />
@@ -343,12 +348,16 @@
     private string ModalClass = "";
     private bool ShowBackdrop = false;
 
-    // Hide button and fields
+    // Hide button, fields and text
     private bool HideNewOrChangesFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -384,15 +393,38 @@
         if (OtherImports.OtherImportsId > 0)
         {
             ShowOrHideCreateButton = true;
-            SharesOtherImports.Edit(db, OtherImports, false);
+            ErrorMessage = SharesOtherImports.Edit(db, OtherImports, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                return;
+            }
+            else
+            {
+                OtherImports = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
         else
-            SharesOtherImports.Add(db, OtherImports, false);
+        {
+            ErrorMessage = SharesOtherImports.Add(db, OtherImports, false);
 
-        OtherImports = new();
-        Navigation.Refresh(true);
-
-        return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                return;
+            }
+            else
+            {
+                OtherImports = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
     }
 
     private void Info(SharesOtherShareImportViewModel vm)
@@ -416,10 +448,19 @@
     {
         if (db.SharesOtherImports.Count() == 0) return;
 
-        SharesOtherImports.Delete(db, vm, false);
+        ErrorMessage = SharesOtherImports.Delete(db, vm, false);
 
-        OtherImports = new();
-        Navigation.Refresh(true);
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            return;
+        }
+        else
+        {
+            OtherImports = new();
+            Navigation.Refresh(true);
+            return;
+        }
     }
 
     private void OpenDeleteWindow()

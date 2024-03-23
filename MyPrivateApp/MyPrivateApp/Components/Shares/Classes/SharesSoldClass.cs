@@ -8,104 +8,100 @@ namespace MyPrivateApp.Components.Shares.Classes
     {
         private static SharesSolds? Get(ApplicationDbContext db, string ISIN) => db.SharesSolds.Any(r => r.ISIN == ISIN) ?
                                                                                     db.SharesSolds.FirstOrDefault(r => r.ISIN == ISIN) :
-                                                                                        throw new Exception("Den sålda aktien hittades inte i databasen!");
+                                                                                        throw new Exception("Den köpa aktien hittades inte i databasen!");
 
-        public void Add(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
+        public string Add(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
         {
-            string importTrue = import ? "Ja" : "Nej";
-
-            if (vm != null && vm.DateOfPurchase == DateTime.MinValue && db != null)
+            if (vm != null && db != null)
             {
-                SharesSolds model = ChangeFromViewModelToModel(vm);
-
-                try
-                {
-                    db.SharesSolds.Add(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Sold shares add {DateTime.Now}: Company: {model.CompanyName} Date: {model.DateOfPurchase} Error: {ex.Message}");
-
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Lägg till såld aktie: {DateTime.Now}: Företag: {model.CompanyName} Datum: {model.DateOfPurchase}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
-                }
-            }
-            else
-                throw new Exception("Lägg till såld: Hittar ingen data från formuläret eller datum ej i fyllt!");
-        }
-
-        public void Edit(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
-        {
-            string importTrue = import ? "Ja" : "Nej";
-
-            if (vm != null && string.IsNullOrEmpty(vm.ISIN) && db != null)
-            {
-                SharesSolds? dbModel = Get(db, vm.ISIN);
-
-                if (dbModel != null)
+                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) && !string.IsNullOrEmpty(vm.ISIN) &&
+                        vm.HowMany > 0 && vm.PricePerShares > 0 && vm.Brokerage > 0)
                 {
                     SharesSolds model = ChangeFromViewModelToModel(vm);
 
-                    dbModel.DateOfPurchase = model.DateOfPurchase;
-                    dbModel.Amount = double.Round(model.HowMany * model.PricePerShares, 2, MidpointRounding.AwayFromZero);
-                    dbModel.DateOfSold = model.DateOfSold;
-                    dbModel.AmountSold = double.Round(model.AmountSold, 2, MidpointRounding.AwayFromZero);
-                    dbModel.CompanyName = model.CompanyName;
-                    dbModel.HowMany = model.HowMany;
-                    dbModel.PricePerShares = double.Round(model.PricePerShares, 2, MidpointRounding.AwayFromZero);
-                    dbModel.PricePerSharesSold = double.Round(model.PricePerSharesSold, 2, MidpointRounding.AwayFromZero);
-                    dbModel.Currency = model.Currency;
-                    dbModel.ISIN = model.ISIN;
-                    dbModel.Account = model.Account;
-                    dbModel.Brokerage = model.Brokerage;
-                    dbModel.TypeOfShares = model.TypeOfShares;
-                    dbModel.MoneyProfitOrLoss = double.Round(model.MoneyProfitOrLoss, 2, MidpointRounding.AwayFromZero);
-                    dbModel.PercentProfitOrLoss = model.PercentProfitOrLoss;
-                    dbModel.Note = model.Note;
-
                     try
                     {
+                        db.SharesSolds.Add(model);
                         db.SaveChanges();
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Edit sold shares {DateTime.Now}: Company: {model.CompanyName} Date: {model.DateOfPurchase} Error: {ex.Message}");
-
-                        DateTime date = DateTime.Now;
-
-                        SharesErrorHandlings sharesErrorHandling = new()
-                        {
-                            Date = $"{date.Year}-{date.Month}-{date.Day}",
-                            ErrorMessage = $"Felmeddelande: {ex.Message}",
-                            Note = $"Import: {importTrue}, Ändra såld aktie: {DateTime.Now}: Företag: {model.CompanyName} Datum: {model.DateOfPurchase}"
-                        };
-
-                        db.SharesErrorHandlings.Add(sharesErrorHandling);
-                        db.SaveChanges();
+                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
                     }
                 }
                 else
-                    throw new Exception("Ändra såld: Aktien hittades inte i databasen!");
+                {
+                    if (import)
+                        ErrorHandling(db, vm, "Lägg till", import, "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!");
+                    else
+                        return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!";
+                }
             }
             else
-                throw new Exception("Ändra såld: Aktien hittades inte i databasen eller saknas data i formuläret!");
+            {
+                if (import)
+                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                else
+                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            }
+
+            return string.Empty;
         }
 
-        public void Delete(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
+        public string Edit(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
         {
-            string importTrue = import ? "Ja" : "Nej";
-
             if (vm != null && db != null)
+            {
+                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) && !string.IsNullOrEmpty(vm.ISIN) &&
+                    vm.HowMany > 0 && vm.PricePerShares > 0 && vm.Brokerage > 0 && vm.DateOfSold != DateTime.MinValue && vm.PricePerSharesSold > 0)
+                {
+                    try
+                    {
+                        SharesSolds? dbModel = Get(db, vm.ISIN);
+
+                        if (dbModel != null)
+                        {
+                            SharesSolds model = ChangeFromViewModelToModel(vm);
+
+                            dbModel.DateOfPurchase = model.DateOfPurchase;
+                            dbModel.Amount = double.Round(model.HowMany * model.PricePerShares, 2, MidpointRounding.AwayFromZero);
+                            dbModel.DateOfSold = model.DateOfSold;
+                            dbModel.AmountSold = double.Round(model.AmountSold, 2, MidpointRounding.AwayFromZero);
+                            dbModel.CompanyName = model.CompanyName;
+                            dbModel.HowMany = model.HowMany;
+                            dbModel.PricePerShares = double.Round(model.PricePerShares, 2, MidpointRounding.AwayFromZero);
+                            dbModel.PricePerSharesSold = double.Round(model.PricePerSharesSold, 2, MidpointRounding.AwayFromZero);
+                            dbModel.Currency = model.Currency;
+                            dbModel.ISIN = model.ISIN;
+                            dbModel.Account = model.Account;
+                            dbModel.Brokerage = model.Brokerage;
+                            dbModel.TypeOfShares = model.TypeOfShares;
+                            dbModel.MoneyProfitOrLoss = double.Round(model.MoneyProfitOrLoss, 2, MidpointRounding.AwayFromZero);
+                            dbModel.PercentProfitOrLoss = model.PercentProfitOrLoss;
+                            dbModel.Note = model.Note;
+
+                            db.SaveChanges();
+                        }
+                        else
+                            return "Aktien hittades inte i databasen!!";
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorHandling(db, vm, "Ändra", import, ex.Message);
+                    }
+                }
+                else
+                    return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie, pris per såld aktie, Säljdatum och Courage!";
+            }
+            else
+                return "Aktien hittades inte i databasen eller saknas data i formuläret!";
+
+            return string.Empty;
+        }
+
+        public string Delete(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
+        {
+            if (vm != null && vm.AmountSold > 0 && db != null)
             {
                 SharesSolds model = ChangeFromViewModelToModel(vm);
 
@@ -117,23 +113,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"SoldSharesAdd {DateTime.Now}: Company: {model.CompanyName} Date: {model.DateOfPurchase} Error: {ex.Message}");
-
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Ta bort såld: {DateTime.Now}: Företag: {model.CompanyName} Datum: {model.DateOfPurchase}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
                 }
             }
             else
-                throw new Exception("Ta bort såld: Den sålda aktien hittades inte i databasen!");
+                return "Aktien hittades inte i databasen eller saknas data i formuläret!";
+
+            return string.Empty;
         }
 
         public SharesSoldViewModel ChangeFromModelToViewModel(SharesSolds model)
@@ -196,5 +182,22 @@ namespace MyPrivateApp.Components.Shares.Classes
         }
 
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
+
+        private static void ErrorHandling(ApplicationDbContext db, SharesSoldViewModel vm, string type, bool import, string errorMessage)
+        {
+            DateTime date = DateTime.Now;
+            string importTrue = import ? "Ja" : "Nej";
+
+            SharesErrorHandlings sharesErrorHandling = new()
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                ErrorMessage = $"Felmeddelande: {errorMessage}",
+                Note = $"Import: {importTrue}, {type} såld aktie: {DateTime.Now}: Företag: {vm.CompanyName}, " +
+                        $"Datum: {vm.DateOfPurchase}, Id: {vm.SharesSoldId}, ISIN: {vm.ISIN}."
+            };
+
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            db.SaveChanges();
+        }
     }
 }

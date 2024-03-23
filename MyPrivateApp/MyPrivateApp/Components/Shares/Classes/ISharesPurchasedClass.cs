@@ -6,11 +6,11 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public interface ISharesPurchasedClass
     {
-        void Add(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import);
-        void Edit(ApplicationDbContext db, SharesPurchasedViewModel vm);
-        void AddMore(ApplicationDbContext db, SharesPurchasedViewModel moreSharesPurchased, bool import);
-        void Sell(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import, ISharesFeeClass sharesFeeClass); // Säljer hela eller delar av aktien
-        void Delete(ApplicationDbContext db, SharesPurchaseds incomingModel, SharesPurchasedViewModel vm, bool import);
+        string Add(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import);
+        string Edit(ApplicationDbContext db, SharesPurchasedViewModel vm);
+        string AddMore(ApplicationDbContext db, SharesPurchasedViewModel moreSharesPurchased, bool import);
+        string Sell(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import, ISharesFeeClass sharesFeeClass); // Säljer hela eller delar av aktien
+        string Delete(ApplicationDbContext db, SharesPurchaseds incomingModel, SharesPurchasedViewModel vm, bool import);
         SharesPurchasedViewModel ChangeFromModelToViewModel(SharesPurchaseds model);
         SharesPurchasedViewModel ChangeFromImportSellToViewModel(SharesImports model);
         SharesPurchasedViewModel ChangeFromImportAddToViewModel(SharesImports model);

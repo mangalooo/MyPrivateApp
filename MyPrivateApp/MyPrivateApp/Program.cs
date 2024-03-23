@@ -13,6 +13,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddBlazorBootstrap();
+
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();
 builder.Services.AddScoped<ISharesSoldClass, SharesSoldClass>();
 builder.Services.AddScoped<ISharesFeeClass, SharesFeeClass>();

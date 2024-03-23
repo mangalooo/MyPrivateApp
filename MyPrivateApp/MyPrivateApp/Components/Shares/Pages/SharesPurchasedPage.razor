@@ -59,14 +59,24 @@
 
 <h1 style="text-align:center"> Köpta aktier </h1>
 
-<br />
-
 <div style="text-align:center" hidden="@ShowOrHideCreateButton">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm">Köp aktie</button>
 
     <br />
     <br />
+
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm">Köp aktie</button>
 </div>
+
+<div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+
+    <br />
+    <br />
+
+    <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+</div>
+
+<br />
+<br />
 
 <div class="container">
     <div class="col-md-12">
@@ -435,8 +445,6 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
-
                     <br />
                     <br />
 
@@ -486,6 +494,10 @@
     private bool ShowOrHideButtonAddMoreShares { get; set; } = true;
     private bool Sale { get; set; } = true;
     private bool ShowOrHideSaleButton { get; set; } = true;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -522,15 +534,40 @@
         {
             ShowOrHideCreateButton = true;
 
-            SharesPurchasedClass.Edit(db, sharesPurchased);
+            ErrorMessage = SharesPurchasedClass.Edit(db, sharesPurchased);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                sharesPurchased = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
         else
-            SharesPurchasedClass.Add(db, sharesPurchased, false);
+        {
+            ErrorMessage = SharesPurchasedClass.Add(db, sharesPurchased, false);
 
-        sharesPurchased = new();
-        Navigation.Refresh(true);
-
-        return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                sharesPurchased = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
     }
 
     private void AddMore(SharesPurchasedViewModel vm)
@@ -547,10 +584,21 @@
 
     private void AddMoreButton()
     {
-        SharesPurchasedClass.AddMore(db, sharesPurchased, false);
+        ErrorMessage = SharesPurchasedClass.AddMore(db, sharesPurchased, false);
 
-        sharesPurchased = new();
-        Navigation.Refresh(true);
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            HideNewOrChangesFields = true;
+            ShowOrHideEditButton = false;
+            return;
+        }
+        else
+        {
+            sharesPurchased = new();
+            Navigation.Refresh(true);
+            return;
+        }
     }
 
     private void Info(SharesPurchasedViewModel vm)
@@ -590,10 +638,21 @@
     {
         if (vm == null) return;
 
-        SharesPurchasedClass.Sell(db, sharesPurchased, false, ISharesFeeClass);
+        ErrorMessage = SharesPurchasedClass.Sell(db, sharesPurchased, false, ISharesFeeClass);
 
-        sharesPurchased = new();
-        Navigation.Refresh(true);
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            HideNewOrChangesFields = true;
+            ShowOrHideEditButton = false;
+            return;
+        }
+        else
+        {
+            sharesPurchased = new();
+            Navigation.Refresh(true);
+            return;
+        }
     }
 
     private void OpenWindowSale()
@@ -618,9 +677,21 @@
 
         if (db.SharesPurchaseds.Count() == 0) return;
 
-        SharesPurchasedClass.Delete(db, null, vm, false);
+        ErrorMessage = SharesPurchasedClass.Delete(db, null, vm, false);
 
-        Navigation.Refresh(true);
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            HideNewOrChangesFields = true;
+            ShowOrHideEditButton = false;
+            return;
+        }
+        else
+        {
+            sharesPurchased = new();
+            Navigation.Refresh(true);
+            return;
+        }
     }
 
     private void OpenWindowDelete()
