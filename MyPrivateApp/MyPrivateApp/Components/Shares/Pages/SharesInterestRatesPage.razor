@@ -17,6 +17,9 @@
 
 <br />
 
+@* Navigation *@
+
+@* Desktop *@
 <div id="desktop" style="text-align:center">
     <div class="btn-group">
         <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
@@ -32,6 +35,7 @@
     </div>
 </div>
 
+@* Mobile *@
 <div id="mobile">
     <div class="btn-group" role="group">
         <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -57,11 +61,22 @@
 
 <h1 style="text-align:center"> Räntor </h1>
 
-<br />
-<br />
+@* Create button *@
+<div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-<div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm" hidden="@ShowOrHideCreateButton"> Ny ränta </button>
+    <br />
+    <br />
+
+    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny ränta </button>
+</div>
+
+@* Error message *@
+<div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+
+    <br />
+    <br />
+
+    <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
 </div>
 
 <br />
@@ -70,6 +85,8 @@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
                 <EditForm Model="InterestRates" OnSubmit="AddOrEdit" FormName="AddOrEditInterestRates" Enhance hidden="@(!HideNewOrChangesFields)">
 
@@ -157,7 +174,7 @@
                  </EditForm>
              </div>
 
-             @* Desktop screen *@
+             @* Desktop *@
              <div id="desktop">
                  <div class="card-body">
                      <QuickGrid Items="@InterestRatesQueryable" Pagination="pagination">
@@ -209,7 +226,7 @@
                 </div>
             </div>
 
-            @* Mobile streen *@
+            @* Mobile *@
             <div id="mobile">
                 <div class="card-body">
                     <QuickGrid Items="@InterestRatesQueryable" Pagination="pagination">
@@ -294,6 +311,10 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -326,19 +347,43 @@
     {
         DisabledForm = false;
 
+        // Edit
         if (InterestRates.InterestRatesId > 0)
         {
-            ShowOrHideCreateButton = true;
+            ErrorMessage = SharesInterestRatesClass.Edit(db, InterestRates);
 
-            SharesInterestRatesClass.Edit(db, InterestRates);
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                InterestRates = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
         else
-            SharesInterestRatesClass.Add(db, InterestRates, false);
+        {
+            // Add
+            ErrorMessage = SharesInterestRatesClass.Add(db, InterestRates, false);
 
-        InterestRates = new();
-        Navigation.Refresh(true);
-
-        return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                return;
+            }
+            else
+            {
+                InterestRates = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
     }
 
     private void Info(SharesInterestRatesViewModel vm)
@@ -354,6 +399,7 @@
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
+        ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
         InterestRates = vm;
     }
@@ -362,10 +408,19 @@
     {
         if (db.SharesInterestRates.Count() == 0) return;
 
-        SharesInterestRatesClass.Delete(db, vm, false);
+        ErrorMessage = SharesInterestRatesClass.Delete(db, vm, false);
 
-        InterestRates = new();
-        Navigation.Refresh(true);
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            return;
+        }
+        else
+        {
+            InterestRates = new();
+            Navigation.Refresh(true);
+            return;
+        }
     }
 
     private void OpenDeleteWindow()

@@ -19,6 +19,7 @@
 
 <br />
 
+@* Navigation *@
 <div id="desktop" style="text-align:center">
     <div class="btn-group">
         <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
@@ -77,6 +78,8 @@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
                 <EditForm Model="OtherImports" OnSubmit="AddOrEdit" FormName="AddOrUpdateOtherImports" Enhance hidden="@(!HideNewOrChangesFields)">
 
@@ -214,7 +217,7 @@
                  </EditForm>
              </div>
 
-             @* Desktop screen *@
+             @* Desktop *@
              <div id="desktop">
                  <div class="card-body">
                      <QuickGrid Items="@OtherImportsQueryable" Pagination="pagination">
@@ -267,7 +270,7 @@
                 </div>
             </div>
 
-            @* Mobile streen *@
+            @* Mobile *@
             <div id="mobile">
                 <div class="card-body">
                     <QuickGrid Items="@OtherImportsQueryable" Pagination="pagination">
@@ -309,8 +312,6 @@
 
                         </TemplateColumn>
                     </QuickGrid>
-
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
 
                     <br />
                     <br />
@@ -399,6 +400,7 @@
             {
                 ShowOrHideErrorMessage = false;
                 HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
                 return;
             }
             else

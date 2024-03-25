@@ -81,6 +81,8 @@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
                 <EditForm Model="sharesPurchased" OnSubmit="AddOrEdit" FormName="AddOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesFields)">
 
@@ -343,7 +345,7 @@
                 </EditForm>
             </div>
 
-            @* Desktop screen *@
+            @* Desktop *@
             <div id="desktop">
                 <div class="card-body">
                     <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">
@@ -401,7 +403,7 @@
                 </div>
             </div>
 
-            @* Mobile streen *@
+            @* Mobile *@
             <div id="mobile">
                 <div class="card-body">
                     <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">

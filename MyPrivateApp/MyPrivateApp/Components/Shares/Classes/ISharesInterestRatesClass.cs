@@ -6,9 +6,9 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public interface ISharesInterestRatesClass
     {
-        void Add(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import);  
-        void Edit(ApplicationDbContext db, SharesInterestRatesViewModel vm);
-        void Delete(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import);
+        string Add(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import);
+        string Edit(ApplicationDbContext db, SharesInterestRatesViewModel vm);
+        string Delete(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import);
         SharesInterestRatesViewModel ChangeFromModelToViewModel(SharesInterestRates model);
         SharesInterestRatesViewModel ChangeFromImportToViewModel(SharesImports model);
     }

@@ -6,8 +6,8 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesOtherImportsClass : ISharesOtherImportsClass
     {
-        private static SharesOtherImports? Get(ApplicationDbContext db, string ISIN) => db.SharesOtherImports.Any(r => r.ISIN == ISIN) ?
-                                                                                           db.SharesOtherImports.FirstOrDefault(r => r.ISIN == ISIN) :
+        private static SharesOtherImports? Get(ApplicationDbContext db, int? id) => db.SharesOtherImports.Any(r => r.OtherImportsId == id) ?
+                                                                                           db.SharesOtherImports.FirstOrDefault(r => r.OtherImportsId == id) :
                                                                                                throw new Exception("Andra aktien hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, SharesOtherShareImportViewModel vm, bool import)
@@ -16,134 +16,108 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 string importTrue = import ? "Ja" : "Nej";
 
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) && !string.IsNullOrEmpty(vm.ISIN) &&
-                    vm.NumberOfShares > 0 && vm.PricePerShare > 0 && vm.Brokerage > 0 && vm.Amount > 0)
+                if (vm.Date != DateTime.MinValue)
                 {
-                    SharesOtherImports model = ChangeFromViewModelToModel(vm, importTrue);
-
                     try
                     {
+                        SharesOtherImports model = ChangeFromViewModelToModel(vm, importTrue);
+
                         db.SharesOtherImports.Add(model);
                         db.SaveChanges();
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Other imports add {DateTime.Now}: Company: {vm.Company} Date: {vm.Date} Error: {ex.Message}");
-
-                        DateTime date = DateTime.Now;
-
-                        SharesErrorHandlings sharesErrorHandling = new()
-                        {
-                            Date = $"{date.Year}-{date.Month}-{date.Day}",
-                            ErrorMessage = $"Felmeddelande: {ex.Message}",
-                            Note = $"Import: {importTrue}, Lägg till andra importer: {DateTime.Now}: Företag: {vm.Company} Datum: {vm.Date}"
-                        };
-
-                        db.SharesErrorHandlings.Add(sharesErrorHandling);
-                        db.SaveChanges();
+                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
                     }
 
                     return string.Empty;
                 }
                 else
-                    return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie, Summan och Courage!";
+                {
+                    if (import)
+                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt!");
+                    else
+                        return "Ingen datum ifyllt!";
+                }
             }
             else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            {
+                if (import)
+                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                else
+                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            }
+
+            return string.Empty;
         }
 
         public string Edit(ApplicationDbContext db, SharesOtherShareImportViewModel vm, bool import)
         {
-            if (vm != null && vm.OtherImportsId > 0 && string.IsNullOrEmpty(vm.ISIN) && db != null)
+            if (vm != null && vm.OtherImportsId > 0 && db != null)
             {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) &&
-                    vm.NumberOfShares > 0 && vm.PricePerShare > 0 && vm.Brokerage > 0)
+                if (vm.Date != DateTime.MinValue)
                 {
-                    SharesOtherImports dbModel = Get(db, vm.ISIN);
-
-                    if (dbModel != null)
+                    try
                     {
-                        dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                        dbModel.Account = vm.Account;
-                        dbModel.TypeOfTransaction = vm.TypeOfTransaction;
-                        dbModel.Company = vm.Company;
-                        dbModel.NumberOfShares = vm.NumberOfShares;
-                        dbModel.PricePerShare = vm.PricePerShare;
-                        dbModel.Amount = vm.Amount;
-                        dbModel.Currency = vm.Currency;
-                        dbModel.ISIN = vm.ISIN;
-                        dbModel.Brokerage = vm.Brokerage;
-                        dbModel.Note = vm.Note;
+                        SharesOtherImports dbModel = Get(db, vm.OtherImportsId);
 
-                        try
+                        if (dbModel != null)
                         {
+                            dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
+                            dbModel.Account = vm.Account;
+                            dbModel.TypeOfTransaction = vm.TypeOfTransaction;
+                            dbModel.Company = vm.Company;
+                            dbModel.NumberOfShares = vm.NumberOfShares;
+                            dbModel.PricePerShare = vm.PricePerShare;
+                            dbModel.Amount = vm.Amount;
+                            dbModel.Currency = vm.Currency;
+                            dbModel.ISIN = vm.ISIN;
+                            dbModel.Brokerage = vm.Brokerage;
+                            dbModel.Note = vm.Note;
+
                             db.SaveChanges();
+
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Other imports update {DateTime.Now}: Company: {vm.Company} Date: {vm.Date} Error: {ex.Message}");
-
-                            DateTime date = DateTime.Now;
-                            string importTrue = import ? "Ja" : "Nej";
-
-                            SharesErrorHandlings sharesErrorHandling = new()
-                            {
-                                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                                ErrorMessage = $"Felmeddelande: {ex.Message}",
-                                Note = $"Import: {importTrue}, Ändra andra importer: {DateTime.Now}: Företag: {vm.Company} Datum: {vm.Date}"
-                            };
-
-                            db.SharesErrorHandlings.Add(sharesErrorHandling);
-                            db.SaveChanges();
-                        }
-
-                        return string.Empty;
+                        else
+                            return "Hittar inte aktien i databasen!";
                     }
-                    else
-                        return "Hittar inte aktien i databasen!";
+                    catch (Exception ex)
+                    {
+                        ErrorHandling(db, vm, "Ändra", import, ex.Message);
+                    }
                 }
                 else
-                    return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!";
+                    return "Ingen datum ifyllt!";
             }
             else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen eller fel ISIN!";
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
         public string Delete(ApplicationDbContext db, SharesOtherShareImportViewModel vm, bool import)
         {
             if (vm != null && vm.OtherImportsId > 0 && db != null)
             {
-                string importTrue = import ? "Ja" : "Nej";
-
-                SharesOtherImports model = ChangeFromViewModelToModel(vm, importTrue);
-
                 try
                 {
+                    string importTrue = import ? "Ja" : "Nej";
+
+                    SharesOtherImports model = ChangeFromViewModelToModel(vm, importTrue);
+
                     db.ChangeTracker.Clear();
                     db.SharesOtherImports.Remove(model);
                     db.SaveChanges();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Other imports delete {DateTime.Now}: Company: {vm.Company} Date: {vm.Date} Error: {ex.Message}");
-
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Ta bort andra importer: {DateTime.Now}: Företag: {vm.Company} Datum: {vm.Date}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
                 }
-
-                return string.Empty;
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
         public SharesOtherShareImportViewModel ChangeFromModelToViewModel(SharesOtherImports model)
@@ -207,6 +181,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             };
 
             return model;
+        }
+
+        private static void ErrorHandling(ApplicationDbContext db, SharesOtherShareImportViewModel vm, string type, bool import, string errorMessage)
+        {
+            DateTime date = DateTime.Now;
+            string importTrue = import ? "Ja" : "Nej";
+
+            SharesErrorHandlings sharesErrorHandling = new()
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                ErrorMessage = $"Felmeddelande: {errorMessage}",
+                Note = $"Import: {importTrue}, {type} andra importer: {DateTime.Now}: Företag: {vm.Company}, Datum: {vm.Date}, Id: {vm.OtherImportsId}. "
+            };
+
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            db.SaveChanges();
         }
     }
 }

@@ -10,53 +10,53 @@ namespace MyPrivateApp.Components.Shares.Classes
                                                                                         db.SharesInterestRates.FirstOrDefault(r => r.InterestRatesId == id) :
                                                                                             throw new Exception("Räntan hittades inte i databasen!");
 
-        public void Add(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import)
+        public string Add(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import)
         {
             if (vm != null && db != null)
             {
-                string importTrue = import ? "Ja" : "Nej";
-
-                if (vm.Date == DateTime.MinValue) return;
-
-                // Add new sold shares
-                SharesInterestRates model = ChangeFromViewModelToModel(vm);
-
-                try
-                {
-                    db.SharesInterestRates.Add(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Add fee {DateTime.Now}: Tax: {vm.Date}  Belopp:  {vm.TotalAmount}, Date: {vm.Date}. Error: {ex.Message}");
-
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Avgifter: {DateTime.Now}: Tax: {vm.Date}, Belopp: {vm.TotalAmount}, Datum: {vm.Date}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
-                }
-            }
-            else
-                throw new Exception("Lägg till ränta: Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-        }
-
-        public void Edit(ApplicationDbContext db, SharesInterestRatesViewModel vm)
-        {
-            if (vm != null && vm.InterestRatesId > 0 && db != null)
-            {
-                SharesInterestRates getDbModel = Get(db, vm.InterestRatesId);
-
-                if (getDbModel != null)
+                if (vm.Date != DateTime.MinValue && vm.TotalAmount > 0)
                 {
                     try
                     {
+                        SharesInterestRates model = ChangeFromViewModelToModel(vm);
+
+                        db.SharesInterestRates.Add(model);
+                        db.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                    }
+                }
+                else
+                {
+                    if (import)
+                        ErrorHandling(db, vm, "Lägg till", import, "Du måste fylla i fälten: Datum och Belopp!");
+                    else
+                        return "Du måste fylla i fälten: Datum och Belopp!";
+                }
+            }
+            else
+            {
+                if (import)
+                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                else
+                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            }
+
+            return string.Empty;
+        }
+
+        public string Edit(ApplicationDbContext db, SharesInterestRatesViewModel vm)
+        {
+            if (vm != null && vm.InterestRatesId > 0 && db != null)
+            {
+                if (vm.Date != DateTime.MinValue && vm.TotalAmount > 0)
+                {
+                    try
+                    {
+                        SharesInterestRates? getDbModel = Get(db, vm.InterestRatesId);
+
                         if (getDbModel != null)
                         {
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
@@ -68,67 +68,44 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                             db.SaveChanges();
                         }
+                        else
+                            return "Räntan hittades inte i databasen!!";
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Edit fee {DateTime.Now}: Tax: {vm.Date}, Belopp: {vm.TotalAmount}, Date: {vm.Date}. Error: {ex.Message}");
-
-                        DateTime date = DateTime.Now;
-
-                        SharesErrorHandlings sharesErrorHandling = new()
-                        {
-                            Date = $"{date.Year}-{date.Month}-{date.Day}",
-                            ErrorMessage = $"Felmeddelande: {ex.Message}",
-                            Note = $"Import: Nej, Ändra avgifter: {DateTime.Now}: Tax: {vm.Date}, Belopp: {vm.TotalAmount}, Datum: {vm.Date}"
-                        };
-
-                        db.SharesErrorHandlings.Add(sharesErrorHandling);
-                        db.SaveChanges();
+                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
                     }
                 }
                 else
-                    throw new Exception("Ändra räntan: Hittar inte aktien i databasen!");
+                    return "Du måste fylla i fälten: Datum och Belopp!";
             }
             else
-                throw new Exception("Ändra räntan: Hittar ingen data från formuläret, ingen kontakt med databasen eller fel ISIN!");
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen";
+
+            return string.Empty;
         }
 
-        public void Delete(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import)
+        public string Delete(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import)
         {
-            if (vm != null && vm.InterestRatesId > 0 &&  db != null)
+            if (vm != null && vm.InterestRatesId > 0 && db != null)
             {
-                string importTrue = import ? "Ja" : "Nej";
-
-                SharesInterestRates model = ChangeFromViewModelToModel(vm);
-
-                if (model != null)
+                try
                 {
-                    try
-                    {
-                        db.ChangeTracker.Clear();
-                        db.SharesInterestRates.Remove(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Delete fee {DateTime.Now}: Tax: {vm.Date}, Belopp: {vm.TotalAmount}, Date: {model.Date}. Error: {ex.Message}");
+                    SharesInterestRates model = ChangeFromViewModelToModel(vm);
 
-                        DateTime date = DateTime.Now;
-
-                        SharesErrorHandlings sharesErrorHandling = new()
-                        {
-                            Date = $"{date.Year}-{date.Month}-{date.Day}",
-                            ErrorMessage = $"Felmeddelande: {ex.Message}",
-                            Note = $"Import: {importTrue}, Ta bort avgifter: {DateTime.Now}: Tax: {vm.Date}, Belopp: {vm.TotalAmount}, Datum: {model.Date}"
-                        };
-
-                        db.SharesErrorHandlings.Add(sharesErrorHandling);
-                        db.SaveChanges();
-                    }
+                    db.ChangeTracker.Clear();
+                    db.SharesInterestRates.Remove(model);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
                 }
             }
             else
-                throw new Exception("Ta bort räntan: Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                return "Aktien hittades inte i databasen eller saknas data i formuläret!";
+
+            return string.Empty;
         }
 
         public SharesInterestRatesViewModel ChangeFromModelToViewModel(SharesInterestRates model)
@@ -139,9 +116,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 InterestRatesId = model.InterestRatesId,
                 Date = date,
-                Account = model.Account,
+                Account = model.Account, 
                 TypeOfTransaction = model.TypeOfTransaction,
-                TotalAmount = model.TotalAmount,
+                TotalAmount = double.Round(model.TotalAmount, 2, MidpointRounding.AwayFromZero),
                 Currency = model.Currency,
                 Note = model.Note
             };
@@ -158,7 +135,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Account = model.AccountNumber,
                 Currency = model.Currency,
                 Date = date,
-                TotalAmount = double.Parse(model.AmountString),
+                TotalAmount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
             };
 
             return vm;
@@ -172,12 +149,28 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 Account = vm.Account,
                 TypeOfTransaction = vm.TypeOfTransaction,
-                TotalAmount = vm.TotalAmount,
+                TotalAmount = double.Round(vm.TotalAmount, 2, MidpointRounding.AwayFromZero),
                 Currency = vm.Currency,
                 Note = vm.Note
             };
 
             return model;
+        }
+
+        private static void ErrorHandling(ApplicationDbContext db, SharesInterestRatesViewModel vm, string type, bool import, string errorMessage)
+        {
+            DateTime date = DateTime.Now;
+            string importTrue = import ? "Ja" : "Nej";
+
+            SharesErrorHandlings sharesErrorHandling = new()
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                ErrorMessage = $"Felmeddelande: {errorMessage}",
+                Note = $"Import: {importTrue}, {type} ränta: {DateTime.Now}: Typ av transaktion: {vm.TypeOfTransaction}, Datum: {vm.Date}, Id: {vm.InterestRatesId}. "
+            };
+
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            db.SaveChanges();
         }
     }
 }
