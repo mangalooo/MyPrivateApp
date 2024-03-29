@@ -6,108 +6,104 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesFeeClass : ISharesFeeClass
     {
-        private static SharesFee Get(ApplicationDbContext db, int? id) => db.SharesFees.FirstOrDefault(r => r.SharesFeeId == id);
+        private static SharesFee? Get(ApplicationDbContext db, int? id) => db.SharesFees.Any(r => r.SharesFeeId == id) ?
+                                                                                db.SharesFees.FirstOrDefault(r => r.SharesFeeId == id) :
+                                                                                    throw new Exception("Andra aktien hittades inte i databasen!");
 
-        public void Add(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
+        public string Add(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
         {
-            string importTrue = import ? "Ja" : "Nej";
-
-            if (vm.Date == DateTime.MinValue) return;
-
-            // Add new sold shares
-            SharesFee model = ChangeFromViewModelToModel(vm);
-
-            try
+            if (vm != null && db != null)
             {
-                db.SharesFees.Add(model);
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Add fee {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Date: {vm.Date} Error: {ex.Message}");
-
-                DateTime date = DateTime.Now;
-
-                SharesErrorHandlings sharesErrorHandling = new()
+                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0))
                 {
-                    Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage =  $"Felmeddelande: {ex.Message}",
-                    Note = $"Import: {importTrue}, Avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
-                };
-
-                db.SharesErrorHandlings.Add(sharesErrorHandling);
-                db.SaveChanges();
-            }
-        }
-
-        public void Edit(ApplicationDbContext db, SharesFeeViewModel vm)
-        {
-            if (vm != null)
-            {
-                SharesFee getDbModel = Get(db, vm.SharesFeeId);
-
-                try
-                {
-                    if (getDbModel != null)
+                    try
                     {
-                        getDbModel.SharesFeeId = vm.SharesFeeId;
-                        getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                        getDbModel.Tax = vm.Tax;
-                        getDbModel.Brokerage = vm.Brokerage;
+                        SharesFee model = ChangeFromViewModelToModel(vm);
 
+                        db.SharesFees.Add(model);
                         db.SaveChanges();
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Edit fee {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Date: {vm.Date} Error: {ex.Message}");
-
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
+                    catch (Exception ex)
                     {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: Nej, Ändra avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                    }
+                }
+                else
+                {
+                    if (import)
+                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!");
+                    else
+                        return "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!";
                 }
             }
+            else
+            {
+                if (import)
+                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                else
+                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            }
+
+            return string.Empty;
         }
 
-        public void Delete(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
+        public string Edit(ApplicationDbContext db, SharesFeeViewModel vm)
         {
-            string importTrue = import ? "Ja" : "Nej";
+            if (vm != null && vm.SharesFeeId > 0 && db != null)
+            {
+                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0))
+                {
+                    try
+                    {
+                        SharesFee getDbModel = Get(db, vm.SharesFeeId);
 
-            SharesFee model = ChangeFromViewModelToModel(vm);
+                        if (getDbModel != null)
+                        {
+                            getDbModel.SharesFeeId = vm.SharesFeeId;
+                            getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
+                            getDbModel.Tax = vm.Tax;
+                            getDbModel.Brokerage = vm.Brokerage;
 
-            if (model != null)
+                            db.SaveChanges();
+                        }
+                        else
+                            return "Hittar inte aktien i databasen!";
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                    }
+                }
+                else
+                    return "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!";
+            }
+            else
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
+        }
+
+        public string Delete(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
+        {
+            if (vm != null && vm.SharesFeeId > 0 && db != null)
             {
                 try
                 {
+                    SharesFee model = ChangeFromViewModelToModel(vm);
+
                     db.ChangeTracker.Clear();
                     db.SharesFees.Remove(model);
                     db.SaveChanges();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Delete fee {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Date: {model.Date} Error: {ex.Message}");
-
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Ta bort avgifter: {DateTime.Now}: Tax: {model.Tax} Courtage: {model.Brokerage} Datum: {model.Date}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
                 }
             }
+            else
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
         public SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
@@ -138,6 +134,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             };
 
             return sharesFee;
+        }
+
+        private static void ErrorHandling(ApplicationDbContext db, SharesFeeViewModel vm, string type, bool import, string errorMessage)
+        {
+            DateTime date = DateTime.Now;
+            string importTrue = import ? "Ja" : "Nej";
+
+            SharesErrorHandlings sharesErrorHandling = new()
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                ErrorMessage = $"Felmeddelande: {errorMessage}",
+                Note = $"Import: {importTrue}, {type} avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}. "
+            };
+
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            db.SaveChanges();
         }
     }
 }

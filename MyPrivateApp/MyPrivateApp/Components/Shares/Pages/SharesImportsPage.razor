@@ -27,6 +27,7 @@
 
 <br />
 
+@* Navigation - Desktop *@
 <div id="desktop" style="text-align:center">
     <div class="btn-group">
         <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
@@ -42,6 +43,7 @@
     </div>
 </div>
 
+@* Navigation - Mobile *@
 <div id="mobile">
     <div class="btn-group" role="group">
         <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -62,41 +64,48 @@
     </div>
 </div>
 
-<br />
-<br />
-
-<h1 style="text-align:center"> Importera från Avaza </h1>
-
-<br />
-
-<div style="text-align:center" hidden="@ShowOrHideCreateButton">
-
-    <br />
-
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny import </button>
+@* Header *@
+<div>
 
     <br />
     <br />
-</div>
 
-<div hidden="@LoadingDataFromFil">
-    <div class="loading-section">
-        <h2>Laddar importen...</h2>
-        <div class="short-description">Vänta tills laddningen är klar</div>
-        <div class="loader mt-5">
-            <div class="loader-dot dot1"></div>
-            <div class="loader-dot dot2"></div>
-            <div class="loader-dot dot3"></div>
+    <h1 style="text-align:center"> Importera från Avaza </h1>
+
+    <br />
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny import </button>
+
+        <br />
+        <br />
+    </div>
+
+    <div hidden="@LoadingDataFromFil">
+        <div class="loading-section">
+            <h2>Laddar importen...</h2>
+            <div class="short-description">Vänta tills laddningen är klar</div>
+            <div class="loader mt-5">
+                <div class="loader-dot dot1"></div>
+                <div class="loader-dot dot2"></div>
+                <div class="loader-dot dot3"></div>
+            </div>
         </div>
     </div>
-</div>
 
-<br />
-<br />
+    <br />
+    <br />
+
+</div>
 
 <div class="container">
     <div class="col-md-12">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
                 <EditForm Model="SharesImportsFile" OnSubmit="AddOrEdit" FormName="AddOrUpdateSharesImportsFile" Enhance hidden="@(!HideNewOrChangesFields)">
 
@@ -186,7 +195,7 @@
                 </EditForm>
             </div>
 
-            @* Desktop screen *@
+            @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
                     <QuickGrid Items="@SharesImportsFilesQueryable" Pagination="pagination">
@@ -242,7 +251,7 @@
             </div>
 
 
-            @* Mobile streen *@
+            @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body" style="width:auto">
                     <QuickGrid Items="@SharesImportsFilesQueryable" Pagination="pagination" Virtualize="true">
@@ -286,9 +295,6 @@
 
                     </QuickGrid>
 
-                    @* Test mobile version without pages *@
-                    @* <div class="card-footer"><Paginator State="@pagination" /></div> *@
-
                     <br />
                     <br />
 
@@ -299,16 +305,17 @@
     </div>
 </div>
 
-
-<br />
-<br />
-
 <div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
-</div>
 
-<br />
-<br />
+    <br />
+    <br />
+
+    <p> Copyright 2023 - @DateTime.Now.Year</p>
+
+    <br />
+    <br />
+
+</div>
 
 @code {
 
