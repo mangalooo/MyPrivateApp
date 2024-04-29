@@ -6,111 +6,114 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesDividendClass : ISharesDividendClass
     {
-        private static SharesDividend Get(int? id, ApplicationDbContext db) => db.SharesDividends.FirstOrDefault(r => r.DividendId == id);
+        private static SharesDividend? Get(ApplicationDbContext db, string ISIN) => db.SharesDividends.Any(r => r.ISIN == ISIN) ?
+                                                                                        db.SharesDividends.FirstOrDefault(r => r.ISIN == ISIN) :
+                                                                                            throw new Exception("Den köpa aktien hittades inte i databasen!");
 
-        public void Add(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
+        public string Add(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
         {
-            string importTrue = import ? "Ja" : "Nej";
-
-            // Add new sold shares
-            SharesDividend model = ChangeFromViewModelToModel(vm);
-
-            model.TotalAmount = model.NumberOfShares * model.PricePerShare;
-
-            try
+            if (vm != null && db != null)
             {
-                db.SharesDividends.Add(model);
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Dividend add {DateTime.Now}: Company: {model.Company} Date: {model.Date} Error: {ex.Message}");
-
-                DateTime date = DateTime.Now;
-
-                SharesErrorHandlings sharesErrorHandling = new()
+                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) && !string.IsNullOrEmpty(vm.ISIN) && vm.NumberOfShares > 0 && vm.PricePerShare > 0)
                 {
-                    Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Felmeddelande: {ex.Message}",
-                    Note = $"Import: {importTrue}, Lägg till utdelning: {DateTime.Now}: Företag: {model.Company} Datum: {model.Date}"
-                };
+                    try
+                    {
+                        SharesDividend model = ChangeFromViewModelToModel(vm);
 
-                db.SharesErrorHandlings.Add(sharesErrorHandling);
-                db.SaveChanges();
+                        model.TotalAmount = model.NumberOfShares * model.PricePerShare;
+
+                        db.SharesDividends.Add(model);
+                        db.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                    }
+                }
+                else
+                {
+                    if (import)
+                        ErrorHandling(db, vm, "Lägg till", import, "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie. ");
+                    else
+                        return "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie. ";
+                }
             }
+            else
+            {
+                if (import)
+                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                else
+                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            }
+
+            return string.Empty;
         }
 
-        public void Edit(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
+        public string Edit(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
         {
-            string importTrue = import ? "Ja" : "Nej";
-
-            if (vm.DividendId > 0)
+            if (vm != null && db != null)
             {
-                SharesDividend dbModel = Get(vm.DividendId, db);
-                dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                dbModel.AccountNumber = vm.AccountNumber;
-                dbModel.TypeOfTransaction = vm.TypeOfTransaction;
-                dbModel.Company = vm.Company;
-                dbModel.NumberOfShares= vm.NumberOfShares;
-                dbModel.PricePerShare= vm.PricePerShare;
-                dbModel.TotalAmount= vm.NumberOfShares * vm.PricePerShare;
-                dbModel.Currency = vm.Currency;
-                dbModel.ISIN = vm.ISIN;
-                dbModel.Note = vm.Note;
+                if (vm.DividendId > 0 && vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) &&
+                    !string.IsNullOrEmpty(vm.ISIN) && vm.NumberOfShares > 0 && vm.PricePerShare > 0)
+                {
+                    try
+                    {
+                        SharesDividend dbModel = Get(db, vm.ISIN);
 
+                        if (dbModel != null)
+                        {
+
+                            dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
+                            dbModel.AccountNumber = vm.AccountNumber;
+                            dbModel.TypeOfTransaction = vm.TypeOfTransaction;
+                            dbModel.Company = vm.Company;
+                            dbModel.NumberOfShares = vm.NumberOfShares;
+                            dbModel.PricePerShare = vm.PricePerShare;
+                            dbModel.TotalAmount = vm.NumberOfShares * vm.PricePerShare;
+                            dbModel.Currency = vm.Currency;
+                            dbModel.ISIN = vm.ISIN;
+                            dbModel.Note = vm.Note;
+
+                            db.SaveChanges();
+                        }
+                        else
+                            return "Hittar inte aktien i databasen!";
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorHandling(db, vm, "Ändra", import, ex.Message);
+                    }
+                }
+                else
+                    return "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie. ";
+            }
+            else
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
+        }
+
+        public string Delete(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
+        {
+            if (vm != null && vm.DividendId > 0 && db != null)
+            {
                 try
                 {
+                    SharesDividend model = ChangeFromViewModelToModel(vm);
+
+                    db.ChangeTracker.Clear();
+                    db.SharesDividends.Remove(model);
                     db.SaveChanges();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Edit dividend {DateTime.Now}: Company: {vm.Company} Date: {vm.Date} Error: {ex.Message}");
-
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Ändra utdelning: {DateTime.Now}: Företag: {vm.Company} Datum: {vm.Date}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
                 }
-
-                return;
             }
-        }
+            else
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-        public void Delete(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
-        {
-            string importTrue = import ? "Ja" : "Nej";
-
-            SharesDividend model = ChangeFromViewModelToModel(vm);
-
-            try
-            {
-                db.ChangeTracker.Clear();
-                db.SharesDividends.Remove(model);
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Delete dividend {DateTime.Now}: Company: {model.Company} Date: {model.Date} Error: {ex.Message}");
-
-                DateTime date = DateTime.Now;
-
-                SharesErrorHandlings sharesErrorHandling = new()
-                {
-                    Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    ErrorMessage = $"Felmeddelande: {ex.Message}",
-                    Note = $"Import: {importTrue}, Ta bort utdelning: {DateTime.Now}: Företag: {model.Company} Datum: {model.Date}"
-                };
-
-                db.SharesErrorHandlings.Add(sharesErrorHandling);
-                db.SaveChanges();
-            }
+            return string.Empty;
         }
 
         public SharesDividendViewModel ChangeFromModelToViewModel(SharesDividend model)
@@ -125,7 +128,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 TypeOfTransaction = model.TypeOfTransaction,
                 Company = model.Company,
                 NumberOfShares = model.NumberOfShares,
-                PricePerShare= model.PricePerShare,
+                PricePerShare = model.PricePerShare,
                 TotalAmount = model.TotalAmount,
                 Currency = model.Currency,
                 ISIN = model.ISIN,
@@ -173,6 +176,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             };
 
             return sharesDividend;
+        }
+
+        private static void ErrorHandling(ApplicationDbContext db, SharesDividendViewModel vm, string type, bool import, string errorMessage)
+        {
+            DateTime date = DateTime.Now;
+            string importTrue = import ? "Ja" : "Nej";
+
+            SharesErrorHandlings sharesErrorHandling = new()
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                ErrorMessage = $"Felmeddelande: {errorMessage}",
+                Note = $"Import: {importTrue}, {type} utdelning: {DateTime.Now}: Företag: {DateTime.Now}: Företag: {vm.Company}, ISIN: {vm.ISIN} Datum: {vm.Date}. "
+            };
+
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            db.SaveChanges();
         }
     }
 }

@@ -19,87 +19,110 @@
 
 <br />
 
-<div id="desktop" style="text-align:center">
-    <div class="btn-group">
-        <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-        <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
-        <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
-        <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
-        <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
-        <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
-        <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
-        <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
-        <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
-        <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+@* Navigation *@
+<div>
+
+    @* Navigation - Desktop *@
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+            <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
+            <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
+            <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
+            <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
+            <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
+            <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
+            <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
+            <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
+            <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+        </div>
     </div>
-</div>
 
-<div id="mobile">
-    <div class="btn-group" role="group">
-        <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Alla aktier sidor
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
-        </ul>
+    @* Navigation - Mobile *@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+            </ul>
+        </div>
     </div>
+
 </div>
 
-<br />
-<br />
+@* Header *@
+<div>
 
-<h1 style="text-align:center"> Banköverföringar </h1>
+    <br />
+    <br />
 
-<br />
-<br />
+    <h1 style="text-align:center"> Banköverföringar </h1>
 
-<h3 style="text-align:center">Totalt belopp: @GetTotalAmount()</h3>
+    <br />
+    <br />
 
-<br />
-<br />
+    <h3 style="text-align:center">Totalt belopp: @GetTotalAmount()</h3>
 
-<div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm" hidden="@ShowOrHideCreateButton"> Ny banköverföring </button>
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny banköverföring </button>
+
+    </div>
+
+    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+
+        <br />
+        <br />
+
+        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+
+    </div>
+
 </div>
 
-<br />
-<br />
-
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
                 <EditForm Model="DepositMoney" OnSubmit="AddOrEdit" FormName="AddOrEditDepositMoney" Enhance hidden="@(!HideNewOrChangesFields)">
 
-                     <DataAnnotationsValidator />
+                    <DataAnnotationsValidator />
 
-                     <ValidationSummary class="text-danger" role="alert" />
+                    <ValidationSummary class="text-danger" role="alert" />
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div id="mobile" class="col-4" />
+                        <div id="mobile" class="col-4" />
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputDate @bind-Value="DepositMoney.Date" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Date"> Datum </label>
-                                 <ValidationMessage For="() => DepositMoney.Date" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="DepositMoney.Date" class="form-control" disabled="@DisabledForm" />
+                                <label for="Date"> Datum </label>
+                                <ValidationMessage For="() => DepositMoney.Date" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputSelect @bind-Value="DepositMoney.SubmitOrWithdraw" class="form-control" placeholder="" disabled="@DisabledForm">
-                                     @foreach (object submitOrWithdraw in Enum.GetValues(typeof(SubmitOrWithdraw)))
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputSelect @bind-Value="DepositMoney.SubmitOrWithdraw" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object submitOrWithdraw in Enum.GetValues(typeof(SubmitOrWithdraw)))
                                     {
                                         <option value="@submitOrWithdraw">@submitOrWithdraw</option>
                                     }
@@ -193,7 +216,7 @@
                 </EditForm>
             </div>
 
-            @* Desktop screen *@
+            @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
                     <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
@@ -246,7 +269,7 @@
                 </div>
             </div>
 
-            @* Mobile streen *@
+            @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
                     <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
@@ -289,8 +312,6 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
-
                     <br />
                     <br />
 
@@ -331,6 +352,10 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -365,17 +390,42 @@
 
         if (DepositMoney.DepositMoneyId > 0)
         {
-            ShowOrHideCreateButton = true;
+            // Edit
+            ErrorMessage = SharesDepositMoneyClass.Edit(db, DepositMoney);
 
-            SharesDepositMoneyClass.Edit(db, DepositMoney);
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                DepositMoney = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
         else
-            SharesDepositMoneyClass.Add(db, DepositMoney, false);
+        {
+            // Add
+            ErrorMessage = SharesDepositMoneyClass.Add(db, DepositMoney, false);
 
-        DepositMoney = new();
-        Navigation.Refresh(true);
-
-        return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = true;
+                return;
+            }
+            else
+            {
+                DepositMoney = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
     }
 
     private void Info(SharesDepositMoneyViewModel vm)
@@ -390,6 +440,7 @@
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
+        ShowOrHideCreateButton = true;
         ShowOrHideAddNewButton = true;
         HideNewOrChangesFields = true;
         DepositMoney = vm;
@@ -399,10 +450,19 @@
     {
         if (db.SharesDepositMoney.Count() == 0) return;
 
-        SharesDepositMoneyClass.Delete(db, vm);
+        ErrorMessage = SharesDepositMoneyClass.Delete(db, vm);
 
-        DepositMoney = new();
-        Navigation.Refresh(true);
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            return;
+        }
+        else
+        {
+            DepositMoney = new();
+            Navigation.Refresh(true);
+            return;
+        }
     }
 
     private double GetTotalAmount()

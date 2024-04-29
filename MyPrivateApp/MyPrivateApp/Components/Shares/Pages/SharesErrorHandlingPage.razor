@@ -18,6 +18,7 @@
 
 <br />
 
+@* Navigation - Desktop *@
 <div id="desktop" style="text-align:center">
     <div class="btn-group">
         <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
@@ -33,6 +34,7 @@
     </div>
 </div>
 
+@* Navigation - Mobile *@
 <div id="mobile">
     <div class="btn-group" role="group">
         <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -64,6 +66,8 @@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
                 <EditForm Model="SharesErrorHandling" OnSubmit="Update" FormName="CreateOrUpdateSharesFees" Enhance hidden="@(!HideNewOrChangesFields)">
 
@@ -127,7 +131,7 @@
                  </EditForm>
              </div>
 
-             @* Desktop screen *@
+            @* View - Desktop *@
              <div id="desktop">
                  <div class="card-body">
                      <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
@@ -178,7 +182,7 @@
                 </div>
             </div>
 
-            @* Mobile streen *@
+            @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
                     <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
@@ -219,8 +223,6 @@
 
                         </TemplateColumn>
                     </QuickGrid>
-
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
 
                     <br />
                     <br />
