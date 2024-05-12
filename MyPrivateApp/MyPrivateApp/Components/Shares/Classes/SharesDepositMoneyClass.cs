@@ -9,10 +9,10 @@ namespace MyPrivateApp.Components.Shares.Classes
     {
         private static SharesDepositMoney? Get(ApplicationDbContext db, int? id) => db.SharesDepositMoney.Any(r => r.DepositMoneyId == id) ?
                                                                                            db.SharesDepositMoney.FirstOrDefault(r => r.DepositMoneyId == id) :
-                                                                                               throw new Exception("Andra aktien hittades inte i databasen!");
-        private static SharesTotalAmounts? GetTotalAmount(ApplicationDbContext db, int? id) => db.SharesTotalAmounts.Any(r => r.TotalAmountId == id) ?
+                                                                                               throw new Exception("Den insatta eller uttagna summan hittades inte i databasen!");
+        public SharesTotalAmounts? GetTotalAmount(ApplicationDbContext db, int? id) => db.SharesTotalAmounts.Any(r => r.TotalAmountId == id) ?
                                                                                                  db.SharesTotalAmounts.FirstOrDefault(r => r.TotalAmountId == id) :
-                                                                                                     throw new Exception("Andra aktien hittades inte i databasen!");
+                                                                                                     throw new Exception("Totala summan hittades inte i databasen!");
 
 
         public string Add(ApplicationDbContext db, SharesDepositMoneyViewModel vm, bool import)
@@ -120,10 +120,10 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public string Edit(ApplicationDbContext db, SharesDepositMoneyViewModel vm)
         {
-            if (vm.DepositMoneyId > 0)
+            if (db != null && vm.DepositMoneyId > 0)
             {
                 // Remove and add the new amount to the total.
-                SharesDepositMoney dbModel = Get(vm.DepositMoneyId, db);
+                SharesDepositMoney dbModel = Get(db, vm.DepositMoneyId);
                 SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 1); // Should always be just one total amount in the database
                 string DBDepositMoneyString = dbModel.DepositMoney.ToString();
                 double DBDepositMoney = DBDepositMoneyString.Contains('-') ? double.Parse(DBDepositMoneyString[1..]) : double.Parse(DBDepositMoneyString);
@@ -148,28 +148,20 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    DateTime ErrorDate = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{ErrorDate.Year}-{ErrorDate.Month}-{ErrorDate.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Ändrar {vm.TypeOfTransaction}, Date: {vm.Date}, Belopp {vm.DepositMoney}."
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                    ErrorHandling(db, vm, "Ändra", false, ex.Message);
                 }
-
-                return;
             }
+            else
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
         public string Delete(ApplicationDbContext db, SharesDepositMoneyViewModel vm) 
         {
             SharesDepositMoney model = ChangeFromViewModelToModel(vm);
 
-            if (model != null)
+            if (db != null && model != null)
             {
                 try
                 {
@@ -179,17 +171,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: Ta bort {model.TypeOfTransaction}: Date: {model.Date}, Belopp {model.DepositMoney}."
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                    ErrorHandling(db, vm, "Ta bort", false, ex.Message);
                 }
 
                 SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 1); // Ska alltid vara bara ett totalt belopp i databasen
@@ -197,6 +179,10 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 db.SaveChanges();
             }
+            else
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
         public SharesDepositMoneyViewModel ChangeFromModelToViewModel(SharesDepositMoney model)
