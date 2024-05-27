@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components;
 using MyPrivateApp.Components.Account;
 using MyPrivateApp.Components.Shares.Classes;
+using MyPrivateApp.Components.ShoppingList.Classes;
 using MyPrivateApp.Data;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,9 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddBlazorBootstrap();
 
+builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
+
+// Shares
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();
 builder.Services.AddScoped<ISharesSoldClass, SharesSoldClass>();
 builder.Services.AddScoped<ISharesFeeClass, SharesFeeClass>();
