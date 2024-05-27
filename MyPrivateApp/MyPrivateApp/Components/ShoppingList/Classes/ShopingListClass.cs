@@ -1,26 +1,27 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
-using MyPrivateApp.Data.Models.SharesModels;
+using MyPrivateApp.Data.Models;
+using MyPrivateApp.Client.ViewModels;
 
-namespace MyPrivateApp.Components.Shares.Classes
+namespace MyPrivateApp.Components.ShoppingList.Classes
 {
-    public class SharesFeeClass : ISharesFeeClass
+    public class ShopingListClass : IShopingListClass
     {
-        private static SharesFee? Get(ApplicationDbContext db, int? id) => db.SharesFees.Any(r => r.SharesFeeId == id) ?
-                                                                                db.SharesFees.FirstOrDefault(r => r.SharesFeeId == id) :
-                                                                                    throw new Exception("Avgiften/skatten hittades inte i databasen!");
+        private static ShopingList? Get(ApplicationDbContext db, int? id) => db.ShopingLists.Any(r => r.ShopingListId == id) ?
+                                                                                db.ShopingLists.FirstOrDefault(r => r.ShopingListId == id) :
+                                                                                    throw new Exception("Inköpslistan hittades inte i databasen!");
 
-        public string Add(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
+        public string Add(ApplicationDbContext db, ShopingListViewModels vm, bool import)
         {
             if (vm != null && db != null)
             {
-                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0))
+                if (vm.Date != DateTime.MinValue && string.IsNullOrEmpty(vm.List))
                 {
                     try
                     {
-                        SharesFee model = ChangeFromViewModelToModel(vm);
+                        ShopingList model = ChangeFromViewModelToModel(vm);
 
-                        db.SharesFees.Add(model);
+                        db.ShopingLists.Add(model);
                         db.SaveChanges();
                     }
                     catch (Exception ex)
@@ -31,9 +32,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 else
                 {
                     if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!");
+                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller plats är i fyllt!");
                     else
-                        return "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!";
+                        return "Ingen datum ifyllt eller plats är i fyllt!";
                 }
             }
             else
@@ -47,22 +48,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
-        public string Edit(ApplicationDbContext db, SharesFeeViewModel vm)
+        public string Edit(ApplicationDbContext db, ShopingListViewModels vm)
         {
-            if (vm != null && vm.SharesFeeId > 0 && db != null)
+            if (vm != null && vm.ShopingListId > 0 && db != null)
             {
-                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0))
+                if (vm.Date != DateTime.MinValue && string.IsNullOrEmpty(vm.List))
                 {
                     try
                     {
-                        SharesFee getDbModel = Get(db, vm.SharesFeeId);
+                        ShopingList getDbModel = Get(db, vm.ShopingListId);
 
                         if (getDbModel != null)
                         {
-                            getDbModel.SharesFeeId = vm.SharesFeeId;
+                            getDbModel.ShopingListId = vm.ShopingListId;
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                            getDbModel.Tax = vm.Tax;
-                            getDbModel.Brokerage = vm.Brokerage;
+                            getDbModel.Place = vm.Place;
+                            getDbModel.List = vm.List;
 
                             db.SaveChanges();
                         }
@@ -83,16 +84,16 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
-        public string Delete(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
+        public string Delete(ApplicationDbContext db, ShopingListViewModels vm, bool import)
         {
-            if (vm != null && vm.SharesFeeId > 0 && db != null)
+            if (vm != null && vm.ShopingListId > 0 && db != null)
             {
                 try
                 {
-                    SharesFee model = ChangeFromViewModelToModel(vm);
+                    ShopingList model = ChangeFromViewModelToModel(vm);
 
                     db.ChangeTracker.Clear();
-                    db.SharesFees.Remove(model);
+                    db.ShopingLists.Remove(model);
                     db.SaveChanges();
                 }
                 catch (Exception ex)
@@ -106,37 +107,35 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
-        public SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
+        public ShopingListViewModels ChangeFromModelToViewModel(ShopingList model)
         {
             DateTime date = DateTime.Parse(model.Date);
 
-            SharesFeeViewModel fee = new()
+            ShopingListViewModels shopingList = new()
             {
-                SharesFeeId = model.SharesFeeId,
+                ShopingListId = model.ShopingListId,
                 Date = date,
-                Tax = model.Tax,
-                Brokerage = model.Brokerage,
-                Note = model.Note
+                Place = model.Place,
+                List = model.List
             };
 
-            return fee;
+            return shopingList;
         }
 
-        private static SharesFee ChangeFromViewModelToModel(SharesFeeViewModel vm)
+        private static ShopingList ChangeFromViewModelToModel(ShopingListViewModels vm)
         {
-            SharesFee sharesFee = new()
+            ShopingList shopingList = new()
             {
-                SharesFeeId = vm.SharesFeeId,
+                ShopingListId = vm.ShopingListId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
-                Tax = vm.Tax,
-                Brokerage = vm.Brokerage,
-                Note = vm.Note
+                Place = vm.Place,
+                List = vm.List
             };
 
-            return sharesFee;
+            return shopingList;
         }
 
-        private static void ErrorHandling(ApplicationDbContext db, SharesFeeViewModel vm, string type, bool import, string errorMessage)
+        private static void ErrorHandling(ApplicationDbContext db, ShopingListViewModels vm, string type, bool import, string errorMessage)
         {
             DateTime date = DateTime.Now;
             string importTrue = import ? "Ja" : "Nej";
@@ -145,7 +144,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}. "
+                Note = $"Import: {importTrue}, {type} inköpslista: {DateTime.Now}: Plats: {vm.Place}, Listan: {vm.List}, Datum: {vm.Date}. "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);
