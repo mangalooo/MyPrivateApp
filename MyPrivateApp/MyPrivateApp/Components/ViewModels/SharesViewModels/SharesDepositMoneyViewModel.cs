@@ -5,6 +5,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
     public class SharesDepositMoneyViewModel
     {
+        public SharesDepositMoneyViewModel() => Date = DateTime.Now;
+
         public int DepositMoneyId { get; set; }
 
         [Display(Name = "Datum")]

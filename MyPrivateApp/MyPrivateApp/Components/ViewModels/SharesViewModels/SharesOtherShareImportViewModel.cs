@@ -4,7 +4,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
     public class SharesOtherShareImportViewModel
     {
-        [Key]
+        public SharesOtherShareImportViewModel() => Date = DateTime.Now;
+
         public int OtherImportsId { get; set; }
 
         [Required(ErrorMessage = "Skriv in datum")]

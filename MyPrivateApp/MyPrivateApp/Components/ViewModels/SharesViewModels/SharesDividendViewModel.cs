@@ -4,7 +4,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
     public class SharesDividendViewModel
     {
-        [Key]
+        public SharesDividendViewModel() => Date = DateTime.Now;
+
         public int DividendId { get; set; }
 
         [Required(ErrorMessage = "Skriv in datum")]

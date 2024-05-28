@@ -5,7 +5,6 @@ namespace MyPrivateApp.Client.ViewModels
 {
     public class FrozenFoodViewModel
     {
-        [Key]
         public int FrozenFoodId { get; set; }
 
         [Required(ErrorMessage = "Du måste fylla i frysvarans namn")]

@@ -4,6 +4,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
     public class SharesSoldViewModel
     {
+        public SharesSoldViewModel() => DateOfSold = DateTime.Now;
+
         public int SharesSoldId { get; set; }
 
         [ScaffoldColumn(false)]

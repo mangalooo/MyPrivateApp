@@ -27,7 +27,7 @@
     <br />
     <br />
 
-    <h1 style="text-align:center"> Avgifter </h1>
+    <h1 style="text-align:center"> Inköpslista </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
@@ -54,7 +54,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="ShopingList" OnSubmit="AddOrEdit" FormName="AddOrUpdateSharesFees" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="ShopingList" OnSubmit="AddOrEdit" FormName="AddOrUpdateShopingList" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -74,7 +74,15 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="ShopingList.Place" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="ShopingList.Name" class="form-control" disabled="@DisabledForm" />
+                                <label for="Name"> Namn </label>
+                                <ValidationMessage For="() => ShopingList.Name" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="ShopingList.Place" class="form-control" disabled="@DisabledForm" />
                                 <label for="Places"> Plats </label>
                                 <ValidationMessage For="() => ShopingList.Place" class="text-danger" />
                             </div>
@@ -122,6 +130,7 @@
                     <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
                         <PropertyColumn Title="Inköpslista" Property="@(c => c.List)" Sortable="true" />
 
@@ -173,9 +182,8 @@
                 <div class="card-body">
                     <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
-                        <PropertyColumn Title="Inköpslista" Property="@(c => c.List)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -211,8 +219,6 @@
 
                         </TemplateColumn>
                     </QuickGrid>
-
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
 
                     <br />
                     <br />

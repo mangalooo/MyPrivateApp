@@ -5,6 +5,8 @@ namespace MyPrivateApp.Client.ViewModels
 {
     public class HuntingViewModels
     {
+        public HuntingViewModels() => Date = DateTime.Now;
+
         [Key]
         public int HuntingsId { get; set; }
 

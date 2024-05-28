@@ -4,7 +4,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
     public class SharesImportsFileViewModel
     {
-        [Key]
+        public SharesImportsFileViewModel() => Date = DateTime.Now;
+
         public int SharesImportsFileId { get; set; }
 
         [Display(Name = "Datum")]

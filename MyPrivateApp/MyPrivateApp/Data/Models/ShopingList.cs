@@ -7,6 +7,9 @@ namespace MyPrivateApp.Data.Models
         [Key]
         public int ShopingListId { get; set; }
 
+        [DataType(DataType.Text)]
+        public string? Name { get; set; }
+
         [DataType(DataType.Date)]
         [StringLength(50)]
         public string? Date { get; set; }

@@ -4,7 +4,6 @@ namespace MyPrivateApp.Client.ViewModels
 {
     public class TripsViewModel
     {
-        [Key]
         public int TripsId { get; set; }
 
         [Required(ErrorMessage = "Skriv in ett eller flera länder")]

@@ -4,6 +4,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
     public class SharesFeeViewModel
     {
+        public SharesFeeViewModel() => Date = DateTime.Now;
+
         [Key]
         public int SharesFeeId { get; set; }
 

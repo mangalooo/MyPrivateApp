@@ -15,7 +15,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
         {
             if (vm != null && db != null)
             {
-                if (vm.Date != DateTime.MinValue && string.IsNullOrEmpty(vm.List))
+                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.List))
                 {
                     try
                     {
@@ -52,7 +52,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
         {
             if (vm != null && vm.ShopingListId > 0 && db != null)
             {
-                if (vm.Date != DateTime.MinValue && string.IsNullOrEmpty(vm.List))
+                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.List))
                 {
                     try
                     {
@@ -61,6 +61,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
                         if (getDbModel != null)
                         {
                             getDbModel.ShopingListId = vm.ShopingListId;
+                            getDbModel.Name = vm.Name;
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
                             getDbModel.Place = vm.Place;
                             getDbModel.List = vm.List;
@@ -114,6 +115,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
             ShopingListViewModels shopingList = new()
             {
                 ShopingListId = model.ShopingListId,
+                Name = model.Name,
                 Date = date,
                 Place = model.Place,
                 List = model.List
@@ -127,6 +129,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
             ShopingList shopingList = new()
             {
                 ShopingListId = vm.ShopingListId,
+                Name = vm.Name,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
                 List = vm.List

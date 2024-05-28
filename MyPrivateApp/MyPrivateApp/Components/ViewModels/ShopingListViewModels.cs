@@ -4,14 +4,19 @@ namespace MyPrivateApp.Client.ViewModels
 {
     public class ShopingListViewModels
     {
+        public ShopingListViewModels() => Date = DateTime.Now;
+
         [Key]
         public int ShopingListId { get; set; }
+
+        [Display(Name = "Name")]
+        [DataType(DataType.Text)]
+        public string Name { get; set; }
 
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
-        [Required(ErrorMessage = "Du måste skriva var djuret sköts")]
         [Display(Name = "Plats")]
         [DataType(DataType.Text)]
         public string? Place { get; set; }

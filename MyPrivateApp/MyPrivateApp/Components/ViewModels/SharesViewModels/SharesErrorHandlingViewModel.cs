@@ -4,6 +4,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
     public class SharesErrorHandlingViewModel
     {
+        public SharesErrorHandlingViewModel() => Date = DateTime.Now;
+
         public int ErrorHandlingsId { get; set; }
 
         [Display(Name = "Datum")]
