@@ -14,7 +14,6 @@ namespace MyPrivateApp.Components.Shares.Classes
                                                                                                  db.SharesTotalAmounts.FirstOrDefault(r => r.TotalAmountId == id) :
                                                                                                      throw new Exception("Totala summan hittades inte i databasen!");
 
-
         public string Add(ApplicationDbContext db, SharesDepositMoneyViewModel vm, bool import)
         {
             if (vm != null && db != null)
