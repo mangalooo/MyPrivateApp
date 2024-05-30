@@ -77,7 +77,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
                     }
                 }
                 else
-                    return "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!";
+                    return "Ingen datum eller uppgifter i listan ifyllt!";
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";

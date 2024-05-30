@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components;
 using MyPrivateApp.Components.Account;
+using MyPrivateApp.Components.Contact.Classes;
 using MyPrivateApp.Components.Shares.Classes;
 using MyPrivateApp.Components.ShoppingList.Classes;
 using MyPrivateApp.Data;
@@ -17,6 +18,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
+builder.Services.AddScoped<IContactClass, ContactClass>();
 
 // Shares
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();

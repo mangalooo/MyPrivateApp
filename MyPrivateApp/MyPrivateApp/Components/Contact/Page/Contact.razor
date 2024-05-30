@@ -2,6 +2,7 @@
 
 @using Azure.Core
 @using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Contact.Classes
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -11,6 +12,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject IContactClass ContactClass
 
 <PageTitle> Kontakter </PageTitle>
 
@@ -22,6 +24,12 @@
     <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesContactForm"> Skapa ny kontakt</button>
 
     <br />
+
+    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+        <br />
+        <br />
+        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+    </div>
 </div>
 
 
@@ -30,8 +38,11 @@
 <div class="container">
     <div>
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
-                <EditForm Model="contact" OnSubmit="CreateOrUpdateContact" FormName="CreateOrUpdateContact" Enhance hidden="@(!HideNewOrChangesContactFields)">
+
+                <EditForm Model="contact" OnSubmit="AddOrEdit" FormName="CreateOrUpdateContact" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -240,62 +251,37 @@
 
              </div>
 
-             <br />
+            @* Mobile screen *@
+            <div id="mobile">
 
-             @* Desktop screen *@
-             <div id="desktop" align="center">
-                 <div class="form-check-inline">
-                     <label class="form-check-label">
-                         Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
-                     </label>
-                 </div>
-                 <div class="form-check-inline">
-                     <label class="form-check-label">
-                         Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
-                     </label>
-                 </div>
-                 <div class="form-check-inline">
-                     <label class="form-check-label">
-                         Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
-                     </label>
-                 </div>
-                 <div class="form-check-inline">
-                     <label class="form-check-label">
-                         Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
-                     </label>
-                 </div>
-             </div>
+                <div class="row" align="center">
+                    <div class="form-check-inline">
 
-             @* Mobile screen *@
-             <div class="row" align="center" id="mobile">
-                 <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
+                        </label>
 
-                     <label class="form-check-label">
-                         Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
-                     </label>
+                        <label class="form-check-label">
+                            Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
+                        </label>
 
-                     <label class="form-check-label">
-                         Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
-                     </label>
+                    </div>
+                </div>
 
-                 </div>
-             </div>
-             <div class="row" align="center" id="mobile">
-                 <div class="form-check-inline">
+                <div class="row" align="center">
+                    <div class="form-check-inline">
 
-                     <label class="form-check-label">
-                         Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
-                     </label>
+                        <label class="form-check-label">
+                            Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
+                        </label>
 
-                     <label class="form-check-label">
-                         Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
-                     </label>
+                        <label class="form-check-label">
+                            Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
+                        </label>
 
-                 </div>
-             </div>
+                    </div>
+                </div>
 
-             @* Mobile screen *@
-             <div id="mobile">
                  <div class="card-body">
                      <QuickGrid Items="@ContactsQueryable" Pagination="pagination">
 
@@ -314,8 +300,8 @@
                                      Info
                                  </button>
                                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button></li>
-                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                      <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                  </ul>
                              </div>
@@ -327,7 +313,7 @@
                                              <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
                                          </div>
                                          <div class="modal-footer">
-                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteContact(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
                                              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                          </div>
                                      </div>
@@ -351,6 +337,32 @@
 
             @* Desktop screen *@
             <div id="desktop">
+
+                <div align="center">
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
+                        </label>
+                    </div>
+                </div>
+
+                <br />
+
                 <div class="card-body">
                     <QuickGrid Items="@ContactsQueryable" Pagination="pagination">
 
@@ -379,8 +391,8 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoContact(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditContact(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -392,7 +404,7 @@
                                             <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteContact(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -440,11 +452,15 @@
     public bool ShowBackdrop = false;
 
     // Hide button and fields
-    private bool HideNewOrChangesContactFields { get; set; } = false;
+    private bool HideNewOrChangesFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewContactButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     // Show items from db
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
@@ -452,66 +468,47 @@
 
     protected override void OnInitialized() => ConvertListToQueryable();
 
-    private Contacts GetContact(int? id) => db.Contacts.FirstOrDefault(r => r.ContactsId == id);
-
-    private void CreateOrUpdateContact()
+    private void AddOrEdit()
     {
         DisabledForm = false;
 
-        Contacts getDbContactModel;
-        Contacts changesToModel;
-
-        // Update contact
         if (contact.ContactsId > 0)
         {
-            ShowOrHideCreateButton = true;
+            // Edit
+            ErrorMessage = ContactClass.Edit(db, contact);
 
-            Contacts c = db.Contacts.FirstOrDefault(p => p.ContactsId == contact.ContactsId);
-
-            if (c is null) return;
-
-            getDbContactModel = GetContact(contact.ContactsId);
-
-            changesToModel = changesContactToModel(contact);
-
-            getDbContactModel.Name = changesToModel.Name;
-            getDbContactModel.Birthday = changesToModel.Birthday;
-            getDbContactModel.Address = changesToModel.Address;
-            getDbContactModel.PostCode = changesToModel.PostCode;
-            getDbContactModel.PrivateMail = changesToModel.PrivateMail;
-            getDbContactModel.WorkEMail = changesToModel.WorkEMail;
-            getDbContactModel.ExtraMail = changesToModel.ExtraMail;
-            getDbContactModel.PhoneNumber = changesToModel.PhoneNumber;
-            getDbContactModel.HomePhoneNumber = changesToModel.HomePhoneNumber;
-            getDbContactModel.WorkPhoneNumber = changesToModel.WorkPhoneNumber;
-            getDbContactModel.ExtraPhoneNumber = changesToModel.ExtraPhoneNumber;
-            getDbContactModel.City = changesToModel.City;
-            getDbContactModel.HomePage = changesToModel.HomePage;
-            getDbContactModel.Notes = changesToModel.Notes;
-            getDbContactModel.ChristmasCard = changesToModel.ChristmasCard;
-            getDbContactModel.Friends = changesToModel.Friends;
-            getDbContactModel.Relatives = changesToModel.Relatives;
-            getDbContactModel.Colleagues = changesToModel.Colleagues;
-
-            db.SaveChanges();
-
-            contact = new();
-            Navigation.Refresh(true);
-
-            return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                contact = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
+        else
+        {
+            // Add
+            ErrorMessage = ContactClass.Add(db, contact, false);
 
-        if (string.IsNullOrEmpty(contact.Name)) return;
-
-        // Add new contact
-        getDbContactModel = GetContact(contact.ContactsId);
-        changesToModel = changesContactToModel(contact);
-        db.Contacts.Add(changesToModel);
-        db.SaveChanges();
-        contact = new();
-        Navigation.Refresh(true);
-
-        return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = true;
+                return;
+            }
+            else
+            {
+                contact = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
     }
 
     // Load data from database to the Queryable container
@@ -560,7 +557,16 @@
         return vm;
     }
 
-    private void InfoContact(ContactsViewModels incomingModel)
+    private void HideNewOrChangesContactForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    private void Info(ContactsViewModels incomingModel)
     {
         HideNewOrChangesContactForm();
         ShowOrHideAddNewContactButton = true;
@@ -568,72 +574,48 @@
         contact = incomingModel;
     }
 
-    private void EditContact(ContactsViewModels incomingModel)
+    private void Edit(ContactsViewModels incomingModel)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewContactButton = true;
-        HideNewOrChangesContactFields = true;
+        HideNewOrChangesFields = true;
         contact = incomingModel;
     }
 
-    private void DeleteContact(ContactsViewModels incomingModel)
+    private void Delete(ContactsViewModels vm)
     {
-        if (db.Contacts.Count() == 0) return;
+        if (db.ShopingLists.Count() == 0) return;
 
-        Contacts contacts = changesContactToModel(incomingModel);
+        ErrorMessage = ContactClass.Delete(db, vm, false);
 
-        db.ChangeTracker.Clear();
-        db.Contacts.Remove(contacts);
-        db.SaveChanges();
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchFirstName(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Name!.Contains(e.Value!.ToString()!, StringComparison.CurrentCultureIgnoreCase));
-            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-
-            if (result.Count() == 0) return;
-
-            if (result.Any())
-                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
-                {
-                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
-                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
-                }
-
+            ShowOrHideErrorMessage = false;
             return;
         }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchAge(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        else
         {
-            IEnumerable<Contacts> result = db.Contacts;
-            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-
-            if (result.Count() == 0) return;
-
-            if (result.Any())
-                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
-                {
-                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
-
-                    if (e.Value.ToString() == GetAge(contact.Birthday).ToString())
-                        ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
-                }
-
+            contact = new();
+            Navigation.Refresh(true);
             return;
         }
+    }
 
-        Navigation.Refresh(true);
+    private void OpenDeleteWindow()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
     }
 
     private int GetAge(DateTime birthDate) => DateTime.Now.Year - birthDate.Year;
@@ -662,48 +644,50 @@
         return int.Parse(result);
     }
 
-    private void SearchChristmasCard(ChangeEventArgs e)
+    private void SetQuery(IEnumerable<Contacts> result)
     {
-        string trueOrFalse = e.Value.ToString();
+        ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
-        if (trueOrFalse == "True")
+        if (result.Count() == 0) return;
+
+        if (result.Any())
+            foreach (Contacts model in result.OrderBy(c => c.ContactsId))
+            {
+                ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+            }
+    }
+
+    private void SearchFirstName(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.ChristmasCard == true);
-            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-
-            if (result.Count() == 0) return;
-
-
-            if (result.Any())
-                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
-                {
-                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
-                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
-                }
-
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Name!.Contains(e.Value!.ToString()!));
+            
+            SetQuery(result);
             return;
         }
 
         Navigation.Refresh(true);
     }
 
-    private void SearchRelatives(ChangeEventArgs e)
+    private void SearchAge(ChangeEventArgs e)
     {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Relatives == true);
+            IEnumerable<Contacts> result = db.Contacts;
+
             ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
             if (result.Count() == 0) return;
-
 
             if (result.Any())
                 foreach (Contacts model in result.OrderBy(c => c.ContactsId))
                 {
                     ContactsViewModels contact = ChangeFromModelToViewModel(model);
-                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+
+                    if (e.Value.ToString() == GetAge(contact.Birthday).ToString())
+                        ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
                 }
 
             return;
@@ -719,18 +703,40 @@
         if (trueOrFalse == "True")
         {
             IEnumerable<Contacts> result = db.Contacts.Where(c => c.Friends == true);
+            
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchChristmasCard(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.ChristmasCard == true);
             ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
-            if (result.Count() == 0) return;
+            SetQuery(result);
+            return;
+        }
 
+        Navigation.Refresh(true);
+    }
 
-            if (result.Any())
-                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
-                {
-                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
-                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
-                }
+    private void SearchRelatives(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
 
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Relatives == true);
+            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+            SetQuery(result);
             return;
         }
 
@@ -744,74 +750,11 @@
         if (trueOrFalse == "True")
         {
             IEnumerable<Contacts> result = db.Contacts.Where(c => c.Colleagues == true);
-            ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-
-            if (result.Count() == 0) return;
-
-
-            if (result.Any())
-                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
-                {
-                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
-                    ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
-                }
-
+            
+            SetQuery(result);
             return;
         }
 
         Navigation.Refresh(true);
-    }
-
-    private void HideNewOrChangesContactForm()
-    {
-        HideNewOrChangesContactFields = !HideNewOrChangesContactFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
-    }
-
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void OpenDeleteWindow()
-    {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
-    }
-
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
-    }
-
-    private Contacts changesContactToModel(ContactsViewModels vm)
-    {
-        Contacts contacts = new()
-            {
-                ContactsId = vm.ContactsId,
-                Name = vm.Name,
-                Birthday = vm.Birthday.ToString("yyyy-MM-dd"),
-                Address = vm.Address,
-                PostCode = vm.PostCode,
-                PrivateMail = vm.PrivateMail,
-                WorkEMail = vm.WorkEMail,
-                ExtraMail = vm.ExtraMail,
-                PhoneNumber = vm.PhoneNumber,
-                HomePhoneNumber = vm.HomePhoneNumber,
-                WorkPhoneNumber = vm.WorkPhoneNumber,
-                ExtraPhoneNumber = vm.ExtraPhoneNumber,
-                City = vm.City,
-                HomePage = vm.HomePage,
-                Notes = vm.Notes,
-                ChristmasCard = vm.ChristmasCard,
-                Friends = vm.Friends,
-                Relatives = vm.Relatives,
-                Colleagues = vm.Colleagues
-            };
-
-        return contacts;
     }
 }
