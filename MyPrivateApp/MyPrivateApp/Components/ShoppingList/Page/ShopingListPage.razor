@@ -127,8 +127,8 @@
                     <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
+                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Inköpslista" Property="@(c => c.List)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
@@ -179,8 +179,8 @@
                 <div class="card-body">
                     <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
+                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
