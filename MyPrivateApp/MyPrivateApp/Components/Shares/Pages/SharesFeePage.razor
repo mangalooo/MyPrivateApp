@@ -283,6 +283,8 @@
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesFeeViewModel> SharesFeeQueryable = Enumerable.Empty<SharesFeeViewModel>().AsQueryable();
 
+    protected override void OnInitialized() => ConvertListToQueryable();
+
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
     private string ModalDisplay = "none;";
@@ -315,8 +317,6 @@
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
-
-    protected override void OnInitialized() => ConvertListToQueryable();
 
     private void HideNewOrChangesForm()
     {
