@@ -2,6 +2,7 @@
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Hunting.Classes
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -10,25 +11,44 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject IHuntingClass HuntingClass
 
 <PageTitle> Jakt </PageTitle>
 
-<h1 style="text-align:center"> Jakt </h1>
+@* Header *@
+<div>
 
-<br />
+    <br />
+    <br />
 
-<div style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesHuntingForm" hidden="@ShowOrHideCreateButton">Skapa nytt jakt</button>
+    <h1 style="text-align:center"> Jakt </h1>
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny jakt </button>
+    </div>
+
+    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+        <br />
+        <br />
+        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+    </div>
+
+    <br />
+    <br />
+
 </div>
-
-<br />
-<br />
 
 <div class="container">
     <div class="col-md-12">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
-                <EditForm Model="hunting" OnSubmit="CreateOrUpdateHunting" FormName="CreateOrUpdateHunting" Enhance hidden="@(!HideNewOrChangesHuntingFields)">
+                <EditForm Model="hunting" OnSubmit="AddOrEdit" FormName="AddOrUpdateHunting" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -116,11 +136,11 @@
                     <br />
 
                     <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewHuntingButton" @onclick="HideNewOrChangesHuntingForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny jakt </button>
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny jakt </button>
                     </div>
 
                     <div style="text-align:center">
-                        <button @onclick="HideNewOrChangesHuntingForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                     </div>
 
                     <br />
@@ -165,8 +185,8 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoHunting(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditHunting(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -178,7 +198,7 @@
                                             <h5 class="modal-title"> Vill du ta bort jakten? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteHunting(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -227,8 +247,8 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoHunting(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditHunting(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -240,7 +260,7 @@
                                             <h5 class="modal-title"> Vill du ta bort jakten? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteHunting(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -277,6 +297,9 @@
 
 @code
 {
+    [SupplyParameterFromForm]
+    private HuntingViewModels hunting { get; set; } = new();
+
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";
@@ -284,69 +307,18 @@
     public bool ShowBackdrop = false;
 
     // Hide button and fields
-    private bool HideNewOrChangesHuntingFields { get; set; } = false;
+    private bool HideNewOrChangesFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
-    private bool ShowOrHideAddNewHuntingButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<HuntingViewModels> huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
-
-    [SupplyParameterFromForm]
-    private HuntingViewModels hunting { get; set; } = new();
-
-    protected override void OnInitialized() => ConvertListToQueryable();
-
-    private Huntings GetHunting(int? id) => db.Huntings.FirstOrDefault(r => r.HuntingsId == id);
-
-    private void CreateOrUpdateHunting()
-    {
-        DisabledForm = false;
-
-        Huntings getDbHuntingModel;
-        Huntings changesToModel;
-
-        // Update hunting
-        if (hunting.HuntingsId > 0)
-        {
-            ShowOrHideCreateButton = true;
-
-            Huntings c = db.Huntings.FirstOrDefault(p => p.HuntingsId == hunting.HuntingsId);
-
-            if (c is null) return;
-
-            getDbHuntingModel = GetHunting(hunting.HuntingsId);
-
-            changesToModel = changesHuntingToModel(hunting);
-
-            getDbHuntingModel.Date = changesToModel.Date;
-            getDbHuntingModel.WildAnimal = changesToModel.WildAnimal;
-            getDbHuntingModel.Type = changesToModel.Type;
-            getDbHuntingModel.Dog = changesToModel.Dog;
-            getDbHuntingModel.HuntingPlaces = changesToModel.HuntingPlaces;
-            getDbHuntingModel.Description = changesToModel.Description;
-
-            db.SaveChanges();
-
-            hunting = new();
-            Navigation.Refresh(true);
-
-            return;
-        }
-
-        if (hunting.Date != DateTime.MinValue) return;
-
-        // Add new hunting
-        getDbHuntingModel = GetHunting(hunting.HuntingsId);
-        changesToModel = changesHuntingToModel(hunting);
-        db.Huntings.Add(changesToModel);
-        db.SaveChanges();
-        hunting = new();
-        Navigation.Refresh(true);
-
-        return;
-    }
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -357,75 +329,118 @@
 
         foreach (Huntings model in db.Huntings.OrderBy(c => c.HuntingsId))
         {
-            HuntingViewModels hunting = ChangeFromModelToViewModel(model);
+            HuntingViewModels hunting = HuntingClass.ChangeFromModelToViewModel(model);
             huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    public HuntingViewModels ChangeFromModelToViewModel(Huntings model)
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void AddOrEdit()
     {
-        DateTime date = DateTime.Parse(model.Date);
+        DisabledForm = false;
 
-        HuntingViewModels vm = new()
+        if (hunting.HuntingsId > 0)
+        {
+            // Edit
+            ErrorMessage = HuntingClass.Edit(db, hunting);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                HuntingsId = model.HuntingsId,
-                Date = date,
-                WildAnimal = model.WildAnimal,
-                Type = model.Type,
-                Dog = model.Dog,
-                HuntingPlaces = model.HuntingPlaces,
-                Description = model.Description
-            };
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                hunting = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+        else
+        {
+            // Add
+            ErrorMessage = HuntingClass.Add(db, hunting, false);
 
-        return vm;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = true;
+                return;
+            }
+            else
+            {
+                hunting = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
     }
 
-    private Huntings changesHuntingToModel(HuntingViewModels vm)
+    private void Info(HuntingViewModels vm)
     {
-        Huntings hunting = new()
-            {
-                HuntingsId = vm.HuntingsId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                WildAnimal = vm.WildAnimal,
-                Type = vm.Type,
-                Dog = vm.Dog,
-                HuntingPlaces = vm.HuntingPlaces,
-                Description = vm.Description
-            };
-
-        return hunting;
-    }
-
-    private void InfoHunting(HuntingViewModels incomingModel)
-    {
-        HideNewOrChangesHuntingForm();
-        ShowOrHideAddNewHuntingButton = true;
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        hunting = incomingModel;
+        hunting = vm;
     }
 
-    private void EditHunting(HuntingViewModels incomingModel)
+    private void Edit(HuntingViewModels vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
-        ShowOrHideAddNewHuntingButton = true;
-        HideNewOrChangesHuntingFields = true;
-        hunting = incomingModel;
+        ShowOrHideAddNewButton = true;
+        ShowOrHideCreateButton = true;
+        HideNewOrChangesFields = true;
+        hunting = vm;
     }
 
-    private void DeleteHunting(HuntingViewModels incomingModel)
+    private void Delete(HuntingViewModels vm)
     {
         if (db.Huntings.Count() == 0) return;
 
-        Huntings hunting = changesHuntingToModel(incomingModel);
+        ErrorMessage = HuntingClass.Delete(db, vm, false);
 
-        db.ChangeTracker.Clear();
-        db.Huntings.Remove(hunting);
-        db.SaveChanges();
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            return;
+        }
+        else
+        {
+            hunting = new();
+            Navigation.Refresh(true);
+            return;
+        }
+    }
 
-        Navigation.Refresh(true);
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void OpenDeleteWindow()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
     }
 
     private void SearchPlace(ChangeEventArgs e)
@@ -483,7 +498,7 @@
                 if (result.Any())
                     foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
                     {
-                        HuntingViewModels hunting = ChangeFromModelToViewModel(model);
+                        HuntingViewModels hunting = HuntingClass.ChangeFromModelToViewModel(model);
                         huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
                     }
             }
@@ -553,7 +568,7 @@
                 if (result.Any())
                     foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
                     {
-                        HuntingViewModels hunting = ChangeFromModelToViewModel(model);
+                        HuntingViewModels hunting = HuntingClass.ChangeFromModelToViewModel(model);
                         huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
                     }
             }
@@ -565,29 +580,4 @@
     }
 
     private int HowManyYears(DateTime date) => DateTime.Now.Year - date.Year;
-
-    private void HideNewOrChangesHuntingForm()
-    {
-        HideNewOrChangesHuntingFields = !HideNewOrChangesHuntingFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
-    }
-
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void OpenDeleteWindow()
-    {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
-    }
-
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
-    }
 }
