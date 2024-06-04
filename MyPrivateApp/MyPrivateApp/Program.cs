@@ -8,6 +8,7 @@ using MyPrivateApp.Components.FrozenFood.Classes;
 using MyPrivateApp.Components.Hunting.Classes;
 using MyPrivateApp.Components.Shares.Classes;
 using MyPrivateApp.Components.ShoppingList.Classes;
+using MyPrivateApp.Components.Trip.Classes;
 using MyPrivateApp.Data;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,7 @@ builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
 builder.Services.AddScoped<IContactClass, ContactClass>();
 builder.Services.AddScoped<IFrozenFoodClass, FrozenFoodClass>();
 builder.Services.AddScoped<IHuntingClass, HuntingClass>();
+builder.Services.AddScoped<ITripClass, TripClass>();
 
 // Shares
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();

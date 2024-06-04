@@ -1,6 +1,7 @@
 ﻿@page "/Trips"
 
 @using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Trip.Classes
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -9,27 +10,45 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject ITripClass TripClass
 
 <PageTitle> Resor </PageTitle>
 
-<h1 style="text-align:center"> Resor </h1>
+@* Header *@
+<div>
 
-<br />
-
-<div hidden="@ShowOrHideCreateButton" style="text-align:center">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesTripForm">Skapa ny resa</button>
     <br />
+    <br />
+
+    <h1 style="text-align:center"> Resor </h1>
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny resa </button>
+    </div>
+
+    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+        <br />
+        <br />
+        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+    </div>
+
+    <br />
+    <br />
+
 </div>
-
-
-<br />
 
 <div class="container">
 
     <div class="col-md-16">
         <div class="card">
+
+            @* Form *@
             <div class="card-header">
-                <EditForm Model="trip" OnSubmit="CreateOrUpdateTrip" FormName="CreateOrUpdateTrip" Enhance hidden="@(!HideNewOrChangesTripFields)">
+                <EditForm Model="trip" OnSubmit="AddOrEdit" FormName="CreateOrUpdateTrip" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -104,11 +123,11 @@
                      <br />
 
                      <div style="text-align:center">
-                         <button hidden="@ShowOrHideAddNewTripButton" @onclick="HideNewOrChangesTripForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny resa </button>
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny resa </button>
                      </div>
 
                      <div style="text-align:center">
-                         <button @onclick="HideNewOrChangesTripForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                      </div>
 
                      <br />
@@ -151,8 +170,8 @@
                                      Info
                                  </button>
                                  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoTrip(context))"> All info </button></li>
-                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditTrip(context))"> Ändra </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                      <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                  </ul>
                              </div>
@@ -164,7 +183,7 @@
                                              <h5 class="modal-title"> Vill du ta bort resan? </h5>
                                          </div>
                                          <div class="modal-footer">
-                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteTrip(context))"> Ta bort kontakt </button>
+                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort resan </button>
                                              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                          </div>
                                      </div>
@@ -207,8 +226,8 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => InfoTrip(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditTrip(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -220,7 +239,7 @@
                                             <h5 class="modal-title"> Vill du ta bort resan? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => DeleteTrip(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort resan </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -256,6 +275,9 @@
 
 @code
 {
+    [SupplyParameterFromForm]
+    private TripsViewModel trip { get; set; } = new();
+
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";
@@ -263,70 +285,18 @@
     public bool ShowBackdrop = false;
 
     // Hide button and fields
-    private bool HideNewOrChangesTripFields { get; set; } = false;
+    private bool HideNewOrChangesFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
-    private bool ShowOrHideAddNewTripButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<TripsViewModel> TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
-
-    [SupplyParameterFromForm]
-    private TripsViewModel trip { get; set; } = new();
-
-    protected override void OnInitialized() => ConvertListToQueryable();
-
-    private Trips GetTrip(int? id) => db.Trips.FirstOrDefault(r => r.TripsId == trip.TripsId);
-
-    private void CreateOrUpdateTrip()
-    {
-        DisabledForm = false;
-
-        Trips getDbTripModel;
-        Trips changesToModel;
-
-        // Update trip
-        if (trip.TripsId > 0)
-        {
-            ShowOrHideCreateButton = true;
-
-            Trips c = db.Trips.FirstOrDefault(p => p.TripsId == trip.TripsId);
-
-            if (c is null) return;
-
-            getDbTripModel = GetTrip(trip.TripsId);
-
-            changesToModel = changesTripToModel(trip);
-
-            getDbTripModel.Date = changesToModel.Date;
-            getDbTripModel.Country = changesToModel.Country;
-            getDbTripModel.Description = changesToModel.Description;
-            getDbTripModel.HomeDate = changesToModel.HomeDate;
-            getDbTripModel.TravelBuddies = changesToModel.TravelBuddies;
-            getDbTripModel.Place = changesToModel.Place;
-            getDbTripModel.HowManyDays = HowLongTravel(DateTime.Parse(changesToModel.Date), DateTime.Parse(changesToModel.HomeDate));
-
-            db.SaveChanges();
-
-            trip = new();
-            Navigation.Refresh(true);
-
-            return;
-        }
-
-        if (string.IsNullOrEmpty(trip.Country)) return;
-
-        // Add new trip
-        getDbTripModel = GetTrip(trip.TripsId);
-        changesToModel = changesTripToModel(trip);
-        db.Trips.Add(changesToModel);
-        db.SaveChanges();
-        trip = new();
-        Navigation.Refresh(true);
-
-        return;
-    }
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -337,134 +307,103 @@
 
         foreach (Trips model in db.Trips.OrderBy(c => c.TripsId))
         {
-            TripsViewModel trip = ChangeFromModelToViewModel(model);
+            TripsViewModel trip = TripClass.ChangeFromModelToViewModel(model);
             TripsQueryable = TripsQueryable.Concat(new[] { trip }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    public TripsViewModel ChangeFromModelToViewModel(Trips model)
+    protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
     {
-        DateTime outDate = DateTime.Parse(model.Date);
-        DateTime homeDate = DateTime.Parse(model.HomeDate);
-
-        TripsViewModel vm = new()
-            {
-                TripsId = model.TripsId,
-                Date = outDate,
-                Country = model.Country,
-                Description = model.Description,
-                HomeDate = homeDate,
-                TravelBuddies = model.TravelBuddies,
-                Place = model.Place,
-                HowManyDays = model.HowManyDays
-            };
-
-        return vm;
-    }
-
-    private Trips changesTripToModel(TripsViewModel vm)
-    {
-        Trips trips = new()
-            {
-                TripsId = vm.TripsId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                Country = vm.Country,
-                Description = vm.Description,
-                HomeDate = vm.HomeDate.ToString("yyyy-MM-dd"),
-                TravelBuddies = vm.TravelBuddies,
-                Place = vm.Place,
-                HowManyDays = HowLongTravel(vm.Date, vm.HomeDate)
-            };
-
-        return trips;
-    }
-
-    private void InfoTrip(TripsViewModel incomingModel)
-    {
-        HideNewOrChangesTripForm();
-        ShowOrHideAddNewTripButton = true;
-        DisabledForm = true;
-        trip = incomingModel;
-    }
-
-    private void EditTrip(TripsViewModel incomingModel)
-    {
-        DisabledForm = false;
-        ShowOrHideEditButton = false;
-        ShowOrHideAddNewTripButton = true;
-        HideNewOrChangesTripFields = true;
-        trip = incomingModel;
-    }
-
-    private void DeleteTrip(TripsViewModel incomingModel)
-    {
-        if (db.Trips.Count() == 0) return;
-
-        Trips trip = changesTripToModel(incomingModel);
-
-        db.ChangeTracker.Clear();
-        db.Trips.Remove(trip);
-        db.SaveChanges();
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchCountry(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
-        {
-            IEnumerable<Trips> result = db.Trips.Where(c => c.Country == e.Value!.ToString());
-            TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
-
-            if (result.Count() == 0) return;
-
-            if (result.Any())
-                foreach (Trips model in result.OrderBy(c => c.TripsId))
-                {
-                    TripsViewModel trip = ChangeFromModelToViewModel(model);
-                    TripsQueryable = TripsQueryable.Concat(new[] { trip }.AsQueryable());
-                }
-
-            return;
-        }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchPlace(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
-        {
-            IEnumerable<Trips> result = db.Trips.Where(c => c.Place == e.Value!.ToString());
-            TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
-
-            if (result.Count() == 0) return;
-
-            if (result.Any())
-                foreach (Trips model in result.OrderBy(c => c.TripsId))
-                {
-                    TripsViewModel trip = ChangeFromModelToViewModel(model);
-                    TripsQueryable = TripsQueryable.Concat(new[] { trip }.AsQueryable());
-                }
-
-            return;
-        }
-
-        Navigation.Refresh(true);
-    }
-
-    private double HowLongTravel(DateTime outDate, DateTime homeDate) => (homeDate - outDate).TotalDays;
-
-    private void HideNewOrChangesTripForm()
-    {
-        HideNewOrChangesTripFields = !HideNewOrChangesTripFields;
+        HideNewOrChangesFields = !HideNewOrChangesFields;
         ShowOrHideCreateButton = true;
         ShowOrHideEditButton = true;
     }
 
     private void RefreshPage() => Navigation.Refresh(true);
+
+    private void AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (trip.TripsId > 0)
+        {
+            // Edit
+            ErrorMessage = TripClass.Edit(db, trip);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                trip = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+        else
+        {
+            // Add
+            ErrorMessage = TripClass.Add(db, trip, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = true;
+                return;
+            }
+            else
+            {
+                trip = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+    }
+
+    private void Info(TripsViewModel vm)
+    {
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
+        trip = vm;
+    }
+
+    private void Edit(TripsViewModel vm)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        ShowOrHideCreateButton = true;
+        HideNewOrChangesFields = true;
+        trip = vm;
+    }
+
+    private void Delete(TripsViewModel vm)
+    {
+        if (db.Trips.Count() == 0) return;
+
+        ErrorMessage = TripClass.Delete(db, vm, false);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            return;
+        }
+        else
+        {
+            trip = new();
+            Navigation.Refresh(true);
+            return;
+        }
+    }
 
     private void OpenDeleteWindow()
     {
@@ -480,5 +419,43 @@
         ModalClass = "";
         ShowBackdrop = false;
         StateHasChanged();
+    }
+
+    private void GetGuery(IEnumerable<Trips> result)
+    {
+        TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
+
+        if (result.Count() == 0) return;
+
+        if (result.Any())
+            foreach (Trips model in result.OrderBy(c => c.TripsId))
+            {
+                TripsViewModel trip = TripClass.ChangeFromModelToViewModel(model);
+                TripsQueryable = TripsQueryable.Concat(new[] { trip }.AsQueryable());
+            }
+    }
+
+    private void SearchCountry(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<Trips> result = db.Trips.Where(c => c.Country == e.Value!.ToString());
+            GetGuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchPlace(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<Trips> result = db.Trips.Where(c => c.Place == e.Value!.ToString());
+            GetGuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
     }
 }
