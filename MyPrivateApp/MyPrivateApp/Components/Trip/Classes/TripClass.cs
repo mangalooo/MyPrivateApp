@@ -3,7 +3,6 @@ using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MyPrivateApp.Components.Trip.Classes
 {

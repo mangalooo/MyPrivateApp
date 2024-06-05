@@ -255,7 +255,6 @@ namespace MyPrivateApp.Components.Shares.Classes
                         EditSell(db, getDbSharesPurchasedsModel, vm, import);
                     }
                 }
-
                 else
                 {
                     if (import)

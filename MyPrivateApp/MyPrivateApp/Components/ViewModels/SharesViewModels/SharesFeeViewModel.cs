@@ -6,7 +6,6 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
     {
         public SharesFeeViewModel() => Date = DateTime.Now;
 
-        [Key]
         public int SharesFeeId { get; set; }
 
         [Required(ErrorMessage = "Skriv in ett datum")]
