@@ -16,24 +16,30 @@
 
 <PageTitle> Kontakter </PageTitle>
 
-<h1 align="center"> Kontakter </h1>
-
-<br />
-
-<div align="center" hidden="@ShowOrHideCreateButton">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesContactForm"> Skapa ny kontakt</button>
+@* Header *@
+<div>
 
     <br />
+
+    <h1 style="text-align:center"> Kontakter </h1>
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny kontakt </button>
+    </div>
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
         <br />
         <br />
         <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
     </div>
+
+    <br />
+    <br />
+
 </div>
-
-
-<br />
 
 <div class="container">
     <div>
@@ -287,11 +293,11 @@
                      <br />
 
                      <div align="center">
-                         <button hidden="@ShowOrHideAddNewContactButton" @onclick="HideNewOrChangesContactForm" type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
+                        <button hidden="@ShowOrHideAddNewContactButton" @onclick="HideNewOrChangesForm" type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
                      </div>
 
                      <div align="center">
-                         <button @onclick="HideNewOrChangesContactForm" hidden="@ShowOrHideEditButton" type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                      </div>
 
                      <br />
@@ -597,7 +603,7 @@
         }
     }
 
-    private void HideNewOrChangesContactForm()
+    private void HideNewOrChangesForm()
     {
         HideNewOrChangesFields = !HideNewOrChangesFields;
         ShowOrHideCreateButton = true;
@@ -606,7 +612,7 @@
 
     private void Info(ContactsViewModels vm)
     {
-        HideNewOrChangesContactForm();
+        HideNewOrChangesForm();
         ShowOrHideAddNewContactButton = true;
         DisabledForm = true;
         contact = vm;
