@@ -12,7 +12,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                                                                                db.Contacts.FirstOrDefault(r => r.ContactsId == id) :
                                                                                    throw new Exception("Kontakten hittades inte i databasen!");
 
-        public string Add(ApplicationDbContext db, ContactsViewModels vm, bool import)
+        public string Add(ApplicationDbContext db, ContactsViewModels vm)
         {
             if (vm != null && db != null)
             {
@@ -27,24 +27,15 @@ namespace MyPrivateApp.Components.Contact.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                        ErrorHandling(db, vm, "Lägg till", ex.Message);
                     }
                 }
                 else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Ingen name eller födelsedag ifyllt!");
-                    else
-                        return "Ingen datum ifyllt eller plats är i fyllt!";
-                }
+                    return "Ingen namn eller födelsedag ifyllt!";
+                
             }
             else
-            {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            }
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             return string.Empty;
         }
@@ -65,6 +56,11 @@ namespace MyPrivateApp.Components.Contact.Classes
                             getDbModel.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
                             getDbModel.Address = vm.Address;
                             getDbModel.PostCode = vm.PostCode;
+                            getDbModel.MarriedPartner = vm.MarriedPartner;
+                            getDbModel.ChildOne = vm.ChildOne;
+                            getDbModel.ChildTwo = vm.ChildTwo;
+                            getDbModel.ChildThree = vm.ChildThree;
+                            getDbModel.ChildFour = vm.ChildFour;
                             getDbModel.PrivateMail = vm.PrivateMail;
                             getDbModel.WorkEMail = vm.WorkEMail;
                             getDbModel.ExtraMail = vm.ExtraMail;
@@ -87,7 +83,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                        ErrorHandling(db, vm, "Ändra", ex.Message);
                     }
                 }
                 else
@@ -99,7 +95,7 @@ namespace MyPrivateApp.Components.Contact.Classes
             return string.Empty;
         }
 
-        public string Delete(ApplicationDbContext db, ContactsViewModels vm, bool import)
+        public string Delete(ApplicationDbContext db, ContactsViewModels vm)
         {
             if (vm != null && vm.ContactsId > 0 && db != null)
             {
@@ -113,7 +109,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
+                    ErrorHandling(db, vm, "Ta bort", ex.Message);
                 }
             }
             else
@@ -133,6 +129,11 @@ namespace MyPrivateApp.Components.Contact.Classes
                 Birthday = birthday,
                 Address = model.Address,
                 PostCode = model.PostCode,
+                MarriedPartner = model.MarriedPartner,
+                ChildOne = model.ChildOne,
+                ChildTwo = model.ChildTwo,
+                ChildThree = model.ChildThree,
+                ChildFour = model.ChildFour,
                 PrivateMail = model.PrivateMail,
                 WorkEMail = model.WorkEMail,
                 ExtraMail = model.ExtraMail,
@@ -161,6 +162,11 @@ namespace MyPrivateApp.Components.Contact.Classes
                 Birthday = vm.Birthday.ToString("yyyy-MM-dd"),
                 Address = vm.Address,
                 PostCode = vm.PostCode,
+                MarriedPartner = vm.MarriedPartner,
+                ChildOne = vm.ChildOne,
+                ChildTwo = vm.ChildTwo,
+                ChildThree = vm.ChildThree,
+                ChildFour = vm.ChildFour,
                 PrivateMail = vm.PrivateMail,
                 WorkEMail = vm.WorkEMail,
                 ExtraMail = vm.ExtraMail,
@@ -180,16 +186,15 @@ namespace MyPrivateApp.Components.Contact.Classes
             return contact;
         }
 
-        private static void ErrorHandling(ApplicationDbContext db, ContactsViewModels vm, string type, bool import, string errorMessage)
+        private static void ErrorHandling(ApplicationDbContext db, ContactsViewModels vm, string type, string errorMessage)
         {
             DateTime date = DateTime.Now;
-            string importTrue = import ? "Ja" : "Nej";
 
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} kontakt: {DateTime.Now}. Namn: {vm.Name}, Födelsedag: {vm.Birthday}. "
+                Note = $"{type} KONTAKT! Namn: {vm.Name}, Födelsedag: {vm.Birthday}. "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);
