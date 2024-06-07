@@ -1,12 +1,14 @@
-﻿@page "/ShopingList"
+﻿@page "/FarmingInactive"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
-@using MyPrivateApp.Components.ShoppingList.Classes
+@using MyPrivateApp.Components.Farming.Classes
+@using MyPrivateApp.Components.ViewModels
 @using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Data.Models.Farming
 @using MyPrivateApp.Data.Models.SharesModels
 @using MyPrivateApp.Components.Shares.Classes
 
@@ -14,24 +16,25 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IShopingListClass ShopingListClass
+@inject IFarmingClass FarmingClass
 
-<PageTitle> Inköpslistor </PageTitle>
+<PageTitle> Odling (aktiv) </PageTitle>
 
 <br />
+
+<div style="text-align:center">
+    <NavLink href="FarmingActive" type="button" class="btn btn-outline-dark btn-sm"> Aktiv odling </NavLink>
+</div>
 
 @* Header *@
 <div>
 
-    <h1 style="text-align:center"> Inköpslistor </h1>
+    <br />
+    <br />
 
-    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+    <h1 style="text-align:center"> Odling (inaktiv) </h1>
 
-        <br />
-        <br />
-
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny inköpslista </button>
-    </div>
+    <br />
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
         <br />
@@ -50,7 +53,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="ShopingList" OnSubmit="AddOrEdit" FormName="AddOrUpdateShopingList" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="Farming" OnSubmit="Edit" FormName="AddOrUpdateFarming" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -62,25 +65,89 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="ShopingList.Date" class="form-control" disabled="@DisabledForm" />
-                                <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => ShopingList.Date" class="text-danger" />
-                            </div>
-                        </div>
-
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <InputText @bind-Value="ShopingList.Place" class="form-control" disabled="@DisabledForm" />
-                                <label for="Places"> Plats </label>
-                                <ValidationMessage For="() => ShopingList.Place" class="text-danger" />
-                            </div>
-                        </div>
-
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <InputText @bind-Value="ShopingList.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="Farming.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => ShopingList.Name" class="text-danger" />
+                                <ValidationMessage For="() => Farming.Name" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="Farming.Type" class="form-control" disabled="@DisabledForm" />
+                                <label for="Type"> Typ </label>
+                                <ValidationMessage For="() => Farming.Type" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="Farming.Place" class="form-control" disabled="@DisabledForm" />
+                                <label for="Place"> Plats </label>
+                                <ValidationMessage For="() => Farming.Place" class="text-danger" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-3" />
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="Farming.InactiveDate" class="form-control" disabled="@DisabledForm" />
+                                <label for="InactiveDate"> Inaktiv datum </label>
+                                <ValidationMessage For="() => Farming.InactiveDate" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="Farming.PutSeedDate" class="form-control" disabled="@DisabledForm" />
+                                <label for="PutSeedDate"> Sätt frö datum </label>
+                                <ValidationMessage For="() => Farming.PutSeedDate" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="Farming.SetDate" class="form-control" disabled="@DisabledForm" />
+                                <label for="SetDate"> Plantera ut datum </label>
+                                <ValidationMessage For="() => Farming.SetDate" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="Farming.TakeUpDate" class="form-control" disabled="@DisabledForm" />
+                                <label for="TakeUpDate"> Ta upp datum </label>
+                                <ValidationMessage For="() => Farming.TakeUpDate" class="text-danger" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-6" />
+
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="Farming.HowMany" class="form-control" disabled="@DisabledForm" />
+                                <label for="HowMany"> Hur många satta </label>
+                                <ValidationMessage For="() => Farming.HowMany" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="Farming.HowManySave" class="form-control" disabled="@DisabledForm" />
+                                <label for="HowManySave"> Hur många sparade </label>
+                                <ValidationMessage For="() => Farming.HowManySave" class="text-danger" />
                             </div>
                         </div>
 
@@ -92,18 +159,14 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="ShopingList.List" class="form-control" disabled="@DisabledForm" />
-                                <label for="List"> Inköpslistan </label>
-                                <ValidationMessage For="() => ShopingList.List" class="text-danger" />
+                                <InputTextArea @bind-Value="Farming.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Anteckningar </label>
+                                <ValidationMessage For="() => Farming.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
 
                     <br />
-
-                    <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till inköpslista </button>
-                    </div>
 
                     <div style="text-align:center">
                         <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
@@ -123,12 +186,12 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
+                    <QuickGrid Items="@FarmingQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
-                        <PropertyColumn Title="Inköpslista" Property="@(c => c.List)" Sortable="true" />
+                        <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
+                        <PropertyColumn Title="Hur många" Property="@(c => c.HowMany)" Sortable="true" />
+                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -150,7 +213,7 @@
                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort odlingen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -176,10 +239,10 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
+                    <QuickGrid Items="@FarmingQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
+                        <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -198,7 +261,7 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort odlingen? </h5>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
@@ -239,10 +302,28 @@
 @code
 {
     [SupplyParameterFromForm]
-    private ShopingListViewModels ShopingList { get; set; } = new();
+    private FarmingViewModels Farming { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<ShopingListViewModels> ShopingListQueryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
+    private IQueryable<FarmingViewModels> FarmingQueryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.FarmingsInactive.Count() == 0) return;
+
+        FarmingQueryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+
+        foreach (FarmingsInactive model in db.FarmingsInactive.OrderBy(c => c.FarmingId))
+        {
+            FarmingViewModels Farming = FarmingClass.ChangeFromModelToViewModel(model);
+            FarmingQueryable = FarmingQueryable.Concat(new[] { Farming }.AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
+    protected override void OnInitialized() => ConvertListToQueryable();
 
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
@@ -252,50 +333,29 @@
 
     // Hide button and fields
     private bool HideNewOrChangesFields { get; set; } = false;
-    private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
-    private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = true;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
-    // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
-    {
-        if (db.ShopingLists.Count() == 0) return;
-
-        ShopingListQueryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
-
-        foreach (ShopingList model in db.ShopingLists.OrderBy(c => c.ShopingListId))
-        {
-            ShopingListViewModels ShopingList = ShopingListClass.ChangeFromModelToViewModel(model);
-            ShopingListQueryable = ShopingListQueryable.Concat(new[] { ShopingList }.AsQueryable());
-        }
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
-    }
-
-    protected override void OnInitialized() => ConvertListToQueryable();
-
     private void HideNewOrChangesForm()
     {
         HideNewOrChangesFields = !HideNewOrChangesFields;
-        ShowOrHideCreateButton = true;
         ShowOrHideEditButton = true;
     }
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void AddOrEdit()
+    private void Edit()
     {
         DisabledForm = false;
 
-        if (ShopingList.ShopingListId > 0)
+        if (Farming.FarmingId > 0)
         {
             // Edit
-            ErrorMessage = ShopingListClass.Edit(db, ShopingList);
+            ErrorMessage = FarmingClass.EditInactive(db, Farming);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -306,54 +366,33 @@
             }
             else
             {
-                ShopingList = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-        else
-        {
-            // Add
-            ErrorMessage = ShopingListClass.Add(db, ShopingList, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = true;
-                return;
-            }
-            else
-            {
-                ShopingList = new();
+                Farming = new();
                 Navigation.Refresh(true);
                 return;
             }
         }
     }
 
-    private void Info(ShopingListViewModels vm)
-    {
-        HideNewOrChangesForm();
-        ShowOrHideAddNewButton = true;
-        DisabledForm = true;
-        ShopingList = vm;
-    }
-
-    private void Edit(ShopingListViewModels vm)
+    private void Edit(FarmingViewModels vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
-        ShowOrHideAddNewButton = true;
-        ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        ShopingList = vm;
+        Farming = vm;
     }
 
-    private void Delete(ShopingListViewModels vm)
+    private void Info(FarmingViewModels vm)
     {
-        if (db.ShopingLists.Count() == 0) return;
+        HideNewOrChangesForm();
+        DisabledForm = true;
+        Farming = vm;
+    }
 
-        ErrorMessage = ShopingListClass.Delete(db, vm, false);
+    private void Delete(FarmingViewModels vm)
+    {
+        if (db.FarmingsInactive.Count() == 0) return;
+
+        ErrorMessage = FarmingClass.DeleteInactive(db, vm, false);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -362,7 +401,7 @@
         }
         else
         {
-            ShopingList = new();
+            Farming = new();
             Navigation.Refresh(true);
             return;
         }

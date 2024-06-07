@@ -19,14 +19,8 @@
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Contact">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Kontakter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Trips">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Resor
+            <NavLink class="nav-link" href="SharesPage">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Aktier
             </NavLink>
         </div>
 
@@ -37,32 +31,44 @@
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Hunting">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Jakt
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
             <NavLink class="nav-link" href="ShopingList">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Inköpslistor
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="SharesPage">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Aktier
+            <NavLink class="nav-link" href="Hunting">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Jakt
             </NavLink>
-        </div>  
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Contact">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Kontakter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="FarmingActive">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Odling
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Trips">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Resor
+            </NavLink>
+        </div>
         
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="ManageNavMenu">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Manage
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Inställningar
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="auth">
-                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth Required
+                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Inloggad som
             </NavLink>
         </div>
 
@@ -78,23 +84,24 @@
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
                         <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logga ut
                         </button>
                     </form>
                 </div>
             </Authorized>
-            <NotAuthorized>
+
+@*             <NotAuthorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
+                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Registrera
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Login">
-                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Logga in
                     </NavLink>
                 </div>
-            </NotAuthorized>
+            </NotAuthorized> *@
         </AuthorizeView>
     </nav>
 </div>

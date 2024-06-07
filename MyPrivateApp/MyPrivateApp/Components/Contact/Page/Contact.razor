@@ -16,24 +16,30 @@
 
 <PageTitle> Kontakter </PageTitle>
 
-<h1 align="center"> Kontakter </h1>
-
-<br />
-
-<div align="center" hidden="@ShowOrHideCreateButton">
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesContactForm"> Skapa ny kontakt</button>
+@* Header *@
+<div>
 
     <br />
+
+    <h1 style="text-align:center"> Kontakter </h1>
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny kontakt </button>
+    </div>
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
         <br />
         <br />
         <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
     </div>
+
+    <br />
+    <br />
+
 </div>
-
-
-<br />
 
 <div class="container">
     <div>
@@ -68,14 +74,50 @@
                          </div>
                          <div class="col-4">
                              <div class="form-floating">
-                                 <InputText @bind-Value="contact.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                 <label for="HomePage"> Hemsida </label>
-                                 <ValidationMessage For="() => contact.HomePage" class="text-danger" />
+                                 <InputText @bind-Value="contact.MarriedPartner" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="MarriedPartner"> Gift/sambo med </label>
+                                <ValidationMessage For="() => contact.MarriedPartner" class="text-danger" />
                              </div>
                          </div>
                      </div>
 
                      <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-3" />
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="contact.ChildOne" class="form-control" disabled="@DisabledForm" />
+                                <label for="ChildOne"> Barn 1 </label>
+                                <ValidationMessage For="() => contact.ChildOne" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="contact.ChildTwo" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="ChildTwo"> Barn 2 </label>
+                                <ValidationMessage For="() => contact.ChildTwo" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="contact.ChildThree" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="ChildThree"> barn 3 </label>
+                                <ValidationMessage For="() => contact.ChildThree" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="contact.ChildFour" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="ChildFour"> Barn 4 </label>
+                                <ValidationMessage For="() => contact.ChildFour" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
 
                      <div class="row">
 
@@ -169,12 +211,24 @@
                          </div>
                      </div>
 
+                    <br />
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <InputText @bind-Value="contact.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="HomePage"> Hemsida </label>
+                                <ValidationMessage For="() => contact.HomePage" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
                      <br />
 
-                     <div class="row">
+                     <div class="row-10">
                          <div class="col-12">
                              <div class="form-floating">
-                                 <InputTextArea @bind-Value="contact.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputTextArea rows="6" style="height:100%;" @bind-Value="contact.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Notes"> Antecklingar </label>
                                  <ValidationMessage For="() => contact.Notes" class="text-danger" />
                              </div>
@@ -189,13 +243,19 @@
                          <InputCheckbox @bind-Value="contact.ChristmasCard" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
                          <ValidationMessage For="() => contact.ChristmasCard" class="text-danger" />
 
+                        &nbsp;&nbsp;
+
                          <label for="Relatives"> Släkt </label>
                          <InputCheckbox @bind-Value="contact.Relatives" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
                          <ValidationMessage For="() => contact.Relatives" class="text-danger" />
 
+                        &nbsp;&nbsp;
+
                          <label for="Friends"> Vänner </label>
                          <InputCheckbox @bind-Value="contact.Friends" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
                          <ValidationMessage For="() => contact.Friends" class="text-danger" />
+
+                        &nbsp;&nbsp;
 
                          <label for="Colleagues"> Kollegor </label>
                          <InputCheckbox @bind-Value="contact.Colleagues" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
@@ -215,11 +275,13 @@
                              <label class="form-check-label" for="Relatives"> Släkting </label>
                              <ValidationMessage For="() => contact.Relatives" class="text-danger" />
                          </div>
+
                          <div class="form-check">
                              <InputCheckbox id="Friends" @bind-Value="contact.Friends" class="form-check-input" disabled="@DisabledForm" />
                              <label class="form-check-label" for="Friends"> Vän </label>
                              <ValidationMessage For="() => contact.Friends" class="text-danger" />
                          </div>
+
                          <div class="form-check">
                              <InputCheckbox id="Colleagues" @bind-Value="contact.Colleagues" class="form-check-input" disabled="@DisabledForm" />
                              <label class="form-check-label" for="Colleagues"> Kollega </label>
@@ -231,11 +293,11 @@
                      <br />
 
                      <div align="center">
-                         <button hidden="@ShowOrHideAddNewContactButton" @onclick="HideNewOrChangesContactForm" type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
+                        <button hidden="@ShowOrHideAddNewContactButton" @onclick="HideNewOrChangesForm" type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
                      </div>
 
                      <div align="center">
-                         <button @onclick="HideNewOrChangesContactForm" hidden="@ShowOrHideEditButton" type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                      </div>
 
                      <br />
@@ -254,12 +316,16 @@
             @* Mobile screen *@
             <div id="mobile">
 
+                <br />
+
                 <div class="row" align="center">
                     <div class="form-check-inline">
 
                         <label class="form-check-label">
                             Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
                         </label>
+
+                        &nbsp;&nbsp;
 
                         <label class="form-check-label">
                             Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
@@ -268,12 +334,16 @@
                     </div>
                 </div>
 
+                <br />
+
                 <div class="row" align="center">
                     <div class="form-check-inline">
 
                         <label class="form-check-label">
                             Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
                         </label>
+
+                        &nbsp;&nbsp;
 
                         <label class="form-check-label">
                             Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
@@ -337,6 +407,8 @@
 
             @* Desktop screen *@
             <div id="desktop">
+
+                <br />
 
                 <div align="center">
                     <div class="form-check-inline">
@@ -419,6 +491,8 @@
                         </TemplateColumn>
                     </QuickGrid>
 
+                    <br />
+
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
                     <br />
@@ -466,7 +540,25 @@
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<ContactsViewModels> ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.Contacts.Count() == 0) return;
+
+        ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+        foreach (Contacts model in db.Contacts.OrderBy(c => c.ContactsId))
+        {
+            ContactsViewModels contact = ContactClass.ChangeFromModelToViewModel(model);
+            ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
     protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void RefreshPage() => Navigation.Refresh(true);
 
     private void AddOrEdit()
     {
@@ -494,7 +586,7 @@
         else
         {
             // Add
-            ErrorMessage = ContactClass.Add(db, contact, false);
+            ErrorMessage = ContactClass.Add(db, contact);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -511,83 +603,35 @@
         }
     }
 
-    // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
-    {
-        if (db.Contacts.Count() == 0) return;
-
-        ContactsQueryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-
-        foreach (Contacts model in db.Contacts.OrderBy(c => c.ContactsId))
-        {
-            ContactsViewModels contact = ChangeFromModelToViewModel(model);
-            ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
-        }
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
-    }
-
-    public ContactsViewModels ChangeFromModelToViewModel(Contacts model)
-    {
-        DateTime birthday = DateTime.Parse(model.Birthday);
-
-        ContactsViewModels vm = new()
-            {
-                ContactsId = model.ContactsId,
-                Name = model.Name,
-                Birthday = birthday,
-                Address = model.Address,
-                PostCode = model.PostCode,
-                PrivateMail = model.PrivateMail,
-                WorkEMail = model.WorkEMail,
-                ExtraMail = model.ExtraMail,
-                PhoneNumber = model.PhoneNumber,
-                HomePhoneNumber = model.HomePhoneNumber,
-                WorkPhoneNumber = model.WorkPhoneNumber,
-                ExtraPhoneNumber = model.ExtraPhoneNumber,
-                City = model.City,
-                HomePage = model.HomePage,
-                Notes = model.Notes,
-                ChristmasCard = model.ChristmasCard,
-                Friends = model.Friends,
-                Relatives = model.Relatives,
-                Colleagues = model.Colleagues
-            };
-
-        return vm;
-    }
-
-    private void HideNewOrChangesContactForm()
+    private void HideNewOrChangesForm()
     {
         HideNewOrChangesFields = !HideNewOrChangesFields;
         ShowOrHideCreateButton = true;
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void Info(ContactsViewModels incomingModel)
+    private void Info(ContactsViewModels vm)
     {
-        HideNewOrChangesContactForm();
+        HideNewOrChangesForm();
         ShowOrHideAddNewContactButton = true;
         DisabledForm = true;
-        contact = incomingModel;
+        contact = vm;
     }
 
-    private void Edit(ContactsViewModels incomingModel)
+    private void Edit(ContactsViewModels vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewContactButton = true;
         HideNewOrChangesFields = true;
-        contact = incomingModel;
+        contact = vm;
     }
 
     private void Delete(ContactsViewModels vm)
     {
         if (db.ShopingLists.Count() == 0) return;
 
-        ErrorMessage = ContactClass.Delete(db, vm, false);
+        ErrorMessage = ContactClass.Delete(db, vm);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -618,7 +662,17 @@
         StateHasChanged();
     }
 
-    private int GetAge(DateTime birthDate) => DateTime.Now.Year - birthDate.Year;
+    private int GetAge(DateTime birthDate)
+    {
+        int yearsOld = DateTime.Now.Year - birthDate.Year;
+        DateTime date = DateTime.Now;
+
+        if (date.Month <= birthDate.Month)
+            if (date.Day <= birthDate.Day)
+                return yearsOld - 1;
+
+        return yearsOld;
+    }
 
     private int GetDaysToNextBirthday(DateTime birthDate)
     {
@@ -641,7 +695,7 @@
             result = count.ToString();
         }
 
-        return int.Parse(result);
+        return int.Parse(result) + 1;
     }
 
     private void SetQuery(IEnumerable<Contacts> result)
@@ -653,7 +707,7 @@
         if (result.Any())
             foreach (Contacts model in result.OrderBy(c => c.ContactsId))
             {
-                ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                ContactsViewModels contact = ContactClass.ChangeFromModelToViewModel(model);
                 ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());
             }
     }
@@ -684,7 +738,7 @@
             if (result.Any())
                 foreach (Contacts model in result.OrderBy(c => c.ContactsId))
                 {
-                    ContactsViewModels contact = ChangeFromModelToViewModel(model);
+                    ContactsViewModels contact = ContactClass.ChangeFromModelToViewModel(model);
 
                     if (e.Value.ToString() == GetAge(contact.Birthday).ToString())
                         ContactsQueryable = ContactsQueryable.Concat(new[] { contact }.AsQueryable());

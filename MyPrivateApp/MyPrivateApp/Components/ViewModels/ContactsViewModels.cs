@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Client.ViewModels
 {
@@ -8,76 +8,91 @@ namespace MyPrivateApp.Client.ViewModels
         [Key]
         public int ContactsId { get; set; }
 
-        [Required(ErrorMessage = "Skriv in personens namn:")]
-        [Display(Name = "Namn: ")]
+        [Display(Name = "Namn ")]
         [DataType(DataType.Text)]
         public string? Name { get; set; }
 
-        [Required(ErrorMessage = "Skriv in personens fördelsedag::")]
-        [Display(Name = "Födelsedag: ")]
+        [Display(Name = "Födelsedag ")]
         [DataType(DataType.Date)]
         public DateTime Birthday { get; set; }
 
-        [Required(ErrorMessage = "Skriv in personens adress::")]
-        [Display(Name = "Adress: ")]
+        [Display(Name = "Adress ")]
         [DataType(DataType.Text)]
         public string? Address { get; set; }
 
-        [Required(ErrorMessage = "Skriv in personens postnummer:")]
-        [Display(Name = "Postnummer: ")]
+        [Display(Name = "Postnummer ")]
         [DataType(DataType.PostalCode)]
         public int PostCode { get; set; }
 
-        [Required(ErrorMessage = "Skriv in personens stad:")]
-        [Display(Name = "Stad: ")]
+        [Display(Name = "Stad ")]
         [DataType(DataType.Text)]
         public string? City { get; set; }
 
-        [Display(Name = "E-post: ")]
+        [Display(Name = "Gift/sambo med ")]
+        [DataType(DataType.Text)]
+        public string? MarriedPartner { get; set; }
+
+        [Display(Name = "barn 1 ")]
+        [DataType(DataType.Text)]
+        public string? ChildOne { get; set; }
+
+        [Display(Name = "barn 2 ")]
+        [DataType(DataType.Text)]
+        public string? ChildTwo { get; set; }
+
+        [Display(Name = "barn 3 ")]
+        [DataType(DataType.Text)]
+        public string? ChildThree { get; set; }
+
+        [Display(Name = "barn 3 ")]
+        [DataType(DataType.Text)]
+        public string? ChildFour { get; set; }
+
+        [Display(Name = "E-post ")]
         [DataType(DataType.EmailAddress)]
         public string? PrivateMail { get; set; }
 
-        [Display(Name = "E-post arbete: ")]
+        [Display(Name = "E-post arbete ")]
         [DataType(DataType.EmailAddress)]
         public string? WorkEMail { get; set; }
 
-        [Display(Name = "E-post extra: ")]
+        [Display(Name = "E-post extra ")]
         [DataType(DataType.EmailAddress)]
         public string? ExtraMail { get; set; }
 
-        [Display(Name = "Mobilnummer: ")]
+        [Display(Name = "Mobilnummer ")]
         [DataType(DataType.PhoneNumber)]
         public string? PhoneNumber { get; set; }
 
-        [Display(Name = "Hemnummer: ")]
+        [Display(Name = "Hemnummer ")]
         [DataType(DataType.PhoneNumber)]
         public string? HomePhoneNumber { get; set; }
 
-        [Display(Name = "Arbets nummer: ")]
+        [Display(Name = "Arbets nummer ")]
         [DataType(DataType.PhoneNumber)]
         public string? WorkPhoneNumber { get; set; }
 
-        [Display(Name = "Extra nummer: ")]
+        [Display(Name = "Extra nummer ")]
         [DataType(DataType.PhoneNumber)]
         public string? ExtraPhoneNumber { get; set; }
 
-        [Display(Name = "Hemsida: ")]
+        [Display(Name = "Hemsida ")]
         public string? HomePage { get; set; }
 
-        [Display(Name = "Anteckningar: ")]
+        [Display(Name = "Anteckningar ")]
         [DataType(DataType.MultilineText)]
         public string? Notes { get; set; }
 
-        [Display(Name = "Julkort: ")]
+        [Display(Name = "Julkort ")]
         public bool ChristmasCard { get; set; }
 
-        [Display(Name = "Släkting: ")]
+        [Display(Name = "Släkting ")]
         public bool Relatives { get; set; }
 
-        [Display(Name = "Vänner: ")]
+        [Display(Name = "Vänner ")]
         public bool Friends { get; set; }
 
-        [Display(Name = "Kollegor: ")]
+        [Display(Name = "Kollegor ")]
         public bool Colleagues { get; set; }
     }
 }

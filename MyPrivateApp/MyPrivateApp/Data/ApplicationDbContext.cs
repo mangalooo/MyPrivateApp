@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Data.Models;
+using MyPrivateApp.Data.Models.Farming;
 using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Data
@@ -10,9 +11,11 @@ namespace MyPrivateApp.Data
     {
         public DbSet<Contacts> Contacts { get; set; } // Kontakter
         public DbSet<Trips> Trips { get; set; } // Resor
-        public DbSet<FrozenFoods> FrozenFoods { get; set; } // Resor
-        public DbSet<Huntings> Huntings { get; set; } // Resor
-        public DbSet<ShopingList> ShopingLists { get; set; } // Resor
+        public DbSet<FrozenFoods> FrozenFoods { get; set; } // Frysvaror
+        public DbSet<Huntings> Huntings { get; set; } // Jakt
+        public DbSet<ShopingList> ShopingLists { get; set; } // Inköpslistor
+        public DbSet<FarmingsActive> FarmingsActive { get; set; } // Odling (aktiv)
+        public DbSet<FarmingsInactive> FarmingsInactive { get; set; } // Odling (inaktiv)
 
         // Aktier
         public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; } // Köpta aktier
