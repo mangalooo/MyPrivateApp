@@ -16,10 +16,9 @@
 @inject NavigationManager Navigation
 @inject IShopingListClass ShopingListClass
 
-<PageTitle> Inköpslista </PageTitle>
+<PageTitle> Inköpslistor </PageTitle>
 
 <br />
-
 
 @* Header *@
 <div>
@@ -71,17 +70,17 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="ShopingList.Name" class="form-control" disabled="@DisabledForm" />
-                                <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => ShopingList.Name" class="text-danger" />
+                                <InputText @bind-Value="ShopingList.Place" class="form-control" disabled="@DisabledForm" />
+                                <label for="Places"> Plats </label>
+                                <ValidationMessage For="() => ShopingList.Place" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="ShopingList.Place" class="form-control" disabled="@DisabledForm" />
-                                <label for="Places"> Plats </label>
-                                <ValidationMessage For="() => ShopingList.Place" class="text-danger" />
+                                <InputText @bind-Value="ShopingList.Name" class="form-control" disabled="@DisabledForm" />
+                                <label for="Name"> Namn </label>
+                                <ValidationMessage For="() => ShopingList.Name" class="text-danger" />
                             </div>
                         </div>
 
@@ -93,7 +92,7 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="ShopingList.List" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="ShopingList.List" class="form-control" disabled="@DisabledForm" Rows=10 />
                                 <label for="List"> Inköpslistan </label>
                                 <ValidationMessage For="() => ShopingList.List" class="text-danger" />
                             </div>
