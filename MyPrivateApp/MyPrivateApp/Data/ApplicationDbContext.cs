@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Farming;
+using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Data
@@ -12,7 +13,7 @@ namespace MyPrivateApp.Data
         public DbSet<Contacts> Contacts { get; set; } // Kontakter
         public DbSet<Trips> Trips { get; set; } // Resor
         public DbSet<FrozenFoods> FrozenFoods { get; set; } // Frysvaror
-        public DbSet<Huntings> Huntings { get; set; } // Jakt
+        public DbSet<HuntingMyList> HuntingMyList { get; set; } // Jakt
         public DbSet<ShopingList> ShopingLists { get; set; } // Inköpslistor
         public DbSet<FarmingsActive> FarmingsActive { get; set; } // Odling (aktiv)
         public DbSet<FarmingsInactive> FarmingsInactive { get; set; } // Odling (inaktiv)
@@ -27,8 +28,6 @@ namespace MyPrivateApp.Data
         public DbSet<SharesDepositMoney> SharesDepositMoney { get; set; } // Insättning och uttag av min pengar
         public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; } // Totalt belopp insättning av min pengar
         public DbSet<SharesImportsFile> SharesImportsFiles { get; set; } // Information om importerade filer
-
-        // Felhantering
         public DbSet<SharesErrorHandlings> SharesErrorHandlings { get; set; } // Felhantering aktier
 
         protected override void OnModelCreating(ModelBuilder builder)

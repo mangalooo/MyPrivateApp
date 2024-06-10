@@ -1,14 +1,14 @@
 ﻿
 using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
-using MyPrivateApp.Data.Models;
 using MyPrivateApp.Client.ViewModels;
+using MyPrivateApp.Data.Models.Hunting;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingClass : IHuntingClass
+    public class HuntingMyListClass : IHuntingMyListClass
     {
-        private static Huntings? Get(ApplicationDbContext db, int? id) => db.Huntings.Any(r => r.HuntingsId == id) ?
+        private static HuntingMyList? Get(ApplicationDbContext db, int? id) => db.Huntings.Any(r => r.HuntingsId == id) ?
                                                                                 db.Huntings.FirstOrDefault(r => r.HuntingsId == id) :
                                                                                     throw new Exception("Jakten hittades inte i databasen!");
 
@@ -20,7 +20,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 {
                     try
                     {
-                        Huntings model = ChangeFromViewModelToModel(vm);
+                        HuntingMyList model = ChangeFromViewModelToModel(vm);
 
                         db.Huntings.Add(model);
                         db.SaveChanges();
@@ -57,7 +57,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 {
                     try
                     {
-                        Huntings getDbModel = Get(db, vm.HuntingsId);
+                        HuntingMyList getDbModel = Get(db, vm.HuntingsId);
 
                         if (getDbModel != null)
                         {
@@ -94,7 +94,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
             {
                 try
                 {
-                    Huntings model = ChangeFromViewModelToModel(vm);
+                    HuntingMyList model = ChangeFromViewModelToModel(vm);
 
                     db.ChangeTracker.Clear();
                     db.Huntings.Remove(model);
@@ -111,7 +111,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
             return string.Empty;
         }
 
-        public HuntingViewModels ChangeFromModelToViewModel(Huntings model)
+        public HuntingViewModels ChangeFromModelToViewModel(HuntingMyList model)
         {
             DateTime date = DateTime.Parse(model.Date);
 
@@ -129,9 +129,9 @@ namespace MyPrivateApp.Components.Hunting.Classes
             return vm;
         }
 
-        private static Huntings ChangeFromViewModelToModel(HuntingViewModels vm)
+        private static HuntingMyList ChangeFromViewModelToModel(HuntingViewModels vm)
         {
-            Huntings huntings = new()
+            HuntingMyList huntings = new()
             {
                 HuntingsId = vm.HuntingsId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),

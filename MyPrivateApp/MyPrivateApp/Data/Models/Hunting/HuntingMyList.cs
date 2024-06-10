@@ -1,9 +1,10 @@
-﻿using MyPrivateApp.Components.Enum;
+﻿
+using MyPrivateApp.Components.Enum;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyPrivateApp.Data.Models
+namespace MyPrivateApp.Data.Models.Hunting
 {
-    public class Huntings
+    public class HuntingMyList
     {
         [Key]
         public int HuntingsId { get; set; }
@@ -29,6 +30,6 @@ namespace MyPrivateApp.Data.Models
 
         [DataType(DataType.Text)]
         [StringLength(50)]
-        public string? Description { get; set; }
+        public string? Note { get; set; }
     }
 }

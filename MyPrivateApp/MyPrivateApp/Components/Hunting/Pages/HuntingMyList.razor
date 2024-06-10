@@ -1,19 +1,19 @@
-﻿@page "/Hunting"
+﻿@page "/HuntingMyList"
 
-@using MyPrivateApp.Client.ViewModels
-@using MyPrivateApp.Components.Enum
-@using MyPrivateApp.Components.Hunting.Classes
-@using MyPrivateApp.Data
-@using MyPrivateApp.Data.Models
-@using Microsoft.AspNetCore.Components.QuickGrid
+@    using MyPrivateApp.Client.ViewModels
+@    using MyPrivateApp.Components.Enum
+@    using MyPrivateApp.Components.Hunting.Classes
+@    using MyPrivateApp.Data
+@    using MyPrivateApp.Data.Models
+@    using Microsoft.AspNetCore.Components.QuickGrid
 
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IHuntingClass HuntingClass
+@inject IHuntingMyListClass HuntingMyListClass
 
-<PageTitle> Jakt </PageTitle>
+<PageTitle> Min jakt lista </PageTitle>
 
 @* Header *@
 <div>
@@ -21,14 +21,14 @@
     <br />
     <br />
 
-    <h1 style="text-align:center"> Jakt </h1>
+    <h1 style="text-align:center"> Min jakt lista </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
         <br />
         <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny jakt </button>
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Nytt byte </button>
     </div>
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
@@ -157,7 +157,7 @@
             @* Desktop screen *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingQueryable" Pagination="pagination">
+                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
                             <ColumnOptions>
@@ -224,7 +224,7 @@
             @* Mobile streen *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingQueryable" Pagination="pagination">
+                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
                             <ColumnOptions>
@@ -318,27 +318,34 @@
     private string ErrorMessage { get; set; } = string.Empty;
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingViewModels> huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+    private IQueryable<HuntingViewModels> huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
         if (db.Huntings.Count() == 0) return;
 
-        huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+        huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
 
-        foreach (Huntings model in db.Huntings.OrderBy(c => c.HuntingsId))
+        foreach (Data.Models.Hunting.HuntingMyList model in db.Huntings.OrderBy(c => c.HuntingsId))
         {
-            HuntingViewModels hunting = HuntingClass.ChangeFromModelToViewModel(model);
-            huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
+            HuntingViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
+            huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
     protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
 
     private void AddOrEdit()
     {
@@ -347,7 +354,7 @@
         if (hunting.HuntingsId > 0)
         {
             // Edit
-            ErrorMessage = HuntingClass.Edit(db, hunting);
+            ErrorMessage = HuntingMyListClass.Edit(db, hunting);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -366,7 +373,7 @@
         else
         {
             // Add
-            ErrorMessage = HuntingClass.Add(db, hunting, false);
+            ErrorMessage = HuntingMyListClass.Add(db, hunting, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -405,7 +412,7 @@
     {
         if (db.Huntings.Count() == 0) return;
 
-        ErrorMessage = HuntingClass.Delete(db, vm, false);
+        ErrorMessage = HuntingMyListClass.Delete(db, vm, false);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -418,13 +425,6 @@
             Navigation.Refresh(true);
             return;
         }
-    }
-
-    private void HideNewOrChangesForm()
-    {
-        HideNewOrChangesFields = !HideNewOrChangesFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
     }
 
     private void OpenDeleteWindow()
@@ -445,7 +445,7 @@
 
     private void SearchPlace(ChangeEventArgs e)
     {
-        huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+        huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -461,7 +461,7 @@
 
             if (getName != string.Empty)
             {
-                IEnumerable<Huntings> result = null;
+                    IEnumerable<Data.Models.Hunting.HuntingMyList> result = null;
 
                 switch (getName.ToLower())
                 {
@@ -496,10 +496,10 @@
                 if (result == null || result.Count() == 0) return;
 
                 if (result.Any())
-                    foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
+                    foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingsId))
                     {
-                        HuntingViewModels hunting = HuntingClass.ChangeFromModelToViewModel(model);
-                        huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
+                        HuntingViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
+                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
                     }
             }
 
@@ -511,7 +511,7 @@
 
     private void SearchWildAnimal(ChangeEventArgs e)
     {
-        huntingQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+        huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -527,7 +527,7 @@
 
             if (getName != string.Empty)
             {
-                IEnumerable<Huntings> result = null;
+                    IEnumerable<Data.Models.Hunting.HuntingMyList> result = null;
 
                 switch (getName.ToLower())
                 {
@@ -566,10 +566,10 @@
                 if (result == null || result.Count() == 0) return;
 
                 if (result.Any())
-                    foreach (Huntings model in result.OrderBy(c => c.HuntingsId))
+                    foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingsId))
                     {
-                        HuntingViewModels hunting = HuntingClass.ChangeFromModelToViewModel(model);
-                        huntingQueryable = huntingQueryable.Concat(new[] { hunting }.AsQueryable());
+                        HuntingViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
+                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
                     }
             }
 
