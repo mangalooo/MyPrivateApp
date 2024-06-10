@@ -7,9 +7,9 @@ namespace MyPrivateApp.Components.Hunting.Classes
 {
     public interface IHuntingMyListClass
     {
-        string Add(ApplicationDbContext db, HuntingViewModels vm, bool import);
-        string Edit(ApplicationDbContext db, HuntingViewModels vm);
-        string Delete(ApplicationDbContext db, HuntingViewModels vm, bool import);
-        HuntingViewModels ChangeFromModelToViewModel(HuntingMyList model);
+        string Add(ApplicationDbContext db, HuntingMyListViewModels vm, bool import);
+        string Edit(ApplicationDbContext db, HuntingMyListViewModels vm);
+        string Delete(ApplicationDbContext db, HuntingMyListViewModels vm, bool import);
+        HuntingMyListViewModels ChangeFromModelToViewModel(HuntingMyList model);
     }
 }

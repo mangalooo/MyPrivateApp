@@ -1,11 +1,11 @@
 ﻿@page "/HuntingMyList"
 
-@    using MyPrivateApp.Client.ViewModels
-@    using MyPrivateApp.Components.Enum
-@    using MyPrivateApp.Components.Hunting.Classes
-@    using MyPrivateApp.Data
-@    using MyPrivateApp.Data.Models
-@    using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Hunting.Classes
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
 
 @rendermode InteractiveServer
 
@@ -126,9 +126,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="hunting.Description" class="form-control" disabled="@DisabledForm" />
-                                <label for="Description"> Beskrivning </label>
-                                <ValidationMessage For="() => hunting.Description" class="text-danger" />
+                                <InputTextArea @bind-Value="hunting.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Beskrivning </label>
+                                <ValidationMessage For="() => hunting.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -298,7 +298,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingViewModels hunting { get; set; } = new();
+    private HuntingMyListViewModels hunting { get; set; } = new();
 
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
@@ -318,18 +318,18 @@
     private string ErrorMessage { get; set; } = string.Empty;
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingViewModels> huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+    private IQueryable<HuntingMyListViewModels> huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
-        if (db.Huntings.Count() == 0) return;
+        if (db.HuntingMyList.Count() == 0) return;
 
-        huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+        huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
-        foreach (Data.Models.Hunting.HuntingMyList model in db.Huntings.OrderBy(c => c.HuntingsId))
+        foreach (Data.Models.Hunting.HuntingMyList model in db.HuntingMyList.OrderBy(c => c.HuntingsId))
         {
-            HuntingViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
+            HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
             huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
         }
 
@@ -390,7 +390,7 @@
         }
     }
 
-    private void Info(HuntingViewModels vm)
+    private void Info(HuntingMyListViewModels vm)
     {
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
@@ -398,7 +398,7 @@
         hunting = vm;
     }
 
-    private void Edit(HuntingViewModels vm)
+    private void Edit(HuntingMyListViewModels vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
@@ -408,9 +408,9 @@
         hunting = vm;
     }
 
-    private void Delete(HuntingViewModels vm)
+    private void Delete(HuntingMyListViewModels vm)
     {
-        if (db.Huntings.Count() == 0) return;
+        if (db.HuntingMyList.Count() == 0) return;
 
         ErrorMessage = HuntingMyListClass.Delete(db, vm, false);
 
@@ -445,7 +445,7 @@
 
     private void SearchPlace(ChangeEventArgs e)
     {
-        huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+        huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -469,27 +469,27 @@
                         break;
 
                     case "habäck":
-                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Habäck);
+                        result = db.HuntingMyList.Where(c => c.HuntingPlaces == HuntingPlaces.Habäck);
                         break;
 
                     case "dalsjöfors":
-                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Dalsjöfors);
+                        result = db.HuntingMyList.Where(c => c.HuntingPlaces == HuntingPlaces.Dalsjöfors);
                         break;
 
                     case "karlabo":
-                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Karlabo);
+                        result = db.HuntingMyList.Where(c => c.HuntingPlaces == HuntingPlaces.Karlabo);
                         break;
 
                     case "skog":
-                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Skog);
+                        result = db.HuntingMyList.Where(c => c.HuntingPlaces == HuntingPlaces.Skog);
                         break;
 
                     case "smältryd":
-                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Smältryd);
+                        result = db.HuntingMyList.Where(c => c.HuntingPlaces == HuntingPlaces.Smältryd);
                         break;
 
                     case "övrigt":
-                        result = db.Huntings.Where(c => c.HuntingPlaces == HuntingPlaces.Övrigt);
+                        result = db.HuntingMyList.Where(c => c.HuntingPlaces == HuntingPlaces.Övrigt);
                         break;
                 }
 
@@ -498,7 +498,7 @@
                 if (result.Any())
                     foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingsId))
                     {
-                        HuntingViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
+                        HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
                         huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
                     }
             }
@@ -511,7 +511,7 @@
 
     private void SearchWildAnimal(ChangeEventArgs e)
     {
-        huntingMyListQueryable = Enumerable.Empty<HuntingViewModels>().AsQueryable();
+        huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -535,31 +535,31 @@
                         break;
 
                     case "hare":
-                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Hare);
+                        result = db.HuntingMyList.Where(c => c.WildAnimal == WildAnimal.Hare);
                         break;
 
                     case "lo":
-                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Lo);
+                        result = db.HuntingMyList.Where(c => c.WildAnimal == WildAnimal.Lo);
                         break;
 
                     case "rådjur":
-                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Rådjur);
+                        result = db.HuntingMyList.Where(c => c.WildAnimal == WildAnimal.Rådjur);
                         break;
 
                     case "räv":
-                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Räv);
+                        result = db.HuntingMyList.Where(c => c.WildAnimal == WildAnimal.Räv);
                         break;
 
                     case "vildsvin":
-                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Vildsvin);
+                        result = db.HuntingMyList.Where(c => c.WildAnimal == WildAnimal.Vildsvin);
                         break;
 
                     case "älg":
-                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Älg);
+                        result = db.HuntingMyList.Where(c => c.WildAnimal == WildAnimal.Älg);
                         break;
 
                     case "övrigt":
-                        result = db.Huntings.Where(c => c.WildAnimal == WildAnimal.Övrigt);
+                        result = db.HuntingMyList.Where(c => c.WildAnimal == WildAnimal.Övrigt);
                         break;
                 }
 
@@ -568,7 +568,7 @@
                 if (result.Any())
                     foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingsId))
                     {
-                        HuntingViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
+                        HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
                         huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
                     }
             }

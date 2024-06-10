@@ -8,11 +8,11 @@ namespace MyPrivateApp.Components.Hunting.Classes
 {
     public class HuntingMyListClass : IHuntingMyListClass
     {
-        private static HuntingMyList? Get(ApplicationDbContext db, int? id) => db.Huntings.Any(r => r.HuntingsId == id) ?
-                                                                                db.Huntings.FirstOrDefault(r => r.HuntingsId == id) :
+        private static HuntingMyList? Get(ApplicationDbContext db, int? id) => db.HuntingMyList.Any(r => r.HuntingsId == id) ?
+                                                                                db.HuntingMyList.FirstOrDefault(r => r.HuntingsId == id) :
                                                                                     throw new Exception("Jakten hittades inte i databasen!");
 
-        public string Add(ApplicationDbContext db, HuntingViewModels vm, bool import)
+        public string Add(ApplicationDbContext db, HuntingMyListViewModels vm, bool import)
         {
             if (vm != null && db != null)
             {
@@ -22,7 +22,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     {
                         HuntingMyList model = ChangeFromViewModelToModel(vm);
 
-                        db.Huntings.Add(model);
+                        db.HuntingMyList.Add(model);
                         db.SaveChanges();
                     }
                     catch (Exception ex)
@@ -49,7 +49,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
             return string.Empty;
         }
 
-        public string Edit(ApplicationDbContext db, HuntingViewModels vm)
+        public string Edit(ApplicationDbContext db, HuntingMyListViewModels vm)
         {
             if (vm != null && vm.HuntingsId > 0 && db != null)
             {
@@ -67,7 +67,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                             getDbModel.Type = vm.Type;
                             getDbModel.Dog = vm.Dog;
                             getDbModel.HuntingPlaces = vm.HuntingPlaces;
-                            getDbModel.Description = vm.Description;
+                            getDbModel.Note = vm.Note;
 
                             db.SaveChanges();
                         }
@@ -88,7 +88,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
             return string.Empty;
         }
 
-        public string Delete(ApplicationDbContext db, HuntingViewModels vm, bool import)
+        public string Delete(ApplicationDbContext db, HuntingMyListViewModels vm, bool import)
         {
             if (vm != null && vm.HuntingsId > 0 && db != null)
             {
@@ -97,7 +97,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     HuntingMyList model = ChangeFromViewModelToModel(vm);
 
                     db.ChangeTracker.Clear();
-                    db.Huntings.Remove(model);
+                    db.HuntingMyList.Remove(model);
                     db.SaveChanges();
                 }
                 catch (Exception ex)
@@ -111,11 +111,11 @@ namespace MyPrivateApp.Components.Hunting.Classes
             return string.Empty;
         }
 
-        public HuntingViewModels ChangeFromModelToViewModel(HuntingMyList model)
+        public HuntingMyListViewModels ChangeFromModelToViewModel(HuntingMyList model)
         {
             DateTime date = DateTime.Parse(model.Date);
 
-            HuntingViewModels vm = new()
+            HuntingMyListViewModels vm = new()
             {
                 HuntingsId = model.HuntingsId,
                 Date = date,
@@ -123,13 +123,13 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 Type = model.Type,
                 Dog = model.Dog,
                 HuntingPlaces = model.HuntingPlaces,
-                Description = model.Description
+                Note = model.Note
             };
 
             return vm;
         }
 
-        private static HuntingMyList ChangeFromViewModelToModel(HuntingViewModels vm)
+        private static HuntingMyList ChangeFromViewModelToModel(HuntingMyListViewModels vm)
         {
             HuntingMyList huntings = new()
             {
@@ -139,13 +139,13 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 Type = vm.Type,
                 Dog = vm.Dog,
                 HuntingPlaces = vm.HuntingPlaces,
-                Description = vm.Description
+                Note = vm.Note
             };
 
             return huntings;
         }
 
-        private static void ErrorHandling(ApplicationDbContext db, HuntingViewModels vm, string type, bool import, string errorMessage)
+        private static void ErrorHandling(ApplicationDbContext db, HuntingMyListViewModels vm, string type, bool import, string errorMessage)
         {
             DateTime date = DateTime.Now;
             string importTrue = import ? "Ja" : "Nej";
@@ -154,7 +154,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} JAKT! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. "
+                Note = $"Import: {importTrue}, {type} MIN JAKT LISTA! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

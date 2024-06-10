@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Client.ViewModels
 {
-    public class HuntingViewModels
+    public class HuntingMyListViewModels
     {
-        public HuntingViewModels() => Date = DateTime.Now;
+        public HuntingMyListViewModels() => Date = DateTime.Now;
 
         [Key]
         public int HuntingsId { get; set; }
@@ -34,6 +34,6 @@ namespace MyPrivateApp.Client.ViewModels
 
         [Display(Name = "Beskrivning")]
         [DataType(DataType.MultilineText)]
-        public string? Description { get; set; }
+        public string? Note { get; set; }
     }
 }
