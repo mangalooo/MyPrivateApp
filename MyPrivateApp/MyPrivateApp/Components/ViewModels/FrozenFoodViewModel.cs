@@ -7,7 +7,6 @@ namespace MyPrivateApp.Client.ViewModels
     {
         public int FrozenFoodId { get; set; }
 
-        [Required(ErrorMessage = "Du måste fylla i frysvarans namn")]
         [Display(Name = "Namn")]
         [DataType(DataType.Text)]
         public string? Name { get; set; }
@@ -15,24 +14,19 @@ namespace MyPrivateApp.Client.ViewModels
         [Display(Name = "Antal ")]
         public int Number { get; set; }
 
-        [Required(ErrorMessage = "Du måste fylla i ett datum")]
         [Display( Name = "Datum")]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
-        [Required(ErrorMessage = "Du måste fylla i en frys")]
-        [Display(Name = "Frys")]
-        public Freezer Freezer { get; set; } //Frys
+        [Display(Name = "Frys plats")]
+        public FreezerPlaces Place { get; set; }
 
-        [Required(ErrorMessage = "Du måste fylla i ett frysfack")]
         [Display(Name = "Frysfack")]
-        public FreezerCompartment FreezerCompartment { get; set; } //Frysfack
+        public FreezerCompartment FreezerCompartment { get; set; }
 
-        [Required(ErrorMessage = "Du måste välja en typ av frysvara")]
         [Display(Name = "Frysvara")]
-        public WildMeat WildMeat { get; set; }
+        public FreezerFrozenGoods FrozenGoods { get; set; } 
 
-        [Required(ErrorMessage = "Du måste fylla i vikten på frysvaran")]
         [Display(Name = "Vikt (gram)")]
         public int Weight { get; set; }
 

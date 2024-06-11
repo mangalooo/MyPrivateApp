@@ -8,9 +8,9 @@ namespace MyPrivateApp.Components.Hunting.Classes
 {
     public class HuntingMyListClass : IHuntingMyListClass
     {
-        private static HuntingMyList? Get(ApplicationDbContext db, int? id) => db.HuntingMyList.Any(r => r.HuntingsId == id) ?
-                                                                                db.HuntingMyList.FirstOrDefault(r => r.HuntingsId == id) :
-                                                                                    throw new Exception("Jakten hittades inte i databasen!");
+        private static HuntingMyList? Get(ApplicationDbContext db, int? id) => db.HuntingMyList.Any(r => r.HuntingMyListId == id) ?
+                                                                                db.HuntingMyList.FirstOrDefault(r => r.HuntingMyListId == id) :
+                                                                                    throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, HuntingMyListViewModels vm, bool import)
         {
@@ -27,41 +27,32 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                        return $"Lägg till ett objekt ur min lista! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum eller typ av vilt ifyllt!");
-                    else
-                        return "Ingen datum eller typ av vilt ifyllt!";
-                }
+                    return "Ingen datum eller typ av vilt ifyllt!";
+                
             }
             else
-            {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            }
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             return string.Empty;
         }
 
         public string Edit(ApplicationDbContext db, HuntingMyListViewModels vm)
         {
-            if (vm != null && vm.HuntingsId > 0 && db != null)
+            if (vm != null && vm.HuntingMyListId > 0 && db != null)
             {
                 if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Type))
                 {
                     try
                     {
-                        HuntingMyList getDbModel = Get(db, vm.HuntingsId);
+                        HuntingMyList getDbModel = Get(db, vm.HuntingMyListId);
 
                         if (getDbModel != null)
                         {
-                            getDbModel.HuntingsId = vm.HuntingsId;
+                            getDbModel.HuntingMyListId = vm.HuntingMyListId;
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
                             getDbModel.WildAnimal = vm.WildAnimal;
                             getDbModel.Type = vm.Type;
@@ -76,7 +67,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                        return $"Ändra ett objekt ur min lista! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -90,7 +81,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public string Delete(ApplicationDbContext db, HuntingMyListViewModels vm, bool import)
         {
-            if (vm != null && vm.HuntingsId > 0 && db != null)
+            if (vm != null && vm.HuntingMyListId > 0 && db != null)
             {
                 try
                 {
@@ -102,7 +93,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
+                    return $"Ta bort ett objekt ur min lista! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. Felmeddelande: {ex.Message}";
                 }
             }
             else
@@ -117,7 +108,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
             HuntingMyListViewModels vm = new()
             {
-                HuntingsId = model.HuntingsId,
+                HuntingMyListId = model.HuntingMyListId,
                 Date = date,
                 WildAnimal = model.WildAnimal,
                 Type = model.Type,
@@ -133,7 +124,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
         {
             HuntingMyList huntings = new()
             {
-                HuntingsId = vm.HuntingsId,
+                HuntingMyListId = vm.HuntingMyListId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 WildAnimal = vm.WildAnimal,
                 Type = vm.Type,
@@ -143,22 +134,6 @@ namespace MyPrivateApp.Components.Hunting.Classes
             };
 
             return huntings;
-        }
-
-        private static void ErrorHandling(ApplicationDbContext db, HuntingMyListViewModels vm, string type, bool import, string errorMessage)
-        {
-            DateTime date = DateTime.Now;
-            string importTrue = import ? "Ja" : "Nej";
-
-            SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} MIN JAKT LISTA! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. "
-            };
-
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
         }
     }
 }

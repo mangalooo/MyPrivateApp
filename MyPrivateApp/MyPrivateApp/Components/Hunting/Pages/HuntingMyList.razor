@@ -327,7 +327,7 @@
 
         huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
-        foreach (Data.Models.Hunting.HuntingMyList model in db.HuntingMyList.OrderBy(c => c.HuntingsId))
+        foreach (Data.Models.Hunting.HuntingMyList model in db.HuntingMyList.OrderBy(c => c.HuntingMyListId))
         {
             HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
             huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
@@ -351,7 +351,7 @@
     {
         DisabledForm = false;
 
-        if (hunting.HuntingsId > 0)
+        if (hunting.HuntingMyListId > 0)
         {
             // Edit
             ErrorMessage = HuntingMyListClass.Edit(db, hunting);
@@ -496,7 +496,7 @@
                 if (result == null || result.Count() == 0) return;
 
                 if (result.Any())
-                    foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingsId))
+                    foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingMyListId))
                     {
                         HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
                         huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
@@ -566,7 +566,7 @@
                 if (result == null || result.Count() == 0) return;
 
                 if (result.Any())
-                    foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingsId))
+                    foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingMyListId))
                     {
                         HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
                         huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());

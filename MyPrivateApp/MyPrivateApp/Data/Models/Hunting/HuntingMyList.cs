@@ -7,7 +7,7 @@ namespace MyPrivateApp.Data.Models.Hunting
     public class HuntingMyList
     {
         [Key]
-        public int HuntingsId { get; set; }
+        public int HuntingMyListId { get; set; }
 
         [DataType(DataType.Text)]
         public string? Date { get; set; }

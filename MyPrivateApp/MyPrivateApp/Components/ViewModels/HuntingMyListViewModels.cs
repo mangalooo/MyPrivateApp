@@ -8,7 +8,7 @@ namespace MyPrivateApp.Client.ViewModels
         public HuntingMyListViewModels() => Date = DateTime.Now;
 
         [Key]
-        public int HuntingsId { get; set; }
+        public int HuntingMyListId { get; set; }
 
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]

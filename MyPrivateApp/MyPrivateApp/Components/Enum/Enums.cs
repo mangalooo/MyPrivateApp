@@ -12,11 +12,11 @@ namespace MyPrivateApp.Components.Enum
         Övrigt
     }
 
-    public enum Freezer
+    public enum FreezerPlaces
     {
         Välj,
-        Förrådet,
-        Hemma,
+        HemmaFörrådet,
+        HemmaLägenheten,
         Skog,
         Österbyn,
         Övrigt
@@ -40,7 +40,7 @@ namespace MyPrivateApp.Components.Enum
         Utbetalning
     }
 
-    public enum WildMeat
+    public enum FreezerFrozenGoods
     {
         Välj,
         Hare,
@@ -54,6 +54,7 @@ namespace MyPrivateApp.Components.Enum
     public enum WildAnimal
     {
         Välj,
+        Fågel,
         Hare,
         Lo,
         Rådjur,

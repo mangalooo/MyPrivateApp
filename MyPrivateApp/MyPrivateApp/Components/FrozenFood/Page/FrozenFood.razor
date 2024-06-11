@@ -85,14 +85,14 @@
                          </div>
                          <div class="col-6">
                              <div class="form-floating">
-                                 <InputSelect @bind-Value="frozenFood.WildMeat" class="form-control" placeholder="" disabled="@DisabledForm">
-                                     @foreach (object wildMeat in Enum.GetValues(typeof(WildMeat)))
+                                <InputSelect @bind-Value="frozenFood.FrozenGoods" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object frozenGoods in Enum.GetValues(typeof(FreezerFrozenGoods)))
                                     {
-                                        <option value="@wildMeat">@wildMeat</option>
+                                        <option value="@frozenGoods">@frozenGoods</option>
                                     }
                                 </InputSelect>
-                                <label for="WildMeat"> Vilt </label>
-                                <ValidationMessage For="() => frozenFood.WildMeat" class="text-danger" />
+                                <label for="frozenGoods"> Vilt </label>
+                                <ValidationMessage For="() => frozenFood.FrozenGoods" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -105,14 +105,14 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="frozenFood.Freezer" class="form-control" placeholder="" disabled="@DisabledForm">
-                                    @foreach (object freezer in Enum.GetValues(typeof(Freezer)))
+                                <InputSelect @bind-Value="frozenFood.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object freezerPlaces in Enum.GetValues(typeof(FreezerPlaces)))
                                     {
-                                        <option value="@freezer">@freezer</option>
+                                        <option value="@freezerPlaces">@freezerPlaces</option>
                                     }
                                 </InputSelect>
-                                <label for="Freezer"> Frys </label>
-                                <ValidationMessage For="() => frozenFood.Freezer" class="text-danger" />
+                                <label for="FreezerPlaces"> Frys plats </label>
+                                <ValidationMessage For="() => frozenFood.Place" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
@@ -192,7 +192,7 @@
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
 
-                        <PropertyColumn Title="Varor" Property="@(c => c.WildMeat)" Sortable="true">
+                        <PropertyColumn Title="Varor" Property="@(c => c.FrozenGoods)" Sortable="true">
                             <ColumnOptions>
                                 <div class="search-box">
                                     <input type="search" autofocus @onchange="SearchWildMeat" />
@@ -208,7 +208,7 @@
                         </PropertyColumn>
                         <PropertyColumn Title="År" Property="@(c => HowLongTimeInFreezer(c.Date))" Sortable="true" />
 
-                        <PropertyColumn Title="Frys" Property="@(c => c.Freezer)" Sortable="true" />
+                        <PropertyColumn Title="Frys plats" Property="@(c => c.Place)" Sortable="true" />
 
                         <PropertyColumn Title="Frysfack" Property="@(c => c.FreezerCompartment)" Sortable="true" />
 
@@ -264,7 +264,7 @@
                 <div class="card-body">
                     <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Varor" Property="@(c => c.WildMeat)" Sortable="true">
+                        <PropertyColumn Title="Varor" Property="@(c => c.FrozenGoods)" Sortable="true">
                             <ColumnOptions>
                                 <div class="search-box">
                                     <input type="search" autofocus @onchange="SearchWildMeat" />
@@ -507,9 +507,10 @@
         {
             string getName = string.Empty;
 
-            foreach (int wildMeat in Enum.GetValues(typeof(WildMeat)))
+            foreach (int frozenGoods in Enum.GetValues(typeof(FreezerFrozenGoods)))
             {
-                getName = Enum.GetName(typeof(WildMeat), wildMeat).ToLower();
+                Type enumType = typeof(FreezerFrozenGoods);
+                getName = Enum.GetName(enumType, frozenGoods).ToLower();
 
                 if (getName == e.Value.ToString().ToLower())
                     break;
@@ -525,27 +526,27 @@
                         break;
 
                     case "hare":
-                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Hare);
+                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Hare);
                         break;
 
                     case "ko":
-                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Ko);
+                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Ko);
                         break;
 
                     case "rådjur":
-                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Rådjur);
+                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur);
                         break;
 
                     case "vildsvin":
-                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Vildsvin);
+                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin);
                         break;
 
                     case "älg":
-                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Älg);
+                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg);
                         break;
 
                     case "övrigt":
-                        result = db.FrozenFoods.Where(c => c.WildMeat == WildMeat.Övrigt);
+                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt);
                         break;
                 }
 

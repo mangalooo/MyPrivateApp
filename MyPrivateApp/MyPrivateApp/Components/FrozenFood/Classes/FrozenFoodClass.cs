@@ -1,5 +1,4 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
-using MyPrivateApp.Data.Models.SharesModels;
+﻿
 using MyPrivateApp.Data;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
@@ -27,24 +26,16 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                        return $"Lägg till frysvara: {vm.FrozenGoods}, Typ av vara: {vm.Name}, Datum: {vm.Date}. Felmeddelande: {ex.Message}.";
                     }
                 }
                 else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum eller namn ifyllt!");
-                    else
-                        return "Ingen datum eller namn ifyllt!";
-                }
+                    return "Ingen datum eller namn ifyllt!";
+                
             }
             else
-            {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            }
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            
 
             return string.Empty;
         }
@@ -64,9 +55,9 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
                             getDbModel.Name = vm.Name;
                             getDbModel.Number = vm.Number;
-                            getDbModel.Freezer = vm.Freezer;
+                            getDbModel.Place = vm.Place;
                             getDbModel.FreezerCompartment = vm.FreezerCompartment;
-                            getDbModel.WildMeat = vm.WildMeat;
+                            getDbModel.FrozenGoods = vm.FrozenGoods;
                             getDbModel.Weight = vm.Weight;
                             getDbModel.Notes = vm.Notes;
 
@@ -77,7 +68,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                        return $"Ändra frysvara: {vm.FrozenGoods}, Typ av vara: {vm.Name}, Datum: {vm.Date}. Felmeddelande: {ex.Message}.";
                     }
                 }
                 else
@@ -103,7 +94,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
+                    return $"Ta bort frysvara: {vm.FrozenGoods}, Typ av vara: {vm.Name}, Datum: {vm.Date}. Felmeddelande: {ex.Message}.";
                 }
             }
             else
@@ -122,9 +113,9 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                 Name = model.Name,
                 Date = date,
                 Number = model.Number,
-                Freezer = model.Freezer,
+                Place = model.Place,
                 FreezerCompartment = model.FreezerCompartment,
-                WildMeat = model.WildMeat,
+                FrozenGoods = model.FrozenGoods,
                 Weight = model.Weight,
                 Notes = model.Notes
             };
@@ -140,30 +131,14 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                 Name = vm.Name,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 Number = vm.Number,
-                Freezer = vm.Freezer,
+                Place = vm.Place,
                 FreezerCompartment = vm.FreezerCompartment,
-                WildMeat = vm.WildMeat,
+                FrozenGoods = vm.FrozenGoods,
                 Weight = vm.Weight,
                 Notes = vm.Notes
             };
 
             return frozenFood;
-        }
-
-        private static void ErrorHandling(ApplicationDbContext db, FrozenFoodViewModel vm, string type, bool import, string errorMessage)
-        {
-            DateTime date = DateTime.Now;
-            string importTrue = import ? "Ja" : "Nej";
-
-            SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} Frys varor: {DateTime.Now}: Vilt: {vm.WildMeat}, Typ av vilt: {vm.Name}, Datum: {vm.Date}. "
-            };
-
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
         }
     }
 }

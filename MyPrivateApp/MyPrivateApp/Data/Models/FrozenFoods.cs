@@ -20,7 +20,7 @@ namespace MyPrivateApp.Data.Models
 
         [DataType(DataType.Text)]
         [StringLength(50)]
-        public Freezer Freezer { get; set; } //Frys
+        public FreezerPlaces Place { get; set; } //Frys platser
 
         [DataType(DataType.Text)]
         [StringLength(50)]
@@ -28,7 +28,7 @@ namespace MyPrivateApp.Data.Models
 
         [DataType(DataType.Text)]
         [StringLength(50)]
-        public WildMeat WildMeat { get; set; }
+        public FreezerFrozenGoods FrozenGoods { get; set; } //Frysvaror
 
         public int Weight { get; set; }
 
