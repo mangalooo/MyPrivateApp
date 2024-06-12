@@ -1,5 +1,4 @@
 ﻿
-using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
@@ -27,24 +26,14 @@ namespace MyPrivateApp.Components.Trip.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                        return $"Gick inte att lägg till ny resa. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Fyll i ut- och hem datum och vem du reste med!");
-                    else
-                        return "Fyll i ut- och hem datum och vem du reste med!";
-                }
+                    return "Fyll i ut- och hem datum och vem du reste med!";
             }
             else
-            {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            }
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             return string.Empty;
         }
@@ -77,7 +66,7 @@ namespace MyPrivateApp.Components.Trip.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                        return $"Gick inte att ändra resan. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -103,7 +92,7 @@ namespace MyPrivateApp.Components.Trip.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
+                    return $"Gick inte att ta bort resan. Felmeddelande: {ex.Message}";
                 }
             }
             else
@@ -150,21 +139,5 @@ namespace MyPrivateApp.Components.Trip.Classes
         }
 
         private static double HowLongTravel(DateTime outDate, DateTime homeDate) => (homeDate - outDate).TotalDays;
-
-        private static void ErrorHandling(ApplicationDbContext db, TripsViewModel vm, string type, bool import, string errorMessage)
-        {
-            DateTime date = DateTime.Now;
-            string importTrue = import ? "Ja" : "Nej";
-
-            SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} RESTOR! Land: {vm.Country} Sällskap: {vm.TravelBuddies} Datum: {vm.Date}. "
-            };
-
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
-        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿
 using MyPrivateApp.Client.ViewModels;
-using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data;
 
@@ -27,7 +26,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Lägg till", ex.Message);
+                        return $"Gick inte att lägg till ny kontakt. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -83,7 +82,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", ex.Message);
+                        return $"Gick inte att ändra kontakten. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -109,7 +108,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", ex.Message);
+                    return $"Gick inte att ta bort kontakten. Felmeddelande: {ex.Message}";
                 }
             }
             else
@@ -184,21 +183,6 @@ namespace MyPrivateApp.Components.Contact.Classes
             };
 
             return contact;
-        }
-
-        private static void ErrorHandling(ApplicationDbContext db, ContactsViewModels vm, string type, string errorMessage)
-        {
-            DateTime date = DateTime.Now;
-
-            SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} KONTAKT! Namn: {vm.Name}, Födelsedag: {vm.Birthday}. "
-            };
-
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
         }
     }
 }

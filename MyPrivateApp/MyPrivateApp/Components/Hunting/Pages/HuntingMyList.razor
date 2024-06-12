@@ -358,8 +358,8 @@
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
                 ShowOrHideEditButton = false;
                 return;
             }
@@ -377,8 +377,10 @@
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
                 ShowOrHideEditButton = true;
+                ShowOrHideAddNewButton = false;
                 return;
             }
             else

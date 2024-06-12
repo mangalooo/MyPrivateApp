@@ -1,4 +1,4 @@
-﻿using MyPrivateApp.Data.Models.SharesModels;
+﻿
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Client.ViewModels;
@@ -26,24 +26,14 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                        return $"Gick inte att lägg till en ny inköpslista. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller plats är i fyllt!");
-                    else
-                        return "Ingen datum ifyllt eller plats är i fyllt!";
-                }
+                    return "Ingen datum eller plats ifylld!";
             }
             else
-            {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            }
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             return string.Empty;
         }
@@ -73,11 +63,11 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                        return $"Gick inte att ändra inköpslistan. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
-                    return "Ingen datum eller uppgifter i listan ifyllt!";
+                    return "Ingen datum eller uppgifter ifylld!";
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
@@ -99,7 +89,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
+                    return $"Gick inte att ta bort inköpslistan. Felmeddelande: {ex.Message}";
                 }
             }
             else
@@ -136,22 +126,6 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
             };
 
             return shopingList;
-        }
-
-        private static void ErrorHandling(ApplicationDbContext db, ShopingListViewModels vm, string type, bool import, string errorMessage)
-        {
-            DateTime date = DateTime.Now;
-            string importTrue = import ? "Ja" : "Nej";
-
-            SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} inköpslista: {DateTime.Now}: Plats: {vm.Place}, Listan: {vm.List}, Datum: {vm.Date}. "
-            };
-
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
         }
     }
 }

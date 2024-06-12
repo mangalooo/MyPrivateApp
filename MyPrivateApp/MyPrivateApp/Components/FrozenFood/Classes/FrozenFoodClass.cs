@@ -9,7 +9,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
     {
         private static FrozenFoods? Get(ApplicationDbContext db, int? id) => db.FrozenFoods.Any(r => r.FrozenFoodsId == id) ?
                                                                         db.FrozenFoods.FirstOrDefault(r => r.FrozenFoodsId == id) :
-                                                                            throw new Exception("Frys varan hittades inte i databasen!");
+                                                                            throw new Exception("Frysvaran hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, FrozenFoodViewModel vm, bool import)
         {
@@ -26,7 +26,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                     }
                     catch (Exception ex)
                     {
-                        return $"Lägg till frysvara: {vm.FrozenGoods}, Typ av vara: {vm.Name}, Datum: {vm.Date}. Felmeddelande: {ex.Message}.";
+                        return $"Gick inte att lägg till en ny frysvara. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -68,7 +68,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                     }
                     catch (Exception ex)
                     {
-                        return $"Ändra frysvara: {vm.FrozenGoods}, Typ av vara: {vm.Name}, Datum: {vm.Date}. Felmeddelande: {ex.Message}.";
+                        return $"Gick inte att ändra frysvaran. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -94,7 +94,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                 }
                 catch (Exception ex)
                 {
-                    return $"Ta bort frysvara: {vm.FrozenGoods}, Typ av vara: {vm.Name}, Datum: {vm.Date}. Felmeddelande: {ex.Message}.";
+                    return $"Gick inte att ta bort frysvaran. Felmeddelande: {ex.Message}";
                 }
             }
             else

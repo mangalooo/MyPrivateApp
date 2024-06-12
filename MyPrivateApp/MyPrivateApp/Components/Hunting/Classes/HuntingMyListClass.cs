@@ -1,5 +1,4 @@
 ﻿
-using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models.Hunting;
@@ -27,7 +26,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     }
                     catch (Exception ex)
                     {
-                        return $"Lägg till ett objekt ur min lista! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. Felmeddelande: {ex.Message}";
+                        return $"Gick inte att lägg till ett nytt byte. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -67,7 +66,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     }
                     catch (Exception ex)
                     {
-                        return $"Ändra ett objekt ur min lista! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. Felmeddelande: {ex.Message}";
+                        return $"Gick inte att ändra bytet. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -93,7 +92,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 }
                 catch (Exception ex)
                 {
-                    return $"Ta bort ett objekt ur min lista! Vilt: {vm.WildAnimal}, Typ: {vm.Type} Datum: {vm.Date}. Felmeddelande: {ex.Message}";
+                    return $"Gick inte att ta bort bytet. Felmeddelande: {ex.Message}";
                 }
             }
             else

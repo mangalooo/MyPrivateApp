@@ -1,5 +1,4 @@
 ﻿
-using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models.Farming;
@@ -10,12 +9,11 @@ namespace MyPrivateApp.Components.Farming.Classes
     {
         private static FarmingsActive? GetActive(ApplicationDbContext db, int? id) => db.FarmingsActive.Any(r => r.FarmingId == id) ?
                                                                                         db.FarmingsActive.FirstOrDefault(r => r.FarmingId == id) :
-                                                                                            throw new Exception("Odlingen hittades inte i databasen!");
+                                                                                            throw new Exception("Aktiv odlingen hittades inte i databasen!");
 
         private static FarmingsInactive? GetInactive(ApplicationDbContext db, int? id) => db.FarmingsInactive.Any(r => r.FarmingId == id) ?
-                                                                                        db.FarmingsInactive.FirstOrDefault(r => r.FarmingId == id) :
-                                                                                            throw new Exception("Odlingen hittades inte i databasen!");
-
+                                                                                            db.FarmingsInactive.FirstOrDefault(r => r.FarmingId == id) :
+                                                                                                throw new Exception("Inaktiv odlingen hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, FarmingViewModels vm, bool import)
         {
@@ -32,24 +30,14 @@ namespace MyPrivateApp.Components.Farming.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                        return $"Gick inte att lägg till ny odling. Felmeddelande: {ex.Message} ";
                     }
                 }
                 else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Du måste fylle i namn och typ!");
-                    else
-                        return "Du måste fylle i namn och typ!";
-                }
+                    return "Du måste fylle i namn och typ!";
             }
             else
-            {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            }
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             return string.Empty;
         }
@@ -84,7 +72,7 @@ namespace MyPrivateApp.Components.Farming.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                        return $"Gick inte att ändra aktiv odling. Felmeddelande: {ex.Message} ";
                     }
                 }
                 else
@@ -127,7 +115,7 @@ namespace MyPrivateApp.Components.Farming.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
+                        return $"Gick inte att ändra inaktiv odling. Felmeddelande: {ex.Message} ";
                     }
                 }
                 else
@@ -190,7 +178,7 @@ namespace MyPrivateApp.Components.Farming.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
+                    return $"Gick inte att ta bort aktiv odling. Felmeddelande: {ex.Message} ";
                 }
             }
             else
@@ -213,7 +201,7 @@ namespace MyPrivateApp.Components.Farming.Classes
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
+                    return $"Gick inte att ta bort inaktiv odling. Felmeddelande: {ex.Message} ";
                 }
             }
             else
@@ -306,22 +294,6 @@ namespace MyPrivateApp.Components.Farming.Classes
             };
 
             return farmings;
-        }
-
-        private static void ErrorHandling(ApplicationDbContext db, FarmingViewModels vm, string type, bool import, string errorMessage)
-        {
-            DateTime date = DateTime.Now;
-            string importTrue = import ? "Ja" : "Nej";
-
-            SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} ODLING! Namn: {vm.Name} Typ: {vm.Type}. "
-            };
-
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
         }
     }
 }

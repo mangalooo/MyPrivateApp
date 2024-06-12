@@ -293,7 +293,7 @@
                      <br />
 
                      <div align="center">
-                        <button hidden="@ShowOrHideAddNewContactButton" @onclick="HideNewOrChangesForm" type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
                      </div>
 
                      <div align="center">
@@ -529,7 +529,7 @@
     private bool HideNewOrChangesFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
-    private bool ShowOrHideAddNewContactButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = true;
 
@@ -571,8 +571,8 @@
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
                 ShowOrHideEditButton = false;
                 return;
             }
@@ -590,8 +590,10 @@
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
                 ShowOrHideEditButton = true;
+                ShowOrHideAddNewButton = false;
                 return;
             }
             else
@@ -613,7 +615,7 @@
     private void Info(ContactsViewModels vm)
     {
         HideNewOrChangesForm();
-        ShowOrHideAddNewContactButton = true;
+        ShowOrHideAddNewButton = true;
         DisabledForm = true;
         contact = vm;
     }
@@ -622,7 +624,7 @@
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
-        ShowOrHideAddNewContactButton = true;
+        ShowOrHideAddNewButton = true;
         HideNewOrChangesFields = true;
         contact = vm;
     }
@@ -667,8 +669,10 @@
         int yearsOld = DateTime.Now.Year - birthDate.Year;
         DateTime date = DateTime.Now;
 
-        if (date.Month <= birthDate.Month)
-            if (date.Day <= birthDate.Day)
+        if (date.Month < birthDate.Month)
+            return yearsOld - 1;
+
+        if (date.Month == birthDate.Month && date.Day <= birthDate.Day)
                 return yearsOld - 1;
 
         return yearsOld;
