@@ -589,7 +589,7 @@
         catch (Exception exc)
         {
             DateTime date = DateTime.Now;
-            importModel.Errors += $"| Datum: {date.Year}-{date.Month}-{date.Day}. Felmeddelande: {exc.Message}";
+            importModel.Errors += $"| Import datum: {date.Year}-{date.Month}-{date.Day}. Felmeddelande: {exc.Message}";
             db.SaveChanges();
         }
     }

@@ -102,13 +102,14 @@
                          </div>
                      </div>
 
+                    <br />
 
                      <div class="row">
 
                          <div class="col-12">
                              <div class="form-floating">
-                                 <InputTextArea @bind-Value="SharesErrorHandling.ErrorMessage" class="form-control" disabled="@DisabledForm" />
-                                 <label for="ErrorMessage"> Anteckningar </label>
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesErrorHandling.ErrorMessage" class="form-control" disabled="@DisabledForm" />
+                                 <label for="ErrorMessage"> Felmeddelande </label>
                                  <ValidationMessage For="() => SharesErrorHandling.ErrorMessage" class="text-danger" />
                              </div>
                          </div>
