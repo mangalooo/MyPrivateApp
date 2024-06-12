@@ -1,6 +1,7 @@
 ﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
+using System;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
@@ -20,7 +21,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                        vm.HowMany > 0 && vm.PricePerShares > 0 && vm.Brokerage > 0)
                 {
                     SharesPurchaseds model = ChangesFromViewModelToModel(vm);
-                    model.Note += $"Import: {importTrue}, Köper {model.CompanyName} aktier, Datum: {model.DateOfPurchase.ToString()[..10]}, Hur många: {model.HowMany} " +
+                    model.Note += $"Import: {importTrue}, Köper: {model.CompanyName} aktier, Datum: {model.DateOfPurchase.ToString()[..10]}, Hur många: {model.HowMany} " +
                                   $"Pris per st: {model.PricePerShares}, Summan: {model.HowMany * model.PricePerShares}, Courtage: {model.Brokerage}. ";
 
                     try
@@ -150,7 +151,13 @@ namespace MyPrivateApp.Components.Shares.Classes
         // Selling all or part of the share
         public string Sell(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import, ISharesFeeClass sharesFeeClass)
         {
-            if (vm != null && db != null)
+            SharesPurchaseds sharesPurchaseds = Get(db, vm.ISIN);
+
+            if (sharesPurchaseds == null) return "Sälj: Aktien hittades inte i databasen!";
+
+            vm.SharesPurchasedId = sharesPurchaseds.SharesPurchasedId;
+
+            if (vm != null && vm.SharesPurchasedId != 0 && db != null)
             {
                 if (import == false)
                     if (vm.SaleDateOfPurchase == DateTime.MinValue && vm.SaleHowMany > 0 && vm.SalePricePerShares > 0 && vm.SaleBrokerage > 0)
@@ -304,7 +311,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public string Delete(ApplicationDbContext db, SharesPurchaseds incomingModel, SharesPurchasedViewModel vm, bool import)
         {
-            if (vm != null && vm.SharesPurchasedId > 0  && db != null)
+            if (vm != null && vm.SharesPurchasedId != 0  && db != null)
             {
                 try
                 {

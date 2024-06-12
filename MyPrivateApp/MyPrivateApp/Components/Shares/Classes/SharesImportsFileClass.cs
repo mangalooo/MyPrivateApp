@@ -1,7 +1,7 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
@@ -11,39 +11,46 @@ namespace MyPrivateApp.Components.Shares.Classes
                                                                                             db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == id) :
                                                                                                 throw new Exception("Hittar inte importen i databasen!");
 
-        public void Add(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import)
+        public string Add(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import)
         {
             string importTrue = import ? "Ja" : "Nej";
 
-            if (vm != null && vm.Date == DateTime.MinValue && db != null)
+            if (vm != null && db != null)
             {
-                SharesImportsFile model = ChangeFromViewModelToModel(vm);
-
-                try
+                if (vm.Date != DateTime.MinValue)
                 {
-                    db.SharesImportsFiles.Add(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    DateTime date = DateTime.Now;
+                    SharesImportsFile model = ChangeFromViewModelToModel(vm);
 
-                    SharesErrorHandlings sharesErrorHandling = new()
+                    try
                     {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: {importTrue}, Importerad fil: {DateTime.Now}: Filnamn: {vm.FileName}, Datum: {vm.Date}"
-                    };
+                        db.SharesImportsFiles.Add(model);
+                        db.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        DateTime date = DateTime.Now;
 
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                        SharesErrorHandlings sharesErrorHandling = new()
+                        {
+                            Date = $"{date.Year}-{date.Month}-{date.Day}",
+                            ErrorMessage = $"Felmeddelande: {ex.Message}",
+                            Note = $"Import: {importTrue}, Importerad fil: {DateTime.Now}: Filnamn: {vm.FileName}, Datum: {vm.Date}"
+                        };
+
+                        db.SharesErrorHandlings.Add(sharesErrorHandling);
+                        db.SaveChanges();
+                    }
                 }
+                else
+                    return "Datum måste vara ifylld!";
             }
             else
-                throw new Exception("Lägg till import: Hittar ingen data från formuläret, datum mini eller ingen kontakt med databasen!");
+                return "Lägg till import: Hittar ingen data från formuläret, datum mini eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
-        public void Edit(ApplicationDbContext db, SharesImportsFileViewModel vm)
+        public string Edit(ApplicationDbContext db, SharesImportsFileViewModel vm)
         {
             if (vm != null && db != null)
             {
@@ -79,10 +86,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
             }
             else
-                throw new Exception("Ändra import: Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                return "Ändra import: Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
-        public void Delete(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import)
+        public string Delete(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import)
         {
             if (vm != null)
             {
@@ -115,7 +124,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
             }
             else
-                throw new Exception("Ta bort import: Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                return "Ta bort import: Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            return string.Empty;
         }
 
         public SharesImportsFileViewModel ChangeFromModelToViewModel(SharesImportsFile model)

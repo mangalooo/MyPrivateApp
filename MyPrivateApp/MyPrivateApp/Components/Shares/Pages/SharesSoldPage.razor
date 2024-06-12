@@ -247,7 +247,7 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="sharesSold.Note" rows="8" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="sharesSold.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
                                 <ValidationMessage For="() => sharesSold.Note" class="text-danger" />
                             </div>

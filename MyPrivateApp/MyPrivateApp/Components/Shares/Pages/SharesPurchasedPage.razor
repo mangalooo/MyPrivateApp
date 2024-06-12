@@ -19,64 +19,71 @@
 
 <br />
 
-<div id="desktop" style="text-align:center">
-    <div class="btn-group">
-        <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-        <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
-        <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
-        <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
-        <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
-        <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
-        <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
-        <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
-        <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
-        <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+@* Header *@
+<div>
+
+    @* Desktop Navigation*@
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+            <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
+            <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
+            <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
+            <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
+            <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
+            <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
+            <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
+            <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
+            <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+        </div>
     </div>
-</div>
 
-<div id="mobile">
-    <div class="btn-group" role="group">
-        <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Alla aktier sidor
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
-        </ul>
+    @* Mobile Navigation*@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+            </ul>
+        </div>
     </div>
+
+    <br />
+    <br />
+
+    <h1 style="text-align:center"> Köpta aktier </h1>
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm">Köp aktie</button>
+    </div>
+
+    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+
+        <br />
+        <br />
+
+        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+    </div>
+
+    <br />
+    <br />
+
 </div>
-
-<br />
-<br />
-
-<h1 style="text-align:center"> Köpta aktier </h1>
-
-<div style="text-align:center" hidden="@ShowOrHideCreateButton">
-
-    <br />
-    <br />
-
-    <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm">Köp aktie</button>
-</div>
-
-<div style="text-align:center" hidden="@ShowOrHideErrorMessage">
-
-    <br />
-    <br />
-
-    <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
-</div>
-
-<br />
-<br />
 
 <div class="container">
     <div class="col-md-12">
@@ -86,237 +93,237 @@
             <div class="card-header">
                 <EditForm Model="sharesPurchased" OnSubmit="AddOrEdit" FormName="AddOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesFields)">
 
-                     <DataAnnotationsValidator />
+                    <DataAnnotationsValidator />
 
-                     <ValidationSummary class="text-danger" role="alert" />
+                    <ValidationSummary class="text-danger" role="alert" />
 
-                     <br />
+                    <br />
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div id="mobile" class="col-4" />
+                        <div id="mobile" class="col-4" />
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputText @bind-Value="sharesPurchased.CompanyName" class="form-control" disabled="@DisabledForm" />
-                                 <label for="CompanyName"> Företag </label>
-                                 <ValidationMessage For="() => sharesPurchased.CompanyName" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="sharesPurchased.CompanyName" class="form-control" disabled="@DisabledForm" />
+                                <label for="CompanyName"> Företag </label>
+                                <ValidationMessage For="() => sharesPurchased.CompanyName" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputText @bind-Value="sharesPurchased.TypeOfShares" class="form-control" disabled="@DisabledForm" />
-                                 <label for="TypeOfShares"> Typ av aktie </label>
-                                 <ValidationMessage For="() => sharesPurchased.TypeOfShares" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="sharesPurchased.TypeOfShares" class="form-control" disabled="@DisabledForm" />
+                                <label for="TypeOfShares"> Typ av aktie </label>
+                                <ValidationMessage For="() => sharesPurchased.TypeOfShares" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputText @bind-Value="sharesPurchased.ISIN" class="form-control" disabled="@DisabledForm" />
-                                 <label for="ISIN"> ISIN </label>
-                                 <ValidationMessage For="() => sharesPurchased.ISIN" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="sharesPurchased.ISIN" class="form-control" disabled="@DisabledForm" />
+                                <label for="ISIN"> ISIN </label>
+                                <ValidationMessage For="() => sharesPurchased.ISIN" class="text-danger" />
+                            </div>
+                        </div>
 
-                     </div>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div id="mobile" class="col-4" />
+                        <div id="mobile" class="col-4" />
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputDate @bind-Value="sharesPurchased.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
-                                 <label for="DateOfPurchase"> Datum </label>
-                                 <ValidationMessage For="() => sharesPurchased.DateOfPurchase" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="sharesPurchased.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
+                                <label for="DateOfPurchase"> Datum </label>
+                                <ValidationMessage For="() => sharesPurchased.DateOfPurchase" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputText @bind-Value="sharesPurchased.Account" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Account"> Konto </label>
-                                 <ValidationMessage For="() => sharesPurchased.Account" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="sharesPurchased.Account" class="form-control" disabled="@DisabledForm" />
+                                <label for="Account"> Konto </label>
+                                <ValidationMessage For="() => sharesPurchased.Account" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputText @bind-Value="sharesPurchased.Currency" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Currency"> Valuta </label>
-                                 <ValidationMessage For="() => sharesPurchased.Currency" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="sharesPurchased.Currency" class="form-control" disabled="@DisabledForm" />
+                                <label for="Currency"> Valuta </label>
+                                <ValidationMessage For="() => sharesPurchased.Currency" class="text-danger" />
+                            </div>
+                        </div>
 
-                     </div>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div id="mobile" class="col-3" />
+                        <div id="mobile" class="col-3" />
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.HowMany" class="form-control" disabled="@DisabledForm" />
-                                 <label for="HowMany"> Antal </label>
-                                 <ValidationMessage For="() => sharesPurchased.HowMany" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.HowMany" class="form-control" disabled="@DisabledForm" />
+                                <label for="HowMany"> Antal </label>
+                                <ValidationMessage For="() => sharesPurchased.HowMany" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.PricePerShares" class="form-control" disabled="@DisabledForm" />
-                                 <label for="PricePerShares"> Pris per aktie (snitt vid köp av fler) </label>
-                                 <ValidationMessage For="() => sharesPurchased.PricePerShares" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.PricePerShares" class="form-control" disabled="@DisabledForm" />
+                                <label for="PricePerShares"> Pris per aktie (snitt vid köp av fler) </label>
+                                <ValidationMessage For="() => sharesPurchased.PricePerShares" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.Amount" class="form-control" disabled="true" />
-                                 <label for="Amount"> Inköpsvärdet </label>
-                                 <ValidationMessage For="() => sharesPurchased.Amount" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.Amount" class="form-control" disabled="true" />
+                                <label for="Amount"> Inköpsvärdet </label>
+                                <ValidationMessage For="() => sharesPurchased.Amount" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.Brokerage" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Brokerage"> Courtage </label>
-                                 <ValidationMessage For="() => sharesPurchased.Brokerage" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.Brokerage" class="form-control" disabled="@DisabledForm" />
+                                <label for="Brokerage"> Courtage </label>
+                                <ValidationMessage For="() => sharesPurchased.Brokerage" class="text-danger" />
+                            </div>
+                        </div>
 
-                     </div>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div class="col-12">
-                             <div class="form-floating">
-                                 <InputTextArea @bind-Value="sharesPurchased.Note" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Note"> Anteckningar </label>
-                                 <ValidationMessage For="() => sharesPurchased.Note" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="sharesPurchased.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Anteckningar </label>
+                                <ValidationMessage For="() => sharesPurchased.Note" class="text-danger" />
+                            </div>
+                        </div>
 
-                     </div>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div class="row" hidden="@BuyMore">
+                    <div class="row" hidden="@BuyMore">
 
-                         <div id="mobile" class="col-3" />
+                        <div id="mobile" class="col-3" />
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputDate @bind-Value="sharesPurchased.MoreDateOfPurchase" class="form-control" />
-                                 <label for="MoreDateOfPurchase"> Köp mer: Datum </label>
-                                 <ValidationMessage For="() => sharesPurchased.MoreDateOfPurchase" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="sharesPurchased.MoreDateOfPurchase" class="form-control" />
+                                <label for="MoreDateOfPurchase"> Köp mer: Datum </label>
+                                <ValidationMessage For="() => sharesPurchased.MoreDateOfPurchase" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.MoreHowMany" class="form-control" />
-                                 <label for="MoreHowMany"> Köp mer: Antal </label>
-                                 <ValidationMessage For="() => sharesPurchased.MoreHowMany" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.MoreHowMany" class="form-control" />
+                                <label for="MoreHowMany"> Köp mer: Antal </label>
+                                <ValidationMessage For="() => sharesPurchased.MoreHowMany" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.MorePricePerShares" class="form-control" />
-                                 <label for="MorePricePerShares"> Köp mer: Pris per aktie </label>
-                                 <ValidationMessage For="() => sharesPurchased.MorePricePerShares" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.MorePricePerShares" class="form-control" />
+                                <label for="MorePricePerShares"> Köp mer: Pris per aktie </label>
+                                <ValidationMessage For="() => sharesPurchased.MorePricePerShares" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.MoreBrokerage" class="form-control" />
-                                 <label for="MoreBrokerage"> Köp mer: Courtage </label>
-                                 <ValidationMessage For="() => sharesPurchased.MoreBrokerage" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.MoreBrokerage" class="form-control" />
+                                <label for="MoreBrokerage"> Köp mer: Courtage </label>
+                                <ValidationMessage For="() => sharesPurchased.MoreBrokerage" class="text-danger" />
+                            </div>
+                        </div>
 
-                     </div>
+                    </div>
 
-                     <div class="row" hidden="@Sale">
+                    <div class="row" hidden="@Sale">
 
-                         <div id="mobile" class="col-3" />
+                        <div id="mobile" class="col-3" />
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputDate @bind-Value="sharesPurchased.SaleDateOfPurchase" class="form-control" />
-                                 <label for="SaleDateOfPurchase"> Sälj: Datum </label>
-                                 <ValidationMessage For="() => sharesPurchased.SaleDateOfPurchase" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="sharesPurchased.SaleDateOfPurchase" class="form-control" />
+                                <label for="SaleDateOfPurchase"> Sälj: Datum </label>
+                                <ValidationMessage For="() => sharesPurchased.SaleDateOfPurchase" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.SaleHowMany" class="form-control" />
-                                 <label for="SaleHowMany"> Sälj: Antal </label>
-                                 <ValidationMessage For="() => sharesPurchased.SaleHowMany" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.SaleHowMany" class="form-control" />
+                                <label for="SaleHowMany"> Sälj: Antal </label>
+                                <ValidationMessage For="() => sharesPurchased.SaleHowMany" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.SalePricePerShares" class="form-control" />
-                                 <label for="SalePricePerShares"> Sälj: Pris per aktie </label>
-                                 <ValidationMessage For="() => sharesPurchased.SalePricePerShares" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.SalePricePerShares" class="form-control" />
+                                <label for="SalePricePerShares"> Sälj: Pris per aktie </label>
+                                <ValidationMessage For="() => sharesPurchased.SalePricePerShares" class="text-danger" />
+                            </div>
+                        </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
-                                 <InputNumber @bind-Value="sharesPurchased.SaleBrokerage" class="form-control" />
-                                 <label for="SaleBrokerage"> Sälj: Courtage </label>
-                                 <ValidationMessage For="() => sharesPurchased.SaleBrokerage" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="sharesPurchased.SaleBrokerage" class="form-control" />
+                                <label for="SaleBrokerage"> Sälj: Courtage </label>
+                                <ValidationMessage For="() => sharesPurchased.SaleBrokerage" class="text-danger" />
+                            </div>
+                        </div>
 
-                     </div>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div style="text-align:center" hidden="@ShowOrHideAddNewButton">
-                         <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till köpt aktie </button>
+                    <div style="text-align:center" hidden="@ShowOrHideAddNewButton">
+                        <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till köpt aktie </button>
 
-                         <br />
-                         <br />
-                     </div>
+                        <br />
+                        <br />
+                    </div>
 
-                     <div style="text-align:center" hidden="@ShowOrHideEditButton">
-                         <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                    <div style="text-align:center" hidden="@ShowOrHideEditButton">
+                        <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
 
-                         <br />
-                         <br />
-                     </div>
+                        <br />
+                        <br />
+                    </div>
 
-                     <div style="text-align:center" hidden="@ShowOrHideButtonAddMoreShares">
-                         <button @onclick="AddMoreButton" type="button" style="text-align:center" class="btn btn-outline-success btn-sm"> Köp mer </button>
+                    <div style="text-align:center" hidden="@ShowOrHideButtonAddMoreShares">
+                        <button @onclick="AddMoreButton" type="button" style="text-align:center" class="btn btn-outline-success btn-sm"> Köp mer </button>
 
-                         <br />
-                         <br />
-                     </div>
+                        <br />
+                        <br />
+                    </div>
 
-                     <div style="text-align:center" hidden="@ShowOrHideSaleButton">
-                         <button @onclick="OpenWindowSale" type="button" style="text-align:center" class="btn btn-outline-danger btn-sm"> Sälja </button>
+                    <div style="text-align:center" hidden="@ShowOrHideSaleButton">
+                        <button @onclick="OpenWindowSale" type="button" style="text-align:center" class="btn btn-outline-danger btn-sm"> Sälja </button>
 
-                         <div class="modal @ModalClassSale" tabindex="-1" role="dialog" style="display:@ModalDisplaySale">
-                             <div class="modal-dialog" role="document" style="width:400px">
-                                 <div class="modal-content">
+                        <div class="modal @ModalClassSale" tabindex="-1" role="dialog" style="display:@ModalDisplaySale">
+                            <div class="modal-dialog" role="document" style="width:400px">
+                                <div class="modal-content">
 
-                                     <h5> Vill du sälja aktien: <strong> @sharesPurchased.CompanyName? </strong> </h5>
+                                    <h5> Vill du sälja aktien: <strong> @sharesPurchased.CompanyName? </strong> </h5>
                                     <h5> Antal aktier: <strong> @sharesPurchased.SaleHowMany av @sharesPurchased.HowMany? </strong> </h5>
 
                                     <div class="modal-footer">
@@ -534,14 +541,13 @@
 
         if (sharesPurchased.SharesPurchasedId > 0)
         {
-            ShowOrHideCreateButton = true;
-
+            // Edit
             ErrorMessage = SharesPurchasedClass.Edit(db, sharesPurchased);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
                 ShowOrHideEditButton = false;
                 return;
             }
@@ -554,13 +560,15 @@
         }
         else
         {
+            // Add
             ErrorMessage = SharesPurchasedClass.Add(db, sharesPurchased, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
-                ShowOrHideEditButton = false;
+                ShowOrHideEditButton = true;
+                ShowOrHideAddNewButton = false;
                 return;
             }
             else

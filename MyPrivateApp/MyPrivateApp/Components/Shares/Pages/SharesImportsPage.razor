@@ -27,61 +27,68 @@
 
 <br />
 
-@* Navigation - Desktop *@
-<div id="desktop" style="text-align:center">
-    <div class="btn-group">
-        <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-        <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
-        <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
-        <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
-        <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
-        <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
-        <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
-        <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
-        <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
-        <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
-    </div>
-</div>
-
-@* Navigation - Mobile *@
-<div id="mobile">
-    <div class="btn-group" role="group">
-        <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Alla aktier sidor
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
-        </ul>
-    </div>
-</div>
-
 @* Header *@
 <div>
 
-    <br />
-    <br />
+    @* Navigation - Desktop *@
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+            <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
+            <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
+            <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
+            <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
+            <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
+            <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
+            <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
+            <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
+            <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+        </div>
+    </div>
 
-    <h1 style="text-align:center"> Importera från Avaza </h1>
+    @* Navigation - Mobile *@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+            </ul>
+        </div>
+    </div>
 
-    <br />
-
-    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+    <div>
 
         <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny import </button>
+        <h1 style="text-align:center"> Import från Avanza </h1>
+
+        <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+            <br />
+
+            <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny import </button>
+        </div>
+
+        <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+            <br />
+            <br />
+            <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+        </div>
 
         <br />
         <br />
+
     </div>
 
     <div hidden="@LoadingDataFromFil">
@@ -167,7 +174,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="SharesImportsFile.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesImportsFile.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
                                 <ValidationMessage For="() => SharesImportsFile.Note" class="text-danger" />
                             </div>
@@ -339,6 +346,10 @@
     private bool DisabledForm { get; set; } = false;
     private bool UnDisabledFileField { get; set; } = true;
     private bool LoadingDataFromFil { get; set; } = true;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -373,17 +384,43 @@
 
         if (SharesImportsFile.SharesImportsFileId > 0)
         {
-            ShowOrHideCreateButton = true;
+            // Edit
+            ErrorMessage = SharesImportsFileClass.Edit(db, SharesImportsFile);
 
-            SharesImportsFileClass.Edit(db, SharesImportsFile);
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                HideNewOrChangesForm();
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                SharesImportsFile = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
         else
-            SharesImportsFileClass.Add(db, SharesImportsFile, false);
+        {
+            // Add
+            ErrorMessage = SharesImportsFileClass.Add(db, SharesImportsFile, false);
 
-        SharesImportsFile = new();
-        Navigation.Refresh(true);
-
-        return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                HideNewOrChangesForm();
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = true;
+                ShowOrHideAddNewButton = false;
+                return;
+            }
+            else
+            {
+                SharesImportsFile = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
     }
 
     private void Info(SharesImportsFileViewModel vm)

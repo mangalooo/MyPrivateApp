@@ -6,9 +6,9 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public interface ISharesImportsFileClass
     {
-        void Add(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import);
-        void Edit(ApplicationDbContext db, SharesImportsFileViewModel vm);
-        void Delete(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import);
+        string Add(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import);
+        string Edit(ApplicationDbContext db, SharesImportsFileViewModel vm);
+        string Delete(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import);
         SharesImportsFileViewModel ChangeFromModelToViewModel(SharesImportsFile model);
     }
 }
