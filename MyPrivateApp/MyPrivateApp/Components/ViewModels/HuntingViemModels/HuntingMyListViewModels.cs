@@ -1,7 +1,7 @@
 ﻿using MyPrivateApp.Components.Enum;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyPrivateApp.Client.ViewModels
+namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
 {
     public class HuntingMyListViewModels
     {

@@ -10,25 +10,29 @@ namespace MyPrivateApp.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public DbSet<Contacts> Contacts { get; set; } // Kontakter
-        public DbSet<Trips> Trips { get; set; } // Resor
-        public DbSet<FrozenFoods> FrozenFoods { get; set; } // Frysvaror
-        public DbSet<HuntingMyList> HuntingMyList { get; set; } // Jakt
-        public DbSet<ShopingList> ShopingLists { get; set; } // Inköpslistor
-        public DbSet<FarmingsActive> FarmingsActive { get; set; } // Odling (aktiv)
-        public DbSet<FarmingsInactive> FarmingsInactive { get; set; } // Odling (inaktiv)
+        // Private
+        public DbSet<Contacts> Contacts { get; set; }
+        public DbSet<Trips> Trips { get; set; }
+        public DbSet<FrozenFoods> FrozenFoods { get; set; }
+        public DbSet<ShopingList> ShopingLists { get; set; }
+        public DbSet<FarmingsActive> FarmingsActive { get; set; }
+        public DbSet<FarmingsInactive> FarmingsInactive { get; set; }
 
-        // Aktier
-        public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; } // Köpta aktier
-        public DbSet<SharesSolds> SharesSolds { get; set; } // Sålda aktier
-        public DbSet<SharesFee> SharesFees { get; set; } // Avgifter
-        public DbSet<SharesDividend> SharesDividends { get; set; } // Utdelning
-        public DbSet<SharesInterestRates> SharesInterestRates { get; set; } // Räntor
-        public DbSet<SharesOtherImports> SharesOtherImports { get; set; } // Andra importer
-        public DbSet<SharesDepositMoney> SharesDepositMoney { get; set; } // Insättning och uttag av min pengar
-        public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; } // Totalt belopp insättning av min pengar
-        public DbSet<SharesImportsFile> SharesImportsFiles { get; set; } // Information om importerade filer
-        public DbSet<SharesErrorHandlings> SharesErrorHandlings { get; set; } // Felhantering aktier
+        //Hunting
+        public DbSet<HuntingMyList> HuntingMyList { get; set; }
+        public DbSet<HuntingTeamMembers> HuntingTeamMembers { get; set; }
+
+        // Shares
+        public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; }
+        public DbSet<SharesSolds> SharesSolds { get; set; }
+        public DbSet<SharesFee> SharesFees { get; set; }
+        public DbSet<SharesDividend> SharesDividends { get; set; }
+        public DbSet<SharesInterestRates> SharesInterestRates { get; set; }
+        public DbSet<SharesOtherImports> SharesOtherImports { get; set; }
+        public DbSet<SharesDepositMoney> SharesDepositMoney { get; set; }
+        public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; }
+        public DbSet<SharesImportsFile> SharesImportsFiles { get; set; }
+        public DbSet<SharesErrorHandlings> SharesErrorHandlings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

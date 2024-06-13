@@ -1,7 +1,7 @@
 ﻿
 using MyPrivateApp.Data;
-using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models.Hunting;
+using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
