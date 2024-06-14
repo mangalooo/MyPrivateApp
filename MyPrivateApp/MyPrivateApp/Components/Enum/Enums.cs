@@ -63,4 +63,34 @@ namespace MyPrivateApp.Components.Enum
         Älg,
         Övrigt
     }
+
+    public enum HuntingName
+    {
+        Välj,
+        Fågeljakt,
+        Grävlingjakt,
+        Harjakt,
+        Lojakt,
+        Rådjursjakt,
+        Rävjakt,
+        Vildsvinsjakt,
+        Älgjakt,
+        Övrigt
+    }
+
+    public enum HuntingForm
+    {
+        Välj,
+        Hundjakt,
+        Smygjakt,
+        Vakjakt,
+        Övrigt
+    }
+
+    public enum ObservedOrShot
+    {
+        Välj,
+        Observerat,
+        Skjutit
+    }
 }
