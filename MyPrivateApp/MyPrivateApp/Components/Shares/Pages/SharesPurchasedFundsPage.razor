@@ -1,4 +1,4 @@
-﻿@page "/SharesPurchasedPage"
+﻿@page "/SharesPurchasedFundsPage"
 
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Shares.Classes
@@ -12,7 +12,7 @@
 
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
-@inject ISharesPurchasedClass SharesPurchasedClass
+@inject ISharesPurchasedFundsClass SharesPurchasedFundsClass
 @inject ISharesFeeClass ISharesFeeClass
 
 <PageTitle> Aktier </PageTitle>
@@ -66,14 +66,14 @@
     <br />
     <br />
 
-    <h1 style="text-align:center"> Köpta aktier </h1>
+    <h1 style="text-align:center"> Köpta fonder </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
         <br />
         <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm">Köp aktie</button>
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Köp fond </button>
     </div>
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
@@ -95,7 +95,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="sharesPurchased" OnSubmit="AddOrEdit" FormName="AddOrUpdatePurchasedShares" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="sharesPurchasedFund" OnSubmit="AddOrEdit" FormName="AddOrUpdatePurchasedFunds" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -109,25 +109,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesPurchased.CompanyName" class="form-control" disabled="@DisabledForm" />
-                                <label for="CompanyName"> Företag </label>
-                                <ValidationMessage For="() => sharesPurchased.CompanyName" class="text-danger" />
+                                <InputText @bind-Value="sharesPurchasedFund.FundName" class="form-control" disabled="@DisabledForm" />
+                                <label for="FundName"> Fond namn </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.FundName" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesPurchased.TypeOfShares" class="form-control" disabled="@DisabledForm" />
-                                <label for="TypeOfShares"> Typ av aktie </label>
-                                <ValidationMessage For="() => sharesPurchased.TypeOfShares" class="text-danger" />
+                                <InputText @bind-Value="sharesPurchasedFund.TypeOfFund" class="form-control" disabled="@DisabledForm" />
+                                <label for="TypeOfFund"> Typ av fond </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.TypeOfFund" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesPurchased.ISIN" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="sharesPurchasedFund.ISIN" class="form-control" disabled="@DisabledForm" />
                                 <label for="ISIN"> ISIN </label>
-                                <ValidationMessage For="() => sharesPurchased.ISIN" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.ISIN" class="text-danger" />
                             </div>
                         </div>
 
@@ -141,25 +141,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="sharesPurchased.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="sharesPurchasedFund.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
                                 <label for="DateOfPurchase"> Datum </label>
-                                <ValidationMessage For="() => sharesPurchased.DateOfPurchase" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.DateOfPurchase" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesPurchased.Account" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="sharesPurchasedFund.Account" class="form-control" disabled="@DisabledForm" />
                                 <label for="Account"> Konto </label>
-                                <ValidationMessage For="() => sharesPurchased.Account" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.Account" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesPurchased.Currency" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="sharesPurchasedFund.Currency" class="form-control" disabled="@DisabledForm" />
                                 <label for="Currency"> Valuta </label>
-                                <ValidationMessage For="() => sharesPurchased.Currency" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.Currency" class="text-danger" />
                             </div>
                         </div>
 
@@ -173,33 +173,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.HowMany" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.HowMany" class="form-control" disabled="@DisabledForm" />
                                 <label for="HowMany"> Antal </label>
-                                <ValidationMessage For="() => sharesPurchased.HowMany" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.HowMany" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.PricePerShares" class="form-control" disabled="@DisabledForm" />
-                                <label for="PricePerShares"> Pris per aktie (snitt vid köp av fler) </label>
-                                <ValidationMessage For="() => sharesPurchased.PricePerShares" class="text-danger" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.PricePerFunds" class="form-control" disabled="@DisabledForm" />
+                                <label for="PricePerShares"> Pris per fond (snitt vid köp av fler) </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.PricePerFunds" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.Amount" class="form-control" disabled="true" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.Amount" class="form-control" disabled="true" />
                                 <label for="Amount"> Inköpsvärdet </label>
-                                <ValidationMessage For="() => sharesPurchased.Amount" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.Amount" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.Brokerage" class="form-control" disabled="@DisabledForm" />
-                                <label for="Brokerage"> Courtage </label>
-                                <ValidationMessage For="() => sharesPurchased.Brokerage" class="text-danger" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.Fee" class="form-control" disabled="@DisabledForm" />
+                                <label for="Brokerage"> Avgift </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.Fee" class="text-danger" />
                             </div>
                         </div>
 
@@ -211,9 +211,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="sharesPurchased.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="sharesPurchasedFund.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => sharesPurchased.Note" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.Note" class="text-danger" />
                             </div>
                         </div>
 
@@ -227,33 +227,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="sharesPurchased.MoreDateOfPurchase" class="form-control" />
+                                <InputDate @bind-Value="sharesPurchasedFund.MoreDateOfPurchase" class="form-control" />
                                 <label for="MoreDateOfPurchase"> Köp mer: Datum </label>
-                                <ValidationMessage For="() => sharesPurchased.MoreDateOfPurchase" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.MoreDateOfPurchase" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.MoreHowMany" class="form-control" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.MoreHowMany" class="form-control" />
                                 <label for="MoreHowMany"> Köp mer: Antal </label>
-                                <ValidationMessage For="() => sharesPurchased.MoreHowMany" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.MoreHowMany" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.MorePricePerShares" class="form-control" />
-                                <label for="MorePricePerShares"> Köp mer: Pris per aktie </label>
-                                <ValidationMessage For="() => sharesPurchased.MorePricePerShares" class="text-danger" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.MorePricePerFunds" class="form-control" />
+                                <label for="MorePricePerFunds"> Köp mer: Pris per fond del </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.MorePricePerFunds" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.MoreBrokerage" class="form-control" />
-                                <label for="MoreBrokerage"> Köp mer: Courtage </label>
-                                <ValidationMessage For="() => sharesPurchased.MoreBrokerage" class="text-danger" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.MoreFee" class="form-control" />
+                                <label for="MoreFee"> Köp mer: Avgift </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.MoreFee" class="text-danger" />
                             </div>
                         </div>
 
@@ -265,33 +265,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="sharesPurchased.SaleDateOfPurchase" class="form-control" />
+                                <InputDate @bind-Value="sharesPurchasedFund.SaleDateOfPurchase" class="form-control" />
                                 <label for="SaleDateOfPurchase"> Sälj: Datum </label>
-                                <ValidationMessage For="() => sharesPurchased.SaleDateOfPurchase" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.SaleDateOfPurchase" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.SaleHowMany" class="form-control" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.SaleHowMany" class="form-control" />
                                 <label for="SaleHowMany"> Sälj: Antal </label>
-                                <ValidationMessage For="() => sharesPurchased.SaleHowMany" class="text-danger" />
+                                <ValidationMessage For="() => sharesPurchasedFund.SaleHowMany" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.SalePricePerShares" class="form-control" />
-                                <label for="SalePricePerShares"> Sälj: Pris per aktie </label>
-                                <ValidationMessage For="() => sharesPurchased.SalePricePerShares" class="text-danger" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.SalePricePerFunds" class="form-control" />
+                                <label for="SalePricePerFunds"> Sälj: Pris per fond del </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.SalePricePerFunds" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesPurchased.SaleBrokerage" class="form-control" />
-                                <label for="SaleBrokerage"> Sälj: Courtage </label>
-                                <ValidationMessage For="() => sharesPurchased.SaleBrokerage" class="text-danger" />
+                                <InputNumber @bind-Value="sharesPurchasedFund.SaleFee" class="form-control" />
+                                <label for="SaleFee"> Sälj: Avgift </label>
+                                <ValidationMessage For="() => sharesPurchasedFund.SaleFee" class="text-danger" />
                             </div>
                         </div>
 
@@ -300,7 +300,7 @@
                     <br />
 
                     <div style="text-align:center" hidden="@ShowOrHideAddNewButton">
-                        <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till köpt aktie </button>
+                        <button @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till köpt fond </button>
 
                         <br />
                         <br />
@@ -327,11 +327,11 @@
                             <div class="modal-dialog" role="document" style="width:400px">
                                 <div class="modal-content">
 
-                                    <h5> Vill du sälja aktien: <strong> @sharesPurchased.CompanyName? </strong> </h5>
-                                    <h5> Antal aktier: <strong> @sharesPurchased.SaleHowMany av @sharesPurchased.HowMany? </strong> </h5>
+                                    <h5> Vill du sälja fonden: <strong> @sharesPurchasedFund.FundName? </strong> </h5>
+                                    <h5> Antal fond delar: <strong> @sharesPurchasedFund.SaleHowMany av @sharesPurchasedFund.HowMany? </strong> </h5>
 
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton(sharesPurchased))"> Sälja </button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton(sharesPurchasedFund))"> Sälja </button>
                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSale()"> Ångra </button>
                                     </div>
                                 </div>
@@ -359,13 +359,13 @@
             @* Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">
+                    <QuickGrid Items="@PurchasedFundsQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.DateOfPurchase)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
-                        <PropertyColumn Title="Typ" Property="@(c => c.TypeOfShares)" Sortable="true" />
+                        <PropertyColumn Title="Fond namn" Property="@(c => c.FundName)" Sortable="true" />
+                        <PropertyColumn Title="Typ" Property="@(c => c.TypeOfFund)" Sortable="true" />
                         <PropertyColumn Title="Antal" Property="@(c => c.HowMany)" Sortable="true" />
-                        <PropertyColumn Title="Pris per aktie (snitt vid köp av fler)" Property="@(c => c.PricePerShares)" Sortable="true" />
+                        <PropertyColumn Title="Pris per fond del (snitt vid köp av fler)" Property="@(c => c.PricePerFunds)" Sortable="true" />
                         <PropertyColumn Title="Inköpsvärdet" Property="@(c => c.Amount)" Sortable="true" />
                         <PropertyColumn Title="Valuta" Property="@(c => c.Currency)" Sortable="true" />
 
@@ -391,7 +391,7 @@
                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort aktie </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort fond </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
                                         </div>
                                     </div>
@@ -417,9 +417,9 @@
             @* Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@PurchasedSharesQueryable" Pagination="pagination">
+                    <QuickGrid Items="@PurchasedFundsQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
+                        <PropertyColumn Title="Företag" Property="@(c => c.FundName)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -440,10 +440,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort aktien? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort fonden? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort aktie </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort fond </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
                                         </div>
                                     </div>
@@ -481,10 +481,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesPurchasedViewModel sharesPurchased { get; set; } = new();
+    private SharesPurchasedFundViewModel sharesPurchasedFund { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesPurchasedViewModel> PurchasedSharesQueryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
+    private IQueryable<SharesPurchasedFundViewModel> PurchasedFundsQueryable = Enumerable.Empty<SharesPurchasedFundViewModel>().AsQueryable();
 
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
@@ -515,14 +515,14 @@
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
-        if (db.SharesPurchaseds.Count() == 0) return;
+        if (db.SharesPurchasedFunds.Count() == 0) return;
 
-        PurchasedSharesQueryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
+        PurchasedFundsQueryable = Enumerable.Empty<SharesPurchasedFundViewModel>().AsQueryable();
 
-        foreach (SharesPurchaseds model in db.SharesPurchaseds.OrderBy(c => c.DateOfPurchase))
+        foreach (SharesPurchasedFunds model in db.SharesPurchasedFunds.OrderBy(c => c.DateOfPurchase))
         {
-            SharesPurchasedViewModel sharesPurchased = SharesPurchasedClass.ChangeFromModelToViewModel(model);
-            PurchasedSharesQueryable = PurchasedSharesQueryable.Concat(new[] { sharesPurchased }.AsQueryable());
+            SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromModelToViewModel(model);
+            PurchasedFundsQueryable = PurchasedFundsQueryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -543,10 +543,10 @@
     {
         DisabledForm = false;
 
-        if (sharesPurchased.SharesPurchasedId > 0)
+        if (sharesPurchasedFund.SharesPurchasedFundId > 0)
         {
             // Edit
-            ErrorMessage = SharesPurchasedClass.Edit(db, sharesPurchased);
+            ErrorMessage = SharesPurchasedFundsClass.Edit(db, sharesPurchasedFund);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -557,7 +557,7 @@
             }
             else
             {
-                sharesPurchased = new();
+                sharesPurchasedFund = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -565,7 +565,7 @@
         else
         {
             // Add
-            ErrorMessage = SharesPurchasedClass.Add(db, sharesPurchased, false);
+            ErrorMessage = SharesPurchasedFundsClass.Add(db, sharesPurchasedFund, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -577,14 +577,14 @@
             }
             else
             {
-                sharesPurchased = new();
+                sharesPurchasedFund = new();
                 Navigation.Refresh(true);
                 return;
             }
         }
     }
 
-    private void AddMore(SharesPurchasedViewModel vm)
+    private void AddMore(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
@@ -593,12 +593,12 @@
         DisabledForm = true;
         ShowOrHideButtonAddMoreShares = false;
         ShowOrHideAddNewButton = true;
-        sharesPurchased = vm;
+        sharesPurchasedFund = vm;
     }
 
     private void AddMoreButton()
     {
-        ErrorMessage = SharesPurchasedClass.AddMore(db, sharesPurchased, false);
+        ErrorMessage = SharesPurchasedFundsClass.AddMore(db, sharesPurchasedFund, false);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -609,23 +609,23 @@
         }
         else
         {
-            sharesPurchased = new();
+            sharesPurchasedFund = new();
             Navigation.Refresh(true);
             return;
         }
     }
 
-    private void Info(SharesPurchasedViewModel vm)
+    private void Info(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        sharesPurchased = vm;
+        sharesPurchasedFund = vm;
     }
 
-    private void Edit(SharesPurchasedViewModel vm)
+    private void Edit(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
@@ -633,10 +633,10 @@
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
         HideNewOrChangesFields = true;
-        sharesPurchased = vm;
+        sharesPurchasedFund = vm;
     }
 
-    private void Sell(SharesPurchasedViewModel vm)
+    private void Sell(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
@@ -645,14 +645,14 @@
         DisabledForm = true;
         ShowOrHideSaleButton = false;
         ShowOrHideAddNewButton = true;
-        sharesPurchased = vm;
+        sharesPurchasedFund = vm;
     }
 
-    private void SellButton(SharesPurchasedViewModel vm)
+    private void SellButton(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
-        ErrorMessage = SharesPurchasedClass.Sell(db, sharesPurchased, false, ISharesFeeClass);
+        ErrorMessage = SharesPurchasedFundsClass.Sell(db, sharesPurchasedFund, false, ISharesFeeClass);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -663,7 +663,7 @@
         }
         else
         {
-            sharesPurchased = new();
+            sharesPurchasedFund = new();
             Navigation.Refresh(true);
             return;
         }
@@ -685,13 +685,13 @@
         StateHasChanged();
     }
 
-    private void Delete(SharesPurchasedViewModel vm)
+    private void Delete(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
         if (db.SharesPurchaseds.Count() == 0) return;
 
-        ErrorMessage = SharesPurchasedClass.Delete(db, null, vm, false);
+        ErrorMessage = SharesPurchasedFundsClass.Delete(db, null, vm, false);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -702,7 +702,7 @@
         }
         else
         {
-            sharesPurchased = new();
+            sharesPurchasedFund = new();
             Navigation.Refresh(true);
             return;
         }

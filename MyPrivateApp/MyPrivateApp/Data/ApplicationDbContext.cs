@@ -25,6 +25,8 @@ namespace MyPrivateApp.Data
         // Shares
         public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; }
         public DbSet<SharesSolds> SharesSolds { get; set; }
+        public DbSet<SharesPurchasedFunds> SharesPurchasedFunds { get; set; }
+        public DbSet<SharesSoldFunds> SharesSoldFunds { get; set; }
         public DbSet<SharesFee> SharesFees { get; set; }
         public DbSet<SharesDividend> SharesDividends { get; set; }
         public DbSet<SharesInterestRates> SharesInterestRates { get; set; }
