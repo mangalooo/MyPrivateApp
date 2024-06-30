@@ -16,8 +16,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             if (vm != null && db != null)
             {
-                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) &&
-                       vm.HowMany > 0 && vm.PricePerFunds > 0 && vm.Fee > 0)
+                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && vm.PricePerFunds > 0)
                 {
                     SharesPurchasedFunds model = ChangesFromViewModelToModel(vm);
                     model.Note += $"Import: {importTrue}, Köper: {model.FundName} fond, Datum: {model.DateOfPurchase.ToString()[..10]}, Hur många: {model.HowMany} " +
@@ -36,9 +35,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 else
                 {
                     if (import)
-                        ErrorHandling(db, vm, "Köpt", import, "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!");
+                        ErrorHandling(db, vm, "Köpt", import, "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal och Pris per fond del!");
                     else
-                        return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per fond del och Avgift!";
+                        return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal och Pris per fond del!";
                 }
             }
             else
@@ -57,7 +56,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && vm.SharesPurchasedFundId > 0 && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) &&
-                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && vm.PricePerFunds > 0 && vm.Fee > 0)
+                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && vm.PricePerFunds > 0)
                 {
                     try
                     {
@@ -88,7 +87,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                 }
                 else
-                    return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per fond del och Avgift!";
+                    return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal och Pris per fond del!";
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
@@ -96,28 +95,28 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
-        public string AddMore(ApplicationDbContext db, SharesPurchasedFundViewModel moreVM, bool import)
+        public string AddMore(ApplicationDbContext db, SharesPurchasedFundViewModel vm, bool import)
         {
-            if (moreVM != null && moreVM.SharesPurchasedFundId > 0 && !string.IsNullOrEmpty(moreVM.ISIN) && db != null)
+            if (vm != null && vm.SharesPurchasedFundId > 0 && !string.IsNullOrEmpty(vm.ISIN) && db != null)
             {
                 if (import == false)
-                    if (moreVM.MoreDateOfPurchase == DateTime.MinValue || moreVM.MoreHowMany == 0 || moreVM.MorePricePerFunds == 0 || moreVM.MoreFee == 0)
-                        return "Du måste fylla i fälten: Köp mer: Datum, Köp mer: Antal, Köp mer: Pris per fond el, Köp mer: Avgift!";
+                    if (vm.MoreDateOfPurchase == DateTime.MinValue || vm.MoreHowMany == 0 || vm.MorePricePerFunds == 0)
+                        return "Du måste fylla i fälten: Köp mer: Datum, Köp mer: Antal och Köp mer: Pris per fond el";
 
                 string importTrue = import ? "Ja" : "Nej";
 
-                SharesPurchasedFunds DbModel = Get(db, moreVM.ISIN);
+                SharesPurchasedFunds model = Get(db, vm.ISIN);
 
-                if (DbModel != null)
+                if (model != null)
                 {
-                    DbModel.HowMany += moreVM.MoreHowMany;
-                    DbModel.Fee += moreVM.MoreFee;
-                    DbModel.Amount += moreVM.MoreHowMany * moreVM.MorePricePerFunds;
-                    DbModel.PricePerFunds = DbModel.Amount / DbModel.HowMany;
-                    DbModel.Note += $" |*** Import: {importTrue}, Köper mer fond delar för {moreVM.FundName}: Datum: " +
-                        $"{moreVM.MoreDateOfPurchase.ToString()[..10]}, Hur många: {moreVM.MoreHowMany}, Pris per st: " +
-                        $"{moreVM.MorePricePerFunds}, Summan: {moreVM.MoreHowMany * moreVM.MorePricePerFunds}, " +
-                        $"Courtage: {moreVM.MoreFee}. ";
+                    model.HowMany += vm.MoreHowMany;
+                    model.Fee += vm.MoreFee;
+                    model.Amount += vm.MoreHowMany * vm.MorePricePerFunds;
+                    model.PricePerFunds = model.Amount / model.HowMany;
+                    model.Note += $" |*** Import: {importTrue}, Köper mer fond delar för {vm.FundName}: Datum: " +
+                        $"{vm.MoreDateOfPurchase.ToString()[..10]}, Hur många: {vm.MoreHowMany}, Pris per st: " +
+                        $"{vm.MorePricePerFunds}, Summan: {vm.MoreHowMany * vm.MorePricePerFunds}, " +
+                        $"Courtage: {vm.MoreFee}. ";
 
                     try
                     {
@@ -125,21 +124,21 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, moreVM, "Köpt mera", import, ex.Message);
+                        ErrorHandling(db, vm, "Köpt mera", import, ex.Message);
                     }
                 }
                 else
                 {
                     if (import)
-                        ErrorHandling(db, moreVM, "Köpt mera", import, "Hittar inte aktien i databasen!");
+                        ErrorHandling(db, vm, "Köpt mera", import, "Hittar inte fonden i databasen!");
                     else
-                        return "Hittar inte aktien i databasen!";
+                        return "Hittar inte fonden i databasen!";
                 }
             }
             else
             {
                 if (import)
-                    ErrorHandling(db, moreVM, "Köpt mera", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                    ErrorHandling(db, vm, "Köpt mera", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
                 else
                     return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
             }
@@ -152,7 +151,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             SharesPurchasedFunds fundsPurchaseds = Get(db, vm.ISIN);
 
-            if (fundsPurchaseds == null) return "Sälj: Aktien hittades inte i databasen!";
+            if (fundsPurchaseds == null) return "Sälj: Fonden hittades inte i databasen!";
 
             vm.SharesPurchasedFundId = fundsPurchaseds.SharesPurchasedFundId;
 
@@ -160,7 +159,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 if (import == false)
                     if (vm.SaleDateOfPurchase == DateTime.MinValue && vm.SaleHowMany > 0 && vm.SalePricePerFunds > 0 && vm.SaleFee > 0)
-                        return "Du måste fylla i fälten: Sälj: Datum, Sälj: Antal, Sälj: Pris per fond del, Sälj: Avgift!";
+                        return "Du måste fylla i fälten: Sälj: Datum, Sälj: Antal, Sälj: Pris per fond del, Sälj: Avgift! Den totala avgiften måsta skrivas in innan sälja fonden!";
 
                 string importTrue = import ? "Ja" : "Nej";
 
@@ -186,7 +185,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                             PricePerFunds= getDbFundsPurchasedsModel.PricePerFunds,
                             PricePerFundsSold = vm.SalePricePerFunds,
                             AmountSold = vm.SalePricePerFunds * vm.SaleHowMany,
-                            Note = $"{getDbFundsPurchasedsModel.Note} |*** Import: {importTrue}, Sålt aktien: {getDbFundsPurchasedsModel.FundName}, " +
+                            Note = $"{getDbFundsPurchasedsModel.Note} |*** Import: {importTrue}, Sålt fonden: {getDbFundsPurchasedsModel.FundName}, " +
                                    $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]}, Hur många: {vm.SaleHowMany}, Pris per st: {vm.SalePricePerFunds}, " +
                                    $"Summan: {vm.SaleHowMany * vm.SalePricePerFunds}, Avgift: {getDbFundsPurchasedsModel.Fee + vm.SaleFee}. "
                         };
@@ -208,7 +207,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                         }
 
                         // Tax (fee) must be added to the fee table!
-                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(fund.Fee, $"Avgiften för aktien: {vm.FundName}");
+                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(fund.Fee, $"Avgiften för fonden: {vm.FundName}");
                         sharesFeeClass.Add(db, FeeVM, import);
 
                         // Removes the bought fund that is moved to sold fund
@@ -232,7 +231,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                             PricePerFunds= getDbFundsPurchasedsModel.PricePerFunds,
                             PricePerFundsSold = vm.SalePricePerFunds,
                             AmountSold = vm.SalePricePerFunds * vm.SaleHowMany,
-                            Note = $"{getDbFundsPurchasedsModel.Note} |*** Import: {importTrue}, Sålt delar av aktien: {getDbFundsPurchasedsModel.FundName}, Datum: {vm.SaleDateOfPurchase.ToString()[..10]}, " +
+                            Note = $"{getDbFundsPurchasedsModel.Note} |*** Import: {importTrue}, Sålt delar av fonden: {getDbFundsPurchasedsModel.FundName}, Datum: {vm.SaleDateOfPurchase.ToString()[..10]}, " +
                                    $"Hur många: {vm.SaleHowMany}, Pris per st: {vm.SalePricePerFunds}, " +
                                    $"Summan: {vm.SaleHowMany * vm.SalePricePerFunds}, Courtage: {vm.SaleFee}. "
                         };
@@ -254,7 +253,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                         }
 
                         // Tax (fee) must be added to the fee table! (For the parts that were sold)
-                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(fund.Fee, $"Courtage för sålda delar av aktien: {vm.FundName}");
+                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(fund.Fee, $"Avgift för sålda delar av fonden: {vm.FundName}");
                         sharesFeeClass.Add(db, FeeVM, false);
 
                         // Removes portions of the purchased funds that are moved to sold funds
@@ -264,9 +263,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 else
                 {
                     if (import)
-                        ErrorHandling(db, vm, "Sälj", import, "Hittar inte aktien i databasen!");
+                        ErrorHandling(db, vm, "Sälj", import, "Hittar inte fonden i databasen!");
                     else
-                        return "Hittar inte aktien i databasen!";
+                        return "Hittar inte fonden i databasen!";
                 }
             }
             else
@@ -291,7 +290,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     dbModel.HowMany -= vm.SaleHowMany;
                     dbModel.Amount = dbModel.HowMany * vm.PricePerFunds;
-                    dbModel.Note = vm.Note + $"|*** Import: {importTrue},  Sålt delar av aktien  {vm.FundName}: " +
+                    dbModel.Note = vm.Note + $"|*** Import: {importTrue},  Sålt delar av fonden  {vm.FundName}: " +
                         $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]} Hur många: {vm.SaleHowMany} " +
                         $"Pris per st: {vm.SalePricePerFunds} Summan:  {vm.SaleHowMany * vm.SalePricePerFunds}, " +
                         $"Courtage: {vm.SaleFee}  ";
@@ -310,7 +309,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public string Delete(ApplicationDbContext db, SharesPurchasedFunds model, SharesPurchasedFundViewModel vm, bool import)
         {
-            if (vm != null && vm.SharesPurchasedFundId != 0  && db != null)
+            if (vm != null && vm.SharesPurchasedFundId != 0 && db != null)
             {
                 try
                 {
@@ -351,7 +350,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesPurchasedFundId = model.SharesPurchasedFundId,
                 DateOfPurchase = date,
                 FundName = model.FundName,
-                HowMany = model.HowMany,
+                HowMany = double.Round(model.HowMany, 2, MidpointRounding.AwayFromZero),
                 PricePerFunds = double.Round(model.PricePerFunds, 2, MidpointRounding.AwayFromZero),
                 Fee = model.Fee,
                 Currency = model.Currency,
@@ -393,7 +392,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 DateOfPurchase = date,
                 FundName = model.CompanyOrInformation,
-                HowMany = int.Parse(model.NumberOfSharesString),
+                HowMany = double.Parse(model.NumberOfSharesString),
                 PricePerFunds = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
                 Fee = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
@@ -412,7 +411,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesPurchasedFundId = vm.SharesPurchasedFundId,
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 FundName = vm.FundName,
-                HowMany = vm.HowMany,
+                HowMany = double.Round(vm.HowMany, 2, MidpointRounding.AwayFromZero),
                 PricePerFunds = double.Round(vm.PricePerFunds, 2, MidpointRounding.AwayFromZero),
                 Fee = vm.Fee,
                 Amount = double.Round(vm.HowMany * vm.PricePerFunds, 2, MidpointRounding.AwayFromZero),

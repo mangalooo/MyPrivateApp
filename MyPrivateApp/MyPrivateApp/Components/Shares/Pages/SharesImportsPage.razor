@@ -12,10 +12,12 @@
 
 @rendermode InteractiveServer
 
-@inject ApplicationDbContext db;
+@inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject ISharesImportsFileClass SharesImportsFileClass
 @inject ISharesPurchasedClass SharesPurchasedClass
+@inject ISharesPurchasedFundsClass SharesPurchasedFundsClass
+@inject ISharesSoldFundsClass SharesSoldFundsClass
 @inject ISharesDepositMoneyClass SharesDepositMoneyClass
 @inject ISharesDividendClass SharesDividendClass
 @inject ISharesFeeClass SharesFeeClass
@@ -37,6 +39,8 @@
             <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
             <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
             <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
+            <NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink>
+            <NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink>
             <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
             <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
             <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
@@ -57,6 +61,8 @@
                 <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
                 <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
                 <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink></li>
                 <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
                 <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
                 <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
@@ -220,7 +226,7 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-primary btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
@@ -272,7 +278,7 @@
                                     Info
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-primary btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
@@ -536,6 +542,12 @@
                                 case "Sälj":
                                     SoldShareImport(import);
                                     break;
+                                case "FondKöp":
+                                    AddFundImport(import);
+                                    break;
+                                case "FondSälj":
+                                    SoldFundImport(import);
+                                    break;
                                 case "Utdelning":
                                     DividendImport(import);
                                     break;
@@ -551,8 +563,6 @@
                                 default:
                                     OtherImports(import);
                                     break;
-
-                                    // Avgifter?
                             }
 
                             Thread.Sleep(2000);
@@ -590,7 +600,10 @@
         {
             DateTime date = DateTime.Now;
             importModel.Errors += $"| Import datum: {date.Year}-{date.Month}-{date.Day}. Felmeddelande: {exc.Message}";
+            
             db.SaveChanges();
+
+            RefreshPage();
         }
     }
 
@@ -621,6 +634,40 @@
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
                     ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen!",
                     Note = $"Import: Ja. Säljdatum: {vm.DateOfPurchase}, Aktien: {vm.CompanyName} ISIN: {vm.ISIN}."
+                };
+
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            db.SaveChanges();
+        }
+    }
+
+    private void AddFundImport(SharesImports import)
+    {
+        SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportAddToViewModel(import);
+        bool sharesExist = db.SharesPurchasedFunds.Any(r => r.ISIN == import.ISIN);
+
+        if (sharesExist)
+            SharesPurchasedFundsClass.AddMore(db, vm, true);
+        else
+            SharesPurchasedFundsClass.Add(db, vm, true);
+    }
+
+    private void SoldFundImport(SharesImports import)
+    {
+        SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportSellToViewModel(import);
+        bool sharesExist = db.SharesPurchasedFunds.Any(r => r.ISIN == import.ISIN);
+
+        if (sharesExist)
+            SharesPurchasedFundsClass.Sell(db, vm, true, SharesFeeClass);
+        else
+        {
+            DateTime date = DateTime.Now;
+
+            SharesErrorHandlings sharesErrorHandling = new()
+                {
+                    Date = $"{date.Year}-{date.Month}-{date.Day}",
+                    ErrorMessage = $"Felmeddelande: Fonden jag försöker sälja finns inte i databasen!",
+                    Note = $"Import: Ja. Säljdatum: {vm.DateOfPurchase}, Fonden: {vm.FundName} ISIN: {vm.ISIN}."
                 };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

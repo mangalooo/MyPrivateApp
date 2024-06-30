@@ -10,7 +10,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public double Fee { get; set; }
         public required string? FundName { get; set; } 
         public required string? DateOfPurchase { get; set; }
-        public int HowMany { get; set; }
+        public double HowMany { get; set; }
         public string? Note { get; set; }
         public string? TypeOfFund { get; set; }
         public double PricePerFunds { get; set; }

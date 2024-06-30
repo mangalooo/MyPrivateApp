@@ -20,7 +20,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Required(ErrorMessage = "Skriv hur många fond delar")]
         [Display(Name = "Antal")]
-        public int HowMany { get; set; }
+        public double HowMany { get; set; }
 
         [Required(ErrorMessage = "Skriv in pris per fond del")]
         [Display(Name = "Pris per aktie")]
