@@ -28,17 +28,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        DateTime date = DateTime.Now;
-
-                        SharesErrorHandlings sharesErrorHandling = new()
-                        {
-                            Date = $"{date.Year}-{date.Month}-{date.Day}",
-                            ErrorMessage = $"Felmeddelande: {ex.Message}",
-                            Note = $"Import: {importTrue}, Importerad fil: {DateTime.Now}: Filnamn: {vm.FileName}, Datum: {vm.Date}"
-                        };
-
-                        db.SharesErrorHandlings.Add(sharesErrorHandling);
-                        db.SaveChanges();
+                        return $"Lägg till IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
                     }
                 }
                 else
@@ -72,17 +62,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    DateTime date = DateTime.Now;
-
-                    SharesErrorHandlings sharesErrorHandling = new()
-                    {
-                        Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Import: Nej, Ändra importerad fil: {DateTime.Now}: Filnamn: {vm.FileName}, Datum: {vm.Date}"
-                    };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
-                    db.SaveChanges();
+                    return $"Ändra IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
                 }
             }
             else
@@ -109,17 +89,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        DateTime date = DateTime.Now;
-
-                        SharesErrorHandlings sharesErrorHandling = new()
-                        {
-                            Date = $"{date.Year}-{date.Month}-{date.Day}",
-                            ErrorMessage = $"Felmeddelande: {ex.Message}",
-                            Note = $"Import: {importTrue}, Ta bort avgifter: {DateTime.Now}: Filnamn: {vm.FileName}, Datum: {model.Date}"
-                        };
-
-                        db.SharesErrorHandlings.Add(sharesErrorHandling);
-                        db.SaveChanges();
+                        return $"Ta bort IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
                     }
                 }
             }
@@ -159,6 +129,6 @@ namespace MyPrivateApp.Components.Shares.Classes
             };
 
             return model;
-        }
+        }     
     }
 }

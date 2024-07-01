@@ -192,7 +192,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} andra importer: {DateTime.Now}: Företag: {vm.Company}, Datum: {vm.Date}, Id: {vm.OtherImportsId}. "
+                Note = $"{type} ANDRA IMPORTER: \r\nImport: {importTrue} \r\nFöretag: {vm.Company} \r\nDatum: {vm.Date} \r\nId: {vm.OtherImportsId}. "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

@@ -192,8 +192,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} såld fond: Fond namn: {vm.FundName}, " +
-                        $"Datum: {vm.DateOfPurchase}, Id: {vm.SharesSoldFundId}, ISIN: {vm.ISIN}."
+                Note = $"{type} såld fond: Import: {importTrue} \r\nFond namn: {vm.FundName} " +
+                        $"\r\nDatum: {vm.DateOfPurchase} \r\nId: {vm.SharesSoldFundId} \r\nISIN: {vm.ISIN}."
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

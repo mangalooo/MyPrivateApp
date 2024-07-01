@@ -35,7 +35,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
                         ErrorMessage = $"Felmeddelande: {ex.Message}",
-                        Note = $"Ta bort felhandtering: Datum: {vm.Date}, Anteckningar: {vm.Note} Fel hantering: {vm.ErrorMessage}"
+                        Note = $"Ta bort felhandtering: \r\nDatum: {vm.Date} \r\nAnteckningar: {vm.Note} \r\nFel hantering: {vm.ErrorMessage}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);

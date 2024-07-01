@@ -187,7 +187,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} utdelning: {DateTime.Now}: Företag: {DateTime.Now}: Företag: {vm.Company}, ISIN: {vm.ISIN} Datum: {vm.Date}. "
+                Note = $"{type} UTDELNING: \r\nImport: {importTrue} \r\nFöretag: {vm.Company} \r\nISIN: {vm.ISIN} \r\nDatum: {vm.Date} "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

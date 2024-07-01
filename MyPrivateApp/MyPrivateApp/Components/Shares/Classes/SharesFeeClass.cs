@@ -145,7 +145,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} avgifter: {DateTime.Now}: Tax: {vm.Tax} Courtage: {vm.Brokerage} Datum: {vm.Date}. "
+                Note = $"{type} AVGIFTER: {DateTime.Now}: \r\nImport: {importTrue} \r\nTax: {vm.Tax} \r\nCourtage: {vm.Brokerage} \r\nDatum: {vm.Date}"
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

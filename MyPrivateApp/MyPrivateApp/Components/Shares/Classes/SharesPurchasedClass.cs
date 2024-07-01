@@ -1,7 +1,6 @@
 ﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
-using System;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
@@ -21,8 +20,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                        vm.HowMany > 0 && vm.PricePerShares > 0 && vm.Brokerage > 0)
                 {
                     SharesPurchaseds model = ChangesFromViewModelToModel(vm);
-                    model.Note += $"Import: {importTrue}, Köper: {model.CompanyName} aktier, Datum: {model.DateOfPurchase.ToString()[..10]}, Hur många: {model.HowMany} " +
-                                  $"Pris per st: {model.PricePerShares}, Summan: {model.HowMany * model.PricePerShares}, Courtage: {model.Brokerage}. ";
+                    model.Note += $"Köper: {model.CompanyName} aktier: \r\nImport: {importTrue} \r\nDatum: " +
+                                  $"{model.DateOfPurchase.ToString()[..10]} \r\nHur många: {model.HowMany} " +
+                                  $"\r\nPris per st: {model.PricePerShares} \r\nSumman: {model.Amount} \r\nCourtage: {model.Brokerage}. ";
 
                     try
                     {
@@ -97,28 +97,42 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
-        public string AddMore(ApplicationDbContext db, SharesPurchasedViewModel moreVM, bool import)
+        public string AddMore(ApplicationDbContext db, SharesPurchasedViewModel vm, bool import)
         {
-            if (moreVM != null && moreVM.SharesPurchasedId > 0 && !string.IsNullOrEmpty(moreVM.ISIN) && db != null)
+            if (vm != null && !string.IsNullOrEmpty(vm.ISIN) && db != null)
             {
                 if (import == false)
-                    if (moreVM.MoreDateOfPurchase == DateTime.MinValue || moreVM.MoreHowMany == 0 || moreVM.MorePricePerShares == 0 || moreVM.MoreBrokerage == 0)
+                    if (vm.MoreDateOfPurchase == DateTime.MinValue || vm.MoreHowMany == 0 || vm.MorePricePerShares == 0 || vm.MoreBrokerage == 0)
                         return "Du måste fylla i fälten: Köp mer: Datum, Köp mer: Antal, Köp mer: Pris per aktie, Köp mer: Courage!";
 
                 string importTrue = import ? "Ja" : "Nej";
 
-                SharesPurchaseds DbModel = Get(db, moreVM.ISIN);
+                SharesPurchaseds DbModel = Get(db, vm.ISIN);
 
                 if (DbModel != null)
                 {
-                    DbModel.HowMany += moreVM.MoreHowMany;
-                    DbModel.Brokerage += moreVM.MoreBrokerage;
-                    DbModel.Amount += moreVM.MoreHowMany * moreVM.MorePricePerShares;
+                    if (import)
+                    {
+                        DbModel.HowMany += vm.HowMany;
+                        DbModel.Brokerage += vm.Brokerage;
+                        DbModel.Amount += vm.HowMany * vm.PricePerShares;
+                        DbModel.Note += $"\r\n \r\n Köper mer aktier för {vm.CompanyName}: \r\nImport: {importTrue} \r\nDatum: " +
+                                        $"{vm.DateOfPurchase.ToString()[..10]} \r\nHur många: {vm.HowMany} \r\nPris per st: " +
+                                        $"{vm.PricePerShares} \r\nSumman: {DbModel.Amount} " +
+                                        $"\r\nCourtage: {vm.Brokerage} ";
+                    }
+                    else
+                    {
+                        DbModel.HowMany += vm.MoreHowMany;
+                        DbModel.Brokerage += vm.MoreBrokerage;
+                        DbModel.Amount += vm.MoreHowMany * vm.MorePricePerShares;
+                        DbModel.Note += $"\r\n \r\n Köper mer aktier för {vm.CompanyName}: \r\nImport: {importTrue} \r\nDatum: " +
+                                        $"{vm.MoreDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.MoreHowMany} \r\nPris per st: " +
+                                        $"{vm.MorePricePerShares} \r\nSumman: {DbModel.Amount}  " +
+                                        $"\r\nCourtage: {vm.MoreBrokerage} ";
+                    }
+
                     DbModel.PricePerShares = DbModel.Amount / DbModel.HowMany;
-                    DbModel.Note += $" |*** Import: {importTrue}, Köper mer aktier för {moreVM.CompanyName}: Datum: " +
-                        $"{moreVM.MoreDateOfPurchase.ToString()[..10]}, Hur många: {moreVM.MoreHowMany}, Pris per st: " +
-                        $"{moreVM.MorePricePerShares}, Summan: {moreVM.MoreHowMany * moreVM.MorePricePerShares}, " +
-                        $"Courtage: {moreVM.MoreBrokerage}. ";
 
                     try
                     {
@@ -126,13 +140,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, moreVM, "Köpt mera", import, ex.Message);
+                        ErrorHandling(db, vm, "Köpt mera", import, ex.Message);
                     }
                 }
                 else
                 {
                     if (import)
-                        ErrorHandling(db, moreVM, "Köpt mera", import, "Hittar inte aktien i databasen!");
+                        ErrorHandling(db, vm, "Köpt mera", import, "Hittar inte aktien i databasen!");
                     else
                         return "Hittar inte aktien i databasen!";
                 }
@@ -140,7 +154,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             else
             {
                 if (import)
-                    ErrorHandling(db, moreVM, "Köpt mera", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                    ErrorHandling(db, vm, "Köpt mera", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
                 else
                     return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
             }
@@ -311,7 +325,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public string Delete(ApplicationDbContext db, SharesPurchaseds incomingModel, SharesPurchasedViewModel vm, bool import)
         {
-            if (vm != null && vm.SharesPurchasedId != 0  && db != null)
+            if (vm != null && vm.SharesPurchasedId != 0 && db != null)
             {
                 try
                 {
@@ -324,7 +338,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                         SharesPurchaseds model = ChangesFromViewModelToModel(vm);
                         db.SharesPurchaseds.Remove(model);
                     }
-                        
+
                     db.SaveChanges();
                 }
                 catch (Exception ex)

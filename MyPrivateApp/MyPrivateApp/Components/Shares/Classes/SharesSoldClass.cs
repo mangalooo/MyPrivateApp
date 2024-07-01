@@ -8,7 +8,7 @@ namespace MyPrivateApp.Components.Shares.Classes
     {
         private static SharesSolds? Get(ApplicationDbContext db, string ISIN) => db.SharesSolds.Any(r => r.ISIN == ISIN) ?
                                                                                     db.SharesSolds.FirstOrDefault(r => r.ISIN == ISIN) :
-                                                                                        throw new Exception("Den köpa aktien hittades inte i databasen!");
+                                                                                        throw new Exception("Den sålda aktien hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
         {
@@ -192,8 +192,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} såld aktie: {DateTime.Now}: Företag: {vm.CompanyName}, " +
-                        $"Datum: {vm.DateOfPurchase}, Id: {vm.SharesSoldId}, ISIN: {vm.ISIN}."
+                Note = $"{type} SÅLDA AKTIE:  \r\nImport: {importTrue} \r\nFöretag: {vm.CompanyName} " +
+                        $"\r\nDatum: {vm.DateOfPurchase} \r\nId: {vm.SharesSoldId} \r\nISIN: {vm.ISIN}."
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

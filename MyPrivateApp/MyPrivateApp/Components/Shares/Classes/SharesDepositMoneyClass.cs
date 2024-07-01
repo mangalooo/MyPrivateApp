@@ -173,7 +173,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     ErrorHandling(db, vm, "Ta bort", false, ex.Message);
                 }
 
-                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 1); // Ska alltid vara bara ett totalt belopp i databasen
+                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 1); // Should always be just one total amount in the database
                 getTotalAmount.TotalAmount -= model.DepositMoney;
 
                 db.SaveChanges();
@@ -247,8 +247,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} banköverföringar ({vm.TypeOfTransaction}) {DateTime.Now}: Belopp: {vm.DepositMoney} , " +
-                $"Datum: {vm.Date}, Id: {vm.DepositMoneyId}, Beskrivning: {vm.TransferOptions} . "
+                Note = $"{type} BANKÖVERFÖRING ({vm.TypeOfTransaction}): \r\nImport: {importTrue} \r\nBelopp: {vm.DepositMoney} " +
+                $"\r\nDatum: {vm.Date} Id: {vm.DepositMoneyId} \r\nBeskrivning: {vm.TransferOptions} . "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

@@ -19,8 +19,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && vm.PricePerFunds > 0)
                 {
                     SharesPurchasedFunds model = ChangesFromViewModelToModel(vm);
-                    model.Note += $"Import: {importTrue}, Köper: {model.FundName} fond, Datum: {model.DateOfPurchase.ToString()[..10]}, Hur många: {model.HowMany} " +
-                                  $"Pris per st: {model.PricePerFunds}, Summan: {model.HowMany * model.PricePerFunds}, Avgift: {model.Fee}. ";
+                    model.Note += $"Köper {model.FundName} fond:\r\n Import: {importTrue} \r\n Datum: {model.DateOfPurchase.ToString()[..10]} \r\n Hur många: {model.HowMany} \r\n " +
+                                  $"Pris per st: {model.PricePerFunds}\r\n Summan: {model.Amount}\r\n Avgift: {model.Fee} ";
 
                     try
                     {
@@ -97,7 +97,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public string AddMore(ApplicationDbContext db, SharesPurchasedFundViewModel vm, bool import)
         {
-            if (vm != null && vm.SharesPurchasedFundId > 0 && !string.IsNullOrEmpty(vm.ISIN) && db != null)
+            if (vm != null && !string.IsNullOrEmpty(vm.ISIN) && db != null)
             {
                 if (import == false)
                     if (vm.MoreDateOfPurchase == DateTime.MinValue || vm.MoreHowMany == 0 || vm.MorePricePerFunds == 0)
@@ -109,14 +109,28 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 if (model != null)
                 {
-                    model.HowMany += vm.MoreHowMany;
-                    model.Fee += vm.MoreFee;
-                    model.Amount += vm.MoreHowMany * vm.MorePricePerFunds;
+                    if (import)
+                    {
+                        model.HowMany += vm.HowMany;
+                        model.Fee += vm.Fee;
+                        model.Amount += vm.HowMany * vm.PricePerFunds;
+                        model.Note += $"\r\n \r\nKöper mer fond delar för {vm.FundName}: \r\nImport: {importTrue} \r\nDatum: " +
+                                      $"{vm.DateOfPurchase.ToString()[..10]} \r\nHur många: {vm.HowMany} \r\nPris per st: " +
+                                      $"{vm.PricePerFunds} \r\nSumman: {model.Amount} " +
+                                      $" \r\nCourtage: {vm.Fee} ";
+                    }
+                    else
+                    {
+                        model.HowMany += vm.MoreHowMany;
+                        model.Fee += vm.MoreFee;
+                        model.Amount += vm.MoreHowMany * vm.MorePricePerFunds;
+                        model.Note += $"\r\n \r\nKöper mer fond delar för {vm.FundName}: \r\nImport: {importTrue} \r\nDatum: " +
+                                      $"{vm.MoreDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.MoreHowMany} \r\nPris per st: " +
+                                      $"{vm.MorePricePerFunds} \r\nSumman: {model.Amount} " +
+                                      $"\r\nCourtage: {vm.MoreFee} ";
+                    }
+
                     model.PricePerFunds = model.Amount / model.HowMany;
-                    model.Note += $" |*** Import: {importTrue}, Köper mer fond delar för {vm.FundName}: Datum: " +
-                        $"{vm.MoreDateOfPurchase.ToString()[..10]}, Hur många: {vm.MoreHowMany}, Pris per st: " +
-                        $"{vm.MorePricePerFunds}, Summan: {vm.MoreHowMany * vm.MorePricePerFunds}, " +
-                        $"Courtage: {vm.MoreFee}. ";
 
                     try
                     {
