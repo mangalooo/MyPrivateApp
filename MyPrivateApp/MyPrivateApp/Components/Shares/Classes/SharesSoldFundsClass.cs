@@ -7,8 +7,8 @@ namespace MyPrivateApp.Components.Shares.Classes
     public class SharesSoldFundsClass : ISharesSoldFundsClass
     {
         private static SharesSoldFunds? Get(ApplicationDbContext db, string ISIN) => db.SharesSoldFunds.Any(r => r.ISIN == ISIN) ?
-                                                                                    db.SharesSoldFunds.FirstOrDefault(r => r.ISIN == ISIN) :
-                                                                                        throw new Exception("Den köpa fonden hittades inte i databasen!");
+                                                                                        db.SharesSoldFunds.FirstOrDefault(r => r.ISIN == ISIN) :
+                                                                                            throw new Exception("Den köpa fonden hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, SharesSoldFundViewModel vm, bool import)
         {

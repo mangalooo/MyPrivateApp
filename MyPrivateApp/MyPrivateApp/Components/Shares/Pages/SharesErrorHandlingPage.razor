@@ -99,7 +99,7 @@
 
                          <div class="col-12">
                              <div class="form-floating">
-                                 <InputTextArea @bind-Value="SharesErrorHandling.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesErrorHandling.Note" class="form-control" disabled="@DisabledForm" />
                                  <label for="Note"> Anteckningar </label>
                                  <ValidationMessage For="() => SharesErrorHandling.Note" class="text-danger" />
                              </div>
@@ -142,7 +142,7 @@
                      <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
 
                          <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                         <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+                         <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
 
                          <TemplateColumn Title="Info">
 
@@ -161,10 +161,10 @@
                                  <div class="modal-dialog" role="document">
                                      <div class="modal-content">
                                          <div class="modal-header">
-                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
                                          </div>
                                          <div class="modal-footer">
-                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort felhanteringen </button>
                                              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                          </div>
                                      </div>
@@ -192,7 +192,7 @@
                 <div class="card-body">
                     <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+                        <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -211,10 +211,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort felhanteringen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>

@@ -210,11 +210,12 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             SharesDepositMoneyViewModel vm = new()
             {
-                Account = model.AccountNumber,
-                Currency = model.Currency,
                 Date = date,
-                DepositMoney = double.Parse(model.AmountString),
-                TypeOfTransaction = model.CompanyOrInformation,
+                Account = model.AccountNumber,
+                TypeOfTransaction = model.TypeOfTransaction,
+                TransferOptions = model.CompanyOrInformation,
+                Currency = model.Currency,
+                DepositMoney = double.Parse(model.AmountString)
             };
 
             return vm;
