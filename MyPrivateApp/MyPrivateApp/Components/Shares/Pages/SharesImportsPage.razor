@@ -485,16 +485,19 @@
     {
         SharesImportsFile importModel = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == SharesImportsFile.SharesImportsFileId);
 
+        int rowCount = 0;
+        string fileName = string.Empty;
+
         try
         {
-            int rowCount = 0;
-
             RefreshPage();
 
             LoadingDataFromFil = true;
 
             foreach (IBrowserFile file in e.GetMultipleFiles(1))
             {
+                fileName = file.Name;
+
                 using (MemoryStream ms = new MemoryStream())
                 {
                     // copy data from file to memory stream
@@ -572,7 +575,7 @@
 
                 try
                 {
-                    importModel.FileName = file.Name;
+                    importModel.FileName = fileName;
                     importModel.NumbersOfTransaction = rowCount - 1;
 
                     db.SaveChanges();
@@ -595,12 +598,14 @@
 
             RefreshPage();
         }
-
         catch (Exception exc)
         {
             DateTime date = DateTime.Now;
-            importModel.Errors += $"| Import datum: {date.Year}-{date.Month}-{date.Day}. Felmeddelande: {exc.Message}";
-            
+
+            importModel.Errors += $"Import datum: {date.Year}-{date.Month}-{date.Day}. Felmeddelande: {exc.Message}";
+            importModel.FileName = fileName;
+            importModel.NumbersOfTransaction = rowCount - 1;
+
             db.SaveChanges();
 
             RefreshPage();

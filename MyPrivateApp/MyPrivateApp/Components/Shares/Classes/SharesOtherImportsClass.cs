@@ -148,16 +148,29 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesOtherShareImportViewModel vm = new()
             {
                 Account = model.AccountNumber,
-                Amount = double.Parse(model.AmountString),
-                Brokerage = double.Parse(model.BrokerageString),
                 Company = model.CompanyOrInformation,
                 Currency = model.Currency,
                 Date = date,
                 ISIN = model.ISIN,
-                NumberOfShares = int.Parse(model.NumberOfSharesString),
-                TypeOfTransaction = model.TypeOfTransaction,
-                PricePerShare = double.Parse(model.PricePerShareString)
+                TypeOfTransaction = model.TypeOfTransaction
             };
+
+            if (!string.IsNullOrEmpty(model.AmountString))
+                vm.Amount = double.Parse(model.AmountString);
+
+            if (!string.IsNullOrEmpty(model.BrokerageString))
+                vm.Brokerage = double.Parse(model.BrokerageString);            
+            
+            if (!string.IsNullOrEmpty(model.PricePerShareString))
+                vm.PricePerShare = double.Parse(model.PricePerShareString);
+
+            string numberOfSharesString = model.NumberOfSharesString;
+            int numberOfShares = numberOfSharesString.Contains('-') ? int.Parse(numberOfSharesString[1..]) : int.Parse(numberOfSharesString);
+
+            vm.NumberOfShares = numberOfShares;
+
+            if (numberOfSharesString.Contains('-'))
+                vm.Note = $"Antalet kom med ett - tecken: {model.NumberOfSharesString}";
 
             return vm;
         }
