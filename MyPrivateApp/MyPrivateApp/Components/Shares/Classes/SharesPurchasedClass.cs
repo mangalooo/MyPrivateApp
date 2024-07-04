@@ -223,7 +223,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                         }
 
                         // Brokerage must be added to the fee table!
-                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(shares.Brokerage, $"Courtage för aktien: {vm.CompanyName}");
+                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, shares.Brokerage, $"Courtage för aktien: {vm.CompanyName}");
                         sharesFeeClass.Add(db, FeeVM, import);
 
                         // Removes the bought shares that is moved to sold shares
@@ -269,7 +269,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                         }
 
                         // Brokerage must be added to the fee table! (For the parts that were sold)
-                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(shares.Brokerage, $"Courtage för sålda delar av aktien: {vm.CompanyName}");
+                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, shares.Brokerage, $"Courtage för sålda delar av aktien: {vm.CompanyName}");
                         sharesFeeClass.Add(db, FeeVM, false);
 
                         // Removes portions of the purchased shares that are moved to sold shares
@@ -441,13 +441,20 @@ namespace MyPrivateApp.Components.Shares.Classes
             return sharesPurchased;
         }
 
-        private static SharesFeeViewModel ChangeFromToPurchasedToFeeViewModel(double brokerage, string note)
+        private static SharesFeeViewModel ChangeFromToPurchasedToFeeViewModel(SharesPurchasedViewModel vm, double brokerage, string note)
         {
             SharesFeeViewModel fee = new()
             {
                 Date = DateTime.Now,
+                CompanyOrInformation = vm.CompanyName,
                 Brokerage = brokerage,
-                Note = note
+                Note = note,
+
+                // For error information
+                DateOfFee = vm.DateOfPurchase,
+                Account = vm.Account,
+                TypeOfTransaction = "Sälj aktie",
+                ISIN = vm.ISIN
             };
 
             return fee;
@@ -464,8 +471,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} aktie: {DateTime.Now}: Företag: {vm.CompanyName}, " +
-                        $"Datum: {vm.DateOfPurchase}, Id: {vm.SharesPurchasedId}, ISIN: {vm.ISIN}."
+                Note = $"{type} aktie: {vm.CompanyName}, \r\nImport: {importTrue} " +
+                        $"\r\nDatum: {vm.DateOfPurchase} \r\nId: {vm.SharesPurchasedId} \r\nISIN: {vm.ISIN}."
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

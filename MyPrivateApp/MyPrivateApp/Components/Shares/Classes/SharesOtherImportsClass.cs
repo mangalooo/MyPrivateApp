@@ -155,23 +155,26 @@ namespace MyPrivateApp.Components.Shares.Classes
                 TypeOfTransaction = model.TypeOfTransaction
             };
 
-            if (!string.IsNullOrEmpty(model.AmountString))
+            if (!string.IsNullOrEmpty(model.AmountString) && model.AmountString != "-")
                 vm.Amount = double.Parse(model.AmountString);
 
-            if (!string.IsNullOrEmpty(model.BrokerageString))
+            if (!string.IsNullOrEmpty(model.BrokerageString) && model.BrokerageString != "-")
                 vm.Brokerage = double.Parse(model.BrokerageString);            
             
-            if (!string.IsNullOrEmpty(model.PricePerShareString))
+            if (!string.IsNullOrEmpty(model.PricePerShareString) && model.PricePerShareString != "-")
                 vm.PricePerShare = double.Parse(model.PricePerShareString);
 
-            string numberOfSharesString = model.NumberOfSharesString;
-            int numberOfShares = numberOfSharesString.Contains('-') ? int.Parse(numberOfSharesString[1..]) : int.Parse(numberOfSharesString);
+            if (!string.IsNullOrEmpty(model.NumberOfSharesString) && model.NumberOfSharesString != "-")
+            {
+                string numberOfSharesString = model.NumberOfSharesString;
+                int numberOfShares = numberOfSharesString.Contains("-") ? int.Parse(numberOfSharesString[1..]) : int.Parse(numberOfSharesString);
 
-            vm.NumberOfShares = numberOfShares;
+                vm.NumberOfShares = numberOfShares;
 
-            if (numberOfSharesString.Contains('-'))
-                vm.Note = $"Antalet kom med ett - tecken: {model.NumberOfSharesString}";
-
+                if (numberOfSharesString.Contains('-'))
+                    vm.Note = $"Antalet kom med ett - tecken: {model.NumberOfSharesString}";
+            }
+           
             return vm;
         }
 
@@ -190,7 +193,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Currency = vm.Currency,
                 ISIN = vm.ISIN,
                 Brokerage = vm.Brokerage,
-                Note = $"Import: {import}" + vm.Note
+                Note = $"Import: {import}\r\n. " + vm.Note
             };
 
             return model;

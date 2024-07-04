@@ -61,8 +61,10 @@ namespace MyPrivateApp.Components.Shares.Classes
                         {
                             getDbModel.SharesFeeId = vm.SharesFeeId;
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
+                            getDbModel.CompanyOrInformation = vm.CompanyOrInformation;
                             getDbModel.Tax = vm.Tax;
                             getDbModel.Brokerage = vm.Brokerage;
+                            getDbModel.Note = vm.Note;
 
                             db.SaveChanges();
                         }
@@ -109,14 +111,20 @@ namespace MyPrivateApp.Components.Shares.Classes
         public SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
         {
             DateTime date = DateTime.Parse(model.Date);
+            DateTime dateOfFee = DateTime.Parse(model.DateOfFee);
 
             SharesFeeViewModel fee = new()
             {
                 SharesFeeId = model.SharesFeeId,
                 Date = date,
+                CompanyOrInformation = model.CompanyOrInformation,
                 Tax = model.Tax,
                 Brokerage = model.Brokerage,
-                Note = model.Note
+                Note = model.Note,
+                DateOfFee = dateOfFee,
+                Account = model.Account,
+                TypeOfTransaction = model.TypeOfTransaction,
+                ISIN = model.ISIN
             };
 
             return fee;
@@ -128,9 +136,14 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 SharesFeeId = vm.SharesFeeId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
+                CompanyOrInformation = vm.CompanyOrInformation,
                 Tax = vm.Tax,
                 Brokerage = vm.Brokerage,
-                Note = vm.Note
+                Note = vm.Note,
+                DateOfFee = vm.DateOfFee.ToString("yyyy-MM-dd"),
+                Account = vm.Account,
+                TypeOfTransaction = vm.TypeOfTransaction,
+                ISIN = vm.ISIN
             };
 
             return sharesFee;
@@ -145,7 +158,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} AVGIFTER: {DateTime.Now}: \r\nImport: {importTrue} \r\nTax: {vm.Tax} \r\nCourtage: {vm.Brokerage} \r\nDatum: {vm.Date}"
+                Note = $"{type} AVGIFTER: {DateTime.Now}: \r\nImport: {importTrue} \r\nTax: {vm.Tax} \r\nCourtage: {vm.Brokerage} \r\nDatum: {vm.Date}" +
+                       $"\r\nDatum För avgift: {vm.DateOfFee} \r\nKonto: {vm.Account} \r\nHändelse: {vm.TypeOfTransaction} \r\nISIN: {vm.ISIN}"
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

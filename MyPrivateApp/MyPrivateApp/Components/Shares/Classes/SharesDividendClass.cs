@@ -148,11 +148,11 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Company = model.CompanyOrInformation,
                 NumberOfShares = int.Parse(model.NumberOfSharesString),
                 PricePerShare = double.Parse(model.PricePerShareString),
-                Brokerage = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 AccountNumber = model.AccountNumber,
                 TotalAmount = double.Parse(model.AmountString),
+                TypeOfTransaction = model.TypeOfTransaction
             };
 
             return vm;

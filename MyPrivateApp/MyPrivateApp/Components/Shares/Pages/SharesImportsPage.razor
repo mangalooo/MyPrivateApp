@@ -180,7 +180,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesImportsFile.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="4" style="height:100%;" @bind-Value="SharesImportsFile.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
                                 <ValidationMessage For="() => SharesImportsFile.Note" class="text-danger" />
                             </div>
@@ -486,6 +486,7 @@
         SharesImportsFile importModel = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == SharesImportsFile.SharesImportsFileId);
 
         int rowCount = 0;
+        int transactionCounter = 0;
         string fileName = string.Empty;
 
         try
@@ -537,7 +538,7 @@
 
                         foreach (var import in importList)
                         {
-                             switch (import.TypeOfTransaction)
+                            switch (import.TypeOfTransaction)
                             {
                                 case "Köp":
                                     AddSharesImport(import);
@@ -560,13 +561,15 @@
                                 case "Uttag":
                                     DepositMoneyImport(import);
                                     break;
-                                case "Räntor":
+                                case "Ränta":
                                     InterestRatesImport(import);
                                     break;
                                 default:
                                     OtherImports(import);
                                     break;
                             }
+
+                            transactionCounter++;
 
                             Thread.Sleep(2000);
                         }
@@ -577,22 +580,20 @@
                 {
                     importModel.FileName = fileName;
                     importModel.NumbersOfTransaction = rowCount - 1;
+                    importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}";
 
                     db.SaveChanges();
                 }
                 catch (Exception ex)
                 {
-                    DateTime date = DateTime.Now;
+                    importModel.Errors += $"Spara till databasen: Fel på rad {transactionCounter + 1}. Felmeddelande: {ex.Message}";
+                    importModel.FileName = fileName;
+                    importModel.NumbersOfTransaction = transactionCounter;
+                    importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}";
 
-                    SharesErrorHandlings sharesErrorHandling = new()
-                        {
-                            Date = $"{date.Year}-{date.Month}-{date.Day}",
-                            ErrorMessage = $"Felmeddelande: {ex.Message}",
-                            Note = $"Import: Ja, Ändra befintlig import: {DateTime.Now}: Filnamn: {file.Name}"
-                        };
-
-                    db.SharesErrorHandlings.Add(sharesErrorHandling);
                     db.SaveChanges();
+
+                    RefreshPage();
                 }
             }
 
@@ -600,11 +601,10 @@
         }
         catch (Exception exc)
         {
-            DateTime date = DateTime.Now;
-
-            importModel.Errors += $"Import datum: {date.Year}-{date.Month}-{date.Day}. Felmeddelande: {exc.Message}";
+            importModel.Errors += $"Övergripande: Fel på rad {transactionCounter + 1}. Felmeddelande: {exc.Message}";
             importModel.FileName = fileName;
-            importModel.NumbersOfTransaction = rowCount - 1;
+            importModel.NumbersOfTransaction = transactionCounter;
+            importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}";
 
             db.SaveChanges();
 
@@ -638,7 +638,7 @@
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
                     ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen!",
-                    Note = $"Import: Ja. Säljdatum: {vm.DateOfPurchase}, Aktien: {vm.CompanyName} ISIN: {vm.ISIN}."
+                    Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nAktien: {vm.CompanyName} \r\nISIN: {vm.ISIN}."
                 };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);
@@ -672,7 +672,7 @@
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
                     ErrorMessage = $"Felmeddelande: Fonden jag försöker sälja finns inte i databasen!",
-                    Note = $"Import: Ja. Säljdatum: {vm.DateOfPurchase}, Fonden: {vm.FundName} ISIN: {vm.ISIN}."
+                    Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nFonden: {vm.FundName} \r\nISIN: {vm.ISIN}."
                 };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

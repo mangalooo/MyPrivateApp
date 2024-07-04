@@ -136,6 +136,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Currency = model.Currency,
                 Date = date,
                 TotalAmount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
+                TypeOfTransaction = model.TypeOfTransaction
             };
 
             return vm;
