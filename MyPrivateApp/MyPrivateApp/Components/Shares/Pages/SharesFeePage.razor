@@ -101,11 +101,13 @@
 
                     <ValidationSummary class="text-danger" role="alert" />
 
+                    <br />
+
                     <div class="row">
 
-                        <div id="mobile" class="col-4" />
+                        <div id="mobile" class="col-6" />
 
-                        <div class="col-4">
+                        <div class="col-6">
                             <div class="form-floating">
                                 <InputDate @bind-Value="SharesFees.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
@@ -113,7 +115,22 @@
                             </div>
                         </div>
 
-                        <div class="col-4">
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <InputText @bind-Value="SharesFees.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
+                                <label for="CompanyOrInformation"> Aktie / fond </label>
+                                <ValidationMessage For="() => SharesFees.CompanyOrInformation" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-6" />
+
+                        <div class="col-6">
                             <div class="form-floating">
                                 <InputNumber @bind-Value="SharesFees.Tax" class="form-control" disabled="@DisabledForm" />
                                 <label for="Tax"> Skatt </label>
@@ -121,14 +138,13 @@
                             </div>
                         </div>
 
-                        <div class="col-4">
+                        <div class="col-6">
                             <div class="form-floating">
                                 <InputNumber @bind-Value="SharesFees.Brokerage" class="form-control" disabled="@DisabledForm" />
                                 <label for="Brokerage"> Courtage </label>
                                 <ValidationMessage For="() => SharesFees.Brokerage" class="text-danger" />
                             </div>
                         </div>
-
                     </div>
 
                     <br />
@@ -171,6 +187,7 @@
                     <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Aktie / Fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
                         <PropertyColumn Title="Skatt" Property="@(c => c.Tax)" Sortable="true" />
                         <PropertyColumn Title="Courtage" Property="@(c => c.Brokerage)" Sortable="true" />
                         <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
@@ -195,7 +212,7 @@
                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort avgiften </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -223,8 +240,7 @@
                 <div class="card-body">
                     <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Skatt" Property="@(c => c.Tax)" Sortable="true" />
-                        <PropertyColumn Title="Courtage" Property="@(c => c.Brokerage)" Sortable="true" />
+                        <PropertyColumn Title="Aktie / Fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -246,7 +262,7 @@
                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort avgiften </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>

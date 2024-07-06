@@ -449,7 +449,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Note = note,
 
                 // For error information
-                DateOfFee = vm.DateOfPurchase,
+                DateOfFee = vm.SaleDateOfPurchase,
                 Account = vm.Account,
                 TypeOfTransaction = "Sälj fond",
                 ISIN = vm.ISIN
@@ -468,9 +468,11 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
+                CompanyOrInformation = vm.FundName,
+                TypeOfTransaction = type,
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} FOND: {vm.FundName}, \r\nImport: {importTrue}, " +
-                        $"\r\nDatum: {vm.DateOfPurchase} \r\nId: {vm.SharesPurchasedFundId} \r\nISIN: {vm.ISIN}."
+                Note = $"{type} FOND: \r\nDatum: {vm.DateOfPurchase} \r\nImport: {importTrue}, " +
+                        $"\r\nId: {vm.SharesPurchasedFundId} \r\nISIN: {vm.ISIN}."
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

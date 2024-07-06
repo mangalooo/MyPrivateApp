@@ -110,22 +110,29 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
         {
-            DateTime date = DateTime.Parse(model.Date);
-            DateTime dateOfFee = DateTime.Parse(model.DateOfFee);
-
             SharesFeeViewModel fee = new()
             {
                 SharesFeeId = model.SharesFeeId,
-                Date = date,
                 CompanyOrInformation = model.CompanyOrInformation,
                 Tax = model.Tax,
                 Brokerage = model.Brokerage,
                 Note = model.Note,
-                DateOfFee = dateOfFee,
                 Account = model.Account,
                 TypeOfTransaction = model.TypeOfTransaction,
                 ISIN = model.ISIN
             };
+
+            if (!string.IsNullOrEmpty(model.Date))
+            {
+                DateTime date = DateTime.Parse(model.Date);
+                fee.Date = date;
+            }
+
+            if (!string.IsNullOrEmpty(model.DateOfFee))
+            {
+                DateTime dateOfFee = DateTime.Parse(model.DateOfFee);
+                fee.DateOfFee = dateOfFee;
+            }
 
             return fee;
         }
@@ -157,9 +164,11 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
+                CompanyOrInformation = vm.CompanyOrInformation,
+                TypeOfTransaction = vm.TypeOfTransaction,
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} AVGIFTER: {DateTime.Now}: \r\nImport: {importTrue} \r\nTax: {vm.Tax} \r\nCourtage: {vm.Brokerage} \r\nDatum: {vm.Date}" +
-                       $"\r\nDatum För avgift: {vm.DateOfFee} \r\nKonto: {vm.Account} \r\nHändelse: {vm.TypeOfTransaction} \r\nISIN: {vm.ISIN}"
+                Note = $"{type} AVGIFTER: \r\nAvgiftsdatum: {vm.DateOfFee} \r\nImport: {importTrue} \r\nTax: {vm.Tax} " +
+                       $"\r\nCourtage: {vm.Brokerage} \r\nKonto: {vm.Account} \r\nISIN: {vm.ISIN}"
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

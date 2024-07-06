@@ -12,6 +12,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
+        [Display(Name = "Företag / information")]
+        [DataType(DataType.Text)]
+        public string? CompanyOrInformation { get; set; }
+
+        [Display(Name = "Transaktion")]
+        [DataType(DataType.Text)]
+        public string? TypeOfTransaction { get; set; }
+
         [Display(Name = "Felmeddelande")]
         [DataType(DataType.MultilineText)]
         public string? ErrorMessage { get; set; }

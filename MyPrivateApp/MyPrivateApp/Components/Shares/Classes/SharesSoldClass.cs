@@ -191,9 +191,10 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
+                CompanyOrInformation = vm.CompanyName,
+                TypeOfTransaction = type,
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} SÅLDA AKTIE:  \r\nImport: {importTrue} \r\nFöretag: {vm.CompanyName} " +
-                        $"\r\nDatum: {vm.DateOfPurchase} \r\nId: {vm.SharesSoldId} \r\nISIN: {vm.ISIN}."
+                Note = $"{type} SÅLDA AKTIE: \r\nDatum: {vm.DateOfPurchase} \r\nImport: {importTrue} \r\nId: {vm.SharesSoldId} \r\nISIN: {vm.ISIN}."
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);
