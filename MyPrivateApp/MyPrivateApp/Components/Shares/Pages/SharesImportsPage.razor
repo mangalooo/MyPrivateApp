@@ -76,8 +76,11 @@
     <div>
 
         <br />
+        <br />
 
         <h1 style="text-align:center"> Import från Avanza </h1>
+        
+        <br />
 
         <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
@@ -90,10 +93,9 @@
             <br />
             <br />
             <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+            <br />
+            <br />
         </div>
-
-        <br />
-        <br />
 
     </div>
 
@@ -483,7 +485,9 @@
 
     private async Task ImportExcelFile(InputFileChangeEventArgs e)
     {
-        SharesImportsFile importModel = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == SharesImportsFile.SharesImportsFileId);
+        SharesImportsFile? importModel = db.SharesImportsFiles.Any() ?
+                                            db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == SharesImportsFile.SharesImportsFileId) :
+                                                throw new Exception("Importen hittades inte i databasen!");
 
         int rowCount = 0;
         int transactionCounter = 0;
@@ -520,18 +524,18 @@
                         for (int i = 2; i < rowCount + 1; i++)
                         {
                             setImport = new()
-                                {
-                                    Date = ws.Cells[i, 1].Value == null ? string.Empty : ws.Cells[i, 1].Value.ToString(),
-                                    AccountNumber = ws.Cells[i, 2].Value == null ? string.Empty : ws.Cells[i, 2].Value.ToString(),
-                                    TypeOfTransaction = ws.Cells[i, 3].Value == null ? string.Empty : ws.Cells[i, 3].Value.ToString(),
-                                    CompanyOrInformation = ws.Cells[i, 4].Value == null ? string.Empty : ws.Cells[i, 4].Value.ToString(),
-                                    NumberOfSharesString = ws.Cells[i, 5].Value == null ? string.Empty : ws.Cells[i, 5].Value.ToString(),
-                                    PricePerShareString = ws.Cells[i, 6].Value == null ? string.Empty : ws.Cells[i, 6].Value.ToString(),
-                                    AmountString = ws.Cells[i, 7].Value == null ? string.Empty : ws.Cells[i, 7].Value.ToString(),
-                                    BrokerageString = ws.Cells[i, 8].Value == null ? string.Empty : ws.Cells[i, 8].Value.ToString(),
-                                    Currency = ws.Cells[i, 9].Value == null ? string.Empty : ws.Cells[i, 9].Value.ToString(),
-                                    ISIN = ws.Cells[i, 10].Value == null ? string.Empty : ws.Cells[i, 10].Value.ToString()
-                                };
+                            {
+                                Date = ws.Cells[i, 1].Value == null ? string.Empty : ws.Cells[i, 1].Value.ToString(),
+                                AccountNumber = ws.Cells[i, 2].Value == null ? string.Empty : ws.Cells[i, 2].Value.ToString(),
+                                TypeOfTransaction = ws.Cells[i, 3].Value == null ? string.Empty : ws.Cells[i, 3].Value.ToString(),
+                                CompanyOrInformation = ws.Cells[i, 4].Value == null ? string.Empty : ws.Cells[i, 4].Value.ToString(),
+                                NumberOfSharesString = ws.Cells[i, 5].Value == null ? string.Empty : ws.Cells[i, 5].Value.ToString(),
+                                PricePerShareString = ws.Cells[i, 6].Value == null ? string.Empty : ws.Cells[i, 6].Value.ToString(),
+                                AmountString = ws.Cells[i, 7].Value == null ? string.Empty : ws.Cells[i, 7].Value.ToString(),
+                                BrokerageString = ws.Cells[i, 8].Value == null ? string.Empty : ws.Cells[i, 8].Value.ToString(),
+                                Currency = ws.Cells[i, 9].Value == null ? string.Empty : ws.Cells[i, 9].Value.ToString(),
+                                ISIN = ws.Cells[i, 10].Value == null ? string.Empty : ws.Cells[i, 10].Value.ToString()
+                            };
 
                             importList.Add(setImport);
                         }
@@ -637,6 +641,8 @@
             SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
+                    CompanyOrInformation = vm.CompanyName,
+                    TypeOfTransaction = "Sälj aktie",
                     ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen!",
                     Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nAktien: {vm.CompanyName} \r\nISIN: {vm.ISIN}."
                 };
@@ -671,8 +677,10 @@
             SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
+                    CompanyOrInformation = vm.FundName,
+                    TypeOfTransaction = "Sälj fond",
                     ErrorMessage = $"Felmeddelande: Fonden jag försöker sälja finns inte i databasen!",
-                    Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nFonden: {vm.FundName} \r\nISIN: {vm.ISIN}."
+                    Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nISIN: {vm.ISIN}."
                 };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);
