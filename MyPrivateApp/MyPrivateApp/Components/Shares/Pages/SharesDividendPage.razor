@@ -18,54 +18,56 @@
 
 <br />
 
-@* Navigation *@
-<div>
-
-    @* Navigation - Desktop *@
-    <div id="desktop" style="text-align:center">
-        <div class="btn-group">
-            <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-            <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
-            <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
-            <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
-            <NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink>
-            <NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink>
-            <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
-            <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
-            <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
-            <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
-            <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
-            <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
-        </div>
-    </div>
-
-    @* Navigation - Mobile *@
-    <div id="mobile">
-        <div class="btn-group" role="group">
-            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Alla aktier sidor
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
-            </ul>
-        </div>
-    </div>
-
-</div>
 
 @* Header *@
 <div>
+
+    @* Navigation *@
+    <div>
+
+        @* Navigation - Desktop *@
+        <div id="desktop" style="text-align:center">
+            <div class="btn-group">
+                <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+                <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
+                <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
+                <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
+                <NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink>
+                <NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink>
+                <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
+                <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
+                <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
+                <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
+                <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
+                <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+            </div>
+        </div>
+
+        @* Navigation - Mobile *@
+        <div id="mobile">
+            <div class="btn-group" role="group">
+                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Alla aktier sidor
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+                    <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
 
     <br />
     <br />
@@ -115,6 +117,14 @@
 
                         <div class="col-4">
                             <div class="form-floating">
+                                <InputDate @bind-Value="sharesDividend.Date" class="form-control" disabled="@DisabledForm" />
+                                <label for="Date"> Datum </label>
+                                <ValidationMessage For="() => sharesDividend.Date" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
                                 <InputText @bind-Value="sharesDividend.Company" class="form-control" disabled="@DisabledForm" />
                                 <label for="Company"> Företag </label>
                                 <ValidationMessage For="() => sharesDividend.Company" class="text-danger" />
@@ -129,14 +139,6 @@
                             </div>
                         </div>
 
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <InputText @bind-Value="sharesDividend.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
-                                <label for="TypeOfTransaction"> Typ av transaktion </label>
-                                <ValidationMessage For="() => sharesDividend.TypeOfTransaction" class="text-danger" />
-                            </div>
-                        </div>
-
                     </div>
 
                     <br />
@@ -147,9 +149,9 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="sharesDividend.Date" class="form-control" disabled="@DisabledForm" />
-                                <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => sharesDividend.Date" class="text-danger" />
+                                <InputText @bind-Value="sharesDividend.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <label for="TypeOfTransaction"> Typ av transaktion </label>
+                                <ValidationMessage For="() => sharesDividend.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 

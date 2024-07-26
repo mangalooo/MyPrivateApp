@@ -148,11 +148,11 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Company = model.CompanyOrInformation,
                 NumberOfShares = int.Parse(model.NumberOfSharesString),
                 PricePerShare = double.Parse(model.PricePerShareString),
-                Brokerage = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 AccountNumber = model.AccountNumber,
                 TotalAmount = double.Parse(model.AmountString),
+                TypeOfTransaction = model.TypeOfTransaction
             };
 
             return vm;
@@ -186,8 +186,10 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
+                CompanyOrInformation = vm.Company,
+                TypeOfTransaction = vm.TypeOfTransaction,
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} UTDELNING: \r\nImport: {importTrue} \r\nFöretag: {vm.Company} \r\nISIN: {vm.ISIN} \r\nDatum: {vm.Date} "
+                Note = $"{type} UTDELNING: \r\nDatum: {vm.Date} \r\nImport: {importTrue}  \r\nISIN: {vm.ISIN} \r\nId: {vm.DividendId}. "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

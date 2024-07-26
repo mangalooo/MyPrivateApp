@@ -19,7 +19,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && vm.PricePerFunds > 0)
                 {
                     SharesPurchasedFunds model = ChangesFromViewModelToModel(vm);
-                    model.Note += $"Köper {model.FundName} fond:\r\n Import: {importTrue} \r\n Datum: {model.DateOfPurchase.ToString()[..10]} \r\n Hur många: {model.HowMany} \r\n " +
+                    model.Note += $"Köper {model.FundName} fonden:\r\n Import: {importTrue} \r\n Datum: {model.DateOfPurchase.ToString()[..10]} \r\n Hur många: {model.HowMany} \r\n " +
                                   $"Pris per st: {model.PricePerFunds}\r\n Summan: {model.Amount}\r\n Avgift: {model.Fee} ";
 
                     try
@@ -172,9 +172,15 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && vm.SharesPurchasedFundId != 0 && db != null)
             {
                 if (import == false)
+                {
                     if (vm.SaleDateOfPurchase == DateTime.MinValue && vm.SaleHowMany > 0 && vm.SalePricePerFunds > 0 && vm.SaleFee > 0)
                         return "Du måste fylla i fälten: Sälj: Datum, Sälj: Antal, Sälj: Pris per fond del, Sälj: Avgift! Den totala avgiften måsta skrivas in innan sälja fonden!";
-
+                }
+                else if (import == true && vm.SaleFee == 0)
+                {
+                    ErrorHandling(db, vm, "Sälj", import, "Du får inte sälja fonden utan avgift!");
+                    return string.Empty;
+                }
                 string importTrue = import ? "Ja" : "Nej";
 
                 SharesPurchasedFunds getDbFundsPurchasedsModel = Get(db, vm.ISIN);
@@ -199,15 +205,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                             PricePerFunds= getDbFundsPurchasedsModel.PricePerFunds,
                             PricePerFundsSold = vm.SalePricePerFunds,
                             AmountSold = vm.SalePricePerFunds * vm.SaleHowMany,
-                            Note = $"{getDbFundsPurchasedsModel.Note} |*** Import: {importTrue}, Sålt fonden: {getDbFundsPurchasedsModel.FundName}, " +
-                                   $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]}, Hur många: {vm.SaleHowMany}, Pris per st: {vm.SalePricePerFunds}, " +
-                                   $"Summan: {vm.SaleHowMany * vm.SalePricePerFunds}, Avgift: {getDbFundsPurchasedsModel.Fee + vm.SaleFee}. "
+                            Note = $"{getDbFundsPurchasedsModel.Note} \r\n\r\nSålt fonden: {getDbFundsPurchasedsModel.FundName} \r\nImport: {importTrue}, " +
+                                   $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.SaleHowMany} \r\nPris per st: {vm.SalePricePerFunds} " +
+                                   $"\r\nSumman: {vm.SaleHowMany * vm.SalePricePerFunds} \r\nAvgift: {getDbFundsPurchasedsModel.Fee + vm.SaleFee} "
                         };
 
                         fund.MoneyProfitOrLoss = fund.AmountSold - fund.Amount;
-
                         double calculateMoneyProfitOrLoss = (fund.AmountSold / fund.Amount) - 1;
-
                         fund.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
 
                         try
@@ -221,7 +225,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                         }
 
                         // Tax (fee) must be added to the fee table!
-                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(fund.Fee, $"Avgiften för fonden: {vm.FundName}");
+                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, fund.Fee, $"Avgiften för fonden: {vm.FundName}");
                         sharesFeeClass.Add(db, FeeVM, import);
 
                         // Removes the bought fund that is moved to sold fund
@@ -245,15 +249,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                             PricePerFunds= getDbFundsPurchasedsModel.PricePerFunds,
                             PricePerFundsSold = vm.SalePricePerFunds,
                             AmountSold = vm.SalePricePerFunds * vm.SaleHowMany,
-                            Note = $"{getDbFundsPurchasedsModel.Note} |*** Import: {importTrue}, Sålt delar av fonden: {getDbFundsPurchasedsModel.FundName}, Datum: {vm.SaleDateOfPurchase.ToString()[..10]}, " +
-                                   $"Hur många: {vm.SaleHowMany}, Pris per st: {vm.SalePricePerFunds}, " +
-                                   $"Summan: {vm.SaleHowMany * vm.SalePricePerFunds}, Courtage: {vm.SaleFee}. "
+                            Note = $"{getDbFundsPurchasedsModel.Note} \r\n\r\nSålt delar av fonden: {getDbFundsPurchasedsModel.FundName} \r\nImport: {importTrue} " +
+                                   $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.SaleHowMany} " +
+                                   $"\r\nPris per st: {vm.SalePricePerFunds} \r\nSumman: {vm.SaleHowMany * vm.SalePricePerFunds} \r\nCourtage: {vm.SaleFee} "
                         };
 
                         fund.MoneyProfitOrLoss = fund.AmountSold - fund.Amount;
-
                         double calculateMoneyProfitOrLoss = (fund.AmountSold / fund.Amount) - 1;
-
                         fund.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
 
                         try
@@ -267,7 +269,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                         }
 
                         // Tax (fee) must be added to the fee table! (For the parts that were sold)
-                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(fund.Fee, $"Avgift för sålda delar av fonden: {vm.FundName}");
+                        SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, fund.Fee, $"Avgift för sålda delar av fonden: {vm.FundName}");
                         sharesFeeClass.Add(db, FeeVM, false);
 
                         // Removes portions of the purchased funds that are moved to sold funds
@@ -303,12 +305,23 @@ namespace MyPrivateApp.Components.Shares.Classes
                 try
                 {
                     dbModel.HowMany -= vm.SaleHowMany;
-                    dbModel.Amount = dbModel.HowMany * vm.PricePerFunds;
-                    dbModel.Note = vm.Note + $"|*** Import: {importTrue},  Sålt delar av fonden  {vm.FundName}: " +
-                        $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]} Hur många: {vm.SaleHowMany} " +
-                        $"Pris per st: {vm.SalePricePerFunds} Summan:  {vm.SaleHowMany * vm.SalePricePerFunds}, " +
-                        $"Courtage: {vm.SaleFee}  ";
+                    dbModel.Amount = dbModel.HowMany * dbModel.PricePerFunds;
 
+                    if (string.IsNullOrEmpty(dbModel.Note))
+                    {
+                        dbModel.Note = dbModel.Note + $"Sålt delar av fonden  {vm.FundName}: " +
+                                                      $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nImport: {importTrue} \r\nHur många: {vm.SaleHowMany} " +
+                                                      $"\r\nPris per st: {vm.SalePricePerFunds} \r\nSumman:  {vm.SaleHowMany * vm.SalePricePerFunds} " +
+                                                      $"\r\nCourtage: {vm.SaleFee}  ";
+                    }
+                    else 
+                    {
+                        dbModel.Note = dbModel.Note + $"\r\n\r\nSålt delar av fonden  {vm.FundName}: " +
+                                                      $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nImport: {importTrue} \r\nHur många: {vm.SaleHowMany} " +
+                                                      $"\r\nPris per st: {vm.SalePricePerFunds} \r\nSumman:  {vm.SaleHowMany * vm.SalePricePerFunds} " +
+                                                      $"\r\nCourtage: {vm.SaleFee}  ";
+                    }
+                    
                     db.SaveChanges();
 
                 }
@@ -386,7 +399,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 SaleDateOfPurchase = date,
                 FundName = model.CompanyOrInformation,
-                SaleHowMany = int.Parse(model.NumberOfSharesString),
+                SaleHowMany = double.Round(double.Parse(model.NumberOfSharesString), 2, MidpointRounding.AwayFromZero),
                 SalePricePerFunds = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
                 SaleFee = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
@@ -406,7 +419,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 DateOfPurchase = date,
                 FundName = model.CompanyOrInformation,
-                HowMany = double.Parse(model.NumberOfSharesString),
+                HowMany = double.Round(double.Parse(model.NumberOfSharesString), 2, MidpointRounding.AwayFromZero),
                 PricePerFunds = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
                 Fee = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
@@ -439,13 +452,20 @@ namespace MyPrivateApp.Components.Shares.Classes
             return sharesPurchasedFunds;
         }
 
-        private static SharesFeeViewModel ChangeFromToPurchasedToFeeViewModel(double tax, string note)
+        private static SharesFeeViewModel ChangeFromToPurchasedToFeeViewModel(SharesPurchasedFundViewModel vm, double tax, string note)
         {
             SharesFeeViewModel fee = new()
             {
                 Date = DateTime.Now,
+                CompanyOrInformation = vm.FundName,
                 Tax = tax,
-                Note = note
+                Note = note,
+
+                // For error information
+                DateOfFee = vm.SaleDateOfPurchase,
+                Account = vm.Account,
+                TypeOfTransaction = "Sälj fond",
+                ISIN = vm.ISIN
             };
 
             return fee;
@@ -461,9 +481,11 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
+                CompanyOrInformation = vm.FundName,
+                TypeOfTransaction = type + " fond",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"Import: {importTrue}, {type} FOND: Fond namn: {vm.FundName}, " +
-                        $"Datum: {vm.DateOfPurchase}, Id: {vm.SharesPurchasedFundId}, ISIN: {vm.ISIN}."
+                Note = $"{type} FOND: \r\nDatum: {vm.DateOfPurchase} \r\nImport: {importTrue}, " +
+                        $"\r\nId: {vm.SharesPurchasedFundId} \r\nISIN: {vm.ISIN}."
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

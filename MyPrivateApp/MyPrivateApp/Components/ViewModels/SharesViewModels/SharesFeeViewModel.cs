@@ -13,6 +13,10 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
+        [Display(Name = "Namn")]
+        [DataType(DataType.Text)]
+        public string? CompanyOrInformation { get; set; }
+
         [Required(ErrorMessage = "Skriv in aktiens skatteavgif")]
         [Display(Name = "Skatt")]
         [DataType(DataType.Currency)]
@@ -26,5 +30,11 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]
         public string? Note { get; set; }
+
+        // Error information
+        public DateTime DateOfFee { get; set; }
+        public string? Account { get; set; }
+        public string? TypeOfTransaction { get; set; }
+        public string? ISIN { get; set; }
     }
 }

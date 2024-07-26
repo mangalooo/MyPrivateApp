@@ -247,9 +247,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
+                TypeOfTransaction = type,
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} BANKÖVERFÖRING ({vm.TypeOfTransaction}): \r\nImport: {importTrue} \r\nBelopp: {vm.DepositMoney} " +
-                $"\r\nDatum: {vm.Date} Id: {vm.DepositMoneyId} \r\nBeskrivning: {vm.TransferOptions} . "
+                Note = $"{type} BANKÖVERFÖRING: \r\nDatum: {vm.Date} \r\nImport: {importTrue} \r\nBelopp: {vm.DepositMoney} \r\nId: {vm.DepositMoneyId}. "
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

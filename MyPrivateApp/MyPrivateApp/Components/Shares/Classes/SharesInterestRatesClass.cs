@@ -136,6 +136,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Currency = model.Currency,
                 Date = date,
                 TotalAmount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
+                TypeOfTransaction = model.TypeOfTransaction
             };
 
             return vm;
@@ -165,8 +166,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings sharesErrorHandling = new()
             {
                 Date = $"{date.Year}-{date.Month}-{date.Day}",
+                TypeOfTransaction = vm.TypeOfTransaction,
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} RÄNTA: \r\nImport: {importTrue} \r\nTyp av transaktion: {vm.TypeOfTransaction} \r\nDatum: {vm.Date} \r\nId: {vm.InterestRatesId}"
+                Note = $"{type} RÄNTA: \r\nDatum: {vm.Date} \r\nImport: {importTrue} \r\nId: {vm.InterestRatesId}"
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

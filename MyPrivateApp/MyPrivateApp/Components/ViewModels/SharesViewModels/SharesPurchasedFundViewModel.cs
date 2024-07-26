@@ -79,7 +79,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public DateTime SaleDateOfPurchase { get; set; }
 
         [Display(Name = "Sälj: Antal")]
-        public int SaleHowMany { get; set; }
+        public double SaleHowMany { get; set; }
 
         [Display(Name = "Sälj: Pris per fond del")]
         [DataType(DataType.Currency)]

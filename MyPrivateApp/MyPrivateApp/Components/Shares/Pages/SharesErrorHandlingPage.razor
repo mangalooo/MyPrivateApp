@@ -91,6 +91,22 @@
                              </div>
                          </div>
 
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="SharesErrorHandling.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
+                                <label for="CompanyOrInformation"> Aktie / fond </label>
+                                <ValidationMessage For="() => SharesErrorHandling.CompanyOrInformation" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="SharesErrorHandling.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <label for="TypeOfTransaction"> Transaktion </label>
+                                <ValidationMessage For="() => SharesErrorHandling.TypeOfTransaction" class="text-danger" />
+                            </div>
+                        </div>
+
                      </div>
 
                      <br />
@@ -142,6 +158,8 @@
                      <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
 
                          <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                         <PropertyColumn Title="Aktie / fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
+                         <PropertyColumn Title="Transaktion" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
                          <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
 
                          <TemplateColumn Title="Info">

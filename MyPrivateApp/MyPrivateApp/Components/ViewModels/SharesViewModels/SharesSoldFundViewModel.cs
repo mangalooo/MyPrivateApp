@@ -40,7 +40,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [ScaffoldColumn(false)]
         [Display(Name = "Antal")]
-        public int HowMany { get; set; }
+        public double HowMany { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad fonden kostade per styck")]
         [Display(Name = "Pris per fond")]

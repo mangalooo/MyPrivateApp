@@ -19,6 +19,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                     if (getDbModel != null)
                     {
                         getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
+                        getDbModel.CompanyOrInformation = vm.CompanyOrInformation;
+                        getDbModel.TypeOfTransaction = vm.TypeOfTransaction;
                         getDbModel.ErrorMessage = vm.ErrorMessage;
                         getDbModel.Note = vm.Note;
 
@@ -49,6 +51,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesErrorHandlings model = new()
             {
                 ErrorHandlingsId = vm.ErrorHandlingsId,
+                CompanyOrInformation = vm.CompanyOrInformation,
+                TypeOfTransaction = vm.TypeOfTransaction,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 ErrorMessage = vm.ErrorMessage,
                 Note = vm.Note
@@ -59,15 +63,20 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public static SharesErrorHandlingViewModel ChangeFromModelToViewModel(SharesErrorHandlings model)
         {
-            DateTime date = DateTime.Parse(model.Date);
-
             SharesErrorHandlingViewModel vm = new()
             {
                 ErrorHandlingsId = model.ErrorHandlingsId,
-                Date = date,
+                CompanyOrInformation = model.CompanyOrInformation,
+                TypeOfTransaction = model.TypeOfTransaction,
                 ErrorMessage = model.ErrorMessage,
                 Note = model.Note
             };
+
+            if (!string.IsNullOrEmpty(model.Date))
+            {
+                DateTime date = DateTime.Parse(model.Date);
+                vm.Date = date;
+            }
 
             return vm;
         }
@@ -86,14 +95,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"DeleteErrorHandling {DateTime.Now}: Date: {model.Date} Error handling: {model.Date} Error: {ex.Message}");
-
                     DateTime date = DateTime.Now;
 
                     SharesErrorHandlings sharesErrorHandling = new()
                     {
                         Date = $"{date.Year}-{date.Month}-{date.Day}",
-                        ErrorMessage = $"Ta bort felhandtering: {DateTime.Now}:  Datum: {model.Date} Fel hantering: {model.ErrorMessage} \n Felmeddelande: {ex.Message}"
+                        ErrorMessage = $"Ta bort felhandtering:  Datum: {model.Date} Fel hantering: {model.ErrorMessage} \n Felmeddelande: {ex.Message}"
                     };
 
                     db.SharesErrorHandlings.Add(sharesErrorHandling);
