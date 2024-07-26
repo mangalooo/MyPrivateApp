@@ -1,7 +1,8 @@
-﻿
-using MyPrivateApp.Client.ViewModels;
+﻿using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data;
+using Hangfire;
+using MagnusPrivateApp.Services.EmailServices;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {
@@ -31,7 +32,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                 }
                 else
                     return "Ingen namn eller födelsedag ifyllt!";
-                
+
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
@@ -183,6 +184,32 @@ namespace MyPrivateApp.Components.Contact.Classes
             };
 
             return contact;
+        }
+
+        public void GetBirthday(ApplicationDbContext db)
+        {
+            foreach (Contacts item in db.Contacts)
+            {
+                DateTime date = Convert.ToDateTime(item.Birthday);
+
+                if (DateTime.Now.Month == date.Month && DateTime.Now.Day == date.Day)
+                {
+                    int year = DateTime.Now.Year - date.Year;
+
+                    EmailSender emailSender = new();
+
+                    IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
+                    string mailBirthday = config.GetSection("AppSettings")["mailBirthday"];
+
+                    if (!string.IsNullOrEmpty(mailBirthday))
+                    {
+                        BackgroundJob.Schedule(() => emailSender.SendEmailBirthday(
+                        item.Name + " " + year.ToString() + " år", mailBirthday, "Födelsedag",
+                        "Ring: " + item.PhoneNumber, mailBirthday),
+                        new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
+                    }
+                }
+            }
         }
     }
 }

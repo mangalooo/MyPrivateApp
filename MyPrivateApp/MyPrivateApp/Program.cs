@@ -11,6 +11,9 @@ using MyPrivateApp.Components.Shares.Classes;
 using MyPrivateApp.Components.ShoppingList.Classes;
 using MyPrivateApp.Components.Trip.Classes;
 using MyPrivateApp.Data;
+using Hangfire;
+using Hangfire.SqlServer;
+using MagnusPrivateApp.Services.EmailServices;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddBlazorBootstrap();
+
+// Email
+//builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 // Private
 builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
@@ -61,11 +68,13 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy => policy.RequireRole("Admin")); // Role admin
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+var db = builder.Services.BuildServiceProvider().GetService<ApplicationDbContext>();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
@@ -74,6 +83,22 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+// Hangfire
+builder.Services.AddHangfire(x => x
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+    {
+        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+        QueuePollInterval = TimeSpan.Zero,
+        UseRecommendedIsolationLevel = true,
+        DisableGlobalLocks = true
+    }));
+
+builder.Services.AddHangfireServer();
 
 WebApplication app = builder.Build();
 
@@ -102,5 +127,14 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+//Hangfire
+app.UseHangfireDashboard("/dashboard");
+
+IEmailSender emailSender = app.Services.GetService<IEmailSender>();
+
+// Sends automatic email if a contact has birthday
+ContactClass contactClass = new();
+contactClass.GetBirthday(db);
 
 app.Run();
