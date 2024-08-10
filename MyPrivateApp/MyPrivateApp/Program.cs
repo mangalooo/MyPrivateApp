@@ -129,9 +129,7 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 //Hangfire
-app.UseHangfireDashboard("/dashboard");
-
-IEmailSender emailSender = app.Services.GetService<IEmailSender>();
+app.UseHangfireDashboard("/hangfire");
 
 // Sends automatic email if a contact has birthday
 ContactClass contactClass = new();
