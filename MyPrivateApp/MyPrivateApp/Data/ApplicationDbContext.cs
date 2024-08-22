@@ -21,6 +21,7 @@ namespace MyPrivateApp.Data
         //Hunting
         public DbSet<HuntingMyList> HuntingMyList { get; set; }
         public DbSet<HuntingTeamMembers> HuntingTeamMembers { get; set; }
+        public DbSet<HuntingTowerInspection> HuntingTowerInspections { get; set; }
 
         // Shares
         public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; }

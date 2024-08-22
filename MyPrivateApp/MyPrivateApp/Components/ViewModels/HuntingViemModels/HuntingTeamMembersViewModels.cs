@@ -32,7 +32,7 @@ namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
         [DataType(DataType.PhoneNumber)]
         public string? MobilePhone { get; set; }
 
-        [DataType(DataType.Text)]
+        [DataType(DataType.MultilineText)]
         public string? Note { get; set; }
     }
 }

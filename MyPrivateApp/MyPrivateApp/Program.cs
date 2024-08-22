@@ -14,6 +14,7 @@ using MyPrivateApp.Data;
 using Hangfire;
 using Hangfire.SqlServer;
 using MagnusPrivateApp.Services.EmailServices;
+using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IFarmingClass, FarmingClass>();
 // Hunting
 builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();
 builder.Services.AddScoped<IHuntingTeamMemberClass, HuntingTeamMemberClass>();
+builder.Services.AddScoped<IHuntingTowerInspectionClass, HuntingTowerInspectionClass>();
 
 // Shares
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();
