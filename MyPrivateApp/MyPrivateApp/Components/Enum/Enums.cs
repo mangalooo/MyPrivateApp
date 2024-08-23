@@ -9,6 +9,7 @@ namespace MyPrivateApp.Components.Enum
         Karlabo,
         Skog,
         Smältryd,
+        Österbyn,
         Övrigt
     }
 

@@ -54,6 +54,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                             getDbModel.HuntingMyListId = vm.HuntingMyListId;
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
                             getDbModel.WildAnimal = vm.WildAnimal;
+                            getDbModel.HuntingForm = vm.HuntingForm;
                             getDbModel.Type = vm.Type;
                             getDbModel.Dog = vm.Dog;
                             getDbModel.HuntingPlaces = vm.HuntingPlaces;
@@ -110,6 +111,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 HuntingMyListId = model.HuntingMyListId,
                 Date = date,
                 WildAnimal = model.WildAnimal,
+                HuntingForm = model.HuntingForm,
                 Type = model.Type,
                 Dog = model.Dog,
                 HuntingPlaces = model.HuntingPlaces,
@@ -126,6 +128,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 HuntingMyListId = vm.HuntingMyListId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 WildAnimal = vm.WildAnimal,
+                HuntingForm = vm.HuntingForm,
                 Type = vm.Type,
                 Dog = vm.Dog,
                 HuntingPlaces = vm.HuntingPlaces,

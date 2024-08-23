@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240823101836_addHuntingTypeFieldToHuntingMyList")]
+    partial class addHuntingTypeFieldToHuntingMyList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -442,10 +445,10 @@ namespace MyPrivateApp.Migrations
                     b.Property<string>("Dog")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("HuntingForm")
+                    b.Property<int>("HuntingPlaces")
                         .HasColumnType("int");
 
-                    b.Property<int>("HuntingPlaces")
+                    b.Property<int>("HuntingType")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
