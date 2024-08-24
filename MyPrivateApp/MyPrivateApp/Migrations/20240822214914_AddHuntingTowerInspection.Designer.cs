@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240822214914_AddHuntingTowerInspection")]
+    partial class AddHuntingTowerInspection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -302,34 +305,6 @@ namespace MyPrivateApp.Migrations
                     b.ToTable("Contacts");
                 });
 
-            modelBuilder.Entity("MyPrivateApp.Data.Models.FarmWorks", b =>
-                {
-                    b.Property<int>("FarmWorksId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FarmWorksId"));
-
-                    b.Property<string>("Date")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Hours")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("NextSalary")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Place")
-                        .HasColumnType("int");
-
-                    b.HasKey("FarmWorksId");
-
-                    b.ToTable("FarmWorks");
-                });
-
             modelBuilder.Entity("MyPrivateApp.Data.Models.Farming.FarmingsActive", b =>
                 {
                     b.Property<int>("FarmingId")
@@ -468,21 +443,23 @@ namespace MyPrivateApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Dog")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("HuntingForm")
-                        .HasColumnType("int");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("HuntingPlaces")
+                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("WildAnimal")
+                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     b.HasKey("HuntingMyListId");

@@ -9,6 +9,7 @@ namespace MyPrivateApp.Components.Enum
         Karlabo,
         Skog,
         Smältryd,
+        Österbyn,
         Övrigt
     }
 
@@ -57,6 +58,7 @@ namespace MyPrivateApp.Components.Enum
         Hare,
         Ko,
         Rådjur,
+        Vildkanin,
         Vildsvin,
         Älg,
         Övrigt
@@ -70,6 +72,7 @@ namespace MyPrivateApp.Components.Enum
         Lo,
         Rådjur,
         Räv,
+        Vildkanin,
         Vildsvin,
         Älg,
         Övrigt
@@ -79,8 +82,9 @@ namespace MyPrivateApp.Components.Enum
     {
         Välj,
         Fågeljakt,
-        Grävlingjakt,
+        Grävlingsjakt,
         Harjakt,
+        VildKaninsjakt,
         Lojakt,
         Rådjursjakt,
         Rävjakt,
@@ -103,5 +107,15 @@ namespace MyPrivateApp.Components.Enum
         Välj,
         Observerat,
         Skjutit
+    }
+
+    public enum HuntingTodo
+    {
+        Välj,
+        Bygga,
+        Flytta,
+        Reparera,
+        Röja,
+        Övrigt
     }
 }

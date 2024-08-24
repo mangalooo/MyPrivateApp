@@ -12,24 +12,19 @@ namespace MyPrivateApp.Data.Models.Hunting
         [DataType(DataType.Text)]
         public string? Date { get; set; }
 
-        [DataType(DataType.Text)]
-        [StringLength(50)]
         public WildAnimal WildAnimal { get; set; }
 
+        public HuntingForm HuntingForm { get; set; }
+
         [DataType(DataType.Text)]
-        [StringLength(50)]
         public string? Type { get; set; }
 
         [DataType(DataType.Text)]
-        [StringLength(50)]
         public string? Dog { get; set; }
 
-        [DataType(DataType.Text)]
-        [StringLength(50)]
         public HuntingPlaces HuntingPlaces { get; set; }
 
         [DataType(DataType.Text)]
-        [StringLength(50)]
         public string? Note { get; set; }
     }
 }

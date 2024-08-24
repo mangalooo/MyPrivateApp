@@ -1,0 +1,577 @@
+﻿@page "/HuntingTowerInspectionPage"
+
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Hunting.Classes
+@using MyPrivateApp.Components.ViewModels.HuntingViemModels
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@rendermode InteractiveServer
+
+@inject ApplicationDbContext db;
+@inject NavigationManager Navigation
+@inject IHuntingTowerInspectionClass HuntingTowerInspectionClass
+
+<PageTitle> Jakt </PageTitle>
+
+@* Header *@
+<div>
+
+    <br />
+
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+            <NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Min lista </NavLink>
+            <NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink>
+            <NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink>
+        </div>
+    </div>
+
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+                <li class="dropdown-item"><NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Min lista </NavLink></li>
+                <li class="dropdown-item"><NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink></li>
+                <li class="dropdown-item"><NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink></li>
+            </ul>
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+    <h1 style="text-align:center"> Jakttornsbesiktningar </h1>
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny besikning </button>
+    </div>
+
+    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+        <br />
+        <br />
+        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+    </div>
+
+    <br />
+    <br />
+
+</div>
+
+<div class="container">
+    <div class="col-md-12">
+        <div class="card">
+
+            @* Form *@
+            <div class="card-header">
+                <EditForm Model="hunting" OnSubmit="AddOrEdit" FormName="AddOrUpdateHunting" Enhance hidden="@(!HideNewOrChangesFields)">
+
+                     <DataAnnotationsValidator />
+
+                     <ValidationSummary class="text-danger" role="alert" />
+
+
+                     <div class="row">
+
+                         <div id="mobile" class="col-3" />
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="hunting.Date" class="form-control" disabled="@DisabledForm" />
+                                <label for="Date"> Datum </label>
+                                <ValidationMessage For="() => hunting.Date" class="text-danger" />
+                            </div>
+                        </div>
+
+                         <div class="col-3">
+                             <div class="form-floating">
+                                <InputSelect @bind-Value="hunting.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object place in Enum.GetValues(typeof(HuntingPlaces)))
+                                    {
+                                        <option value="@place">@place</option>
+                                    }
+                                </InputSelect>
+                                <label for="Place"> Plats </label>
+                                <ValidationMessage For="() => hunting.Place" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="hunting.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="Number"> Nummer </label>
+                                <ValidationMessage For="() => hunting.Number" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputSelect @bind-Value="hunting.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object Todo in Enum.GetValues(typeof(HuntingTodo)))
+                                    {
+                                        <option value="@Todo">@Todo</option>
+                                    }
+                                </InputSelect>
+                                <label for="Todo"> Att göra </label>
+                                <ValidationMessage For="() => hunting.Todo" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="hunting.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Beskrivning </label>
+                                <ValidationMessage For="() => hunting.Note" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div style="text-align:center">
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till besiktning </button>
+                    </div>
+
+                    <div style="text-align:center">
+                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                    </div>
+
+                    <br />
+
+                    <div style="text-align:center">
+                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                    </div>
+
+                    <br />
+                    <br />
+                </EditForm>
+            </div>
+
+            @* Desktop screen *@
+            <div id="desktop">
+                <div class="card-body">
+                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
+
+                        <PropertyColumn Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
+
+                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchPlace" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Nummer" Property="@(c => c.Number)" Sortable="true" />
+
+                        <PropertyColumn Title="Att göra" Property="@(c => c.Todo)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchTodo" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort besiktningen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort besiktning </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* Mobile streen *@
+            <div id="mobile">
+                <div class="card-body">
+                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchPlace" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+                        <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true" />
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort besiktningen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort besiktning </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
+<div class="footer" align="center">
+    <p> Copyright 2023 - @DateTime.Now.Year</p>
+</div>
+
+<br />
+<br />
+
+@code
+{
+    [SupplyParameterFromForm]
+    private HuntingTowerInspectionViewModels hunting { get; set; } = new();
+
+    // Modol window settings
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool HideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<HuntingTowerInspectionViewModels> huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.HuntingTowerInspections.Count() == 0) return;
+
+        huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+        foreach (Data.Models.Hunting.HuntingTowerInspection model in db.HuntingTowerInspections.OrderBy(c => c.HuntingTowerInspectionId))
+        {
+            HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
+            huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
+    protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    private void AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (hunting.HuntingTowerInspectionId > 0)
+        {
+            // Edit
+            ErrorMessage = HuntingTowerInspectionClass.Edit(db, hunting);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                HideNewOrChangesForm();
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                hunting = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+        else
+        {
+            // Add
+            ErrorMessage = HuntingTowerInspectionClass.Add(db, hunting);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                HideNewOrChangesForm();
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = true;
+                ShowOrHideAddNewButton = false;
+                return;
+            }
+            else
+            {
+                hunting = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+    }
+
+    private void Info(HuntingTowerInspectionViewModels vm)
+    {
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
+        hunting = vm;
+    }
+
+    private void Edit(HuntingTowerInspectionViewModels vm)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        ShowOrHideCreateButton = true;
+        HideNewOrChangesFields = true;
+        hunting = vm;
+    }
+
+    private void Delete(HuntingTowerInspectionViewModels vm)
+    {
+        if (db.HuntingTowerInspections.Count() == 0) return;
+
+        ErrorMessage = HuntingTowerInspectionClass.Delete(db, vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            return;
+        }
+        else
+        {
+            hunting = new();
+            Navigation.Refresh(true);
+            return;
+        }
+    }
+
+    private void OpenDeleteWindow()
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
+
+    private void SearchPlace(ChangeEventArgs e)
+    {
+        huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            string getName = string.Empty;
+
+            foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+            {
+                getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
+
+                if (getName == e.Value.ToString().ToLower())
+                    break;
+            }
+
+            if (getName != string.Empty)
+            {
+                IEnumerable<Data.Models.Hunting.HuntingTowerInspection> result = null;
+
+                switch (getName.ToLower())
+                {
+                    case "Välj":
+                        break;
+
+                    case "habäck":
+                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Habäck);
+                        break;
+
+                    case "dalsjöfors":
+                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Dalsjöfors);
+                        break;
+
+                    case "karlabo":
+                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Karlabo);
+                        break;
+
+                    case "skog":
+                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Skog);
+                        break;
+
+                    case "smältryd":
+                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Smältryd);
+                        break;
+
+                    case "övrigt":
+                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Övrigt);
+                        break;
+                }
+
+                if (result == null || result.Count() == 0) return;
+
+                if (result.Any())
+                    foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
+                    {
+                        HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
+                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+                    }
+            }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchTodo(ChangeEventArgs e)
+    {
+        huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            string getName = string.Empty;
+
+            foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+            {
+                getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
+
+                if (getName == e.Value.ToString().ToLower())
+                    break;
+            }
+
+            if (getName != string.Empty)
+            {
+                IEnumerable<Data.Models.Hunting.HuntingTowerInspection> result = null;
+
+                switch (getName.ToLower())
+                {
+                    case "Välj":
+                        break;
+
+                    case "Bygga":
+                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Bygga);
+                        break;
+
+                    case "Flytta":
+                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Flytta);
+                        break;
+
+                    case "Reparera":
+                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Reparera);
+                        break;
+
+                    case "Röja":
+                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Röja);
+                        break;
+
+                    case "övrigt":
+                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Övrigt);
+                        break;
+                }
+
+                if (result == null || result.Count() == 0) return;
+
+                if (result.Any())
+                    foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
+                    {
+                        HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
+                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+                    }
+            }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+}

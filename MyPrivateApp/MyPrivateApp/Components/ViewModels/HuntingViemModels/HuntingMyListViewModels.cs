@@ -16,7 +16,11 @@ namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
 
         [Required(ErrorMessage = "Du måste skriva vilket vilt")]
         [Display(Name = "Vilt")]
-        public WildAnimal WildAnimal { get; set; }
+        public WildAnimal WildAnimal { get; set; }        
+        
+        [Required(ErrorMessage = "Du måste skriva vilket vilt")]
+        [Display(Name = "Jakt typ")]
+        public HuntingForm HuntingForm { get; set; }
 
         [Required(ErrorMessage = "Du måste skriva vilken typ av vilt")]
         [Display(Name = "Typ")]
