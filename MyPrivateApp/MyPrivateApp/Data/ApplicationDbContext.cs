@@ -17,6 +17,7 @@ namespace MyPrivateApp.Data
         public DbSet<ShopingList> ShopingLists { get; set; }
         public DbSet<FarmingsActive> FarmingsActive { get; set; }
         public DbSet<FarmingsInactive> FarmingsInactive { get; set; }
+        public DbSet<FarmWorks> FarmWorks { get; set; }
 
         //Hunting
         public DbSet<HuntingMyList> HuntingMyList { get; set; }

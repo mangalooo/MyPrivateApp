@@ -12,11 +12,22 @@ namespace MyPrivateApp.Components.Enum
         Övrigt
     }
 
+    public enum FarmWorkPlaces
+    {
+        Välj,
+        Habäck,
+        Karlabo,
+        Klev,
+        Skog,
+        Smältryd,
+        Övrigt
+    }
+
     public enum FreezerPlaces
     {
         Välj,
-        HemmaFörrådet,
-        HemmaLägenheten,
+        Förrådet,
+        Lägenheten,
         Skog,
         Österbyn,
         Övrigt

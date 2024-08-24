@@ -157,7 +157,7 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="Farming.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="5" style="height:100%;" @bind-Value="Farming.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
                                 <ValidationMessage For="() => Farming.Note" class="text-danger" />
                             </div>

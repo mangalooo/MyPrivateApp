@@ -14,6 +14,7 @@ using MyPrivateApp.Data;
 using Hangfire;
 using Hangfire.SqlServer;
 using MagnusPrivateApp.Services.EmailServices;
+using MyPrivateApp.Components.FarmWork.Classes;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,7 @@ builder.Services.AddScoped<IContactClass, ContactClass>();
 builder.Services.AddScoped<IFrozenFoodClass, FrozenFoodClass>();
 builder.Services.AddScoped<ITripClass, TripClass>();
 builder.Services.AddScoped<IFarmingClass, FarmingClass>();
+builder.Services.AddScoped<IFarmWorkClass, FarmWorkClass>();
 
 // Hunting
 builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();
@@ -74,7 +76,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-var db = builder.Services.BuildServiceProvider().GetService<ApplicationDbContext>();
+ApplicationDbContext? db = builder.Services.BuildServiceProvider().GetService<ApplicationDbContext>();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
