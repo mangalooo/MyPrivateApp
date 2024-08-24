@@ -14,6 +14,7 @@ using MyPrivateApp.Data;
 using Hangfire;
 using Hangfire.SqlServer;
 using MagnusPrivateApp.Services.EmailServices;
+using MyPrivateApp.Components.FarmWork.Classes;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
