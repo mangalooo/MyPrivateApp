@@ -90,9 +90,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                         default:
 
                             if (import)
-                                ErrorHandling(db, vm, "Lägg till", import, "Felmeddelande: Inget uttag eller insättning!");
+                                ErrorHandling(db, vm, "Lägg till", import, "Felmeddelande: Inget Uttag eller Insättning i Transaktion fältet!");
                             else
-                                return $"Felmeddelande: Felmeddelande: Inget uttag eller insättning!";
+                                return $"Felmeddelande: Felmeddelande: Inget Uttag eller Insättning i Transaktion fältet!";
                             
                             break;
                     }

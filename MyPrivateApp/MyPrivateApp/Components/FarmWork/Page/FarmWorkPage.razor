@@ -23,6 +23,10 @@
 
     <h1 style="text-align:center"> Gårdsarbete </h1>
 
+    <br />
+
+    <h3 style="text-align:center"> Nästa lön: @GetNextSalary()</h3>
+
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
         <br />
@@ -286,6 +290,11 @@
 
         </div>
     </div>
+
+    <br />
+
+    <button class="btn btn-outline-danger btn-sm" @onclick="@RemoveNextSalary"> Ta bort nästa lön </button>
+
 </div>
 
 <br />
@@ -320,7 +329,7 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<FarmWorksViewModels> FarmWorkQueryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
 
     // Load data from database to the Queryable container
@@ -337,6 +346,8 @@
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+
+        GetNextSalary();
     }
 
     protected override void OnInitialized() => ConvertListToQueryable();
@@ -466,7 +477,7 @@
 
             if (getName != string.Empty)
             {
-                    IEnumerable<Data.Models.FarmWorks> result = null;
+                IEnumerable<Data.Models.FarmWorks> result = null;
 
                 switch (getName.ToLower())
                 {
@@ -514,6 +525,24 @@
         Navigation.Refresh(true);
     }
 
+    private double GetNextSalary()
+    {
+        double nextSalary = 0;
+
+        if (db.FarmWorks.Count() > 0)
+        {
+            foreach (var item in db.FarmWorks)
+            {
+                if (item.NextSalary)
+                {
+                    nextSalary += item.Hours * 200;
+                }
+            }
+        }
+
+        return nextSalary;
+    }
+
     private void SearchNextSalary(ChangeEventArgs e)
     {
         string trueOrFalse = e.Value.ToString();
@@ -533,9 +562,28 @@
                     FarmWorksViewModels farmWork = FarmWorkClass.ChangeFromModelToViewModel(model);
                     FarmWorkQueryable = FarmWorkQueryable.Concat(new[] { farmWork }.AsQueryable());
                 }
+
             return;
         }
 
         Navigation.Refresh(true);
+    }
+
+    private void RemoveNextSalary()
+    {
+        if (db.FarmWorks.Count() > 0)
+        {
+            foreach (var item in db.FarmWorks)
+            {
+                if (item.NextSalary)
+                {
+                    item.NextSalary = false;
+
+                    db.SaveChanges();
+
+                    Navigation.Refresh(true);
+                }
+            }
+        }
     }
 }
