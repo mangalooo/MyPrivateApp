@@ -211,6 +211,33 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
+                    @if(ShowOrHideDetleteSalaryButton())
+                    {
+                        <br />
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary())"> Ta bort nästa lön </button>
+
+                        <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropSalary)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
+
                     <br />
                     <br />
 
@@ -282,6 +309,33 @@
                         </TemplateColumn>
                     </QuickGrid>
 
+                    @if (ShowOrHideDetleteSalaryButton())
+                    {
+                        <br />
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary())"> Ta bort nästa lön </button>
+
+                        <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropSalary)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
+
                     <br />
                     <br />
 
@@ -290,11 +344,6 @@
 
         </div>
     </div>
-
-    <br />
-
-    <button class="btn btn-outline-danger btn-sm" @onclick="@RemoveNextSalary"> Ta bort nästa lön </button>
-
 </div>
 
 <br />
@@ -317,6 +366,12 @@
     public string ModalDisplay = "none;";
     public string ModalClass = "";
     public bool ShowBackdrop = false;
+
+    // Modol window settings
+    public Guid GuidSalary = Guid.NewGuid();
+    public string ModalDisplaySalary = "none;";
+    public string ModalClassSalary = "";
+    public bool ShowBackdropSalary = false;
 
     // Hide button and fields
     private bool HideNewOrChangesFields { get; set; } = false;
@@ -459,6 +514,22 @@
         StateHasChanged();
     }
 
+    private void OpenDeleteWindowSalary()
+    {
+        ModalDisplaySalary = "block;";
+        ModalClassSalary = "Show";
+        ShowBackdropSalary = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindowSalary()
+    {
+        ModalDisplaySalary = "none";
+        ModalClassSalary = "";
+        ShowBackdropSalary = false;
+        StateHasChanged();
+    }
+
     private void SearchPlace(ChangeEventArgs e)
     {
         FarmWorkQueryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
@@ -543,6 +614,24 @@
         return nextSalary;
     }
 
+    private void RemoveNextSalary()
+    {
+        if (db.FarmWorks.Count() > 0)
+        {
+            foreach (var item in db.FarmWorks)
+            {
+                if (item.NextSalary)
+                {
+                    item.NextSalary = false;
+
+                    db.SaveChanges();
+                }
+            }
+
+            Navigation.Refresh(true);
+        }
+    }
+
     private void SearchNextSalary(ChangeEventArgs e)
     {
         string trueOrFalse = e.Value.ToString();
@@ -569,21 +658,15 @@
         Navigation.Refresh(true);
     }
 
-    private void RemoveNextSalary()
+    private bool ShowOrHideDetleteSalaryButton()
     {
+        bool any = false;
+
         if (db.FarmWorks.Count() > 0)
         {
-            foreach (var item in db.FarmWorks)
-            {
-                if (item.NextSalary)
-                {
-                    item.NextSalary = false;
-
-                    db.SaveChanges();
-
-                    Navigation.Refresh(true);
-                }
-            }
+            any = db.FarmWorks.Any(y => y.NextSalary == true);
         }
+
+        return any;
     }
 }
