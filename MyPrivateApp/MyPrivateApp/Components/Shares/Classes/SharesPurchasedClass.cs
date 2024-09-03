@@ -22,7 +22,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                     SharesPurchaseds model = ChangesFromViewModelToModel(vm);
                     model.Note += $"Köper: {model.CompanyName} aktier: \r\nImport: {importTrue} \r\nDatum: " +
                                   $"{model.DateOfPurchase.ToString()[..10]} \r\nHur många: {model.HowMany} " +
-                                  $"\r\nPris per st: {model.PricePerShares} \r\nSumman: {model.Amount} \r\nCourtage: {model.Brokerage}. ";
+                                  $"\r\nPris per st: {model.PricePerShares} \r\nSumman: {model.Amount}  " +
+                                  $"\r\nTotal summan: {model.Amount} \r\nCourtage: {model.Brokerage}. ";
 
                     try
                     {
@@ -116,9 +117,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                         DbModel.HowMany += vm.HowMany;
                         DbModel.Brokerage += vm.Brokerage;
                         DbModel.Amount += vm.HowMany * vm.PricePerShares;
-                        DbModel.Note += $"\r\n \r\n Köper mer aktier för {vm.CompanyName}: \r\nImport: {importTrue} \r\nDatum: " +
+                        DbModel.Note += $"\r\n\r\nKöper mer aktier för {vm.CompanyName}: \r\nImport: {importTrue} \r\nDatum: " +
                                         $"{vm.DateOfPurchase.ToString()[..10]} \r\nHur många: {vm.HowMany} \r\nPris per st: " +
-                                        $"{vm.PricePerShares} \r\nSumman: {DbModel.Amount} " +
+                                        $"{vm.PricePerShares} \r\nSumman: {vm.MorePricePerShares * vm.MoreHowMany} \r\nTotal summan: {DbModel.Amount}  " +
                                         $"\r\nCourtage: {vm.Brokerage} ";
                     }
                     else
@@ -126,9 +127,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                         DbModel.HowMany += vm.MoreHowMany;
                         DbModel.Brokerage += vm.MoreBrokerage;
                         DbModel.Amount += vm.MoreHowMany * vm.MorePricePerShares;
-                        DbModel.Note += $"\r\n \r\n Köper mer aktier för {vm.CompanyName}: \r\nImport: {importTrue} \r\nDatum: " +
+                        DbModel.Note += $"\r\n\r\nKöper mer aktier för {vm.CompanyName}: \r\nImport: {importTrue} \r\nDatum: " +
                                         $"{vm.MoreDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.MoreHowMany} \r\nPris per st: " +
-                                        $"{vm.MorePricePerShares} \r\nSumman: {DbModel.Amount}  " +
+                                        $"{vm.MorePricePerShares} \r\nSumman: {vm.MorePricePerShares * vm.MoreHowMany} \r\nTotal summan: {DbModel.Amount}  " +
                                         $"\r\nCourtage: {vm.MoreBrokerage} ";
                     }
 
@@ -256,7 +257,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                             AmountSold = vm.SalePricePerShares * vm.SaleHowMany,
                             Note = $"{getDbSharesPurchasedsModel.Note} \r\n\r\nSålt delar av aktien: {getDbSharesPurchasedsModel.CompanyName}" +
                                    $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nImport: {importTrue}  " +
-                                   $"\r\nHur många: {vm.SaleHowMany}, \r\nPris per st: {vm.SalePricePerShares} " +
+                                   $"\r\nHur många: {vm.SaleHowMany} \r\nPris per st: {vm.SalePricePerShares} " +
                                    $"\r\nSumman: {vm.SaleHowMany * vm.SalePricePerShares} \r\nCourtage: {vm.SaleBrokerage} "
                         };
 
