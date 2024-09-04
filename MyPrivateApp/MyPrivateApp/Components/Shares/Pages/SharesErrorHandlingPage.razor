@@ -16,57 +16,63 @@
 
 <PageTitle> Aktier </PageTitle>
 
-<br />
+@* Header *@
+<div>
 
-@* Navigation - Desktop *@
-<div id="desktop" style="text-align:center">
-    <div class="btn-group">
-        <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-        <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
-        <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
-        <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
-        <NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink>
-        <NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink>
-        <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
-        <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
-        <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
-        <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
-        <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
-        <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+    <br />
+
+    @* Navigation - Desktop *@
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+            <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
+            <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
+            <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
+            <NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink>
+            <NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink>
+            <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
+            <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
+            <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
+            <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
+            <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
+            <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+        </div>
     </div>
+
+    @* Navigation - Mobile *@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
+                <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
+            </ul>
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+    <h1 style="text-align:center"> Felhantering </h1>
+
+    <br />
+    <br />
+
 </div>
 
-@* Navigation - Mobile *@
-<div id="mobile">
-    <div class="btn-group" role="group">
-        <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Alla aktier sidor
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            <li class="dropdown-item"><NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-            <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
-        </ul>
-    </div>
-</div>
-
-<br />
-<br />
-
-<h1 style="text-align:center"> Felhantering </h1>
-
-<br />
-<br />
-
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -75,21 +81,21 @@
             <div class="card-header">
                 <EditForm Model="SharesErrorHandling" OnSubmit="Update" FormName="CreateOrUpdateSharesFees" Enhance hidden="@(!HideNewOrChangesFields)">
 
-                     <DataAnnotationsValidator />
+                    <DataAnnotationsValidator />
 
-                     <ValidationSummary class="text-danger" role="alert" />
+                    <ValidationSummary class="text-danger" role="alert" />
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div id="mobile" class="col-4" />
+                        <div id="mobile" class="col-4" />
 
-                         <div class="col-4">
-                             <div class="form-floating">
-                                 <InputDate @bind-Value="SharesErrorHandling.Date" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Date"> Datum </label>
-                                 <ValidationMessage For="() => SharesErrorHandling.Date" class="text-danger" />
-                             </div>
-                         </div>
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="SharesErrorHandling.Date" class="form-control" disabled="@DisabledForm" />
+                                <label for="Date"> Datum </label>
+                                <ValidationMessage For="() => SharesErrorHandling.Date" class="text-danger" />
+                            </div>
+                        </div>
 
                         <div class="col-4">
                             <div class="form-floating">
@@ -107,89 +113,89 @@
                             </div>
                         </div>
 
-                     </div>
-
-                     <br />
-
-                     <div class="row">
-
-                         <div class="col-12">
-                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesErrorHandling.Note" class="form-control" disabled="@DisabledForm" />
-                                 <label for="Note"> Anteckningar </label>
-                                 <ValidationMessage For="() => SharesErrorHandling.Note" class="text-danger" />
-                             </div>
-                         </div>
-                     </div>
+                    </div>
 
                     <br />
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div class="col-12">
-                             <div class="form-floating">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesErrorHandling.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Anteckningar </label>
+                                <ValidationMessage For="() => SharesErrorHandling.Note" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-12">
+                            <div class="form-floating">
                                 <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesErrorHandling.ErrorMessage" class="form-control" disabled="@DisabledForm" />
-                                 <label for="ErrorMessage"> Felmeddelande </label>
-                                 <ValidationMessage For="() => SharesErrorHandling.ErrorMessage" class="text-danger" />
-                             </div>
-                         </div>
-                     </div>
+                                <label for="ErrorMessage"> Felmeddelande </label>
+                                <ValidationMessage For="() => SharesErrorHandling.ErrorMessage" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div style="text-align:center">
-                         <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
-                     </div>
+                    <div style="text-align:center">
+                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                    </div>
 
-                     <br />
+                    <br />
 
-                     <div style="text-align:center">
-                         <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
-                     </div>
+                    <div style="text-align:center">
+                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                    </div>
 
-                     <br />
-                     <br />
-                 </EditForm>
-             </div>
+                    <br />
+                    <br />
+                </EditForm>
+            </div>
 
             @* View - Desktop *@
-             <div id="desktop">
-                 <div class="card-body">
-                     <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
+            <div id="desktop">
+                <div class="card-body">
+                    <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
 
-                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                         <PropertyColumn Title="Aktie / fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
-                         <PropertyColumn Title="Transaktion" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
-                         <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
+                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Aktie / fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
+                        <PropertyColumn Title="Transaktion" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
+                        <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
 
-                         <TemplateColumn Title="Info">
+                        <TemplateColumn Title="Info">
 
-                             <div class="btn-group" role="group">
-                                 <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                     Info
-                                 </button>
-                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
-                                 </ul>
-                             </div>
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
 
-                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                 <div class="modal-dialog" role="document">
-                                     <div class="modal-content">
-                                         <div class="modal-header">
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
                                             <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
-                                         </div>
-                                         <div class="modal-footer">
-                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort felhanteringen </button>
-                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                             @if (ShowBackdrop)
+                            @if (ShowBackdrop)
                             {
                                 <div class="modal-backdrop fade show"></div>
                             }
@@ -221,7 +227,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -232,7 +238,7 @@
                                             <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort felhanteringen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -257,16 +263,22 @@
     </div>
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Back-End *@
 @code
 {
     [SupplyParameterFromForm]
@@ -274,6 +286,9 @@
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesErrorHandlingViewModel> SharesFeeQueryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
@@ -340,22 +355,31 @@
         SharesErrorHandling = vm;
     }
 
-    private void Delete(SharesErrorHandlingViewModel vm)
+    private void Delete()
     {
         if (db.SharesErrorHandlings.Count() == 0) return;
 
-        SharesErrorHandlingClass.Delete(db, vm);
+        bool findId = db.SharesErrorHandlings.Any(a => a.ErrorHandlingsId == TemporaryId);
 
-        SharesErrorHandling = new();
-        Navigation.Refresh(true);
+        if (findId)
+        {
+            SharesErrorHandlings model = db.SharesErrorHandlings.FirstOrDefault(a => a.ErrorHandlingsId == TemporaryId);
+            SharesErrorHandlingViewModel vm = SharesErrorHandlingClass.ChangeFromModelToViewModel(model);
+
+            SharesErrorHandlingClass.Delete(db, vm);
+
+            SharesErrorHandling = new();
+            Navigation.Refresh(true);
+        }
     }
 
-    private void OpenDeleteWindow()
+    private void OpenDeleteWindow(SharesErrorHandlingViewModel vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.ErrorHandlingsId;
     }
 
     private void CloseWindow()

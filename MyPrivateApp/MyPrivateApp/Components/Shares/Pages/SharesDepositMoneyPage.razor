@@ -242,7 +242,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -253,7 +253,7 @@
                                             <h5 class="modal-title"> Vill du ta bort summan? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort summan </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort summan </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -293,7 +293,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -304,7 +304,7 @@
                                             <h5 class="modal-title"> Vill du ta bort summan? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort summan </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort summan </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -329,15 +329,20 @@
     </div>
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
 </div>
-
-<br />
-<br />
 
 @* Back-End *@
 @code
@@ -347,6 +352,9 @@
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesDepositMoneyViewModel> SharesFeeQueryable = Enumerable.Empty<SharesDepositMoneyViewModel>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
@@ -454,23 +462,48 @@
         DepositMoney = vm;
     }
 
-    private void Delete(SharesDepositMoneyViewModel vm)
+    private void Delete()
     {
         if (db.SharesDepositMoney.Count() == 0) return;
 
-        ErrorMessage = SharesDepositMoneyClass.Delete(db, vm);
+        bool findId = db.SharesDepositMoney.Any(a => a.DepositMoneyId == TemporaryId);
 
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (findId)
         {
-            ShowOrHideErrorMessage = false;
-            return;
+            SharesDepositMoney model = db.SharesDepositMoney.FirstOrDefault(a => a.DepositMoneyId == TemporaryId);
+            SharesDepositMoneyViewModel vm = SharesDepositMoneyClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = SharesDepositMoneyClass.Delete(db, vm);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                DepositMoney = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
-        else
-        {
-            DepositMoney = new();
-            Navigation.Refresh(true);
-            return;
-        }
+    }
+
+    private void OpenDeleteWindow(SharesDepositMoneyViewModel vm)
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+        TemporaryId = vm.DepositMoneyId;
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
     }
 
     private double GetTotalAmount()
@@ -480,21 +513,5 @@
         if (sharesTotalAmounts == null) return 0;
 
         return sharesTotalAmounts.TotalAmount;
-    }
-
-    private void OpenDeleteWindow()
-    {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
-    }
-
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
     }
 }

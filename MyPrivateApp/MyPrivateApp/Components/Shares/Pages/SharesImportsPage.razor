@@ -27,10 +27,10 @@
 
 <PageTitle> Aktier </PageTitle>
 
-<br />
-
 @* Header *@
 <div>
+
+    <br />
 
     @* Navigation - Desktop *@
     <div id="desktop" style="text-align:center">
@@ -116,6 +116,7 @@
 
 </div>
 
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -231,7 +232,7 @@
                                     <li class="dropdown-item"><button class="btn btn-outline-primary btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -242,7 +243,7 @@
                                             <h5 class="modal-title"> Vill du ta bort importen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort importen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort importen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -283,7 +284,7 @@
                                     <li class="dropdown-item"><button class="btn btn-outline-primary btn-sm" @onclick="@(() => ImportFile(context))"> Importera fil </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -294,7 +295,7 @@
                                             <h5 class="modal-title"> Vill du ta bort importen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort importen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort importen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -320,18 +321,22 @@
     </div>
 </div>
 
-<div class="footer" align="center">
+@* Footer *@
+<div>
 
     <br />
     <br />
 
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
 
     <br />
     <br />
 
 </div>
 
+@* Back-End *@
 @code {
 
     [SupplyParameterFromForm]
@@ -339,6 +344,9 @@
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesImportsFileViewModel> SharesImportsFilesQueryable = Enumerable.Empty<SharesImportsFileViewModel>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
@@ -448,22 +456,31 @@
         SharesImportsFile = vm;
     }
 
-    private void Delete(SharesImportsFileViewModel vm)
+    private void Delete()
     {
         if (db.SharesImportsFiles.Count() == 0) return;
 
-        SharesImportsFileClass.Delete(db, vm, false);
+        bool findId = db.SharesImportsFiles.Any(a => a.SharesImportsFileId == TemporaryId);
 
-        SharesImportsFile = new();
-        Navigation.Refresh(true);
+        if (findId)
+        {
+            SharesImportsFile model = db.SharesImportsFiles.FirstOrDefault(a => a.SharesImportsFileId == TemporaryId);
+            SharesImportsFileViewModel vm = SharesImportsFileClass.ChangeFromModelToViewModel(model);
+
+            SharesImportsFileClass.Delete(db, vm, false);
+
+            SharesImportsFile = new();
+            Navigation.Refresh(true);
+        }
     }
 
-    private void OpenDeleteWindow()
+    private void OpenDeleteWindow(SharesImportsFileViewModel vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.SharesImportsFileId;
     }
 
     private void CloseWindow()

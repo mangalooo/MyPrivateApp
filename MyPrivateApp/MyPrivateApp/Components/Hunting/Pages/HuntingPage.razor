@@ -13,46 +13,62 @@
 
 <PageTitle> Jakt </PageTitle>
 
-<br />
+@* Header *@
+<div>
 
-<div id="desktop" style="text-align:center">
-    <div class="btn-group">
-        <NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-        <NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Min lista </NavLink>
-        <NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink>
-        <NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink>
+    <br />
+
+    @* Navigation - Desktop *@
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
+            <NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Min lista </NavLink>
+            <NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink>
+            <NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink>
+        </div>
     </div>
-</div>
 
-<div id="mobile">
-    <div class="btn-group" role="group">
-        <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Alla aktier sidor
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            <li class="dropdown-item"><NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-            <li class="dropdown-item"><NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Min lista </NavLink></li>
-            <li class="dropdown-item"><NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink></li>
-            <li class="dropdown-item"><NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink></li>
-        </ul>
+    @* Navigation - Mobile *@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
+                <li class="dropdown-item"><NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Min lista </NavLink></li>
+                <li class="dropdown-item"><NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink></li>
+                <li class="dropdown-item"><NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink></li>
+            </ul>
+        </div>
     </div>
+
+    <br />
+    <br />
+
+    <h1 style="text-align:center"> Jakt </h1>
+
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<h1 style="text-align:center"> Jakt </h1>
+    <br />
+    <br />
 
-<br />
-<br />
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Back-End *@
 @code {
 
 }

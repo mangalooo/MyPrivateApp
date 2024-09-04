@@ -18,10 +18,10 @@
 
 <PageTitle> Inköpslistor </PageTitle>
 
-<br />
-
 @* Header *@
 <div>
+
+    <br />
 
     <h1 style="text-align:center"> Inköpslistor </h1>
 
@@ -44,6 +44,7 @@
 
 </div>
 
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -139,7 +140,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -150,7 +151,7 @@
                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort inköpslistan </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort inköpslistan </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -190,7 +191,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -201,7 +202,7 @@
                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort inköpslistan </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort inköpslistan </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -226,16 +227,22 @@
     </div>
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Back-End *@
 @code
 {
     [SupplyParameterFromForm]
@@ -243,6 +250,9 @@
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<ShopingListViewModels> ShopingListQueryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
@@ -351,31 +361,40 @@
         ShopingList = vm;
     }
 
-    private void Delete(ShopingListViewModels vm)
+    private void Delete()
     {
         if (db.ShopingLists.Count() == 0) return;
 
-        ErrorMessage = ShopingListClass.Delete(db, vm, false);
+        bool findId = db.ShopingLists.Any(a => a.ShopingListId == TemporaryId);
 
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (findId)
         {
-            ShowOrHideErrorMessage = false;
-            return;
-        }
-        else
-        {
-            ShopingList = new();
-            Navigation.Refresh(true);
-            return;
+            ShopingList model = db.ShopingLists.FirstOrDefault(a => a.ShopingListId == TemporaryId);
+            ShopingListViewModels vm = ShopingListClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = ShopingListClass.Delete(db, vm, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                ShopingList = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
     }
 
-    private void OpenDeleteWindow()
+    private void OpenDeleteWindow(ShopingListViewModels vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.ShopingListId;
     }
 
     private void CloseWindow()

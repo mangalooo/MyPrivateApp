@@ -18,16 +18,16 @@
 @inject NavigationManager Navigation
 @inject IFarmingClass FarmingClass
 
-<PageTitle> Odling (aktiv) </PageTitle>
-
-<br />
-
-<div style="text-align:center">
-    <NavLink href="FarmingActive" type="button" class="btn btn-outline-dark btn-sm"> Aktiv odling </NavLink>
-</div>
+<PageTitle> Odling </PageTitle>
 
 @* Header *@
 <div>
+
+    <br />
+
+    <div style="text-align:center">
+        <NavLink href="FarmingActive" type="button" class="btn btn-outline-dark btn-sm"> Aktiv odling </NavLink>
+    </div>
 
     <br />
     <br />
@@ -47,6 +47,7 @@
 
 </div>
 
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -202,7 +203,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -213,7 +214,7 @@
                                             <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort odlingen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort odlingen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -253,7 +254,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -264,7 +265,7 @@
                                             <h5 class="modal-title"> Vill du ta bort odlingen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort kontakt </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -289,16 +290,22 @@
     </div>
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Back-End *@
 @code
 {
     [SupplyParameterFromForm]
@@ -306,6 +313,24 @@
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<FarmingViewModels> FarmingQueryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
+
+    // Modol window settings
+    private Guid Guid = Guid.NewGuid();
+    private string ModalDisplay = "none;";
+    private string ModalClass = "";
+    private bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool HideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -324,21 +349,6 @@
     }
 
     protected override void OnInitialized() => ConvertListToQueryable();
-
-    // Modol window settings
-    private Guid Guid = Guid.NewGuid();
-    private string ModalDisplay = "none;";
-    private string ModalClass = "";
-    private bool ShowBackdrop = false;
-
-    // Hide button and fields
-    private bool HideNewOrChangesFields { get; set; } = false;
-    private bool ShowOrHideEditButton { get; set; } = false;
-    private bool DisabledForm { get; set; } = false;
-    private bool ShowOrHideErrorMessage { get; set; } = true;
-
-    // Text messeges
-    private string ErrorMessage { get; set; } = string.Empty;
 
     private void HideNewOrChangesForm()
     {
@@ -388,31 +398,40 @@
         Farming = vm;
     }
 
-    private void Delete(FarmingViewModels vm)
+    private void Delete()
     {
         if (db.FarmingsInactive.Count() == 0) return;
 
-        ErrorMessage = FarmingClass.DeleteInactive(db, vm, false);
+        bool findId = db.FarmingsInactive.Any(a => a.FarmingId == TemporaryId);
 
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (findId)
         {
-            ShowOrHideErrorMessage = false;
-            return;
-        }
-        else
-        {
-            Farming = new();
-            Navigation.Refresh(true);
-            return;
+            FarmingsInactive model = db.FarmingsInactive.FirstOrDefault(a => a.FarmingId == TemporaryId);
+            FarmingViewModels vm = FarmingClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = FarmingClass.DeleteInactive(db, vm, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                Farming = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
     }
 
-    private void OpenDeleteWindow()
+    private void OpenDeleteWindow(FarmingViewModels vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.FarmingId;
     }
 
     private void CloseWindow()

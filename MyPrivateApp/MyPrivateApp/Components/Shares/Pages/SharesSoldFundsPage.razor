@@ -17,12 +17,12 @@
 
 <PageTitle> Aktier </PageTitle>
 
-<br />
-
 @* Heading *@
 <div>
 
-    @* Navigation *@
+    <br />
+
+    @* Navigation - Desktop *@
     <div id="desktop" style="text-align:center">
         <div class="btn-group">
             <NavLink href="SharesPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
@@ -40,6 +40,7 @@
         </div>
     </div>
 
+    @* Navigation - Mobile *@
     <div id="mobile">
         <div class="btn-group" role="group">
             <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -85,11 +86,12 @@
         <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
     </div>
 
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -284,7 +286,7 @@
                 </EditForm>
             </div>
 
-            @* Desktop *@
+            @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
                     <QuickGrid Items="@SoldFondQueryable" Pagination="pagination">
@@ -307,7 +309,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -318,7 +320,7 @@
                                             <h5 class="modal-title"> Vill du ta bort sålda fonden? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort fond </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort fond </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -341,7 +343,7 @@
                 </div>
             </div>
 
-            @* Mobile *@
+            @* View - Mobile *@
             <div id="mobile">
                 <div data-spy="scroll">
                     <div class="card-body">
@@ -359,7 +361,7 @@
                                     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                         <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                         <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                     </ul>
                                 </div>
 
@@ -370,7 +372,7 @@
                                                 <h5 class="modal-title"> Vill du ta bort sålda fond? </h5>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort fond </button>
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort fond </button>
                                                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                             </div>
                                         </div>
@@ -396,16 +398,22 @@
     </div>
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Back-End *@
 @code
 {
     [SupplyParameterFromForm]
@@ -413,6 +421,9 @@
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesSoldFundViewModel> SoldFondQueryable = Enumerable.Empty<SharesSoldFundViewModel>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     private Guid Guid = Guid.NewGuid();
@@ -519,31 +530,40 @@
         sharesSoldFund = vm;
     }
 
-    private void Delete(SharesSoldFundViewModel vm)
+    private void Delete()
     {
         if (db.SharesSoldFunds.Count() == 0) return;
 
-        ErrorMessage = SharesSoldFundsClass.Delete(db, vm, false);
+        bool findId = db.SharesSoldFunds.Any(a => a.SharesSoldFundId == TemporaryId);
 
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (findId)
         {
-            ShowOrHideErrorMessage = false;
-            return;
-        }
-        else
-        {
-            sharesSoldFund = new();
-            Navigation.Refresh(true);
-            return;
+            SharesSoldFunds model = db.SharesSoldFunds.FirstOrDefault(a => a.SharesSoldFundId == TemporaryId);
+            SharesSoldFundViewModel vm = SharesSoldFundsClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = SharesSoldFundsClass.Delete(db, vm, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                sharesSoldFund = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
     }
 
-    private void OpenDeleteWindow()
+    private void OpenDeleteWindow(SharesSoldFundViewModel vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.SharesSoldFundId;
     }
 
     private void CloseWindow()

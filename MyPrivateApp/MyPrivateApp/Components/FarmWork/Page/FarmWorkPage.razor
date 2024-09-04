@@ -46,6 +46,7 @@
 
 </div>
 
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -142,7 +143,7 @@
                 </EditForm>
             </div>
 
-            @* Desktop screen *@
+            @* View - Desktop *@
             <div id="desktop">
 
                 <br />
@@ -183,7 +184,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -194,7 +195,7 @@
                                             <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort gårdsarbetet </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -244,7 +245,7 @@
                 </div>
             </div>
 
-            @* Mobile streen *@
+            @* View - Mobile *@
             <div id="mobile">
 
                 <br />
@@ -283,7 +284,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -294,7 +295,7 @@
                                             <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort gårdsarbetet </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -346,20 +347,32 @@
     </div>
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Back-End *@
 @code
 {
     [SupplyParameterFromForm]
     private FarmWorksViewModels FarmWork { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
+    private IQueryable<FarmWorksViewModels> FarmWorkQueryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
@@ -383,9 +396,6 @@
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
-
-    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
-    private IQueryable<FarmWorksViewModels> FarmWorkQueryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -479,31 +489,40 @@
         FarmWork = vm;
     }
 
-    private void Delete(FarmWorksViewModels vm)
+    private void Delete()
     {
         if (db.FarmWorks.Count() == 0) return;
 
-        ErrorMessage = FarmWorkClass.Delete(db, vm, false);
+        bool findId = db.FarmWorks.Any(a => a.FarmWorksId == TemporaryId);
 
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (findId)
         {
-            ShowOrHideErrorMessage = false;
-            return;
-        }
-        else
-        {
-            FarmWork = new();
-            Navigation.Refresh(true);
-            return;
+            FarmWorks model = db.FarmWorks.FirstOrDefault(a => a.FarmWorksId == TemporaryId);
+            FarmWorksViewModels vm = FarmWorkClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = FarmWorkClass.Delete(db, vm, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                FarmWork = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
     }
 
-    private void OpenDeleteWindow()
+    private void OpenDeleteWindow(FarmWorksViewModels vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.FarmWorksId;
     }
 
     private void CloseWindow()

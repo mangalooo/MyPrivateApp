@@ -16,11 +16,10 @@
 
 <PageTitle> Aktier </PageTitle>
 
-<br />
-
-
 @* Header *@
 <div>
+
+    <br />
 
     @* Navigation *@
     <div>
@@ -269,7 +268,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -280,7 +279,7 @@
                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort utdelningen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort utdelningen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
                                         </div>
                                     </div>
@@ -319,7 +318,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -330,7 +329,7 @@
                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort utdelaningen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort utdelaningen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
                                         </div>
                                     </div>
@@ -355,6 +354,9 @@
     </div>
 </div>
 
+@* Footer *@
+<div>
+
 <br />
 <br />
 
@@ -365,6 +367,9 @@
 <br />
 <br />
 
+</div>
+
+@* Back-End *@
 @code
 {
     [SupplyParameterFromForm]
@@ -372,6 +377,9 @@
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesDividendViewModel> SharesDividendQueryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
@@ -483,33 +491,40 @@
         sharesDividend = vm;
     }
 
-    private void Delete(SharesDividendViewModel vm)
+    private void Delete()
     {
-        if (vm == null) return;
-
         if (db.SharesDividends.Count() == 0) return;
 
-        ErrorMessage = SharesDividendClass.Delete(db, vm, false);
+        bool findId = db.SharesDividends.Any(a => a.DividendId == TemporaryId);
 
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (findId)
         {
-            ShowOrHideErrorMessage = false;
-            return;
-        }
-        else
-        {
-            sharesDividend = new();
-            Navigation.Refresh(true);
-            return;
+            SharesDividend model = db.SharesDividends.FirstOrDefault(a => a.DividendId == TemporaryId);
+            SharesDividendViewModel vm = SharesDividendClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = SharesDividendClass.Delete(db, vm, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                sharesDividend = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
     }
 
-    private void OpenWindowDelete()
+    private void OpenWindowDelete(SharesDividendViewModel vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.DividendId;
     }
 
     private void CloseWindowDelete()

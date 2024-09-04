@@ -7,6 +7,7 @@
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Data.Models.Hunting
 
 @rendermode InteractiveServer
 
@@ -21,6 +22,7 @@
 
     <br />
 
+    @* Navigation - Desktop *@
     <div id="desktop" style="text-align:center">
         <div class="btn-group">
             <NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
@@ -30,6 +32,7 @@
         </div>
     </div>
 
+    @* Navigation - Mobile *@
     <div id="mobile">
         <div class="btn-group" role="group">
             <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -68,6 +71,7 @@
 
 </div>
 
+@* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -188,7 +192,7 @@
                 </EditForm>
             </div>
 
-            @* Desktop screen *@
+            @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
                     <QuickGrid Items="@huntingTeamMembersQueryable" Pagination="pagination">
@@ -207,7 +211,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -215,10 +219,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort jakten? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort jaktmedlemmen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort jaktmedlemmen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -241,7 +245,7 @@
                 </div>
             </div>
 
-            @* Mobile screen *@
+            @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
                     <QuickGrid Items="@huntingTeamMembersQueryable" Pagination="pagination">
@@ -258,7 +262,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -266,10 +270,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort jakten? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort jaktmedlemmen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete(context))"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort jaktmedlemmen? </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -294,20 +298,32 @@
     </div>
 </div>
 
-<br />
-<br />
+@* Footer *@
+<div>
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
 </div>
 
-<br />
-<br />
-
+@* Back-End *@
 @code
 {
     [SupplyParameterFromForm]
     private HuntingTeamMembersViewModels member { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<HuntingTeamMembersViewModels> huntingTeamMembersQueryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
     public Guid Guid = Guid.NewGuid();
@@ -325,9 +341,6 @@
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
-
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingTeamMembersViewModels> huntingTeamMembersQueryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
 
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
@@ -419,31 +432,40 @@
         member = vm;
     }
 
-    private void Delete(HuntingTeamMembersViewModels vm)
+    private void Delete()
     {
         if (db.HuntingTeamMembers.Count() == 0) return;
 
-        ErrorMessage = HuntingTeamMemberClass.Delete(db, vm, false);
+        bool findId = db.HuntingTeamMembers.Any(a => a.HuntingTeamMembersId == TemporaryId);
 
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (findId)
         {
-            ShowOrHideErrorMessage = false;
-            return;
-        }
-        else
-        {
-            member = new();
-            Navigation.Refresh(true);
-            return;
+            HuntingTeamMembers model = db.HuntingTeamMembers.FirstOrDefault(a => a.HuntingTeamMembersId == TemporaryId);
+            HuntingTeamMembersViewModels vm = HuntingTeamMemberClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = HuntingTeamMemberClass.Delete(db, vm, false);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                member = new();
+                Navigation.Refresh(true);
+                return;
+            }
         }
     }
 
-    private void OpenDeleteWindow()
+    private void OpenDeleteWindow(HuntingTeamMembersViewModels vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
+        TemporaryId = vm.HuntingTeamMembersId;
     }
 
     private void CloseWindow()
