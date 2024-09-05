@@ -10,9 +10,15 @@ namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
         public int HuntingTowerInspectionId { get; set; }
 
         [Required(ErrorMessage = "Du måste fylla i ett datum!")]
-        [Display(Name = "Datum")]
+        [Display(Name = "Senast besiktad")]
         [DataType(DataType.DateTime)]
-        public DateTime Date { get; set; }
+        public DateTime LastInspected { get; set; }
+
+        [Display(Name = "Besiktad")]
+        public bool Inspected { get; set; }
+
+        [Display(Name = "Att göra")]
+        public bool InspectedTodo { get; set; }
 
         [Required(ErrorMessage = "Du måste fylla i vilkan plats!")]
         [Display(Name = "Plats")]

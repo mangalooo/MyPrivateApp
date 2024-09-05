@@ -9,14 +9,14 @@ namespace MyPrivateApp.Components.Hunting.Classes
     public class HuntingTowerInspectionClass : IHuntingTowerInspectionClass
     {
         private static HuntingTowerInspection? Get(ApplicationDbContext db, int? id) => db.HuntingTowerInspections.Any(r => r.HuntingTowerInspectionId == id) ?
-                                                                                db.HuntingTowerInspections.FirstOrDefault(r => r.HuntingTowerInspectionId == id) :
-                                                                                    throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
+                                                                                            db.HuntingTowerInspections.FirstOrDefault(r => r.HuntingTowerInspectionId == id) :
+                                                                                                throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, HuntingTowerInspectionViewModels vm)
         {
             if (vm != null && db != null)
             {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Number))
+                if (!string.IsNullOrEmpty(vm.Number))
                 {
                     try
                     {
@@ -31,8 +31,8 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     }
                 }
                 else
-                    return "Ingen datum eller nummer ifyllt!";
-                
+                    return "Du måste fylla i ett pass nummer!";
+
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
@@ -44,7 +44,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
         {
             if (vm != null && vm.HuntingTowerInspectionId > 0 && db != null)
             {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Number))
+                if (!string.IsNullOrEmpty(vm.Number))
                 {
                     try
                     {
@@ -53,8 +53,10 @@ namespace MyPrivateApp.Components.Hunting.Classes
                         if (getDbModel != null)
                         {
                             getDbModel.HuntingTowerInspectionId = vm.HuntingTowerInspectionId;
-                            getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
+                            getDbModel.LastInspected = vm.LastInspected.ToString("yyyy-MM-dd");
                             getDbModel.Place = vm.Place;
+                            getDbModel.Inspected = vm.Inspected;
+                            getDbModel.InspectedTodo = vm.InspectedTodo;
                             getDbModel.Number = vm.Number;
                             getDbModel.Todo = vm.Todo;
                             getDbModel.Note = vm.Note;
@@ -70,7 +72,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                     }
                 }
                 else
-                    return "Ingen datum eller nummer!";
+                    return "Du måste fylla i ett pass nummer!";
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
@@ -103,13 +105,15 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model)
         {
-            DateTime date = DateTime.Parse(model.Date);
+            DateTime date = DateTime.Parse(model.LastInspected);
 
             HuntingTowerInspectionViewModels vm = new()
             {
                 HuntingTowerInspectionId = model.HuntingTowerInspectionId,
-                Date = date,
+                LastInspected = date,
                 Place = model.Place,
+                Inspected = model.Inspected,
+                InspectedTodo = model.InspectedTodo,
                 Number = model.Number,
                 Todo = model.Todo,
                 Note = model.Note
@@ -123,8 +127,10 @@ namespace MyPrivateApp.Components.Hunting.Classes
             HuntingTowerInspection inspection = new()
             {
                 HuntingTowerInspectionId = vm.HuntingTowerInspectionId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
+                LastInspected = vm.LastInspected.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
+                Inspected = vm.Inspected,
+                InspectedTodo = vm.InspectedTodo,
                 Number = vm.Number,
                 Todo = vm.Todo,
                 Note = vm.Note
