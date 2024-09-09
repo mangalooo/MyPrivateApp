@@ -20,6 +20,9 @@ namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
         [Display(Name = "Att göra")]
         public bool InspectedTodo { get; set; }
 
+        [Display(Name = "Utdömd")]
+        public bool NotBeUsed { get; set; }
+
         [Required(ErrorMessage = "Du måste fylla i vilkan plats!")]
         [Display(Name = "Plats")]
         public HuntingPlaces Place { get; set; }

@@ -57,6 +57,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                             getDbModel.Place = vm.Place;
                             getDbModel.Inspected = vm.Inspected;
                             getDbModel.InspectedTodo = vm.InspectedTodo;
+                            getDbModel.NotBeUsed = vm.NotBeUsed;
                             getDbModel.Number = vm.Number;
                             getDbModel.Todo = vm.Todo;
                             getDbModel.Note = vm.Note;
@@ -114,6 +115,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 Place = model.Place,
                 Inspected = model.Inspected,
                 InspectedTodo = model.InspectedTodo,
+                NotBeUsed = model.NotBeUsed,
                 Number = model.Number,
                 Todo = model.Todo,
                 Note = model.Note
@@ -131,6 +133,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 Place = vm.Place,
                 Inspected = vm.Inspected,
                 InspectedTodo = vm.InspectedTodo,
+                NotBeUsed = vm.NotBeUsed,
                 Number = vm.Number,
                 Todo = vm.Todo,
                 Note = vm.Note

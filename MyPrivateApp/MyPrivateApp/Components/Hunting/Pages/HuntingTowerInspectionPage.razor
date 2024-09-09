@@ -155,6 +155,12 @@
                         <label for="InspectedTodo"> Att göra </label>
                         <InputCheckbox @bind-Value="hunting.InspectedTodo" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
                         <ValidationMessage For="() => hunting.InspectedTodo" class="text-danger" />
+
+                        &nbsp;&nbsp;
+
+                        <label for="NotBeUsed"> Utdömd </label>
+                        <InputCheckbox @bind-Value="hunting.NotBeUsed" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                        <ValidationMessage For="() => hunting.NotBeUsed" class="text-danger" />
                     </div>
 
                     @* View - Mobile *@
@@ -169,6 +175,12 @@
                             <InputCheckbox id="InspectedTodo" @bind-Value="hunting.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
                             <label class="form-check-label" for="InspectedTodo"> Att göra </label>
                             <ValidationMessage For="() => hunting.InspectedTodo" class="text-danger" />
+                        </div>
+
+                        <div class="form-check">
+                            <InputCheckbox id="NotBeUsed" @bind-Value="hunting.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                            <label class="form-check-label" for="NotBeUsed"> Utdömd </label>
+                            <ValidationMessage For="() => hunting.NotBeUsed" class="text-danger" />
                         </div>
 
                     </div>
@@ -208,6 +220,11 @@
                     <div class="form-check-inline">
                         <label class="form-check-label">
                             Att göra <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchInspectionsTodo">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Utdömd <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchNotBeUsed">
                         </label>
                     </div>
                 </div>
@@ -330,6 +347,12 @@
 
                         <label class="form-check-label">
                             Att göra <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchInspectionsTodo">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Utdömd <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchNotBeUsed">
                         </label>
 
                     </div>
@@ -792,6 +815,21 @@
         if (trueOrFalse == "True")
         {
             IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.InspectedTodo == true);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchNotBeUsed(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.NotBeUsed == true);
 
             SetQuery(result);
             return;

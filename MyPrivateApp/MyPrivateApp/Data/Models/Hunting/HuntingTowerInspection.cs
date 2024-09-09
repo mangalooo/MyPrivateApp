@@ -11,6 +11,7 @@ namespace MyPrivateApp.Data.Models.Hunting
         public string? LastInspected { get; set; }
         public bool Inspected { get; set; }
         public bool InspectedTodo { get; set; }
+        public bool NotBeUsed { get; set; }
         public HuntingPlaces Place { get; set; }
         public string? Number { get; set; }
         public HuntingTodo Todo { get; set; }
