@@ -58,6 +58,8 @@ namespace MyPrivateApp.Components.Hunting.Classes
                             getDbModel.Inspected = vm.Inspected;
                             getDbModel.InspectedTodo = vm.InspectedTodo;
                             getDbModel.NotBeUsed = vm.NotBeUsed;
+                            getDbModel.MooseTower = vm.MooseTower;
+                            getDbModel.WildBoarTower = vm.WildBoarTower;
                             getDbModel.Number = vm.Number;
                             getDbModel.Todo = vm.Todo;
                             getDbModel.Note = vm.Note;
@@ -115,6 +117,8 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 Place = model.Place,
                 Inspected = model.Inspected,
                 InspectedTodo = model.InspectedTodo,
+                MooseTower = model.MooseTower,
+                WildBoarTower = model.WildBoarTower,
                 NotBeUsed = model.NotBeUsed,
                 Number = model.Number,
                 Todo = model.Todo,
@@ -133,6 +137,8 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 Place = vm.Place,
                 Inspected = vm.Inspected,
                 InspectedTodo = vm.InspectedTodo,
+                MooseTower = vm.MooseTower,
+                WildBoarTower = vm.WildBoarTower,
                 NotBeUsed = vm.NotBeUsed,
                 Number = vm.Number,
                 Todo = vm.Todo,

@@ -23,6 +23,12 @@ namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
         [Display(Name = "Utdömd")]
         public bool NotBeUsed { get; set; }
 
+        [Display(Name = "Älgtorn")]
+        public bool MooseTower { get; set; }
+
+        [Display(Name = "Vildsvinstorn")]
+        public bool WildBoarTower { get; set; }
+
         [Required(ErrorMessage = "Du måste fylla i vilkan plats!")]
         [Display(Name = "Plats")]
         public HuntingPlaces Place { get; set; }
