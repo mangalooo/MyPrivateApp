@@ -53,6 +53,7 @@
 
             @* Form *@
             <div class="card-header">
+
                 <EditForm Model="FarmWork" OnSubmit="AddOrEdit" FormName="AddOrUpdateFarmWork" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
@@ -214,7 +215,6 @@
 
                     @if(ShowOrHideDetleteSalaryButton())
                     {
-                        <br />
                         <br />
 
                         <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary())"> Ta bort nästa lön </button>

@@ -80,25 +80,25 @@
             <div class="card-header">
                 <EditForm Model="hunting" OnSubmit="AddOrEdit" FormName="AddOrUpdateHunting" Enhance hidden="@(!HideNewOrChangesFields)">
 
-                     <DataAnnotationsValidator />
+                    <DataAnnotationsValidator />
 
-                     <ValidationSummary class="text-danger" role="alert" />
+                    <ValidationSummary class="text-danger" role="alert" />
 
 
-                     <div class="row">
+                    <div class="row">
 
-                         <div id="mobile" class="col-3" />
+                        <div id="mobile" class="col-3" />
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="hunting.Date" class="form-control" disabled="@DisabledForm" />
-                                <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => hunting.Date" class="text-danger" />
+                                <InputDate @bind-Value="hunting.LastInspected" class="form-control" disabled="@DisabledForm" />
+                                <label for="LastInspected"> Senast besiktad </label>
+                                <ValidationMessage For="() => hunting.LastInspected" class="text-danger" />
                             </div>
                         </div>
 
-                         <div class="col-3">
-                             <div class="form-floating">
+                        <div class="col-3">
+                            <div class="form-floating">
                                 <InputSelect @bind-Value="hunting.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object place in Enum.GetValues(typeof(HuntingPlaces)))
                                     {
@@ -144,6 +144,73 @@
 
                     <br />
 
+                    @* View - Desktop *@
+                    <div id="desktop" class="form-group" align="center">
+                        <label for="ChristmasCard">  Besiktad? </label>
+                        <InputCheckbox @bind-Value="hunting.Inspected" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                        <ValidationMessage For="() => hunting.Inspected" class="text-danger" />
+
+                        &nbsp;&nbsp;
+
+                        <label for="InspectedTodo"> Att göra </label>
+                        <InputCheckbox @bind-Value="hunting.InspectedTodo" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                        <ValidationMessage For="() => hunting.InspectedTodo" class="text-danger" />
+
+                        &nbsp;&nbsp;
+
+                        <label for="NotBeUsed"> Utdömd </label>
+                        <InputCheckbox @bind-Value="hunting.NotBeUsed" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                        <ValidationMessage For="() => hunting.NotBeUsed" class="text-danger" />
+
+                        &nbsp;&nbsp;
+
+                        <label for="MooseTower"> Älgtorn </label>
+                        <InputCheckbox @bind-Value="hunting.MooseTower" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                        <ValidationMessage For="() => hunting.MooseTower" class="text-danger" />
+
+                        &nbsp;&nbsp;
+
+                        <label for="WildBoarTower"> Vildsvinstorn </label>
+                        <InputCheckbox @bind-Value="hunting.WildBoarTower" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                        <ValidationMessage For="() => hunting.WildBoarTower" class="text-danger" />
+                    </div>
+
+                    @* View - Mobile *@
+                    <div id="mobile">
+                        <div class="form-check">
+                            <InputCheckbox id="Inspected" @bind-Value="hunting.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                            <label class="form-check-label" for="Inspected"> Besiktad? </label>
+                            <ValidationMessage For="() => hunting.Inspected" class="text-danger" />
+                        </div>
+
+                        <div class="form-check">
+                            <InputCheckbox id="InspectedTodo" @bind-Value="hunting.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                            <label class="form-check-label" for="InspectedTodo"> Att göra </label>
+                            <ValidationMessage For="() => hunting.InspectedTodo" class="text-danger" />
+                        </div>
+
+                        <div class="form-check">
+                            <InputCheckbox id="NotBeUsed" @bind-Value="hunting.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                            <label class="form-check-label" for="NotBeUsed"> Utdömd </label>
+                            <ValidationMessage For="() => hunting.NotBeUsed" class="text-danger" />
+                        </div>
+
+                        <div class="form-check">
+                            <InputCheckbox id="MooseTower" @bind-Value="hunting.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                            <label class="form-check-label" for="MooseTower"> Älgtorn </label>
+                            <ValidationMessage For="() => hunting.MooseTower" class="text-danger" />
+                        </div>
+
+                        <div class="form-check">
+                            <InputCheckbox id="WildBoarTower" @bind-Value="hunting.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                            <label class="form-check-label" for="WildBoarTower"> Vildsvinstorn </label>
+                            <ValidationMessage For="() => hunting.WildBoarTower" class="text-danger" />
+                        </div>
+
+                    </div>
+
+                    <br />
+
                     <div style="text-align:center">
                         <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till besiktning </button>
                     </div>
@@ -163,12 +230,45 @@
                 </EditForm>
             </div>
 
-            @* Desktop screen *@
+            @* View - Desktop *@
             <div id="desktop">
-                <div class="card-body">
-                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
 
-                        <PropertyColumn Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
+                <br />
+
+                <div align="center">
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Att göra <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchInspectionsTodo">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Utdömd <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchNotBeUsed">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Älgtorn <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearcMooseTower">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Vildsvinstorn <input type="checkbox" class="form-check-input" value="" id="5" @onchange="SearchWildBoarTower">
+                        </label>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="card-body">
+                    <QuickGrid Items="@huntingInspectionsQueryable" Pagination="pagination">
+
+                        <PropertyColumn Format="yyyy-MM-dd" Title="Senast besiktad" Property="@(c => c.LastInspected)" Sortable="true" />
 
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                             <ColumnOptions>
@@ -178,7 +278,13 @@
                             </ColumnOptions>
                         </PropertyColumn>
 
-                        <PropertyColumn Title="Nummer" Property="@(c => c.Number)" Sortable="true" />
+                        <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchTownNumber" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
 
                         <PropertyColumn Title="Att göra" Property="@(c => c.Todo)" Sortable="true">
                             <ColumnOptions>
@@ -227,16 +333,81 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
+                    @if (ShowOrHideDetleteInspectionsButton())
+                    {
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection())"> Ta bort alla besiktningar </button>
+
+                        <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort alla besiktningar? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveInspections())"> Ta bort alla besiktningar </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowInspection()"> Ångra </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropInspection)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
+
                     <br />
                     <br />
 
                 </div>
             </div>
 
-            @* Mobile streen *@
+            @* View - Mobile *@
             <div id="mobile">
+
+                <br />
+
+                <div class="row" align="center">
+                    <div class="form-check-inline">
+
+                        <label class="form-check-label">
+                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Att göra <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchInspectionsTodo">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Utdömd <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchNotBeUsed">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Älgtorn <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearcMooseTower">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Vildsvinstorn <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchWildBoarTower">
+                        </label>
+
+                    </div>
+                </div>
+
+                <br />
+
                 <div class="card-body">
-                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
+                    <QuickGrid Items="@huntingInspectionsQueryable" Pagination="pagination">
 
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                             <ColumnOptions>
@@ -245,7 +416,15 @@
                                 </div>
                             </ColumnOptions>
                         </PropertyColumn>
-                        <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true" />
+
+                        <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchTownNumber" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
                         <TemplateColumn Title="Info">
 
                             <div class="btn-group" role="group">
@@ -281,6 +460,32 @@
                         </TemplateColumn>
                     </QuickGrid>
 
+                    @if (ShowOrHideDetleteInspectionsButton())
+                    {
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection())"> Ta bort alla besiktningar </button>
+
+                        <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort alla besiktningar? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveInspections())"> Ta bort alla besiktningar </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowInspection()"> Ångra </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropInspection)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
+
                     <br />
                     <br />
 
@@ -306,6 +511,7 @@
 
 </div>
 
+
 @* Back-End *@
 @code
 {
@@ -313,7 +519,7 @@
     private HuntingTowerInspectionViewModels hunting { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingTowerInspectionViewModels> huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+    private IQueryable<HuntingTowerInspectionViewModels> huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -323,6 +529,12 @@
     public string ModalDisplay = "none;";
     public string ModalClass = "";
     public bool ShowBackdrop = false;
+
+    // Modol window settings
+    public Guid GuidInspection = Guid.NewGuid();
+    public string ModalDisplayInspection = "none;";
+    public string ModalClassInspection = "";
+    public bool ShowBackdropInspection = false;
 
     // Hide button and fields
     private bool HideNewOrChangesFields { get; set; } = false;
@@ -340,12 +552,12 @@
     {
         if (db.HuntingTowerInspections.Count() == 0) return;
 
-        huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
         foreach (Data.Models.Hunting.HuntingTowerInspection model in db.HuntingTowerInspections.OrderBy(c => c.HuntingTowerInspectionId))
         {
             HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-            huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+            huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -469,9 +681,25 @@
         StateHasChanged();
     }
 
+    private void OpenDeleteWindowInspection()
+    {
+        ModalDisplayInspection = "block;";
+        ModalClassInspection = "Show";
+        ShowBackdropInspection = true;
+        StateHasChanged();
+    }
+
+    private void CloseWindowInspection()
+    {
+        ModalDisplayInspection = "none";
+        ModalClassInspection = "";
+        ShowBackdropInspection = false;
+        StateHasChanged();
+    }
+
     private void SearchPlace(ChangeEventArgs e)
     {
-        huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -525,7 +753,7 @@
                     foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
                     {
                         HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+                        huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
                     }
             }
 
@@ -537,7 +765,7 @@
 
     private void SearchTodo(ChangeEventArgs e)
     {
-        huntingMyListQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -557,22 +785,22 @@
 
                 switch (getName.ToLower())
                 {
-                    case "Välj":
+                    case "välj":
                         break;
 
-                    case "Bygga":
+                    case "bygga":
                         result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Bygga);
                         break;
 
-                    case "Flytta":
+                    case "flytta":
                         result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Flytta);
                         break;
 
-                    case "Reparera":
+                    case "reparera":
                         result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Reparera);
                         break;
 
-                    case "Röja":
+                    case "röja":
                         result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Röja);
                         break;
 
@@ -587,7 +815,7 @@
                     foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
                     {
                         HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+                        huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
                     }
             }
 
@@ -595,5 +823,142 @@
         }
 
         Navigation.Refresh(true);
+    }
+
+    private void SetQuery(IEnumerable<HuntingTowerInspection> result)
+    {
+        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+        if (result.Count() == 0) return;
+
+        if (result.Any())
+            foreach (HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
+            {
+                HuntingTowerInspectionViewModels huntingTowerInspection = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
+                huntingInspectionsQueryable = huntingInspectionsQueryable.Concat(new[] { huntingTowerInspection }.AsQueryable());
+            }
+    }
+
+    private void SearchInspections(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.Inspected == false);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchInspectionsTodo(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.InspectedTodo == true);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchNotBeUsed(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.NotBeUsed == true);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearcMooseTower(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.MooseTower == true);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchWildBoarTower(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.WildBoarTower == true);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchTownNumber(ChangeEventArgs e)
+    {
+        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            string result = e.Value!.ToString();
+
+            HuntingTowerInspection model = db.HuntingTowerInspections.FirstOrDefault(a => a.Number == result);
+            HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
+            huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private bool ShowOrHideDetleteInspectionsButton()
+    {
+        bool any = false;
+
+        if (db.HuntingTowerInspections.Count() > 0)
+        {
+            any = db.HuntingTowerInspections.Any(y => y.Inspected == true);
+        }
+
+        return any;
+    }
+
+    private void RemoveInspections()
+    {
+        if (db.HuntingTowerInspections.Count() > 0)
+        {
+            foreach (var item in db.HuntingTowerInspections)
+            {
+                if (item.Inspected)
+                {
+                    item.Inspected = false;
+
+                    db.SaveChanges();
+                }
+            }
+
+            Navigation.Refresh(true);
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240905193026_addTwoMoreFieldsToHuntingTowerInspection")]
+    partial class addTwoMoreFieldsToHuntingTowerInspection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -456,80 +459,6 @@ namespace MyPrivateApp.Migrations
                     b.ToTable("FrozenFoods");
                 });
 
-            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.ManagerZonePurchasedPlayers", b =>
-                {
-                    b.Property<int>("ManagerZonePurchasedPlayersId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ManagerZonePurchasedPlayersId"));
-
-                    b.Property<int>("DaysInTheClub")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PurchaseAmount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PurchasedDate")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Salary")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SalarySaved")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TrainingModeTotalCost")
-                        .HasColumnType("int");
-
-                    b.HasKey("ManagerZonePurchasedPlayersId");
-
-                    b.ToTable("ManagerZonePurchasedPlayers");
-                });
-
-            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.ManagerZoneSoldPlayers", b =>
-                {
-                    b.Property<int>("ManagerZoneSoldPlayerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ManagerZoneSoldPlayerId"));
-
-                    b.Property<int>("DaysInTheClub")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MoneyProfitOrLoss")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PurchaseAmount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PurchasedDate")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SalaryTotal")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SoldAmount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SoldDate")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TrainingModeTotalCost")
-                        .HasColumnType("int");
-
-                    b.HasKey("ManagerZoneSoldPlayerId");
-
-                    b.ToTable("ManagerZoneSoldPlayers");
-                });
-
             modelBuilder.Entity("MyPrivateApp.Data.Models.Hunting.HuntingMyList", b =>
                 {
                     b.Property<int>("HuntingMyListId")
@@ -618,12 +547,6 @@ namespace MyPrivateApp.Migrations
                     b.Property<string>("LastInspected")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("MooseTower")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("NotBeUsed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
@@ -635,9 +558,6 @@ namespace MyPrivateApp.Migrations
 
                     b.Property<int>("Todo")
                         .HasColumnType("int");
-
-                    b.Property<bool>("WildBoarTower")
-                        .HasColumnType("bit");
 
                     b.HasKey("HuntingTowerInspectionId");
 

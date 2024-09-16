@@ -238,7 +238,7 @@
 
                     <br />
 
-                    @* Desktop screen *@
+                    @* View - Desktop *@
                     <div id="desktop" class="form-group" align="center">
                         <label for="ChristmasCard"> Julkort </label>
                         <InputCheckbox @bind-Value="contact.ChristmasCard" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
@@ -263,7 +263,7 @@
                         <ValidationMessage For="() => contact.Colleagues" class="text-danger" />
                     </div>
 
-                    @* Mobile screen *@
+                    @* View - Mobile *@
                     <div id="mobile">
                         <div class="form-check">
                             <InputCheckbox id="ChristmasCard" @bind-Value="contact.ChristmasCard" class="form-check-input" disabled="@DisabledForm" />

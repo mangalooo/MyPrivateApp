@@ -327,9 +327,12 @@
                         <div class="modal @ModalClassSale" tabindex="-1" role="dialog" style="display:@ModalDisplaySale">
                             <div class="modal-dialog" role="document" style="width:400px">
                                 <div class="modal-content">
-
+                                    
+                                    <br />
                                     <h5> Vill du sälja aktien: <strong> @sharesPurchased.CompanyName? </strong> </h5>
-                                    <h5> Antal aktier: <strong> @sharesPurchased.SaleHowMany av @sharesPurchased.HowMany? </strong> </h5>
+                                    <br />
+                                    <h5> Antal aktier: <strong> @sharesPurchased.SaleHowMany av @sharesPurchased.HowMany </strong> </h5>
+                                    <br />
 
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton(sharesPurchased))"> Sälja </button>
@@ -389,7 +392,9 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
+                                            <br />
                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
+                                            <br />
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort aktie </button>
@@ -441,7 +446,9 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
+                                            <br />
                                             <h5 class="modal-title"> Vill du ta bort aktien? </h5>
+                                            <br />
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort aktie </button>
