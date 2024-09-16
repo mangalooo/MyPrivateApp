@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Farming;
+using MyPrivateApp.Data.Models.Games.ManagerZone;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Data.Models.SharesModels;
 
@@ -23,6 +24,10 @@ namespace MyPrivateApp.Data
         public DbSet<HuntingMyList> HuntingMyList { get; set; }
         public DbSet<HuntingTeamMembers> HuntingTeamMembers { get; set; }
         public DbSet<HuntingTowerInspection> HuntingTowerInspections { get; set; }
+
+        //Games
+        public DbSet<ManagerZoneSoldPlayers> ManagerZoneSoldPlayers { get; set; }
+        public DbSet<ManagerZonePurchasedPlayers> ManagerZonePurchasedPlayers { get; set; }
 
         // Shares
         public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; }

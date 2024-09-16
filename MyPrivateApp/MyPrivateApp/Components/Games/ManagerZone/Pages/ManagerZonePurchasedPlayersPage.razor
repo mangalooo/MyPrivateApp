@@ -1,0 +1,550 @@
+﻿@page "/ManagerZonePurchasedPlayersPage"
+
+@using MyPrivateApp.Components.Games.ManagerZone.Classes
+@using MyPrivateApp.Components.ViewModels
+@using MyPrivateApp.Components.ViewModels.Games.ManagerZone
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Data.Models.Games.ManagerZone
+
+@rendermode InteractiveServer
+
+@inject ApplicationDbContext db;
+@inject NavigationManager Navigation
+@inject IManagerZonePurchasedClass ManagerZonePurchasedClass
+
+<PageTitle> ManagerZone </PageTitle>
+
+@* Header *@
+<div>
+
+    <br />
+
+    <h1 style="text-align:center"> Köpta spelare </h1>
+
+    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+
+        <br />
+        <br />
+
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny köpt spelare </button>
+    </div>
+
+    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+        <br />
+        <br />
+        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+    </div>
+
+    <br />
+    <br />
+
+</div>
+
+@* Form and views *@
+<div class="container">
+    <div class="col-md-12">
+        <div class="card">
+
+            @* Form *@
+            <div class="card-header">
+                <EditForm Model="PurchasedPlayers" OnSubmit="AddOrEdit" FormName="AddOrUpdateManagerZonePurchasedPlayers" Enhance hidden="@(!HideNewOrChangesFields)">
+
+                     <DataAnnotationsValidator />
+
+                     <ValidationSummary class="text-danger" role="alert" />
+
+                     <div class="row">
+
+                        <div id="mobile" class="col-4" />
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="PurchasedPlayers.PurchasedDate" class="form-control" disabled="@DisabledForm" />
+                                <label for="PurchasedDate"> Inköpsdatum </label>
+                                <ValidationMessage For="() => PurchasedPlayers.PurchasedDate" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="PurchaseAmount"> Inköpsbelopp </label>
+                                <ValidationMessage For="() => PurchasedPlayers.PurchaseAmount" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <span class="form-control" disabled="@true" placeholder=""> @CalculateDaysUntilVacation(PurchasedPlayers.PurchasedDate) </span>
+                                <label for="DaysInTheClub"> Dagar i klubben </label>
+                                <ValidationMessage For="() => PurchasedPlayers.DaysInTheClub" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-3" />
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.Salary" class="form-control" disabled="@DisabledForm" />
+                                <label for="Salary"> Lön </label>
+                                <ValidationMessage For="() => PurchasedPlayers.Salary" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.SalaryTotal" class="form-control" placeholder="" disabled="@true" />
+                                <label for="SalaryTotal"> Total utbetalad lön </label>
+                                <ValidationMessage For="() => PurchasedPlayers.SalaryTotal" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.SalaryChange" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="SalaryChange"> Ändra lön </label>
+                                <ValidationMessage For="() => PurchasedPlayers.SalaryChange" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.SalarySaved" class="form-control" placeholder="" disabled="@true" />
+                                <label for="SalarySaved"> Spara gammal lön </label>
+                                <ValidationMessage For="() => PurchasedPlayers.SalarySaved" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-4" />
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.TrainingModeCost" class="form-control" disabled="@DisabledForm" />
+                                <label for="TrainingModeCost"> Denna träningsläger kostnad </label>
+                                <ValidationMessage For="() => PurchasedPlayers.TrainingModeCost" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.TrainingModeTotalCost" class="form-control" placeholder="" disabled="@true" />
+                                <label for="TrainingModeTotalCost"> Total träningsläger kostnad </label>
+                                <ValidationMessage For="() => PurchasedPlayers.TrainingModeTotalCost" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.TotalCostRightNow" class="form-control" placeholder="" disabled="@true" />
+                                <label for="TotalCostRightNow"> Total kostnad just nu </label>
+                                <ValidationMessage For="() => PurchasedPlayers.TotalCostRightNow" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="PurchasedPlayers.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Beskrivning </label>
+                                <ValidationMessage For="() => PurchasedPlayers.Note" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div style="text-align:center">
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
+                    </div>
+
+                    <div style="text-align:center">
+                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                    </div>
+
+                    <br />
+
+                    <div style="text-align:center">
+                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                    </div>
+
+                    <br />
+                    <br />
+                </EditForm>
+            </div>
+
+            @* View - Desktop *@
+            <div id="desktop">
+
+                <div class="card-body">
+                    <QuickGrid Items="@PurchasedPlayersQueryable" Pagination="pagination">
+
+                        <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
+
+                        <PropertyColumn Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
+
+                        <PropertyColumn Title="Dagar i klubben" Property="@(c => CalculateDaysUntilVacation(c.PurchasedDate))" Sortable="true" />
+
+                        <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort spelare? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spare </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* View - Mobile *@
+            <div id="mobile">
+
+                <div class="card-body">
+                    <QuickGrid Items="@PurchasedPlayersQueryable" Pagination="pagination">
+
+                        <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort spelare? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Footer *@
+<div>
+
+    <br />
+    <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br />
+    <br />
+
+</div>
+
+@* Back-End *@
+@code
+{
+    [SupplyParameterFromForm]
+    private ManagerZonePurchasedPlayersViewModels PurchasedPlayers { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
+    private IQueryable<ManagerZonePurchasedPlayersViewModels> PurchasedPlayersQueryable = Enumerable.Empty<ManagerZonePurchasedPlayersViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
+
+    // Modol window settings
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool HideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = true;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    // Load data from database to the Queryable container
+    private void ConvertListToQueryable()
+    {
+        if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
+
+        PurchasedPlayersQueryable = Enumerable.Empty<ManagerZonePurchasedPlayersViewModels>().AsQueryable();
+
+        foreach (Data.Models.Games.ManagerZone.ManagerZonePurchasedPlayers model in db.ManagerZonePurchasedPlayers.OrderBy(c => c.ManagerZonePurchasedPlayersId))
+        {
+            ManagerZonePurchasedPlayersViewModels purchasedPlayers = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
+            PurchasedPlayersQueryable = PurchasedPlayersQueryable.Concat((new[] { purchasedPlayers }).AsQueryable());
+        }
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+    }
+
+    protected override void OnInitialized() => ConvertListToQueryable();
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void RefreshPage() => Navigation.Refresh(true);
+
+    private void AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (PurchasedPlayers.ManagerZonePurchasedPlayersId > 0)
+        {
+            // Edit
+            ErrorMessage = ManagerZonePurchasedClass.Edit(db, PurchasedPlayers);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                HideNewOrChangesForm();
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = false;
+                return;
+            }
+            else
+            {
+                PurchasedPlayers = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+        else
+        {
+            // Add
+            ErrorMessage = ManagerZonePurchasedClass.Add(db, PurchasedPlayers);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                HideNewOrChangesForm();
+                ShowOrHideErrorMessage = false;
+                ShowOrHideEditButton = true;
+                ShowOrHideAddNewButton = false;
+                return;
+            }
+            else
+            {
+                PurchasedPlayers = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+    }
+
+    private void Info(ManagerZonePurchasedPlayersViewModels vm)
+    {
+        HideNewOrChangesForm();
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
+        PurchasedPlayers = vm;
+    }
+
+    private void Edit(ManagerZonePurchasedPlayersViewModels vm)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        ShowOrHideCreateButton = true;
+        HideNewOrChangesFields = true;
+        PurchasedPlayers = vm;
+    }
+
+    private void Delete()
+    {
+        if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
+
+        bool findId = db.ManagerZonePurchasedPlayers.Any(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
+
+        if (findId)
+        {
+            ManagerZonePurchasedPlayers model = db.ManagerZonePurchasedPlayers.FirstOrDefault(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
+            ManagerZonePurchasedPlayersViewModels vm = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
+
+            ErrorMessage = ManagerZonePurchasedClass.Delete(db, vm);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                return;
+            }
+            else
+            {
+                PurchasedPlayers = new();
+                Navigation.Refresh(true);
+                return;
+            }
+        }
+    }
+
+    private void OpenDeleteWindow(ManagerZonePurchasedPlayersViewModels vm)
+    {
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+        TemporaryId = vm.ManagerZonePurchasedPlayersId;
+    }
+
+    private void CloseWindow()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
+
+    private int CalculateDaysUntilVacation(DateTime PurchasedDate)
+    {
+        TimeSpan DaysInTheClub = PurchasedDate - DateTime.Now;
+        return DaysInTheClub.Days + 1;
+    }
+
+    // private void SearchPlace(ChangeEventArgs e)
+    // {
+    //     FarmWorkQueryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+
+    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
+    //     {
+    //         string getName = string.Empty;
+
+    //         foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+    //         {
+    //             getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
+
+    //             if (getName == e.Value.ToString().ToLower())
+    //                 break;
+    //         }
+
+    //         if (getName != string.Empty)
+    //         {
+    //             IEnumerable<Data.Models.FarmWorks> result = null;
+
+    //             switch (getName.ToLower())
+    //             {
+    //                 case "Välj":
+    //                     break;
+
+    //                 case "habäck":
+    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Habäck);
+    //                     break;
+
+    //                 case "karlabo":
+    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Karlabo);
+    //                     break;
+
+    //                 case "klev":
+    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Klev);
+    //                     break;
+
+    //                 case "skog":
+    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Skog);
+    //                     break;
+
+    //                 case "smältryd":
+    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Smältryd);
+    //                     break;
+
+    //                 case "övrigt":
+    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Övrigt);
+    //                     break;
+    //             }
+
+    //             if (result == null || result.Count() == 0) return;
+
+    //             if (result.Any())
+    //                 foreach (Data.Models.FarmWorks model in result.OrderBy(c => c.FarmWorksId))
+    //                 {
+    //                     FarmWorksViewModels farmWorks = FarmWorkClass.ChangeFromModelToViewModel(model);
+    //                     FarmWorkQueryable = FarmWorkQueryable.Concat((new[] { farmWorks }).AsQueryable());
+    //                 }
+    //         }
+
+    //         return;
+    //     }
+
+    //     Navigation.Refresh(true);
+    // }
+
+}

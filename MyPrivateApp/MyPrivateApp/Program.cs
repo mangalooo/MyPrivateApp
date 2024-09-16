@@ -15,6 +15,7 @@ using Hangfire;
 using Hangfire.SqlServer;
 using MagnusPrivateApp.Services.EmailServices;
 using MyPrivateApp.Components.FarmWork.Classes;
+using MyPrivateApp.Components.Games.ManagerZone.Classes;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,10 @@ builder.Services.AddScoped<IFarmWorkClass, FarmWorkClass>();
 builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();
 builder.Services.AddScoped<IHuntingTeamMemberClass, HuntingTeamMemberClass>();
 builder.Services.AddScoped<IHuntingTowerInspectionClass, HuntingTowerInspectionClass>();
+
+// Games
+builder.Services.AddScoped<IManagerZonePurchasedClass, ManagerZonePurchasedClass>();
+builder.Services.AddScoped<IManagerZoneSoldClass, ManagerZoneSoldClass>();
 
 // Shares
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();
