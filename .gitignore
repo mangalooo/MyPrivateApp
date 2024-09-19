@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /MyPrivateApp/MyPrivateApp/appsettings.json
 /MyPrivateApp/MyPrivateApp/appsettings.json
+/MyPrivateApp/MyPrivateApp.Client/appsettings.json
