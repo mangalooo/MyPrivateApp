@@ -92,6 +92,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+// Trusted_Connection=True
+
 // Hangfire
 builder.Services.AddHangfire(x => x
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -140,7 +142,7 @@ app.MapAdditionalIdentityEndpoints();
 app.UseHangfireDashboard("/hangfire");
 
 // Sends automatic email if a contact has birthday
-ContactClass contactClass = new();
-contactClass.GetBirthday(db);
+//ContactClass contactClass = new();
+//contactClass.GetBirthday(db);
 
 app.Run();

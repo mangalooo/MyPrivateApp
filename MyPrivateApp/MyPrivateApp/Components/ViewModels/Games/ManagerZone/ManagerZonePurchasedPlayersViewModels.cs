@@ -10,6 +10,16 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
 
         public int ManagerZonePurchasedPlayersId { get; set; }
 
+        [Display(Name = "Namn")]
+        [DataType(DataType.Text)]
+        public string? Name { get; set; }
+
+        [Display(Name = "Ålder")]
+        public int YearsOld { get; set; }
+
+        [Display(Name = "Nummer")]
+        public int Number { get; set; }
+
         [Display(Name = "Inköpsdatum")]
         [DataType(DataType.Date)]
         public DateTime PurchasedDate { get; set; }

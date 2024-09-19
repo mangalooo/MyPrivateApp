@@ -7,6 +7,16 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
     {
         public int ManagerZoneSoldPlayerId { get; set; }
 
+        [Display(Name = "Namn")]
+        [DataType(DataType.Text)]
+        public string? Name { get; set; }
+
+        [Display(Name = "Ålder")]
+        public int YearsOld { get; set; }
+
+        [Display(Name = "Nummer")]
+        public int Number { get; set; }
+
         [Display(Name = "Köp Datum")]
         [DataType(DataType.Date)]
         public DateTime PurchasedDate { get; set; }
@@ -16,6 +26,7 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         public DateTime SoldDate { get; set; }
 
         [Display(Name = "Dagar i klubben")]
+
         public int DaysInTheClub { get; set; }
 
         [Display(Name = "Inköpsbelopp")]

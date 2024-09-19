@@ -51,11 +51,44 @@
             <div class="card-header">
                 <EditForm Model="PurchasedPlayers" OnSubmit="AddOrEdit" FormName="AddOrUpdateManagerZonePurchasedPlayers" Enhance hidden="@(!HideNewOrChangesFields)">
 
-                     <DataAnnotationsValidator />
+                    <DataAnnotationsValidator />
 
-                     <ValidationSummary class="text-danger" role="alert" />
+                    <ValidationSummary class="text-danger" role="alert" />
 
-                     <div class="row">
+                    <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-4" />
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="PurchasedPlayers.Name" class="form-control" disabled="@DisabledForm" />
+                                <label for="Name"> Namn </label>
+                                <ValidationMessage For="() => PurchasedPlayers.Name" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="YearsOld"> Ålder </label>
+                                <ValidationMessage For="() => PurchasedPlayers.YearsOld" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PurchasedPlayers.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="Number"> Nummer </label>
+                                <ValidationMessage For="() => PurchasedPlayers.Number" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
 
                         <div id="mobile" class="col-4" />
 
@@ -77,7 +110,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @CalculateDaysUntilVacation(PurchasedPlayers.PurchasedDate) </span>
+                                <span class="form-control" disabled="@true" placeholder=""> @DaysInTheClub(PurchasedPlayers.PurchasedDate) </span>
                                 <label for="DaysInTheClub"> Dagar i klubben </label>
                                 <ValidationMessage For="() => PurchasedPlayers.DaysInTheClub" class="text-danger" />
                             </div>
@@ -100,7 +133,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.SalaryTotal" class="form-control" placeholder="" disabled="@true" />
+                                <span class="form-control" disabled="@true" placeholder=""> @TotalSalary(PurchasedPlayers.PurchasedDate, PurchasedPlayers.Salary) </span>
                                 <label for="SalaryTotal"> Total utbetalad lön </label>
                                 <ValidationMessage For="() => PurchasedPlayers.SalaryTotal" class="text-danger" />
                             </div>
@@ -145,9 +178,11 @@
                             </div>
                         </div>
 
+
+
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.TotalCostRightNow" class="form-control" placeholder="" disabled="@true" />
+                                <span class="form-control" disabled="@true" placeholder=""> @TotalCost(PurchasedPlayers.PurchasedDate, PurchasedPlayers.Salary, PurchasedPlayers.PurchaseAmount, PurchasedPlayers.TrainingModeTotalCost) </span>
                                 <label for="TotalCostRightNow"> Total kostnad just nu </label>
                                 <ValidationMessage For="() => PurchasedPlayers.TotalCostRightNow" class="text-danger" />
                             </div>
@@ -197,9 +232,13 @@
 
                         <PropertyColumn Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
 
-                        <PropertyColumn Title="Dagar i klubben" Property="@(c => CalculateDaysUntilVacation(c.PurchasedDate))" Sortable="true" />
+                        <PropertyColumn Title="Dagar i klubben" Property="@(c => DaysInTheClub(c.PurchasedDate))" Sortable="true" />
 
+                        <span style="color:red;">
+                            <PropertyColumn Title="Total kostnad" Property="@(c => TotalCost(c.PurchasedDate, c.Salary, c.PurchaseAmount, c.TrainingModeTotalCost))" Sortable="true" />
+                        </span>
                         <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
+
 
                         <TemplateColumn Title="Info">
 
@@ -475,76 +514,26 @@
         StateHasChanged();
     }
 
-    private int CalculateDaysUntilVacation(DateTime PurchasedDate)
+    private int DaysInTheClub(DateTime PurchasedDate)
     {
-        TimeSpan DaysInTheClub = PurchasedDate - DateTime.Now;
-        return DaysInTheClub.Days + 1;
+        TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
+        return DaysInTheClub.Days;
     }
 
-    // private void SearchPlace(ChangeEventArgs e)
-    // {
-    //     FarmWorkQueryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+    private int TotalSalary(DateTime PurchasedDate, int salary)
+    {
+        TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
+        int weeks = DaysInTheClub.Days / 7;
+        int result = weeks * salary;
+        return result;
+    }
 
-    //     if (!string.IsNullOrEmpty(e.Value!.ToString()))
-    //     {
-    //         string getName = string.Empty;
+    private int TotalCost(DateTime PurchasedDate, int salary, int PurchaseAmount, int TrainingModeTotalCost)
+    {
+        int totalSalary = TotalSalary(PurchasedDate, salary);
 
-    //         foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
-    //         {
-    //             getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
+        int result = totalSalary + PurchaseAmount + TrainingModeTotalCost;
 
-    //             if (getName == e.Value.ToString().ToLower())
-    //                 break;
-    //         }
-
-    //         if (getName != string.Empty)
-    //         {
-    //             IEnumerable<Data.Models.FarmWorks> result = null;
-
-    //             switch (getName.ToLower())
-    //             {
-    //                 case "Välj":
-    //                     break;
-
-    //                 case "habäck":
-    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Habäck);
-    //                     break;
-
-    //                 case "karlabo":
-    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Karlabo);
-    //                     break;
-
-    //                 case "klev":
-    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Klev);
-    //                     break;
-
-    //                 case "skog":
-    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Skog);
-    //                     break;
-
-    //                 case "smältryd":
-    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Smältryd);
-    //                     break;
-
-    //                 case "övrigt":
-    //                     result = db.FarmWorks.Where(c => c.Place == FarmWorkPlaces.Övrigt);
-    //                     break;
-    //             }
-
-    //             if (result == null || result.Count() == 0) return;
-
-    //             if (result.Any())
-    //                 foreach (Data.Models.FarmWorks model in result.OrderBy(c => c.FarmWorksId))
-    //                 {
-    //                     FarmWorksViewModels farmWorks = FarmWorkClass.ChangeFromModelToViewModel(model);
-    //                     FarmWorkQueryable = FarmWorkQueryable.Concat((new[] { farmWorks }).AsQueryable());
-    //                 }
-    //         }
-
-    //         return;
-    //     }
-
-    //     Navigation.Refresh(true);
-    // }
-
+        return result;
+    }
 }

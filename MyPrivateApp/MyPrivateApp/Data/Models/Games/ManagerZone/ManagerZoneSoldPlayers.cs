@@ -10,6 +10,9 @@ namespace MyPrivateApp.Data.Models.Games.ManagerZone
         public string? PurchasedDate { get; set; }
         public string? SoldDate { get; set; }
         public int PurchaseAmount { get; set; }
+        public string? Name { get; set; }
+        public int YearsOld { get; set; }
+        public int Number { get; set; }
         public int SalaryTotal { get; set; }
         public int DaysInTheClub { get; set; }
         public int TrainingModeTotalCost { get; set; }

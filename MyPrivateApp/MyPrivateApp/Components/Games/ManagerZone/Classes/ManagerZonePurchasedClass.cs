@@ -9,7 +9,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
     {
         private static ManagerZonePurchasedPlayers? Get(ApplicationDbContext db, int? id) => db.ManagerZonePurchasedPlayers.Any(r => r.ManagerZonePurchasedPlayersId == id) ?
                                                                                                 db.ManagerZonePurchasedPlayers.FirstOrDefault(r => r.ManagerZonePurchasedPlayersId == id) :
-                                                                                                    throw new Exception("Objektet köpt spelare hittades inte i databasen!");
+                                                                                                    throw new Exception("Den köpta spelare hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, ManagerZonePurchasedPlayersViewModels vm)
         {
@@ -20,6 +20,8 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                     try
                     {
                         ManagerZonePurchasedPlayers model = ChangeFromViewModelToModel(vm);
+
+                        model.TrainingModeTotalCost = vm.TrainingModeCost;
 
                         db.ManagerZonePurchasedPlayers.Add(model);
                         db.SaveChanges();
@@ -53,10 +55,13 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                         {
                             getDbModel.ManagerZonePurchasedPlayersId = vm.ManagerZonePurchasedPlayersId;
                             getDbModel.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
+                            getDbModel.Name = vm.Name;
+                            getDbModel.YearsOld = vm.YearsOld;
+                            getDbModel.Number = vm.Number;
                             getDbModel.PurchaseAmount = vm.PurchaseAmount;
                             getDbModel.Salary = vm.Salary;
                             getDbModel.SalarySaved = vm.SalarySaved;
-                            getDbModel.TrainingModeTotalCost = vm.TrainingModeTotalCost;
+                            getDbModel.TrainingModeTotalCost = vm.TrainingModeTotalCost + vm.TrainingModeCost;
                             getDbModel.Note = vm.Note;
 
                             db.SaveChanges();
@@ -109,6 +114,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             {
                 ManagerZonePurchasedPlayersId = model.ManagerZonePurchasedPlayersId,
                 PurchasedDate = purchasedDate,
+                Name = model.Name,
+                YearsOld = model.YearsOld,
+                Number = model.Number,
                 PurchaseAmount = model.PurchaseAmount,
                 Salary = model.Salary,
                 SalarySaved = model.SalarySaved,
@@ -125,6 +133,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             {
                 ManagerZonePurchasedPlayersId = vm.ManagerZonePurchasedPlayersId,
                 PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd"),
+                Name = vm.Name,
+                YearsOld = vm.YearsOld,
+                Number = vm.Number,
                 PurchaseAmount = vm.PurchaseAmount,
                 Salary = vm.Salary,
                 SalarySaved = vm.SalarySaved,
