@@ -41,8 +41,11 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         [Display(Name = "Sälj värdet")]
         public int SoldAmount { get; set; }
 
-        [Display(Name = "Vinst eller förslust")]
-        public int MoneyProfitOrLoss { get; set; }
+        [Display(Name = "Vinst/förslust")]
+        public int MoneyProfitOrLoss { get; set; }        
+        
+        [Display(Name = "Vinst/förslust i %")]
+        public string? ProcentProfitOrLoss { get; set; }
 
         [Display(Name = "Beskrivning")]
         [DataType(DataType.MultilineText)]

@@ -3,21 +3,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Data.Models.Games.ManagerZone
 {
-    public class ManagerZoneSoldPlayers
+    public class MZPurchasedPlayers
     {
         [Key]
-        public int ManagerZoneSoldPlayerId { get; set; }
+        public int ManagerZonePurchasedPlayersId { get; set; }
         public string? PurchasedDate { get; set; }
-        public string? SoldDate { get; set; }
         public int PurchaseAmount { get; set; }
         public string? Name { get; set; }
         public int YearsOld { get; set; }
         public int Number { get; set; }
-        public int SalaryTotal { get; set; }
-        public int DaysInTheClub { get; set; }
+        public int Salary { get; set; }
+        public int SalarySaved { get; set; } // If the salary change, save the old total salary here.
         public int TrainingModeTotalCost { get; set; }
-        public int SoldAmount { get; set; }
-        public int MoneyProfitOrLoss { get; set; }
         public string? Note { get; set; }
     }
 }

@@ -44,8 +44,8 @@ builder.Services.AddScoped<IHuntingTeamMemberClass, HuntingTeamMemberClass>();
 builder.Services.AddScoped<IHuntingTowerInspectionClass, HuntingTowerInspectionClass>();
 
 // Games
-builder.Services.AddScoped<IManagerZonePurchasedClass, ManagerZonePurchasedClass>();
-builder.Services.AddScoped<IManagerZoneSoldClass, ManagerZoneSoldClass>();
+builder.Services.AddScoped<IMZPurchasedClass, MZPurchasedClass>();
+builder.Services.AddScoped<IMZSoldClass, MZSoldClass>();
 
 // Shares
 builder.Services.AddScoped<ISharesPurchasedClass, SharesPurchasedClass>();

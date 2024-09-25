@@ -12,7 +12,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IManagerZonePurchasedClass ManagerZonePurchasedClass
+@inject IMZPurchasedClass ManagerZonePurchasedClass
 
 <PageTitle> ManagerZone </PageTitle>
 
@@ -49,7 +49,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="PurchasedPlayers" OnSubmit="AddOrEdit" FormName="AddOrUpdateManagerZonePurchasedPlayers" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="PurchasedPlayers" OnSubmit="AddOrEdit" FormName="AddOrUpdateManagerZoneSoldPlayers" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -355,10 +355,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private ManagerZonePurchasedPlayersViewModels PurchasedPlayers { get; set; } = new();
+    private MZPurchasedPlayersViewModels PurchasedPlayers { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
-    private IQueryable<ManagerZonePurchasedPlayersViewModels> PurchasedPlayersQueryable = Enumerable.Empty<ManagerZonePurchasedPlayersViewModels>().AsQueryable();
+    private IQueryable<MZPurchasedPlayersViewModels> PurchasedPlayersQueryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -383,15 +383,15 @@
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
-        if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
+        //if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
 
-        PurchasedPlayersQueryable = Enumerable.Empty<ManagerZonePurchasedPlayersViewModels>().AsQueryable();
+        PurchasedPlayersQueryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
 
-        foreach (Data.Models.Games.ManagerZone.ManagerZonePurchasedPlayers model in db.ManagerZonePurchasedPlayers.OrderBy(c => c.ManagerZonePurchasedPlayersId))
-        {
-            ManagerZonePurchasedPlayersViewModels purchasedPlayers = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
-            PurchasedPlayersQueryable = PurchasedPlayersQueryable.Concat((new[] { purchasedPlayers }).AsQueryable());
-        }
+        // foreach (Data.Models.Games.ManagerZone.ManagerZonePurchasedPlayers model in db.ManagerZonePurchasedPlayers.OrderBy(c => c.ManagerZonePurchasedPlayersId))
+        // {
+        //     ManagerZonePurchasedPlayersViewModels purchasedPlayers = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
+        //     PurchasedPlayersQueryable = PurchasedPlayersQueryable.Concat((new[] { purchasedPlayers }).AsQueryable());
+        // }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
@@ -452,7 +452,7 @@
         }
     }
 
-    private void Info(ManagerZonePurchasedPlayersViewModels vm)
+    private void Info(MZPurchasedPlayersViewModels vm)
     {
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
@@ -460,7 +460,7 @@
         PurchasedPlayers = vm;
     }
 
-    private void Edit(ManagerZonePurchasedPlayersViewModels vm)
+    private void Edit(MZPurchasedPlayersViewModels vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
@@ -472,14 +472,14 @@
 
     private void Delete()
     {
-        if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
+        //if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
 
-        bool findId = db.ManagerZonePurchasedPlayers.Any(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
+        bool findId = false; // db.ManagerZonePurchasedPlayers.Any(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
 
         if (findId)
         {
-            ManagerZonePurchasedPlayers model = db.ManagerZonePurchasedPlayers.FirstOrDefault(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
-            ManagerZonePurchasedPlayersViewModels vm = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
+            MZPurchasedPlayers model = null; // db.ManagerZonePurchasedPlayers.FirstOrDefault(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
+            MZPurchasedPlayersViewModels vm = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
 
             ErrorMessage = ManagerZonePurchasedClass.Delete(db, vm);
 
@@ -497,7 +497,7 @@
         }
     }
 
-    private void OpenDeleteWindow(ManagerZonePurchasedPlayersViewModels vm)
+    private void OpenDeleteWindow(MZPurchasedPlayersViewModels vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";

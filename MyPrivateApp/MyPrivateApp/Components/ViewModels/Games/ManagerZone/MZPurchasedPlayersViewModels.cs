@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
 {
-    public class ManagerZonePurchasedPlayersViewModels
+    public class MZPurchasedPlayersViewModels
     {
-        public ManagerZonePurchasedPlayersViewModels() => PurchasedDate = DateTime.Now;
+        public MZPurchasedPlayersViewModels() => PurchasedDate = DateTime.Now;
 
         public int ManagerZonePurchasedPlayersId { get; set; }
 

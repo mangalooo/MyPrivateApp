@@ -5,11 +5,11 @@ using MyPrivateApp.Data.Models.Games.ManagerZone;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class ManagerZoneSoldClass : IManagerZoneSoldClass
+    public class MZSoldClass : IMZSoldClass
     {
-        private static ManagerZoneSoldPlayers? Get(ApplicationDbContext db, int? id) => db.ManagerZoneSoldPlayers.Any(r => r.ManagerZoneSoldPlayerId == id) ?
-                                                                                            db.ManagerZoneSoldPlayers.FirstOrDefault(r => r.ManagerZoneSoldPlayerId == id) :
-                                                                                                throw new Exception("Objektet såld spelare hittades inte i databasen!");
+        private static MZSoldPlayers? Get(ApplicationDbContext db, int? id) => db.MZSoldPlayers.Any(r => r.ManagerZoneSoldPlayerId == id) ?
+                                                                                            db.MZSoldPlayers.FirstOrDefault(r => r.ManagerZoneSoldPlayerId == id) :
+                                                                                                throw new Exception("Objektet hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, ManagerZoneSoldViewModels vm)
         {
@@ -20,9 +20,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 {
                     try
                     {
-                        ManagerZoneSoldPlayers model = ChangeFromViewModelToModel(vm);
+                        MZSoldPlayers model = ChangeFromViewModelToModel(vm);
 
-                        db.ManagerZoneSoldPlayers.Add(model);
+                        db.MZSoldPlayers.Add(model);
                         db.SaveChanges();
                     }
                     catch (Exception ex)
@@ -49,7 +49,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 {
                     try
                     {
-                        ManagerZoneSoldPlayers getDbModel = Get(db, vm.ManagerZoneSoldPlayerId);
+                        MZSoldPlayers getDbModel = Get(db, vm.ManagerZoneSoldPlayerId);
 
                         if (getDbModel != null)
                         {
@@ -89,10 +89,10 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             {
                 try
                 {
-                    ManagerZoneSoldPlayers model = ChangeFromViewModelToModel(vm);
+                    MZSoldPlayers model = ChangeFromViewModelToModel(vm);
 
                     db.ChangeTracker.Clear();
-                    db.ManagerZoneSoldPlayers.Remove(model);
+                    db.MZSoldPlayers.Remove(model);
                     db.SaveChanges();
                 }
                 catch (Exception ex)
@@ -106,7 +106,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return string.Empty;
         }
 
-        public ManagerZoneSoldViewModels ChangeFromModelToViewModel(ManagerZoneSoldPlayers model)
+        public ManagerZoneSoldViewModels ChangeFromModelToViewModel(MZSoldPlayers model)
         {
             DateTime purchasedDate = DateTime.Parse(model.PurchasedDate);
             DateTime soldDate = DateTime.Parse(model.SoldDate);
@@ -128,9 +128,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return vm;
         }
 
-        private static ManagerZoneSoldPlayers ChangeFromViewModelToModel(ManagerZoneSoldViewModels vm)
+        private static MZSoldPlayers ChangeFromViewModelToModel(ManagerZoneSoldViewModels vm)
         {
-            ManagerZoneSoldPlayers managerZoneSoldPlayers = new()
+            MZSoldPlayers managerZoneSoldPlayers = new()
             {
                 ManagerZoneSoldPlayerId = vm.ManagerZoneSoldPlayerId,
                 PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd"),

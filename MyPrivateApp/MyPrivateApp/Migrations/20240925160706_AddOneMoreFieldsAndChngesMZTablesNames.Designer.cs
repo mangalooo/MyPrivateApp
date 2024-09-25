@@ -12,8 +12,8 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240919192435_ManagerZoneAddThreeMoreFields")]
-    partial class ManagerZoneAddThreeMoreFields
+    [Migration("20240925160706_AddOneMoreFieldsAndChngesMZTablesNames")]
+    partial class AddOneMoreFieldsAndChngesMZTablesNames
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -459,7 +459,7 @@ namespace MyPrivateApp.Migrations
                     b.ToTable("FrozenFoods");
                 });
 
-            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.ManagerZonePurchasedPlayers", b =>
+            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.MZPurchasedPlayers", b =>
                 {
                     b.Property<int>("ManagerZonePurchasedPlayersId")
                         .ValueGeneratedOnAdd()
@@ -496,10 +496,10 @@ namespace MyPrivateApp.Migrations
 
                     b.HasKey("ManagerZonePurchasedPlayersId");
 
-                    b.ToTable("ManagerZonePurchasedPlayers");
+                    b.ToTable("MZPurchasedPlayers");
                 });
 
-            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.ManagerZoneSoldPlayers", b =>
+            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.MZSoldPlayers", b =>
                 {
                     b.Property<int>("ManagerZoneSoldPlayerId")
                         .ValueGeneratedOnAdd()
@@ -521,6 +521,9 @@ namespace MyPrivateApp.Migrations
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
+
+                    b.Property<string>("PercentProfitOrLoss")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PurchaseAmount")
                         .HasColumnType("int");
@@ -545,7 +548,7 @@ namespace MyPrivateApp.Migrations
 
                     b.HasKey("ManagerZoneSoldPlayerId");
 
-                    b.ToTable("ManagerZoneSoldPlayers");
+                    b.ToTable("MZSoldPlayers");
                 });
 
             modelBuilder.Entity("MyPrivateApp.Data.Models.Hunting.HuntingMyList", b =>

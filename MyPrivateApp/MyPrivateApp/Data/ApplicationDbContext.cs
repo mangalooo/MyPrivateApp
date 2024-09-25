@@ -26,8 +26,8 @@ namespace MyPrivateApp.Data
         public DbSet<HuntingTowerInspection> HuntingTowerInspections { get; set; }
 
         //Games
-        public DbSet<ManagerZoneSoldPlayers> ManagerZoneSoldPlayers { get; set; }
-        public DbSet<ManagerZonePurchasedPlayers> ManagerZonePurchasedPlayers { get; set; }
+        public DbSet<MZSoldPlayers> MZSoldPlayers { get; set; }
+        public DbSet<MZPurchasedPlayers> MZPurchasedPlayers { get; set; }
 
         // Shares
         public DbSet<SharesPurchaseds> SharesPurchaseds { get; set; }

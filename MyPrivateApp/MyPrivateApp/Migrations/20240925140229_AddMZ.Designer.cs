@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240925140229_AddMZ")]
+    partial class AddMZ
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -456,7 +459,7 @@ namespace MyPrivateApp.Migrations
                     b.ToTable("FrozenFoods");
                 });
 
-            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.MZPurchasedPlayers", b =>
+            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.ManagerZonePurchasedPlayers", b =>
                 {
                     b.Property<int>("ManagerZonePurchasedPlayersId")
                         .ValueGeneratedOnAdd()
@@ -493,10 +496,10 @@ namespace MyPrivateApp.Migrations
 
                     b.HasKey("ManagerZonePurchasedPlayersId");
 
-                    b.ToTable("MZPurchasedPlayers");
+                    b.ToTable("ManagerZonePurchasedPlayers");
                 });
 
-            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.MZSoldPlayers", b =>
+            modelBuilder.Entity("MyPrivateApp.Data.Models.Games.ManagerZone.ManagerZoneSoldPlayers", b =>
                 {
                     b.Property<int>("ManagerZoneSoldPlayerId")
                         .ValueGeneratedOnAdd()
@@ -518,9 +521,6 @@ namespace MyPrivateApp.Migrations
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
-
-                    b.Property<string>("PercentProfitOrLoss")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PurchaseAmount")
                         .HasColumnType("int");
@@ -545,7 +545,7 @@ namespace MyPrivateApp.Migrations
 
                     b.HasKey("ManagerZoneSoldPlayerId");
 
-                    b.ToTable("MZSoldPlayers");
+                    b.ToTable("ManagerZoneSoldPlayers");
                 });
 
             modelBuilder.Entity("MyPrivateApp.Data.Models.Hunting.HuntingMyList", b =>
