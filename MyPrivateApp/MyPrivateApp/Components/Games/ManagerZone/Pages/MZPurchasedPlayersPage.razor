@@ -19,6 +19,30 @@
 @* Header *@
 <div>
 
+     @* Desktop Navigation*@
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink>
+            <NavLink href="MZSoldPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda spelare </NavLink>
+        </div>
+    </div>
+
+    @* Mobile Navigation*@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink></li>
+                <li class="dropdown-item"><NavLink href="MZSoldPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda spelare </NavLink></li>
+            </ul>
+        </div>
+    </div>
+
+    <br />
+    <br />
+
     <br />
 
     <h1 style="text-align:center"> Köpta spelare </h1>
@@ -110,7 +134,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @DaysInTheClub(PageModel.PurchasedDate) </span>
+                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.DaysInTheClub(PageModel.PurchasedDate) </span>
                                 <label for="DaysInTheClub"> Dagar i klubben </label>
                                 <ValidationMessage For="() => PageModel.DaysInTheClub" class="text-danger" />
                             </div>
@@ -133,7 +157,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @TotalSalary(PageModel.PurchasedDate, PageModel.Salary) </span>
+                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalSalary(PageModel.PurchasedDate, PageModel.Salary) </span>
                                 <label for="SalaryTotal"> Total utbetalad lön </label>
                                 <ValidationMessage For="() => PageModel.SalaryTotal" class="text-danger" />
                             </div>
@@ -182,7 +206,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @TotalCost(PageModel.PurchasedDate, PageModel.Salary, PageModel.PurchaseAmount, PageModel.TrainingModeTotalCost) </span>
+                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalCost(PageModel.PurchasedDate, PageModel.Salary, PageModel.PurchaseAmount, PageModel.TrainingModeTotalCost) </span>
                                 <label for="TotalCostRightNow"> Total kostnad just nu </label>
                                 <ValidationMessage For="() => PageModel.TotalCostRightNow" class="text-danger" />
                             </div>
@@ -203,8 +227,32 @@
 
                     <br />
 
+                    <div class="row" hidden="@Sale">
+
+                        <div id="mobile" class="col-6" />
+
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <InputDate @bind-Value="PageModel.SoldDate" class="form-control" />
+                                <label for="SoldDate"> Säljdatum </label>
+                                <ValidationMessage For="() => PageModel.SoldDate" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="PageModel.SoldAmount" class="form-control" placeholder="" />
+                                <label for="SoldAmount"> Säljvärdet </label>
+                                <ValidationMessage For="() => PageModel.SoldAmount" class="text-danger" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br />
+
                     <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny spelare </button>
                     </div>
 
                     <div style="text-align:center">
@@ -213,9 +261,39 @@
 
                     <br />
 
+                    <div style="text-align:center" hidden="@ShowOrHideSaleButton">
+                        <button @onclick="OpenWindowSale" type="button" style="text-align:center" class="btn btn-outline-danger btn-sm"> Sälja </button>
+
+                        <div class="modal @ModalClassSale" tabindex="-1" role="dialog" style="display:@ModalDisplaySale">
+                            <div class="modal-dialog" role="document" style="width:400px">
+                                <div class="modal-content">
+
+                                    <br />
+                                    <h5> Vill du sälja spelaren: <strong> @PageModel.Name? </strong> </h5>
+                                    <br />
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton(PageModel))"> Sälj </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSale()"> Ångra </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropSale)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+
+                        <br />
+                        <br />
+                    </div>
+
                     <div style="text-align:center">
                         <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
                     </div>
+
+                    
 
                     <br />
                     <br />
@@ -230,8 +308,8 @@
 
                         <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
                         <PropertyColumn Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
-                        <PropertyColumn Title="Dagar i klubben" Property="@(c => DaysInTheClub(c.PurchasedDate))" Sortable="true" />
-                        <PropertyColumn Title="Total kostnad" Property="@(c => TotalCost(c.PurchasedDate, c.Salary, c.PurchaseAmount, c.TrainingModeTotalCost))" Sortable="true" />
+                        <PropertyColumn Title="Dagar i klubben" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
+                        <PropertyColumn Title="Total kostnad" Property="@(c => BackEndClass.TotalCost(c.PurchasedDate, c.Salary, c.PurchaseAmount, c.TrainingModeTotalCost))" Sortable="true" />
                         <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
@@ -243,6 +321,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => Sell(context))"> Sälj </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -294,6 +373,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => Sell(context))"> Sälj </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -562,28 +642,5 @@
         ModalClass = "";
         ShowBackdrop = false;
         StateHasChanged();
-    }
-
-    private int DaysInTheClub(DateTime PurchasedDate)
-    {
-        TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
-        return DaysInTheClub.Days;
-    }
-
-    private int TotalSalary(DateTime PurchasedDate, int salary)
-    {
-        TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
-        int weeks = DaysInTheClub.Days / 7;
-        int result = weeks * salary;
-        return result;
-    }
-
-    private int TotalCost(DateTime PurchasedDate, int salary, int PurchaseAmount, int TrainingModeTotalCost)
-    {
-        int totalSalary = TotalSalary(PurchasedDate, salary);
-
-        int result = totalSalary + PurchaseAmount + TrainingModeTotalCost;
-
-        return result;
     }
 }

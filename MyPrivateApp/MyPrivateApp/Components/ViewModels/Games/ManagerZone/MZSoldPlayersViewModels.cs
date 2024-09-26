@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
 {
-    public class ManagerZoneSoldViewModels
+    public class MZSoldPlayersViewModels
     {
         public int ManagerZoneSoldPlayerId { get; set; }
 
@@ -38,6 +38,9 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         [Display(Name = "Total träningsläger kostnad")]
         public int TrainingModeTotalCost { get; set; }
 
+        [Display(Name = "Total kostnad")]
+        public int TotalCost { get; set; }
+
         [Display(Name = "Sälj värdet")]
         public int SoldAmount { get; set; }
 
@@ -45,7 +48,7 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         public int MoneyProfitOrLoss { get; set; }        
         
         [Display(Name = "Vinst/förslust i %")]
-        public string? ProcentProfitOrLoss { get; set; }
+        public string? PercentProfitOrLoss { get; set; }
 
         [Display(Name = "Beskrivning")]
         [DataType(DataType.MultilineText)]

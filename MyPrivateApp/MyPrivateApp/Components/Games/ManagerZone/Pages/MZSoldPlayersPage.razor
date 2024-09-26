@@ -1,4 +1,4 @@
-﻿@page "/ManagerZonePurchasedPlayersPage"
+﻿@page "/MZSoldPlayersPage"
 
 @using MyPrivateApp.Components.Games.ManagerZone.Classes
 @using MyPrivateApp.Components.ViewModels
@@ -12,23 +12,45 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IMZPurchasedClass ManagerZonePurchasedClass
+@inject IMZSoldClass BackEndClass
 
 <PageTitle> ManagerZone </PageTitle>
 
 @* Header *@
 <div>
 
+    @* Desktop Navigation*@
+    <div id="desktop" style="text-align:center">
+        <div class="btn-group">
+            <NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink>
+            <NavLink href="MZSoldPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda spelare </NavLink>
+        </div>
+    </div>
+
+    @* Mobile Navigation*@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Alla aktier sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li class="dropdown-item"><NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink></li>
+                <li class="dropdown-item"><NavLink href="MZSoldPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda spelare </NavLink></li>
+            </ul>
+        </div>
+    </div>
+
+    <br />
     <br />
 
-    <h1 style="text-align:center"> Köpta spelare </h1>
+    <h1 style="text-align:center"> Sålda spelare </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
         <br />
         <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny köpt spelare </button>
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny såld spelare </button>
     </div>
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
@@ -49,7 +71,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="PurchasedPlayers" OnSubmit="AddOrEdit" FormName="AddOrUpdateManagerZoneSoldPlayers" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="PageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -63,25 +85,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="PurchasedPlayers.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="PageModel.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => PurchasedPlayers.Name" class="text-danger" />
+                                <ValidationMessage For="() => PageModel.Name" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="PageModel.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="YearsOld"> Ålder </label>
-                                <ValidationMessage For="() => PurchasedPlayers.YearsOld" class="text-danger" />
+                                <ValidationMessage For="() => PageModel.YearsOld" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="PageModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Number"> Nummer </label>
-                                <ValidationMessage For="() => PurchasedPlayers.Number" class="text-danger" />
+                                <ValidationMessage For="() => PageModel.Number" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -94,25 +116,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="PurchasedPlayers.PurchasedDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="PageModel.PurchasedDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="PurchasedDate"> Inköpsdatum </label>
-                                <ValidationMessage For="() => PurchasedPlayers.PurchasedDate" class="text-danger" />
+                                <ValidationMessage For="() => PageModel.PurchasedDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="PurchaseAmount"> Inköpsbelopp </label>
-                                <ValidationMessage For="() => PurchasedPlayers.PurchaseAmount" class="text-danger" />
+                                <InputDate @bind-Value="PageModel.SoldDate" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="SoldDate"> Säljdatum </label>
+                                <ValidationMessage For="() => PageModel.SoldDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @DaysInTheClub(PurchasedPlayers.PurchasedDate) </span>
+                                <InputNumber @bind-Value="PageModel.DaysInTheClub" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="DaysInTheClub"> Dagar i klubben </label>
-                                <ValidationMessage For="() => PurchasedPlayers.DaysInTheClub" class="text-danger" />
+                                <ValidationMessage For="() => PageModel.DaysInTheClub" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -125,33 +147,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.Salary" class="form-control" disabled="@DisabledForm" />
-                                <label for="Salary"> Lön </label>
-                                <ValidationMessage For="() => PurchasedPlayers.Salary" class="text-danger" />
+                                <InputNumber @bind-Value="PageModel.SalaryTotal" class="form-control" disabled="@DisabledForm" />
+                                <label for="SalaryTotal"> Totalt utbetald lön </label>
+                                <ValidationMessage For="() => PageModel.SalaryTotal" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @TotalSalary(PurchasedPlayers.PurchasedDate, PurchasedPlayers.Salary) </span>
-                                <label for="SalaryTotal"> Total utbetalad lön </label>
-                                <ValidationMessage For="() => PurchasedPlayers.SalaryTotal" class="text-danger" />
+                                <InputNumber @bind-Value="PageModel.TrainingModeTotalCost" class="form-control" disabled="@DisabledForm" />
+                                <label for="TrainingModeTotalCost"> Total träningsläger kostnader </label>
+                                <ValidationMessage For="() => PageModel.TrainingModeTotalCost" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.SalaryChange" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="SalaryChange"> Ändra lön </label>
-                                <ValidationMessage For="() => PurchasedPlayers.SalaryChange" class="text-danger" />
+                                <InputNumber @bind-Value="PageModel.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="PurchaseAmount"> Inköpsvärdet </label>
+                                <ValidationMessage For="() => PageModel.PurchaseAmount" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.SalarySaved" class="form-control" placeholder="" disabled="@true" />
-                                <label for="SalarySaved"> Spara gammal lön </label>
-                                <ValidationMessage For="() => PurchasedPlayers.SalarySaved" class="text-danger" />
+                                <InputNumber @bind-Value="PageModel.SoldAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="SoldAmount"> Säljvärdet </label>
+                                <ValidationMessage For="() => PageModel.SoldAmount" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -164,27 +186,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.TrainingModeCost" class="form-control" disabled="@DisabledForm" />
-                                <label for="TrainingModeCost"> Denna träningsläger kostnad </label>
-                                <ValidationMessage For="() => PurchasedPlayers.TrainingModeCost" class="text-danger" />
+                                <InputNumber @bind-Value="PageModel.TotalCost" class="form-control" disabled="@DisabledForm" />
+                                <label for="TotalCost"> Total kostand </label>
+                                <ValidationMessage For="() => PageModel.TotalCost" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PurchasedPlayers.TrainingModeTotalCost" class="form-control" placeholder="" disabled="@true" />
-                                <label for="TrainingModeTotalCost"> Total träningsläger kostnad </label>
-                                <ValidationMessage For="() => PurchasedPlayers.TrainingModeTotalCost" class="text-danger" />
+                                <InputNumber @bind-Value="PageModel.MoneyProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="MoneyProfitOrLoss"> Vinst/förslust </label>
+                                <ValidationMessage For="() => PageModel.MoneyProfitOrLoss" class="text-danger" />
                             </div>
                         </div>
 
-
-
                         <div class="col-4">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @TotalCost(PurchasedPlayers.PurchasedDate, PurchasedPlayers.Salary, PurchasedPlayers.PurchaseAmount, PurchasedPlayers.TrainingModeTotalCost) </span>
-                                <label for="TotalCostRightNow"> Total kostnad just nu </label>
-                                <ValidationMessage For="() => PurchasedPlayers.TotalCostRightNow" class="text-danger" />
+                                <InputText @bind-Value="PageModel.PercentProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="PercentProfitOrLoss"> Vinst/förslust i % </label>
+                                <ValidationMessage For="() => PageModel.PercentProfitOrLoss" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -194,17 +214,18 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="PurchasedPlayers.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="PageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Beskrivning </label>
-                                <ValidationMessage For="() => PurchasedPlayers.Note" class="text-danger" />
+                                <ValidationMessage For="() => PageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
 
                     <br />
+                    <br />
 
                     <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny spelare </button>
                     </div>
 
                     <div style="text-align:center">
@@ -219,6 +240,7 @@
 
                     <br />
                     <br />
+
                 </EditForm>
             </div>
 
@@ -226,18 +248,13 @@
             <div id="desktop">
 
                 <div class="card-body">
-                    <QuickGrid Items="@PurchasedPlayersQueryable" Pagination="pagination">
+                    <QuickGrid Items="@Queryable" Pagination="pagination">
 
                         <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
-
-                        <PropertyColumn Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
-
-                        <PropertyColumn Title="Dagar i klubben" Property="@(c => DaysInTheClub(c.PurchasedDate))" Sortable="true" />
-
-                        <span style="color:red;">
-                            <PropertyColumn Title="Total kostnad" Property="@(c => TotalCost(c.PurchasedDate, c.Salary, c.PurchaseAmount, c.TrainingModeTotalCost))" Sortable="true" />
-                        </span>
-                        <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
+                        <PropertyColumn Format="yyyy-MM-dd" Title="Säljdatum" Property="@(c => c.SoldDate)" Sortable="true" />
+                        <PropertyColumn Title="Dagar i klubben" Property="@(c => c.DaysInTheClub)" Sortable="true" />
+                        <PropertyColumn Title="Vinst/förslust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
+                        <PropertyColumn Title="Vinst/förslust i %" Property="@(c => c.PercentProfitOrLoss)" Sortable="true" />
 
 
                         <TemplateColumn Title="Info">
@@ -257,11 +274,11 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelare? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort spelaren: @PageModel.Name? </h5>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spare </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -287,9 +304,9 @@
             <div id="mobile">
 
                 <div class="card-body">
-                    <QuickGrid Items="@PurchasedPlayersQueryable" Pagination="pagination">
+                    <QuickGrid Items="@Queryable" Pagination="pagination">
 
-                        <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
+                        <PropertyColumn Title="Vinst/förslust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -308,11 +325,11 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelare? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort spelaren: @PageModel.Name? </h5>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -355,10 +372,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private MZPurchasedPlayersViewModels PurchasedPlayers { get; set; } = new();
+    private MZSoldPlayersViewModels PageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
-    private IQueryable<MZPurchasedPlayersViewModels> PurchasedPlayersQueryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
+    private IQueryable<MZSoldPlayersViewModels> Queryable = Enumerable.Empty<MZSoldPlayersViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -383,15 +400,15 @@
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
-        //if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
+        if (db.MZSoldPlayers.Count() == 0) return;
 
-        PurchasedPlayersQueryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
+        Queryable = Enumerable.Empty<MZSoldPlayersViewModels>().AsQueryable();
 
-        // foreach (Data.Models.Games.ManagerZone.ManagerZonePurchasedPlayers model in db.ManagerZonePurchasedPlayers.OrderBy(c => c.ManagerZonePurchasedPlayersId))
-        // {
-        //     ManagerZonePurchasedPlayersViewModels purchasedPlayers = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
-        //     PurchasedPlayersQueryable = PurchasedPlayersQueryable.Concat((new[] { purchasedPlayers }).AsQueryable());
-        // }
+        foreach (Data.Models.Games.ManagerZone.MZSoldPlayers model in db.MZSoldPlayers.OrderBy(c => c.ManagerZoneSoldPlayerId))
+        {
+            MZSoldPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            Queryable = Queryable.Concat((new[] { vm }).AsQueryable());
+        }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
@@ -411,10 +428,10 @@
     {
         DisabledForm = false;
 
-        if (PurchasedPlayers.ManagerZonePurchasedPlayersId > 0)
+        if (PageModel.ManagerZoneSoldPlayerId > 0)
         {
             // Edit
-            ErrorMessage = ManagerZonePurchasedClass.Edit(db, PurchasedPlayers);
+            ErrorMessage = BackEndClass.Edit(db, PageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -425,7 +442,7 @@
             }
             else
             {
-                PurchasedPlayers = new();
+                PageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -433,7 +450,7 @@
         else
         {
             // Add
-            ErrorMessage = ManagerZonePurchasedClass.Add(db, PurchasedPlayers);
+            ErrorMessage = BackEndClass.Add(db, PageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -445,43 +462,43 @@
             }
             else
             {
-                PurchasedPlayers = new();
+                PageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
         }
     }
 
-    private void Info(MZPurchasedPlayersViewModels vm)
+    private void Info(MZSoldPlayersViewModels vm)
     {
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        PurchasedPlayers = vm;
+        PageModel = vm;
     }
 
-    private void Edit(MZPurchasedPlayersViewModels vm)
+    private void Edit(MZSoldPlayersViewModels vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        PurchasedPlayers = vm;
+        PageModel = vm;
     }
 
     private void Delete()
     {
-        //if (db.ManagerZonePurchasedPlayers.Count() == 0) return;
+        if (db.MZSoldPlayers.Count() == 0) return;
 
-        bool findId = false; // db.ManagerZonePurchasedPlayers.Any(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
+        bool findId = db.MZSoldPlayers.Any(a => a.ManagerZoneSoldPlayerId == TemporaryId);
 
         if (findId)
         {
-            MZPurchasedPlayers model = null; // db.ManagerZonePurchasedPlayers.FirstOrDefault(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
-            MZPurchasedPlayersViewModels vm = ManagerZonePurchasedClass.ChangeFromModelToViewModel(model);
+            MZSoldPlayers model = db.MZSoldPlayers.FirstOrDefault(a => a.ManagerZoneSoldPlayerId == TemporaryId);
+            MZSoldPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = ManagerZonePurchasedClass.Delete(db, vm);
+            ErrorMessage = BackEndClass.Delete(db, vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -490,50 +507,27 @@
             }
             else
             {
-                PurchasedPlayers = new();
+                PageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
         }
     }
 
-    private void OpenDeleteWindow(MZPurchasedPlayersViewModels vm)
+    private void OpenDeleteWindow(MZSoldPlayersViewModels vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
-        TemporaryId = vm.ManagerZonePurchasedPlayersId;
+        TemporaryId = vm.ManagerZoneSoldPlayerId;
     }
 
-    private void CloseWindow()
+    private void CloseDeleteWindow()
     {
         ModalDisplay = "none";
         ModalClass = "";
         ShowBackdrop = false;
         StateHasChanged();
-    }
-
-    private int DaysInTheClub(DateTime PurchasedDate)
-    {
-        TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
-        return DaysInTheClub.Days;
-    }
-
-    private int TotalSalary(DateTime PurchasedDate, int salary)
-    {
-        TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
-        int weeks = DaysInTheClub.Days / 7;
-        int result = weeks * salary;
-        return result;
-    }
-
-    private int TotalCost(DateTime PurchasedDate, int salary, int PurchaseAmount, int TrainingModeTotalCost)
-    {
-        int totalSalary = TotalSalary(PurchasedDate, salary);
-
-        int result = totalSalary + PurchaseAmount + TrainingModeTotalCost;
-
-        return result;
     }
 }

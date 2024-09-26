@@ -7,9 +7,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
     public interface IMZSoldClass
     {
-        string Add(ApplicationDbContext db, ManagerZoneSoldViewModels vm);
-        string Edit(ApplicationDbContext db, ManagerZoneSoldViewModels vm);
-        string Delete(ApplicationDbContext db, ManagerZoneSoldViewModels vm);
-        ManagerZoneSoldViewModels ChangeFromModelToViewModel(MZSoldPlayers model);
+        string Add(ApplicationDbContext db, MZSoldPlayersViewModels vm);
+        string Edit(ApplicationDbContext db, MZSoldPlayersViewModels vm);
+        string Delete(ApplicationDbContext db, MZSoldPlayersViewModels vm);
+        MZSoldPlayersViewModels ChangeFromModelToViewModel(MZSoldPlayers model);
     }
 }

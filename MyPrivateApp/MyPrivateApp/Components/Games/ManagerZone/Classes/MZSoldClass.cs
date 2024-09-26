@@ -11,7 +11,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                                                                                             db.MZSoldPlayers.FirstOrDefault(r => r.ManagerZoneSoldPlayerId == id) :
                                                                                                 throw new Exception("Objektet hittades inte i databasen!");
 
-        public string Add(ApplicationDbContext db, ManagerZoneSoldViewModels vm)
+        public string Add(ApplicationDbContext db, MZSoldPlayersViewModels vm)
         {
             if (vm != null && db != null)
             {
@@ -40,7 +40,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return string.Empty;
         }
 
-        public string Edit(ApplicationDbContext db, ManagerZoneSoldViewModels vm)
+        public string Edit(ApplicationDbContext db, MZSoldPlayersViewModels vm)
         {
             if (vm != null && vm.ManagerZoneSoldPlayerId > 0 && db != null)
             {
@@ -56,12 +56,16 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                             getDbModel.ManagerZoneSoldPlayerId = vm.ManagerZoneSoldPlayerId;
                             getDbModel.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
                             getDbModel.SoldDate = vm.SoldDate.ToString("yyyy-MM-dd");
+                            getDbModel.Name = vm.Name;
+                            getDbModel.YearsOld = vm.YearsOld;
+                            getDbModel.Number = vm.Number;
                             getDbModel.PurchaseAmount = vm.PurchaseAmount;
                             getDbModel.SalaryTotal = vm.SalaryTotal;
                             getDbModel.DaysInTheClub = vm.DaysInTheClub;
                             getDbModel.TrainingModeTotalCost = vm.TrainingModeTotalCost;
                             getDbModel.SoldAmount = vm.SoldAmount;
                             getDbModel.MoneyProfitOrLoss = vm.MoneyProfitOrLoss;
+                            getDbModel.PercentProfitOrLoss = vm.PercentProfitOrLoss;
                             getDbModel.Note = vm.Note;
 
                             db.SaveChanges();
@@ -83,7 +87,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return string.Empty;
         }
 
-        public string Delete(ApplicationDbContext db, ManagerZoneSoldViewModels vm)
+        public string Delete(ApplicationDbContext db, MZSoldPlayersViewModels vm)
         {
             if (vm != null && vm.ManagerZoneSoldPlayerId > 0 && db != null)
             {
@@ -106,29 +110,33 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return string.Empty;
         }
 
-        public ManagerZoneSoldViewModels ChangeFromModelToViewModel(MZSoldPlayers model)
+        public MZSoldPlayersViewModels ChangeFromModelToViewModel(MZSoldPlayers model)
         {
             DateTime purchasedDate = DateTime.Parse(model.PurchasedDate);
             DateTime soldDate = DateTime.Parse(model.SoldDate);
 
-            ManagerZoneSoldViewModels vm = new()
+            MZSoldPlayersViewModels vm = new()
             {
                 ManagerZoneSoldPlayerId = model.ManagerZoneSoldPlayerId,
                 PurchasedDate = purchasedDate,
                 SoldDate = soldDate,
                 DaysInTheClub = model.DaysInTheClub,
+                Name = model.Name,
+                YearsOld = model.YearsOld,
+                Number = model.Number,
                 PurchaseAmount = model.PurchaseAmount,
                 SalaryTotal = model.SalaryTotal,
                 TrainingModeTotalCost = model.TrainingModeTotalCost,
                 SoldAmount = model.SoldAmount,
                 MoneyProfitOrLoss = model.MoneyProfitOrLoss,
+                PercentProfitOrLoss = model.PercentProfitOrLoss,
                 Note = model.Note
             };
 
             return vm;
         }
 
-        private static MZSoldPlayers ChangeFromViewModelToModel(ManagerZoneSoldViewModels vm)
+        private static MZSoldPlayers ChangeFromViewModelToModel(MZSoldPlayersViewModels vm)
         {
             MZSoldPlayers managerZoneSoldPlayers = new()
             {
@@ -136,11 +144,15 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd"),
                 SoldDate = vm.SoldDate.ToString("yyyy-MM-dd"),
                 DaysInTheClub = vm.DaysInTheClub,
+                Name = vm.Name,
+                YearsOld = vm.YearsOld,
+                Number = vm.Number,
                 PurchaseAmount = vm.PurchaseAmount,
                 SalaryTotal = vm.SalaryTotal,
                 TrainingModeTotalCost = vm.TrainingModeTotalCost,
                 SoldAmount = vm.SoldAmount,
                 MoneyProfitOrLoss = vm.MoneyProfitOrLoss,
+                PercentProfitOrLoss = vm.PercentProfitOrLoss,
                 Note = vm.Note
             };
 
