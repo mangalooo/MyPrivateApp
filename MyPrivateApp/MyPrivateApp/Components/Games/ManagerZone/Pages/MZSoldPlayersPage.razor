@@ -10,7 +10,7 @@
 
 @rendermode InteractiveServer
 
-@inject ApplicationDbContext db;
+@inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject IMZSoldClass BackEndClass
 
@@ -71,7 +71,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="PageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -85,25 +85,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="PageModel.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => PageModel.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="YearsOld"> Ålder </label>
-                                <ValidationMessage For="() => PageModel.YearsOld" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.YearsOld" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Number"> Nummer </label>
-                                <ValidationMessage For="() => PageModel.Number" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Number" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -116,25 +116,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="PageModel.PurchasedDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.PurchasedDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="PurchasedDate"> Inköpsdatum </label>
-                                <ValidationMessage For="() => PageModel.PurchasedDate" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.PurchasedDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="PageModel.SoldDate" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.SoldDate" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="SoldDate"> Säljdatum </label>
-                                <ValidationMessage For="() => PageModel.SoldDate" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.SoldDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.DaysInTheClub" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.DaysInTheClub" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="DaysInTheClub"> Dagar i klubben </label>
-                                <ValidationMessage For="() => PageModel.DaysInTheClub" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.DaysInTheClub" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -147,33 +147,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.SalaryTotal" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.SalaryTotal" class="form-control" disabled="@DisabledForm" />
                                 <label for="SalaryTotal"> Totalt utbetald lön </label>
-                                <ValidationMessage For="() => PageModel.SalaryTotal" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.SalaryTotal" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.TrainingModeTotalCost" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.TrainingModeTotalCost" class="form-control" disabled="@DisabledForm" />
                                 <label for="TrainingModeTotalCost"> Total träningsläger kostnader </label>
-                                <ValidationMessage For="() => PageModel.TrainingModeTotalCost" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TrainingModeTotalCost" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="PurchaseAmount"> Inköpsvärdet </label>
-                                <ValidationMessage For="() => PageModel.PurchaseAmount" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.PurchaseAmount" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.SoldAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.SoldAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="SoldAmount"> Säljvärdet </label>
-                                <ValidationMessage For="() => PageModel.SoldAmount" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.SoldAmount" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -186,25 +186,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.TotalCost" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.TotalCost" class="form-control" disabled="@DisabledForm" />
                                 <label for="TotalCost"> Total kostand </label>
-                                <ValidationMessage For="() => PageModel.TotalCost" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TotalCost" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="PageModel.MoneyProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.MoneyProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="MoneyProfitOrLoss"> Vinst/förslust </label>
-                                <ValidationMessage For="() => PageModel.MoneyProfitOrLoss" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.MoneyProfitOrLoss" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="PageModel.PercentProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.PercentProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="PercentProfitOrLoss"> Vinst/förslust i % </label>
-                                <ValidationMessage For="() => PageModel.PercentProfitOrLoss" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.PercentProfitOrLoss" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -214,9 +214,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="PageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Beskrivning </label>
-                                <ValidationMessage For="() => PageModel.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -248,7 +248,7 @@
             <div id="desktop">
 
                 <div class="card-body">
-                    <QuickGrid Items="@Queryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
                         <PropertyColumn Format="yyyy-MM-dd" Title="Säljdatum" Property="@(c => c.SoldDate)" Sortable="true" />
@@ -274,10 +274,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelaren: @PageModel.Name? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort spelaren: @pageModel.Name? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spare </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -304,7 +304,7 @@
             <div id="mobile">
 
                 <div class="card-body">
-                    <QuickGrid Items="@Queryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Vinst/förslust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
 
@@ -325,7 +325,7 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelaren: @PageModel.Name? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort spelaren: @pageModel.Name? </h5>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
@@ -372,10 +372,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private MZSoldPlayersViewModels PageModel { get; set; } = new();
+    private MZSoldPlayersViewModels pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
-    private IQueryable<MZSoldPlayersViewModels> Queryable = Enumerable.Empty<MZSoldPlayersViewModels>().AsQueryable();
+    private IQueryable<MZSoldPlayersViewModels> queryable = Enumerable.Empty<MZSoldPlayersViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -402,12 +402,12 @@
     {
         if (db.MZSoldPlayers.Count() == 0) return;
 
-        Queryable = Enumerable.Empty<MZSoldPlayersViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<MZSoldPlayersViewModels>().AsQueryable();
 
-        foreach (Data.Models.Games.ManagerZone.MZSoldPlayers model in db.MZSoldPlayers.OrderBy(c => c.ManagerZoneSoldPlayerId))
+        foreach (MZSoldPlayers model in db.MZSoldPlayers.OrderBy(c => c.ManagerZoneSoldPlayerId))
         {
             MZSoldPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            Queryable = Queryable.Concat((new[] { vm }).AsQueryable());
+            queryable = queryable.Concat((new[] { vm }).AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -428,10 +428,10 @@
     {
         DisabledForm = false;
 
-        if (PageModel.ManagerZoneSoldPlayerId > 0)
+        if (pageModel.ManagerZoneSoldPlayerId > 0)
         {
             // Edit
-            ErrorMessage = BackEndClass.Edit(db, PageModel);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -442,7 +442,7 @@
             }
             else
             {
-                PageModel = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -450,7 +450,7 @@
         else
         {
             // Add
-            ErrorMessage = BackEndClass.Add(db, PageModel);
+            ErrorMessage = BackEndClass.Add(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -462,7 +462,7 @@
             }
             else
             {
-                PageModel = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -474,7 +474,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        PageModel = vm;
+        pageModel = vm;
     }
 
     private void Edit(MZSoldPlayersViewModels vm)
@@ -484,7 +484,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        PageModel = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -507,7 +507,7 @@
             }
             else
             {
-                PageModel = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
