@@ -5,7 +5,7 @@ using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.Trip.Classes
 {
-    public class TripClass : ITripClass
+    public class NewModulesClass : ITripClass
     {
         private static Trips? Get(ApplicationDbContext db, int? id) => db.Trips.Any(r => r.TripsId == id) ?
                                                                                 db.Trips.FirstOrDefault(r => r.TripsId == id) :

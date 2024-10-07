@@ -34,7 +34,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
 builder.Services.AddScoped<IContactClass, ContactClass>();
 builder.Services.AddScoped<IFrozenFoodClass, FrozenFoodClass>();
-builder.Services.AddScoped<ITripClass, TripClass>();
+builder.Services.AddScoped<ITripClass, NewModulesClass>();
 builder.Services.AddScoped<IFarmingClass, FarmingClass>();
 builder.Services.AddScoped<IFarmWorkClass, FarmWorkClass>();
 
