@@ -10,7 +10,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject ITripClass TripClass
+@inject ITripClass BackEndClass
 
 <PageTitle> Resor </PageTitle>
 
@@ -48,7 +48,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="trip" OnSubmit="AddOrEdit" FormName="CreateOrUpdateTrip" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="CreateOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -60,16 +60,16 @@
 
                          <div class="col-6">
                              <div class="form-floating">
-                                 <InputDate @bind-Value="trip.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Date"> Datum </label>
-                                 <ValidationMessage For="() => trip.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                              </div>
                          </div>
                          <div class="col-6">
                              <div class="form-floating">
-                                 <InputDate @bind-Value="trip.HomeDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.HomeDate" class="form-control" disabled="@DisabledForm" />
                                  <label for="HomeDate"> Hem </label>
-                                 <ValidationMessage For="() => trip.HomeDate" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.HomeDate" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -82,16 +82,16 @@
 
                          <div class="col-6">
                              <div class="form-floating">
-                                 <InputText @bind-Value="trip.Country" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Country" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Country"> Land </label>
-                                 <ValidationMessage For="() => trip.Country" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Country" class="text-danger" />
                              </div>
                          </div>
                          <div class="col-6">
                              <div class="form-floating">
-                                 <InputText @bind-Value="trip.Place" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Place" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Place"> Plats </label>
-                                 <ValidationMessage For="() => trip.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Place" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -101,9 +101,9 @@
                      <div class="row">
                          <div class="col-12">
                              <div class="form-floating">
-                                 <InputText @bind-Value="trip.TravelBuddies" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.TravelBuddies" class="form-control" disabled="@DisabledForm" />
                                  <label for="TravelBuddies"> Medpassagerare</label>
-                                 <ValidationMessage For="() => trip.TravelBuddies" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TravelBuddies" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -113,9 +113,9 @@
                      <div class="row">
                          <div class="col-12">
                              <div class="form-floating">
-                                 <InputTextArea @bind-Value="trip.Description" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageModel.Description" class="form-control" disabled="@DisabledForm" />
                                  <label for="Description"> Beskrivning </label>
-                                 <ValidationMessage For="() => trip.Description" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Description" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -144,7 +144,7 @@
              @* View - Desktop *@
              <div id="desktop">
                  <div id="desktop" class="card-body">
-                     <QuickGrid Items="@TripsQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                          <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                          <PropertyColumn Title="Dagar" Property="@(c => c.HowManyDays)" Sortable="true" />
@@ -209,7 +209,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@TripsQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
@@ -282,10 +282,9 @@
 @code
 {
     [SupplyParameterFromForm]
-    private TripsViewModel trip { get; set; } = new();
-
+    private TripsViewModel pageModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<TripsViewModel> TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
+    private IQueryable<TripsViewModel> queryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -312,12 +311,12 @@
     {
         if (db.Trips.Count() == 0) return;
 
-        TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
 
         foreach (Trips model in db.Trips.OrderBy(c => c.TripsId))
         {
-            TripsViewModel trip = TripClass.ChangeFromModelToViewModel(model);
-            TripsQueryable = TripsQueryable.Concat(new[] { trip }.AsQueryable());
+            TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -338,10 +337,10 @@
     {
         DisabledForm = false;
 
-        if (trip.TripsId > 0)
+        if (pageModel.TripsId > 0)
         {
             // Edit
-            ErrorMessage = TripClass.Edit(db, trip);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -352,7 +351,7 @@
             }
             else
             {
-                trip = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -360,7 +359,7 @@
         else
         {
             // Add
-            ErrorMessage = TripClass.Add(db, trip, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -372,7 +371,7 @@
             }
             else
             {
-                trip = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -384,7 +383,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        trip = vm;
+        pageModel = vm;
     }
 
     private void Edit(TripsViewModel vm)
@@ -394,7 +393,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        trip = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -406,9 +405,9 @@
         if (findId)
         {
             Trips model = db.Trips.FirstOrDefault(a => a.TripsId == TemporaryId);
-            TripsViewModel vm = TripClass.ChangeFromModelToViewModel(model);
+            TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = TripClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -417,7 +416,7 @@
             }
             else
             {
-                trip = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -443,15 +442,15 @@
 
     private void GetGuery(IEnumerable<Trips> result)
     {
-        TripsQueryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
 
         if (result.Count() == 0) return;
 
         if (result.Any())
             foreach (Trips model in result.OrderBy(c => c.TripsId))
             {
-                TripsViewModel trip = TripClass.ChangeFromModelToViewModel(model);
-                TripsQueryable = TripsQueryable.Concat(new[] { trip }.AsQueryable());
+                TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+                queryable = queryable.Concat(new[] { vm }.AsQueryable());
             }
     }
 

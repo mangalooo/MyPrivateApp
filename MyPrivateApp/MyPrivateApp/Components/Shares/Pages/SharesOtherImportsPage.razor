@@ -13,7 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject ISharesOtherImportsClass SharesOtherImports
+@inject ISharesOtherImportsClass BackEndClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -102,7 +102,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="OtherImports" OnSubmit="AddOrEdit" FormName="AddOrUpdateOtherImports" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -114,33 +114,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="OtherImports.Company" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Company" class="form-control" disabled="@DisabledForm" />
                                 <label for="Company"> Företag </label>
-                                <ValidationMessage For="() => OtherImports.Company" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Company" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="OtherImports.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                 <label for="TypeOfTransaction"> Typ av transaktion </label>
-                                <ValidationMessage For="() => OtherImports.TypeOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="OtherImports.ISIN" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.ISIN" class="form-control" disabled="@DisabledForm" />
                                 <label for="ISIN"> ISIN </label>
-                                <ValidationMessage For="() => OtherImports.ISIN" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.ISIN" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="OtherImports.Account" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Account" class="form-control" disabled="@DisabledForm" />
                                 <label for="Account"> Konto </label>
-                                <ValidationMessage For="() => OtherImports.Account" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Account" class="text-danger" />
                             </div>
                         </div>
 
@@ -154,33 +154,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="OtherImports.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Inköpsdatum </label>
-                                <ValidationMessage For="() => OtherImports.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="OtherImports.NumberOfShares" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.NumberOfShares" class="form-control" disabled="@DisabledForm" />
                                 <label for="NumberOfShares"> Antal </label>
-                                <ValidationMessage For="() => OtherImports.NumberOfShares" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.NumberOfShares" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="OtherImports.PricePerShare" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.PricePerShare" class="form-control" disabled="@DisabledForm" />
                                 <label for="PricePerShare"> Pris per aktie </label>
-                                <ValidationMessage For="() => OtherImports.PricePerShare" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.PricePerShare" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="OtherImports.Amount" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.Amount" class="form-control" disabled="@DisabledForm" />
                                 <label for="HowMany"> Summan </label>
-                                <ValidationMessage For="() => OtherImports.Amount" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Amount" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -192,26 +192,26 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="OtherImports.Currency" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Currency" class="form-control" disabled="@DisabledForm" />
                                 <label for="Currency"> Valuta </label>
-                                <ValidationMessage For="() => OtherImports.Currency" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Currency" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="OtherImports.Brokerage" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.Brokerage" class="form-control" disabled="@DisabledForm" />
                                 <label for="Brokerage"> Courtage </label>
-                                <ValidationMessage For="() => OtherImports.Brokerage" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Brokerage" class="text-danger" />
                             </div>
                         </div>
 
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="OtherImports.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => OtherImports.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
 
@@ -241,7 +241,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@OtherImportsQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
@@ -294,7 +294,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@OtherImportsQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
                         <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
@@ -363,10 +363,9 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesOtherShareImportViewModel OtherImports { get; set; } = new();
-
+    private SharesOtherShareImportViewModel pageModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesOtherShareImportViewModel> OtherImportsQueryable = Enumerable.Empty<SharesOtherShareImportViewModel>().AsQueryable();
+    private IQueryable<SharesOtherShareImportViewModel> queryable = Enumerable.Empty<SharesOtherShareImportViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -393,12 +392,12 @@
     {
         if (db.SharesOtherImports.Count() == 0) return;
 
-        OtherImportsQueryable = Enumerable.Empty<SharesOtherShareImportViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<SharesOtherShareImportViewModel>().AsQueryable();
 
         foreach (SharesOtherImports model in db.SharesOtherImports.OrderBy(c => c.OtherImportsId))
         {
-            SharesOtherShareImportViewModel otherImports = SharesOtherImports.ChangeFromModelToViewModel(model);
-            OtherImportsQueryable = OtherImportsQueryable.Concat(new[] { otherImports }.AsQueryable());
+            SharesOtherShareImportViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -419,11 +418,11 @@
     {
         DisabledForm = false;
 
-        if (OtherImports.OtherImportsId > 0)
+        if (pageModel.OtherImportsId > 0)
         {
             // Edit
             ShowOrHideCreateButton = true;
-            ErrorMessage = SharesOtherImports.Edit(db, OtherImports, false);
+            ErrorMessage = BackEndClass.Edit(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -434,7 +433,7 @@
             }
             else
             {
-                OtherImports = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -442,7 +441,7 @@
         else
         {
             // Add
-            ErrorMessage = SharesOtherImports.Add(db, OtherImports, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -452,7 +451,7 @@
             }
             else
             {
-                OtherImports = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -464,7 +463,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        OtherImports = vm;
+        pageModel = vm;
     }
 
     private void Edit(SharesOtherShareImportViewModel vm)
@@ -474,7 +473,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        OtherImports = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -486,9 +485,9 @@
         if (findId)
         {
             SharesOtherImports model = db.SharesOtherImports.FirstOrDefault(a => a.OtherImportsId == TemporaryId);
-            SharesOtherShareImportViewModel vm = SharesOtherImports.ChangeFromModelToViewModel(model);
+            SharesOtherShareImportViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = SharesOtherImports.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -497,7 +496,7 @@
             }
             else
             {
-                OtherImports = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }

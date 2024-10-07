@@ -16,7 +16,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IFarmingClass FarmingClass
+@inject IFarmingClass BackEndClass
 
 <PageTitle> Odling </PageTitle>
 
@@ -54,7 +54,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="Farming" OnSubmit="Edit" FormName="AddOrUpdateFarming" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="Edit" FormName="AddOrUpdateFarming" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -66,25 +66,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="Farming.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => Farming.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="Farming.Type" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Type" class="form-control" disabled="@DisabledForm" />
                                 <label for="Type"> Typ </label>
-                                <ValidationMessage For="() => Farming.Type" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Type" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="Farming.Place" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Place" class="form-control" disabled="@DisabledForm" />
                                 <label for="Place"> Plats </label>
-                                <ValidationMessage For="() => Farming.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Place" class="text-danger" />
                             </div>
                         </div>
 
@@ -98,33 +98,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="Farming.InactiveDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.InactiveDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="InactiveDate"> Inaktiv datum </label>
-                                <ValidationMessage For="() => Farming.InactiveDate" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.InactiveDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="Farming.PutSeedDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.PutSeedDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="PutSeedDate"> Sätt frö datum </label>
-                                <ValidationMessage For="() => Farming.PutSeedDate" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.PutSeedDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="Farming.SetDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.SetDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="SetDate"> Plantera ut datum </label>
-                                <ValidationMessage For="() => Farming.SetDate" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.SetDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="Farming.TakeUpDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.TakeUpDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="TakeUpDate"> Ta upp datum </label>
-                                <ValidationMessage For="() => Farming.TakeUpDate" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TakeUpDate" class="text-danger" />
                             </div>
                         </div>
 
@@ -138,17 +138,17 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="Farming.HowMany" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.HowMany" class="form-control" disabled="@DisabledForm" />
                                 <label for="HowMany"> Hur många satta </label>
-                                <ValidationMessage For="() => Farming.HowMany" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.HowMany" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="Farming.HowManySave" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.HowManySave" class="form-control" disabled="@DisabledForm" />
                                 <label for="HowManySave"> Hur många sparade </label>
-                                <ValidationMessage For="() => Farming.HowManySave" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.HowManySave" class="text-danger" />
                             </div>
                         </div>
 
@@ -160,9 +160,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="5" style="height:100%;" @bind-Value="Farming.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="5" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => Farming.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -187,7 +187,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@FarmingQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
@@ -240,7 +240,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@FarmingQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
@@ -309,10 +309,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private FarmingViewModels Farming { get; set; } = new();
+    private FarmingViewModels pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<FarmingViewModels> FarmingQueryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+    private IQueryable<FarmingViewModels> queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -337,12 +337,12 @@
     {
         if (db.FarmingsInactive.Count() == 0) return;
 
-        FarmingQueryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
 
         foreach (FarmingsInactive model in db.FarmingsInactive.OrderBy(c => c.FarmingId))
         {
-            FarmingViewModels Farming = FarmingClass.ChangeFromModelToViewModel(model);
-            FarmingQueryable = FarmingQueryable.Concat(new[] { Farming }.AsQueryable());
+            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -362,10 +362,10 @@
     {
         DisabledForm = false;
 
-        if (Farming.FarmingId > 0)
+        if (pageModel.FarmingId > 0)
         {
             // Edit
-            ErrorMessage = FarmingClass.EditInactive(db, Farming);
+            ErrorMessage = BackEndClass.EditInactive(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -376,7 +376,7 @@
             }
             else
             {
-                Farming = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -388,14 +388,14 @@
         DisabledForm = false;
         ShowOrHideEditButton = false;
         HideNewOrChangesFields = true;
-        Farming = vm;
+        pageModel = vm;
     }
 
     private void Info(FarmingViewModels vm)
     {
         HideNewOrChangesForm();
         DisabledForm = true;
-        Farming = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -407,9 +407,9 @@
         if (findId)
         {
             FarmingsInactive model = db.FarmingsInactive.FirstOrDefault(a => a.FarmingId == TemporaryId);
-            FarmingViewModels vm = FarmingClass.ChangeFromModelToViewModel(model);
+            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = FarmingClass.DeleteInactive(db, vm, false);
+            ErrorMessage = BackEndClass.DeleteInactive(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -418,7 +418,7 @@
             }
             else
             {
-                Farming = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }

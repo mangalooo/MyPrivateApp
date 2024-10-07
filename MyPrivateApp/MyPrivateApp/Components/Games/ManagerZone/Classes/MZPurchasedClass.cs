@@ -7,9 +7,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
     public class MZPurchasedClass : IMZPurchasedClass
     {
-        private static MZPurchasedPlayers? Get(ApplicationDbContext db, int? id) => db.MZPurchasedPlayers.Any(r => r.ManagerZonePurchasedPlayersId == id) ?
-                                                                                                db.MZPurchasedPlayers.FirstOrDefault(r => r.ManagerZonePurchasedPlayersId == id) :
-                                                                                                    throw new Exception("Den köpta spelare hittades inte i databasen!");
+        private static MZPurchasedPlayers? Get(ApplicationDbContext db, int? id) => db.MZPurchasedPlayers.Any(r => r.ManagerZonePurchasedPlayersId == id) 
+                                                                                        ? db.MZPurchasedPlayers.FirstOrDefault(r => r.ManagerZonePurchasedPlayersId == id) 
+                                                                                            : throw new Exception("Den köpta spelare hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
         {
@@ -61,7 +61,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                             getDbModel.PurchaseAmount = vm.PurchaseAmount;
                             getDbModel.Salary = vm.Salary;
                             getDbModel.SalarySaved = vm.SalarySaved;
-                            getDbModel.TrainingModeTotalCost = vm.TrainingModeTotalCost + vm.TrainingModeCost;
+                            getDbModel.TrainingModeTotalCost += vm.TrainingModeCost;
                             getDbModel.Note = vm.Note;
 
                             db.SaveChanges();
@@ -85,23 +85,35 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
         public string Sell(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
         {
-            MZPurchasedPlayers purchasedPlayers = Get(db, vm.ManagerZonePurchasedPlayersId);
+            int daysInTheClub = DaysInTheClub(vm.PurchasedDate);
 
-            if (purchasedPlayers == null) return "Sälj: Spelaren hittades inte i databasen!";
-
-            vm.ManagerZonePurchasedPlayersId = purchasedPlayers.ManagerZonePurchasedPlayersId;
+            if (daysInTheClub < 70) return "Spelaren har inte varit i klubben i 70 dagart";
 
             if (vm != null && vm.ManagerZonePurchasedPlayersId != 0 && db != null)
             {
+                MZPurchasedPlayers purchasedPlayers = Get(db, vm.ManagerZonePurchasedPlayersId);
+
+                if (purchasedPlayers == null) return "Spelaren hittades inte i databasen!";
+
                 if (vm.SoldDate == DateTime.MinValue && vm.SoldAmount > 0)
                     return "Du måste fylla i fälten: Säljdatum och Säljvärdet!";
 
-                MZPurchasedPlayers getDbPurchasedPlayersModel = Get(db, vm.ManagerZonePurchasedPlayersId);
-
-                if (getDbPurchasedPlayersModel != null)
+                if (purchasedPlayers != null)
                 {
-                    double calculateMoneyProfitOrLoss = (vm.SoldAmount / vm.PurchaseAmount) - 1;
-                    int totalCost = TotalCost(vm.PurchasedDate, vm.Salary, vm.PurchaseAmount, vm.TrainingModeTotalCost);
+                    double totalCost = TotalCost(vm.PurchasedDate, vm.Salary, vm.PurchaseAmount, vm.TrainingModeTotalCost, vm.SaleCharge);
+                    double MoneyProfitOrLoss = vm.SoldAmount - totalCost;
+                    double calculateMoneyProfitOrLoss;
+
+                    // Calculate the tax on the profit
+                    if (MoneyProfitOrLoss > 0)
+                    {
+                        double tax = MoneyProfitOrLoss * 0.15;
+                        totalCost += tax;
+                        MoneyProfitOrLoss -= tax;
+                        calculateMoneyProfitOrLoss = (vm.SoldAmount / totalCost) - 1;
+                    }
+                    else
+                        calculateMoneyProfitOrLoss = (vm.SoldAmount / totalCost) - 1;
 
                     MZSoldPlayers soldPlayer = new()
                     {
@@ -110,14 +122,15 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                         Name = vm.Name,
                         YearsOld = vm.YearsOld,
                         Number = vm.Number,
-                        DaysInTheClub = DaysInTheClub(vm.PurchasedDate),
+                        DaysInTheClub = daysInTheClub,
                         PurchaseAmount = vm.PurchaseAmount,
                         SalaryTotal = TotalSalary(vm.PurchasedDate, vm.Salary),
                         TrainingModeTotalCost = vm.TrainingModeTotalCost,
                         TotalCost = totalCost,
                         SoldAmount = vm.SoldAmount,
+                        SaleCharge = vm.SaleCharge,
                         Note = vm.Note,
-                        MoneyProfitOrLoss = vm.SoldAmount - totalCost,
+                        MoneyProfitOrLoss = MoneyProfitOrLoss,
                         PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss)
                     };
                     
@@ -143,6 +156,8 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return string.Empty;
         }
 
+        private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
+
         public int DaysInTheClub(DateTime PurchasedDate)
         {
             TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
@@ -157,16 +172,12 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return result;
         }
 
-        public int TotalCost(DateTime PurchasedDate, int salary, int PurchaseAmount, int TrainingModeTotalCost)
+        public double TotalCost(DateTime PurchasedDate, int salary, int PurchaseAmount, int TrainingModeTotalCost, double SaleCharge)
         {
-            int totalSalary = TotalSalary(PurchasedDate, salary);
-
-            int result = totalSalary + PurchaseAmount + TrainingModeTotalCost;
-
+            double totalSalary = double.Parse(TotalSalary(PurchasedDate, salary).ToString());
+            double result = totalSalary + PurchaseAmount + TrainingModeTotalCost + SaleCharge;
             return result;
         }
-
-        private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
 
         public string Delete(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
         {

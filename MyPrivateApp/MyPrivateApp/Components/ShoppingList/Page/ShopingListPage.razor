@@ -14,7 +14,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IShopingListClass ShopingListClass
+@inject IShopingListClass BackEndClass
 
 <PageTitle> Inköpslistor </PageTitle>
 
@@ -51,7 +51,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="ShopingList" OnSubmit="AddOrEdit" FormName="AddOrUpdateShopingList" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -63,25 +63,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="ShopingList.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => ShopingList.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="ShopingList.Place" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Place" class="form-control" disabled="@DisabledForm" />
                                 <label for="Places"> Plats </label>
-                                <ValidationMessage For="() => ShopingList.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Place" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="ShopingList.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => ShopingList.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
                             </div>
                         </div>
 
@@ -93,9 +93,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="ShopingList.List" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.List" class="form-control" disabled="@DisabledForm" />
                                 <label for="List"> Inköpslistan </label>
-                                <ValidationMessage For="() => ShopingList.List" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.List" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -124,7 +124,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
@@ -177,7 +177,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@ShopingListQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true" />
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
@@ -246,10 +246,9 @@
 @code
 {
     [SupplyParameterFromForm]
-    private ShopingListViewModels ShopingList { get; set; } = new();
-
+    private ShopingListViewModels pageModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<ShopingListViewModels> ShopingListQueryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
+    private IQueryable<ShopingListViewModels> queryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -276,12 +275,12 @@
     {
         if (db.ShopingLists.Count() == 0) return;
 
-        ShopingListQueryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
 
         foreach (ShopingList model in db.ShopingLists.OrderBy(c => c.ShopingListId))
         {
-            ShopingListViewModels ShopingList = ShopingListClass.ChangeFromModelToViewModel(model);
-            ShopingListQueryable = ShopingListQueryable.Concat(new[] { ShopingList }.AsQueryable());
+            ShopingListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -302,10 +301,10 @@
     {
         DisabledForm = false;
 
-        if (ShopingList.ShopingListId > 0)
+        if (pageModel.ShopingListId > 0)
         {
             // Edit
-            ErrorMessage = ShopingListClass.Edit(db, ShopingList);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -316,7 +315,7 @@
             }
             else
             {
-                ShopingList = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -324,7 +323,7 @@
         else
         {
             // Add
-            ErrorMessage = ShopingListClass.Add(db, ShopingList, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -336,7 +335,7 @@
             }
             else
             {
-                ShopingList = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -348,7 +347,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        ShopingList = vm;
+        pageModel = vm;
     }
 
     private void Edit(ShopingListViewModels vm)
@@ -358,7 +357,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        ShopingList = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -370,9 +369,9 @@
         if (findId)
         {
             ShopingList model = db.ShopingLists.FirstOrDefault(a => a.ShopingListId == TemporaryId);
-            ShopingListViewModels vm = ShopingListClass.ChangeFromModelToViewModel(model);
+            ShopingListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = ShopingListClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -381,7 +380,7 @@
             }
             else
             {
-                ShopingList = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }

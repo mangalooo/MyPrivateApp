@@ -12,7 +12,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject ISharesDividendClass SharesDividendClass
+@inject ISharesDividendClass BackEndClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -102,7 +102,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="sharesDividend" OnSubmit="AddOrEdit" FormName="AddOrEditSharesDividend" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrEditShares" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -116,25 +116,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="sharesDividend.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => sharesDividend.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesDividend.Company" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Company" class="form-control" disabled="@DisabledForm" />
                                 <label for="Company"> Företag </label>
-                                <ValidationMessage For="() => sharesDividend.Company" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Company" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesDividend.ISIN" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.ISIN" class="form-control" disabled="@DisabledForm" />
                                 <label for="ISIN"> ISIN </label>
-                                <ValidationMessage For="() => sharesDividend.ISIN" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.ISIN" class="text-danger" />
                             </div>
                         </div>
 
@@ -148,25 +148,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesDividend.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                 <label for="TypeOfTransaction"> Typ av transaktion </label>
-                                <ValidationMessage For="() => sharesDividend.TypeOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesDividend.AccountNumber" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.AccountNumber" class="form-control" disabled="@DisabledForm" />
                                 <label for="AccountNumber"> Konto </label>
-                                <ValidationMessage For="() => sharesDividend.AccountNumber" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.AccountNumber" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="sharesDividend.Currency" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Currency" class="form-control" disabled="@DisabledForm" />
                                 <label for="Currency"> Valuta </label>
-                                <ValidationMessage For="() => sharesDividend.Currency" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Currency" class="text-danger" />
                             </div>
                         </div>
 
@@ -180,25 +180,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesDividend.NumberOfShares" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.NumberOfShares" class="form-control" disabled="@DisabledForm" />
                                 <label for="NumberOfShares"> Antal </label>
-                                <ValidationMessage For="() => sharesDividend.NumberOfShares" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.NumberOfShares" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesDividend.PricePerShare" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.PricePerShare" class="form-control" disabled="@DisabledForm" />
                                 <label for="PricePerShare"> Pris per aktie </label>
-                                <ValidationMessage For="() => sharesDividend.PricePerShare" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.PricePerShare" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="sharesDividend.TotalAmount" class="form-control" disabled="true" />
+                                <InputNumber @bind-Value="pageModel.TotalAmount" class="form-control" disabled="true" />
                                 <label for="TotalAmount"> Belopp </label>
-                                <ValidationMessage For="() => sharesDividend.TotalAmount" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TotalAmount" class="text-danger" />
                             </div>
                         </div>
 
@@ -210,9 +210,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="sharesDividend.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => sharesDividend.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
 
@@ -249,7 +249,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@SharesDividendQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
@@ -305,7 +305,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@SharesDividendQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Företag" Property="@(c => c.Company)" Sortable="true" />
 
@@ -373,10 +373,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesDividendViewModel sharesDividend { get; set; } = new();
+    private SharesDividendViewModel pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesDividendViewModel> SharesDividendQueryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
+    private IQueryable<SharesDividendViewModel> queryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -403,12 +403,12 @@
     {
         if (db.SharesDividends.Count() == 0) return;
 
-        SharesDividendQueryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
 
         foreach (SharesDividend model in db.SharesDividends.OrderBy(c => c.DividendId))
         {
-            SharesDividendViewModel sharesDividend = SharesDividendClass.ChangeFromModelToViewModel(model);
-            SharesDividendQueryable = SharesDividendQueryable.Concat(new[] { sharesDividend }.AsQueryable());
+            SharesDividendViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -429,10 +429,10 @@
     {
         DisabledForm = false;
 
-        if (sharesDividend.DividendId > 0)
+        if (pageModel.DividendId > 0)
         {
             // Edit
-            ErrorMessage = SharesDividendClass.Edit(db, sharesDividend, false);
+            ErrorMessage = BackEndClass.Edit(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -443,7 +443,7 @@
             }
             else
             {
-                sharesDividend = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -451,7 +451,7 @@
         else
         {
             // Add
-            ErrorMessage = SharesDividendClass.Add(db, sharesDividend, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -462,7 +462,7 @@
             }
             else
             {
-                sharesDividend = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -476,7 +476,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        sharesDividend = vm;
+        pageModel = vm;
     }
 
     private void Edit(SharesDividendViewModel vm)
@@ -488,7 +488,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        sharesDividend = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -500,9 +500,9 @@
         if (findId)
         {
             SharesDividend model = db.SharesDividends.FirstOrDefault(a => a.DividendId == TemporaryId);
-            SharesDividendViewModel vm = SharesDividendClass.ChangeFromModelToViewModel(model);
+            SharesDividendViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = SharesDividendClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -511,7 +511,7 @@
             }
             else
             {
-                sharesDividend = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }

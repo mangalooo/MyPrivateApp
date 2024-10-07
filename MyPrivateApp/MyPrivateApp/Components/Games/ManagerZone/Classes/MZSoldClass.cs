@@ -128,6 +128,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 SalaryTotal = model.SalaryTotal,
                 TrainingModeTotalCost = model.TrainingModeTotalCost,
                 SoldAmount = model.SoldAmount,
+                TotalCost = model.TotalCost,
                 MoneyProfitOrLoss = model.MoneyProfitOrLoss,
                 PercentProfitOrLoss = model.PercentProfitOrLoss,
                 Note = model.Note
@@ -151,6 +152,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 SalaryTotal = vm.SalaryTotal,
                 TrainingModeTotalCost = vm.TrainingModeTotalCost,
                 SoldAmount = vm.SoldAmount,
+                TotalCost = vm.TotalCost,
                 MoneyProfitOrLoss = vm.MoneyProfitOrLoss,
                 PercentProfitOrLoss = vm.PercentProfitOrLoss,
                 Note = vm.Note

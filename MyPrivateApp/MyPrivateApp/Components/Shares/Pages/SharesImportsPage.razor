@@ -14,7 +14,7 @@
 
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
-@inject ISharesImportsFileClass SharesImportsFileClass
+@inject ISharesImportsFileClass BackEndClass
 @inject ISharesPurchasedClass SharesPurchasedClass
 @inject ISharesPurchasedFundsClass SharesPurchasedFundsClass
 @inject ISharesSoldFundsClass SharesSoldFundsClass
@@ -123,7 +123,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="SharesImportsFile" OnSubmit="AddOrEdit" FormName="AddOrUpdateSharesImportsFile" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -135,9 +135,9 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="SharesImportsFile.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => SharesImportsFile.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
@@ -150,17 +150,17 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="SharesImportsFile.FileName" class="form-control" disabled="@true" />
+                                <InputText @bind-Value="pageModel.FileName" class="form-control" disabled="@true" />
                                 <label for="FileName"> Filnamn </label>
-                                <ValidationMessage For="() => SharesImportsFile.FileName" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.FileName" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="SharesImportsFile.NumbersOfTransaction" class="form-control" disabled="@true" />
+                                <InputNumber @bind-Value="pageModel.NumbersOfTransaction" class="form-control" disabled="@true" />
                                 <label for="NumbersOfTransaction"> Antal transaktion </label>
-                                <ValidationMessage For="() => SharesImportsFile.NumbersOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.NumbersOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
@@ -171,9 +171,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="SharesImportsFile.Errors" class="form-control" disabled="@true" />
+                                <InputTextArea @bind-Value="pageModel.Errors" class="form-control" disabled="@true" />
                                 <label for="Errors"> Felmedelanden </label>
-                                <ValidationMessage For="() => SharesImportsFile.Errors" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Errors" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -183,9 +183,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="4" style="height:100%;" @bind-Value="SharesImportsFile.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="4" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => SharesImportsFile.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -340,7 +340,7 @@
 @code {
 
     [SupplyParameterFromForm]
-    private SharesImportsFileViewModel SharesImportsFile { get; set; } = new();
+    private SharesImportsFileViewModel pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesImportsFileViewModel> SharesImportsFilesQueryable = Enumerable.Empty<SharesImportsFileViewModel>().AsQueryable();
@@ -376,7 +376,7 @@
 
         foreach (SharesImportsFile model in db.SharesImportsFiles.OrderBy(c => c.SharesImportsFileId))
         {
-            SharesImportsFileViewModel vm = SharesImportsFileClass.ChangeFromModelToViewModel(model);
+            SharesImportsFileViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
             SharesImportsFilesQueryable = SharesImportsFilesQueryable.Concat(new[] { vm }.AsQueryable());
         }
 
@@ -398,10 +398,10 @@
     {
         DisabledForm = false;
 
-        if (SharesImportsFile.SharesImportsFileId > 0)
+        if (pageModel.SharesImportsFileId > 0)
         {
             // Edit
-            ErrorMessage = SharesImportsFileClass.Edit(db, SharesImportsFile);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -412,7 +412,7 @@
             }
             else
             {
-                SharesImportsFile = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -420,7 +420,7 @@
         else
         {
             // Add
-            ErrorMessage = SharesImportsFileClass.Add(db, SharesImportsFile, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -432,7 +432,7 @@
             }
             else
             {
-                SharesImportsFile = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -444,7 +444,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        SharesImportsFile = vm;
+        pageModel = vm;
     }
 
     private void Edit(SharesImportsFileViewModel vm)
@@ -453,7 +453,7 @@
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
         HideNewOrChangesFields = true;
-        SharesImportsFile = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -465,11 +465,11 @@
         if (findId)
         {
             SharesImportsFile model = db.SharesImportsFiles.FirstOrDefault(a => a.SharesImportsFileId == TemporaryId);
-            SharesImportsFileViewModel vm = SharesImportsFileClass.ChangeFromModelToViewModel(model);
+            SharesImportsFileViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            SharesImportsFileClass.Delete(db, vm, false);
+            BackEndClass.Delete(db, vm, false);
 
-            SharesImportsFile = new();
+            pageModel = new();
             Navigation.Refresh(true);
         }
     }
@@ -497,13 +497,13 @@
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
         UnDisabledFileField = false;
-        SharesImportsFile = vm;
+        pageModel = vm;
     }
 
     private async Task ImportExcelFile(InputFileChangeEventArgs e)
     {
         SharesImportsFile? importModel = db.SharesImportsFiles.Any() ?
-                                            db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == SharesImportsFile.SharesImportsFileId) :
+                                            db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageModel.SharesImportsFileId) :
                                                 throw new Exception("Importen hittades inte i databasen!");
 
         int rowCount = 0;
@@ -656,13 +656,13 @@
             DateTime date = DateTime.Now;
 
             SharesErrorHandlings sharesErrorHandling = new()
-                {
-                    Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    CompanyOrInformation = vm.CompanyName,
-                    TypeOfTransaction = "Sälj aktie",
-                    ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen!",
-                    Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nAktien: {vm.CompanyName} \r\nISIN: {vm.ISIN}."
-                };
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                CompanyOrInformation = vm.CompanyName,
+                TypeOfTransaction = "Sälj aktie",
+                ErrorMessage = $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen!",
+                Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nAktien: {vm.CompanyName} \r\nISIN: {vm.ISIN}."
+            };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);
             db.SaveChanges();
@@ -692,13 +692,13 @@
             DateTime date = DateTime.Now;
 
             SharesErrorHandlings sharesErrorHandling = new()
-                {
-                    Date = $"{date.Year}-{date.Month}-{date.Day}",
-                    CompanyOrInformation = vm.FundName,
-                    TypeOfTransaction = "Sälj fond",
-                    ErrorMessage = $"Felmeddelande: Fonden jag försöker sälja finns inte i databasen!",
-                    Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nISIN: {vm.ISIN}."
-                };
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                CompanyOrInformation = vm.FundName,
+                TypeOfTransaction = "Sälj fond",
+                ErrorMessage = $"Felmeddelande: Fonden jag försöker sälja finns inte i databasen!",
+                Note = $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nISIN: {vm.ISIN}."
+            };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);
             db.SaveChanges();

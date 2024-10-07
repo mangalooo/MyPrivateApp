@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007095734_MZChangeToDoubleSoldPlayers")]
+    partial class MZChangeToDoubleSoldPlayers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -531,17 +534,14 @@ namespace MyPrivateApp.Migrations
                     b.Property<int>("SalaryTotal")
                         .HasColumnType("int");
 
-                    b.Property<double>("SaleCharge")
-                        .HasColumnType("float");
-
                     b.Property<int>("SoldAmount")
                         .HasColumnType("int");
 
                     b.Property<string>("SoldDate")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("TotalCost")
-                        .HasColumnType("float");
+                    b.Property<int>("TotalCost")
+                        .HasColumnType("int");
 
                     b.Property<int>("TrainingModeTotalCost")
                         .HasColumnType("int");

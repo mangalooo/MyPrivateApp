@@ -13,7 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject ISharesDepositMoneyClass SharesDepositMoneyClass
+@inject ISharesDepositMoneyClass BackEndClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -108,7 +108,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="DepositMoney" OnSubmit="AddOrEdit" FormName="AddOrEditDepositMoney" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -120,30 +120,30 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="DepositMoney.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => DepositMoney.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="DepositMoney.SubmitOrWithdraw" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageModel.SubmitOrWithdraw" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object submitOrWithdraw in Enum.GetValues(typeof(SubmitOrWithdraw)))
                                     {
                                         <option value="@submitOrWithdraw">@submitOrWithdraw</option>
                                     }
                                 </InputSelect>
                                 <label for="wildAnimal"> In- eller utbetalning </label>
-                                <ValidationMessage For="() => DepositMoney.SubmitOrWithdraw" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.SubmitOrWithdraw" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="DepositMoney.DepositMoney" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.DepositMoney" class="form-control" disabled="@DisabledForm" />
                                 <label for="DepositMoney"> Belopp </label>
-                                <ValidationMessage For="() => DepositMoney.DepositMoney" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.DepositMoney" class="text-danger" />
                             </div>
                         </div>
 
@@ -157,33 +157,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="DepositMoney.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                 <label for="TypeOfTransaction"> Transaktion </label>
-                                <ValidationMessage For="() => DepositMoney.TypeOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="DepositMoney.TransferOptions" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.TransferOptions" class="form-control" disabled="@DisabledForm" />
                                 <label for="TransferOptions"> Från </label>
-                                <ValidationMessage For="() => DepositMoney.TransferOptions" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TransferOptions" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="DepositMoney.Account" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Account" class="form-control" disabled="@DisabledForm" />
                                 <label for="Account"> Konto </label>
-                                <ValidationMessage For="() => DepositMoney.Account" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Account" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="DepositMoney.Currency" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Currency" class="form-control" disabled="@DisabledForm" />
                                 <label for="Currency"> Valuta </label>
-                                <ValidationMessage For="() => DepositMoney.Currency" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Currency" class="text-danger" />
                             </div>
                         </div>
 
@@ -195,9 +195,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="DepositMoney.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => DepositMoney.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -226,7 +226,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Från" Property="@(c => c.TransferOptions)" Sortable="true" />
@@ -279,7 +279,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Sortable="true" />
                         <PropertyColumn Title="Belopp" Property="@(c => c.DepositMoney)" Sortable="true" />
@@ -348,10 +348,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesDepositMoneyViewModel DepositMoney { get; set; } = new();
+    private SharesDepositMoneyViewModel pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesDepositMoneyViewModel> SharesFeeQueryable = Enumerable.Empty<SharesDepositMoneyViewModel>().AsQueryable();
+    private IQueryable<SharesDepositMoneyViewModel> queryable = Enumerable.Empty<SharesDepositMoneyViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -378,12 +378,12 @@
     {
         if (db.SharesDepositMoney.Count() == 0) return;
 
-        SharesFeeQueryable = Enumerable.Empty<SharesDepositMoneyViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<SharesDepositMoneyViewModel>().AsQueryable();
 
         foreach (SharesDepositMoney model in db.SharesDepositMoney.OrderBy(c => c.DepositMoneyId))
         {
-            SharesDepositMoneyViewModel vm = SharesDepositMoneyClass.ChangeFromModelToViewModel(model);
-            SharesFeeQueryable = SharesFeeQueryable.Concat(new[] { vm }.AsQueryable());
+            SharesDepositMoneyViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -404,10 +404,10 @@
     {
         DisabledForm = false;
 
-        if (DepositMoney.DepositMoneyId > 0)
+        if (pageModel.DepositMoneyId > 0)
         {
             // Edit
-            ErrorMessage = SharesDepositMoneyClass.Edit(db, DepositMoney);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -418,7 +418,7 @@
             }
             else
             {
-                DepositMoney = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -426,7 +426,7 @@
         else
         {
             // Add
-            ErrorMessage = SharesDepositMoneyClass.Add(db, DepositMoney, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -437,7 +437,7 @@
             }
             else
             {
-                DepositMoney = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -449,7 +449,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        DepositMoney = vm;
+        pageModel = vm;
     }
 
     private void Edit(SharesDepositMoneyViewModel vm)
@@ -459,7 +459,7 @@
         ShowOrHideCreateButton = true;
         ShowOrHideAddNewButton = true;
         HideNewOrChangesFields = true;
-        DepositMoney = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -471,9 +471,9 @@
         if (findId)
         {
             SharesDepositMoney model = db.SharesDepositMoney.FirstOrDefault(a => a.DepositMoneyId == TemporaryId);
-            SharesDepositMoneyViewModel vm = SharesDepositMoneyClass.ChangeFromModelToViewModel(model);
+            SharesDepositMoneyViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = SharesDepositMoneyClass.Delete(db, vm);
+            ErrorMessage = BackEndClass.Delete(db, vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -482,7 +482,7 @@
             }
             else
             {
-                DepositMoney = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -508,7 +508,7 @@
 
     private double GetTotalAmount()
     {
-        SharesTotalAmounts sharesTotalAmounts = SharesDepositMoneyClass.GetTotalAmount(db, 1);
+        SharesTotalAmounts sharesTotalAmounts = BackEndClass.GetTotalAmount(db, 1);
 
         if (sharesTotalAmounts == null) return 0;
 

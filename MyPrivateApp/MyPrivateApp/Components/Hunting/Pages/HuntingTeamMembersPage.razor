@@ -13,7 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IHuntingTeamMemberClass HuntingTeamMemberClass
+@inject IHuntingTeamMemberClass BackEndClass
 
 <PageTitle> Jakt </PageTitle>
 
@@ -78,7 +78,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="member" OnSubmit="AddOrEdit" FormName="AddOrUpdateMember" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -90,17 +90,17 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="member.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => member.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputDate @bind-Value="member.Birthday" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Birthday" class="form-control" disabled="@DisabledForm" />
                                 <label for="Birthday"> Födelsedag </label>
-                                <ValidationMessage For="() => member.Birthday" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Birthday" class="text-danger" />
                             </div>
                         </div>
 
@@ -114,24 +114,24 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="member.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Address"> Adress </label>
-                                <ValidationMessage For="() => member.Address" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Address" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="member.PostCode" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.PostCode" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="PostCode"> Postnummer </label>
-                                <ValidationMessage For="() => member.PostCode" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.PostCode" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="member.City" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.City" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="City"> Stad/ort </label>
-                                <ValidationMessage For="() => member.City" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.City" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -144,16 +144,16 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="member.Mail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Mail" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Mail"> E-post </label>
-                                <ValidationMessage For="() => member.Mail" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Mail" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="member.MobilePhone" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.MobilePhone" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="MobilePhone"> Mobilnummer </label>
-                                <ValidationMessage For="() => member.MobilePhone" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.MobilePhone" class="text-danger" />
                             </div>
                         </div>
 
@@ -164,9 +164,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="member.Note" class="form-control" disabled="@DisabledForm" />
-                                <label for="member"> Anteckningar </label>
-                                <ValidationMessage For="() => member.Note" class="text-danger" />
+                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="pageModel"> Anteckningar </label>
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -195,7 +195,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingTeamMembersQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Mobilnummer" Property="@(c => c.MobilePhone)" Sortable="true" />
@@ -248,7 +248,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingTeamMembersQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Mobilnummer" Property="@(c => c.MobilePhone)" Sortable="true" />
@@ -317,10 +317,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingTeamMembersViewModels member { get; set; } = new();
+    private HuntingTeamMembersViewModels pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingTeamMembersViewModels> huntingTeamMembersQueryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
+    private IQueryable<HuntingTeamMembersViewModels> queryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -347,12 +347,12 @@
     {
         if (db.HuntingTeamMembers.Count() == 0) return;
 
-        huntingTeamMembersQueryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
 
         foreach (Data.Models.Hunting.HuntingTeamMembers model in db.HuntingTeamMembers.OrderBy(c => c.HuntingTeamMembersId))
         {
-            HuntingTeamMembersViewModels hunting = HuntingTeamMemberClass.ChangeFromModelToViewModel(model);
-            huntingTeamMembersQueryable = huntingTeamMembersQueryable.Concat((new[] { hunting }).AsQueryable());
+            HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat((new[] { vm }).AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -373,10 +373,10 @@
     {
         DisabledForm = false;
 
-        if (member.HuntingTeamMembersId > 0)
+        if (pageModel.HuntingTeamMembersId > 0)
         {
             // Edit
-            ErrorMessage = HuntingTeamMemberClass.Edit(db, member);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -387,7 +387,7 @@
             }
             else
             {
-                member = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -395,7 +395,7 @@
         else
         {
             // Add
-            ErrorMessage = HuntingTeamMemberClass.Add(db, member, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -407,7 +407,7 @@
             }
             else
             {
-                member = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -419,7 +419,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        member = vm;
+        pageModel = vm;
     }
 
     private void Edit(HuntingTeamMembersViewModels vm)
@@ -429,7 +429,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        member = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -441,9 +441,9 @@
         if (findId)
         {
             HuntingTeamMembers model = db.HuntingTeamMembers.FirstOrDefault(a => a.HuntingTeamMembersId == TemporaryId);
-            HuntingTeamMembersViewModels vm = HuntingTeamMemberClass.ChangeFromModelToViewModel(model);
+            HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = HuntingTeamMemberClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -452,7 +452,7 @@
             }
             else
             {
-                member = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }

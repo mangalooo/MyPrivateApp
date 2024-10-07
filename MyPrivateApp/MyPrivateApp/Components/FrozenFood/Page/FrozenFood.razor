@@ -11,7 +11,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IFrozenFoodClass FrozenFoodClass
+@inject IFrozenFoodClass BackEndClass
 
 <PageTitle> Frysvaror </PageTitle>
 
@@ -49,7 +49,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="frozenFood" OnSubmit="AddOrEdit" FormName="AddOrUpdateFrozenFood" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdateFrozenFood" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -63,9 +63,9 @@
 
                          <div class="col-6">
                              <div class="form-floating">
-                                 <InputDate @bind-Value="frozenFood.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                  <label for="Date"> Datum </label>
-                                 <ValidationMessage For="() => frozenFood.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -78,21 +78,21 @@
 
                          <div class="col-6">
                              <div class="form-floating">
-                                 <InputText @bind-Value="frozenFood.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Name"> Namn </label>
-                                 <ValidationMessage For="() => frozenFood.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
                              </div>
                          </div>
                          <div class="col-6">
                              <div class="form-floating">
-                                <InputSelect @bind-Value="frozenFood.FrozenGoods" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageModel.FrozenGoods" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object frozenGoods in Enum.GetValues(typeof(FreezerFrozenGoods)))
                                     {
                                         <option value="@frozenGoods">@frozenGoods</option>
                                     }
                                 </InputSelect>
                                 <label for="frozenGoods"> Vilt </label>
-                                <ValidationMessage For="() => frozenFood.FrozenGoods" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.FrozenGoods" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -105,26 +105,26 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="frozenFood.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object freezerPlaces in Enum.GetValues(typeof(FreezerPlaces)))
                                     {
                                         <option value="@freezerPlaces">@freezerPlaces</option>
                                     }
                                 </InputSelect>
                                 <label for="FreezerPlaces"> Frys plats </label>
-                                <ValidationMessage For="() => frozenFood.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Place" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="frozenFood.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageModel.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object freezerCompartment in Enum.GetValues(typeof(FreezerCompartment)))
                                     {
                                         <option value="@freezerCompartment">@freezerCompartment</option>
                                     }
                                 </InputSelect>
                                 <label for="FreezerCompartment"> Frysfack </label>
-                                <ValidationMessage For="() => frozenFood.FreezerCompartment" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.FreezerCompartment" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -137,16 +137,16 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="frozenFood.Weight" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.Weight" class="form-control" disabled="@DisabledForm" />
                                 <label for="Weight"> Vikt (gram) </label>
-                                <ValidationMessage For="() => frozenFood.Weight" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Weight" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="frozenFood.Number" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.Number" class="form-control" disabled="@DisabledForm" />
                                 <label for="Number"> Antal </label>
-                                <ValidationMessage For="() => frozenFood.Number" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Number" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -156,9 +156,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="frozenFood.Notes" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageModel.Notes" class="form-control" disabled="@DisabledForm" />
                                 <label for="Notes"> Anteckningar </label>
-                                <ValidationMessage For="() => frozenFood.Notes" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Notes" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -188,7 +188,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
 
@@ -262,7 +262,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@frozenFoodQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Varor" Property="@(c => c.FrozenGoods)" Sortable="true">
                             <ColumnOptions>
@@ -338,10 +338,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private FrozenFoodViewModel frozenFood { get; set; } = new();
+    private FrozenFoodViewModel pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<FrozenFoodViewModel> frozenFoodQueryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+    private IQueryable<FrozenFoodViewModel> queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -372,12 +372,12 @@
     {
         if (db.FrozenFoods.Count() == 0) return;
 
-        frozenFoodQueryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
 
         foreach (FrozenFoods model in db.FrozenFoods.OrderBy(c => c.FrozenFoodsId))
         {
-            FrozenFoodViewModel frozenFood = FrozenFoodClass.ChangeFromModelToViewModel(model);
-            frozenFoodQueryable = frozenFoodQueryable.Concat(new[] { frozenFood }.AsQueryable());
+            FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -394,10 +394,10 @@
     {
         DisabledForm = false;
 
-        if (frozenFood.FrozenFoodId > 0)
+        if (pageModel.FrozenFoodId > 0)
         {
             // Edit
-            ErrorMessage = FrozenFoodClass.Edit(db, frozenFood);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -408,7 +408,7 @@
             }
             else
             {
-                frozenFood = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -416,7 +416,7 @@
         else
         {
             // Add
-            ErrorMessage = FrozenFoodClass.Add(db, frozenFood, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -428,7 +428,7 @@
             }
             else
             {
-                frozenFood = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -440,7 +440,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        frozenFood = vm;
+        pageModel = vm;
     }
 
     private void Edit(FrozenFoodViewModel vm)
@@ -450,7 +450,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        frozenFood = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -462,9 +462,9 @@
         if (findId)
         {
             FrozenFoods model = db.FrozenFoods.FirstOrDefault(a => a.FrozenFoodsId == TemporaryId);
-            FrozenFoodViewModel vm = FrozenFoodClass.ChangeFromModelToViewModel(model);
+            FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = FrozenFoodClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -473,7 +473,7 @@
             }
             else
             {
-                frozenFood = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -502,15 +502,15 @@
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
             IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.Name == e.Value!.ToString());
-            frozenFoodQueryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
 
             if (result.Count() == 0) return;
 
             if (result.Any())
                 foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
                 {
-                    FrozenFoodViewModel frozenFood = FrozenFoodClass.ChangeFromModelToViewModel(model);
-                    frozenFoodQueryable = frozenFoodQueryable.Concat(new[] { frozenFood }.AsQueryable());
+                    FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+                    queryable = queryable.Concat(new[] { vm }.AsQueryable());
                 }
 
             return;
@@ -521,7 +521,7 @@
 
     private void SearchWildMeat(ChangeEventArgs e)
     {
-        frozenFoodQueryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -575,8 +575,8 @@
                 if (result.Any())
                     foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
                     {
-                        FrozenFoodViewModel frozenFood = FrozenFoodClass.ChangeFromModelToViewModel(model);
-                        frozenFoodQueryable = frozenFoodQueryable.Concat(new[] { frozenFood }.AsQueryable());
+                        FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+                        queryable = queryable.Concat(new[] { vm }.AsQueryable());
                     }
             }
 

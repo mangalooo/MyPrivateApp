@@ -13,7 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IHuntingTowerInspectionClass HuntingTowerInspectionClass
+@inject IHuntingTowerInspectionClass BackEndClass
 
 <PageTitle> Jakt </PageTitle>
 
@@ -266,7 +266,7 @@
                 <br />
 
                 <div class="card-body">
-                    <QuickGrid Items="@huntingInspectionsQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Format="yyyy-MM-dd" Title="Senast besiktad" Property="@(c => c.LastInspected)" Sortable="true" />
 
@@ -407,7 +407,7 @@
                 <br />
 
                 <div class="card-body">
-                    <QuickGrid Items="@huntingInspectionsQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                             <ColumnOptions>
@@ -519,7 +519,7 @@
     private HuntingTowerInspectionViewModels hunting { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingTowerInspectionViewModels> huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+    private IQueryable<HuntingTowerInspectionViewModels> queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -552,12 +552,12 @@
     {
         if (db.HuntingTowerInspections.Count() == 0) return;
 
-        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
-        foreach (Data.Models.Hunting.HuntingTowerInspection model in db.HuntingTowerInspections.OrderBy(c => c.HuntingTowerInspectionId))
+        foreach (HuntingTowerInspection model in db.HuntingTowerInspections.OrderBy(c => c.HuntingTowerInspectionId))
         {
-            HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-            huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
+            HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat((new[] { vm }).AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -581,7 +581,7 @@
         if (hunting.HuntingTowerInspectionId > 0)
         {
             // Edit
-            ErrorMessage = HuntingTowerInspectionClass.Edit(db, hunting);
+            ErrorMessage = BackEndClass.Edit(db, hunting);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -600,7 +600,7 @@
         else
         {
             // Add
-            ErrorMessage = HuntingTowerInspectionClass.Add(db, hunting);
+            ErrorMessage = BackEndClass.Add(db, hunting);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -646,9 +646,9 @@
         if (findId)
         {
             HuntingTowerInspection model = db.HuntingTowerInspections.FirstOrDefault(a => a.HuntingTowerInspectionId == TemporaryId);
-            HuntingTowerInspectionViewModels vm = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
+            HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = HuntingTowerInspectionClass.Delete(db, vm);
+            ErrorMessage = BackEndClass.Delete(db, vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -699,7 +699,7 @@
 
     private void SearchPlace(ChangeEventArgs e)
     {
-        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -715,7 +715,7 @@
 
             if (getName != string.Empty)
             {
-                IEnumerable<Data.Models.Hunting.HuntingTowerInspection> result = null;
+                IEnumerable<HuntingTowerInspection> result = null;
 
                 switch (getName.ToLower())
                 {
@@ -752,8 +752,8 @@
                 if (result.Any())
                     foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
                     {
-                        HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-                        huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
+                        HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
                     }
             }
 
@@ -765,7 +765,7 @@
 
     private void SearchTodo(ChangeEventArgs e)
     {
-        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -814,8 +814,8 @@
                 if (result.Any())
                     foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
                     {
-                        HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-                        huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
+                        HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
                     }
             }
 
@@ -827,15 +827,15 @@
 
     private void SetQuery(IEnumerable<HuntingTowerInspection> result)
     {
-        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
         if (result.Count() == 0) return;
 
         if (result.Any())
             foreach (HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
             {
-                HuntingTowerInspectionViewModels huntingTowerInspection = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-                huntingInspectionsQueryable = huntingInspectionsQueryable.Concat(new[] { huntingTowerInspection }.AsQueryable());
+                HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+                queryable = queryable.Concat(new[] { vm }.AsQueryable());
             }
     }
 
@@ -916,15 +916,15 @@
 
     private void SearchTownNumber(ChangeEventArgs e)
     {
-        huntingInspectionsQueryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
             string result = e.Value!.ToString();
 
             HuntingTowerInspection model = db.HuntingTowerInspections.FirstOrDefault(a => a.Number == result);
-            HuntingTowerInspectionViewModels hunting = HuntingTowerInspectionClass.ChangeFromModelToViewModel(model);
-            huntingInspectionsQueryable = huntingInspectionsQueryable.Concat((new[] { hunting }).AsQueryable());
+            HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat((new[] { vm }).AsQueryable());
 
             return;
         }

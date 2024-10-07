@@ -79,7 +79,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="SharesErrorHandling" OnSubmit="Update" FormName="CreateOrUpdateSharesFees" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="Update" FormName="CreateOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -91,25 +91,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="SharesErrorHandling.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => SharesErrorHandling.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="SharesErrorHandling.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
                                 <label for="CompanyOrInformation"> Aktie / fond </label>
-                                <ValidationMessage For="() => SharesErrorHandling.CompanyOrInformation" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.CompanyOrInformation" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="SharesErrorHandling.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                 <label for="TypeOfTransaction"> Transaktion </label>
-                                <ValidationMessage For="() => SharesErrorHandling.TypeOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
@@ -121,9 +121,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesErrorHandling.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => SharesErrorHandling.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -134,9 +134,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="SharesErrorHandling.ErrorMessage" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.ErrorMessage" class="form-control" disabled="@DisabledForm" />
                                 <label for="ErrorMessage"> Felmeddelande </label>
-                                <ValidationMessage For="() => SharesErrorHandling.ErrorMessage" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.ErrorMessage" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -161,7 +161,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Aktie / fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
@@ -214,7 +214,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@SharesFeeQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
 
@@ -282,10 +282,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesErrorHandlingViewModel SharesErrorHandling { get; set; } = new();
+    private SharesErrorHandlingViewModel pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesErrorHandlingViewModel> SharesFeeQueryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
+    private IQueryable<SharesErrorHandlingViewModel> queryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -306,12 +306,12 @@
     {
         if (db.SharesErrorHandlings.Count() == 0) return;
 
-        SharesFeeQueryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
 
         foreach (SharesErrorHandlings model in db.SharesErrorHandlings.OrderBy(c => c.ErrorHandlingsId))
         {
             SharesErrorHandlingViewModel vm = SharesErrorHandlingClass.ChangeFromModelToViewModel(model);
-            SharesFeeQueryable = SharesFeeQueryable.Concat(new[] { vm }.AsQueryable());
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -331,10 +331,10 @@
     {
         DisabledForm = false;
 
-        if (SharesErrorHandling.ErrorHandlingsId > 0)
-            SharesErrorHandlingClass.Edit(db, SharesErrorHandling);
+        if (pageModel.ErrorHandlingsId > 0)
+            SharesErrorHandlingClass.Edit(db, pageModel);
 
-        SharesErrorHandling = new();
+        pageModel = new();
         Navigation.Refresh(true);
 
         return;
@@ -344,7 +344,7 @@
     {
         HideNewOrChangesForm();
         DisabledForm = true;
-        SharesErrorHandling = vm;
+        pageModel = vm;
     }
 
     private void Edit(SharesErrorHandlingViewModel vm)
@@ -352,7 +352,7 @@
         DisabledForm = false;
         ShowOrHideEditButton = false;
         HideNewOrChangesFields = true;
-        SharesErrorHandling = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -368,7 +368,7 @@
 
             SharesErrorHandlingClass.Delete(db, vm);
 
-            SharesErrorHandling = new();
+            pageModel = new();
             Navigation.Refresh(true);
         }
     }

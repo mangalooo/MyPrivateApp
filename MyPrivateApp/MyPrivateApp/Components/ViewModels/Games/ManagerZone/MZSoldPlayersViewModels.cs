@@ -39,13 +39,16 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         public int TrainingModeTotalCost { get; set; }
 
         [Display(Name = "Total kostnad")]
-        public int TotalCost { get; set; }
+        public double TotalCost { get; set; }
 
         [Display(Name = "Sälj värdet")]
         public int SoldAmount { get; set; }
 
+        [Display(Name = "Sälj avgift")]
+        public double SaleCharge { get; set; }
+
         [Display(Name = "Vinst/förslust")]
-        public int MoneyProfitOrLoss { get; set; }        
+        public double MoneyProfitOrLoss { get; set; }        
         
         [Display(Name = "Vinst/förslust i %")]
         public string? PercentProfitOrLoss { get; set; }

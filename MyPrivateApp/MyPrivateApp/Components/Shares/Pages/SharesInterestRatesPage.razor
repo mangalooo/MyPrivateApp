@@ -11,7 +11,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject ISharesInterestRatesClass SharesInterestRatesClass
+@inject ISharesInterestRatesClass BackEndClass
 
 <PageTitle> Aktier </PageTitle>
 
@@ -95,7 +95,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="InterestRates" OnSubmit="AddOrEdit" FormName="AddOrEditInterestRates" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -107,41 +107,41 @@
 
                         <div class="col-2">
                             <div class="form-floating">
-                                <InputDate @bind-Value="InterestRates.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => InterestRates.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-2">
                             <div class="form-floating">
-                                <InputText @bind-Value="InterestRates.Account" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Account" class="form-control" disabled="@DisabledForm" />
                                 <label for="Account"> Konto </label>
-                                <ValidationMessage For="() => InterestRates.Account" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Account" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-2">
                             <div class="form-floating">
-                                <InputText @bind-Value="InterestRates.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                 <label for="TypeOfTransaction"> Typ av transaktion </label>
-                                <ValidationMessage For="() => InterestRates.TypeOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-2">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="InterestRates.TotalAmount" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageModel.TotalAmount" class="form-control" disabled="@DisabledForm" />
                                 <label for="TotalAmount"> Belopp </label>
-                                <ValidationMessage For="() => InterestRates.TotalAmount" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.TotalAmount" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-2">
                             <div class="form-floating">
-                                <InputText @bind-Value="InterestRates.Currency" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Currency" class="form-control" disabled="@DisabledForm" />
                                 <label for="Currency"> Typ av valuta </label>
-                                <ValidationMessage For="() => InterestRates.Currency" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Currency" class="text-danger" />
                             </div>
                         </div>
 
@@ -153,9 +153,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="InterestRates.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => InterestRates.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -184,7 +184,7 @@
             @* Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@InterestRatesQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Typ" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
@@ -236,7 +236,7 @@
             @* Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@InterestRatesQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Sortable="true" />
                         <PropertyColumn Title="Belopp" Property="@(c => c.TotalAmount)" Sortable="true" />
@@ -307,10 +307,9 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesInterestRatesViewModel InterestRates { get; set; } = new();
-
+    private SharesInterestRatesViewModel pageModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesInterestRatesViewModel> InterestRatesQueryable = Enumerable.Empty<SharesInterestRatesViewModel>().AsQueryable();
+    private IQueryable<SharesInterestRatesViewModel> queryable = Enumerable.Empty<SharesInterestRatesViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -337,12 +336,12 @@
     {
         if (db.SharesInterestRates.Count() == 0) return;
 
-        InterestRatesQueryable = Enumerable.Empty<SharesInterestRatesViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<SharesInterestRatesViewModel>().AsQueryable();
 
         foreach (SharesInterestRates model in db.SharesInterestRates.OrderBy(c => c.InterestRatesId))
         {
-            SharesInterestRatesViewModel interestRates = SharesInterestRatesClass.ChangeFromModelToViewModel(model);
-            InterestRatesQueryable = InterestRatesQueryable.Concat(new[] { interestRates }.AsQueryable());
+            SharesInterestRatesViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -364,9 +363,9 @@
         DisabledForm = false;
 
         // Edit
-        if (InterestRates.InterestRatesId > 0)
+        if (pageModel.InterestRatesId > 0)
         {
-            ErrorMessage = SharesInterestRatesClass.Edit(db, InterestRates);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -377,7 +376,7 @@
             }
             else
             {
-                InterestRates = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -385,7 +384,7 @@
         else
         {
             // Add
-            ErrorMessage = SharesInterestRatesClass.Add(db, InterestRates, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -395,7 +394,7 @@
             }
             else
             {
-                InterestRates = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -407,7 +406,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        InterestRates = vm;
+        pageModel = vm;
     }
 
     private void Edit(SharesInterestRatesViewModel vm)
@@ -417,7 +416,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        InterestRates = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -429,9 +428,9 @@
         if (findId)
         {
             SharesInterestRates model = db.SharesInterestRates.FirstOrDefault(a => a.InterestRatesId == TemporaryId);
-            SharesInterestRatesViewModel vm = SharesInterestRatesClass.ChangeFromModelToViewModel(model);
+            SharesInterestRatesViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = SharesInterestRatesClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -440,7 +439,7 @@
             }
             else
             {
-                InterestRates = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }

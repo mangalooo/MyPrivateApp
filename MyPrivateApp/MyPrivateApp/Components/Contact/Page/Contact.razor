@@ -560,8 +560,8 @@
 
         foreach (Contacts model in db.Contacts.OrderBy(c => c.ContactsId))
         {
-            ContactsViewModels contact = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { contact }.AsQueryable());
+            ContactsViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();

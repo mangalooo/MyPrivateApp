@@ -51,6 +51,12 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         [Display(Name = "Total kostnad just nu")]
         public int TotalCostRightNow { get; set; }
 
+
+        [Display(Name = "Beskrivning")]
+        [DataType(DataType.MultilineText)]
+        public string? Note { get; set; }
+
+        // Sale
         [Display(Name = "Sälj datum")]
         [DataType(DataType.Date)]
         public DateTime SoldDate { get; set; }
@@ -58,8 +64,7 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         [Display(Name = "Sälj värdet")]
         public int SoldAmount { get; set; }
 
-        [Display(Name = "Beskrivning")]
-        [DataType(DataType.MultilineText)]
-        public string? Note { get; set; }
+        [Display(Name = "Sälj avgift")]
+        public double SaleCharge { get; set; }
     }
 }

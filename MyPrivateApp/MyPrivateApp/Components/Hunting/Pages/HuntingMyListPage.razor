@@ -13,7 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IHuntingMyListClass HuntingMyListClass
+@inject IHuntingMyListClass BackEndClass
 
 <PageTitle> Jakt </PageTitle>
 
@@ -78,7 +78,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="hunting" OnSubmit="AddOrEdit" FormName="AddOrUpdateHunting" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -91,35 +91,35 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="hunting.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => hunting.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="hunting.HuntingPlaces" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageModel.HuntingPlaces" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
                                     {
                                         <option value="@huntingPlaces">@huntingPlaces</option>
                                     }
                                 </InputSelect>
                                 <label for="huntingPlaces"> Plats </label>
-                                <ValidationMessage For="() => hunting.HuntingPlaces" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.HuntingPlaces" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="hunting.HuntingForm" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageModel.HuntingForm" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object huntingType in Enum.GetValues(typeof(HuntingForm)))
                                     {
                                         <option value="@huntingType">@huntingType</option>
                                     }
                                 </InputSelect>
                                 <label for="HuntingForm"> Jakt typ </label>
-                                <ValidationMessage For="() => hunting.HuntingForm" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.HuntingForm" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -132,30 +132,30 @@
                        
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="hunting.WildAnimal" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageModel.WildAnimal" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object wildAnimal in Enum.GetValues(typeof(WildAnimal)))
                                     {
                                         <option value="@wildAnimal">@wildAnimal</option>
                                     }
                                 </InputSelect>
                                 <label for="wildAnimal"> Vilt </label>
-                                <ValidationMessage For="() => hunting.WildAnimal" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.WildAnimal" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="hunting.Type" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Type" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Type"> Typ </label>
-                                <ValidationMessage For="() => hunting.Type" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Type" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="hunting.Dog" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.Dog" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Dog"> Hund </label>
-                                <ValidationMessage For="() => hunting.Dog" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Dog" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -165,9 +165,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="hunting.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Beskrivning </label>
-                                <ValidationMessage For="() => hunting.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -196,7 +196,7 @@
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
                             <ColumnOptions>
@@ -263,7 +263,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@huntingMyListQueryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
                             <ColumnOptions>
@@ -343,10 +343,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingMyListViewModels hunting { get; set; } = new();
+    private HuntingMyListViewModels pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingMyListViewModels> huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
+    private IQueryable<HuntingMyListViewModels> queryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -373,12 +373,12 @@
     {
         if (db.HuntingMyList.Count() == 0) return;
 
-        huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
         foreach (Data.Models.Hunting.HuntingMyList model in db.HuntingMyList.OrderBy(c => c.HuntingMyListId))
         {
-            HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
-            huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+            HuntingMyListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            queryable = queryable.Concat((new[] { vm }).AsQueryable());
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -399,10 +399,10 @@
     {
         DisabledForm = false;
 
-        if (hunting.HuntingMyListId > 0)
+        if (pageModel.HuntingMyListId > 0)
         {
             // Edit
-            ErrorMessage = HuntingMyListClass.Edit(db, hunting);
+            ErrorMessage = BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -413,7 +413,7 @@
             }
             else
             {
-                hunting = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -421,7 +421,7 @@
         else
         {
             // Add
-            ErrorMessage = HuntingMyListClass.Add(db, hunting, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -433,7 +433,7 @@
             }
             else
             {
-                hunting = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -445,7 +445,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        hunting = vm;
+        pageModel = vm;
     }
 
     private void Edit(HuntingMyListViewModels vm)
@@ -455,7 +455,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        hunting = vm;
+        pageModel = vm;
     }
 
     private void Delete()
@@ -467,9 +467,9 @@
         if (findId)
         {
             HuntingMyList model = db.HuntingMyList.FirstOrDefault(a => a.HuntingMyListId == TemporaryId);
-            HuntingMyListViewModels vm = HuntingMyListClass.ChangeFromModelToViewModel(model);
+            HuntingMyListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = HuntingMyListClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -478,7 +478,7 @@
             }
             else
             {
-                hunting = new();
+                pageModel = new();
                 Navigation.Refresh(true);
                 return;
             }
@@ -504,7 +504,7 @@
 
     private void SearchPlace(ChangeEventArgs e)
     {
-        huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -520,7 +520,7 @@
 
             if (getName != string.Empty)
             {
-                    IEnumerable<Data.Models.Hunting.HuntingMyList> result = null;
+                    IEnumerable<HuntingMyList> result = null;
 
                 switch (getName.ToLower())
                 {
@@ -557,8 +557,8 @@
                 if (result.Any())
                     foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingMyListId))
                     {
-                        HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
-                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+                        HuntingMyListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
                     }
             }
 
@@ -570,7 +570,7 @@
 
     private void SearchWildAnimal(ChangeEventArgs e)
     {
-        huntingMyListQueryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
 
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -625,10 +625,10 @@
                 if (result == null || result.Count() == 0) return;
 
                 if (result.Any())
-                    foreach (Data.Models.Hunting.HuntingMyList model in result.OrderBy(c => c.HuntingMyListId))
+                    foreach (HuntingMyList model in result.OrderBy(c => c.HuntingMyListId))
                     {
-                        HuntingMyListViewModels hunting = HuntingMyListClass.ChangeFromModelToViewModel(model);
-                        huntingMyListQueryable = huntingMyListQueryable.Concat((new[] { hunting }).AsQueryable());
+                        HuntingMyListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
                     }
             }
 

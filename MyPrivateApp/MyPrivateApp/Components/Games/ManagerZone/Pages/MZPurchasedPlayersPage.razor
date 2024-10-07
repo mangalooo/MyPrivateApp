@@ -206,7 +206,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalCost(pageModel.PurchasedDate, pageModel.Salary, pageModel.PurchaseAmount, pageModel.TrainingModeTotalCost) </span>
+                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalCost(pageModel.PurchasedDate, pageModel.Salary, pageModel.PurchaseAmount, pageModel.TrainingModeTotalCost, pageModel.SaleCharge) </span>
                                 <label for="TotalCostRightNow"> Total kostnad just nu </label>
                                 <ValidationMessage For="() => pageModel.TotalCostRightNow" class="text-danger" />
                             </div>
@@ -218,7 +218,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="2" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Beskrivning </label>
                                 <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
@@ -229,21 +229,29 @@
 
                     <div class="row" hidden="@Sale">
 
-                        <div id="mobile" class="col-6" />
+                        <div id="mobile" class="col-4" />
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="form-floating">
                                 <InputDate @bind-Value="pageModel.SoldDate" class="form-control" />
-                                <label for="SoldDate"> Säljdatum </label>
+                                <label for="SoldDate"> Sälj datum </label>
                                 <ValidationMessage For="() => pageModel.SoldDate" class="text-danger" />
                             </div>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="form-floating">
                                 <InputNumber @bind-Value="pageModel.SoldAmount" class="form-control" placeholder="" />
-                                <label for="SoldAmount"> Säljvärdet </label>
+                                <label for="SoldAmount"> Sälj värdet </label>
                                 <ValidationMessage For="() => pageModel.SoldAmount" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="pageModel.SaleCharge" class="form-control" placeholder="" />
+                                <label for="SaleCharge"> Sälj avgift </label>
+                                <ValidationMessage For="() => pageModel.SaleCharge" class="text-danger" />
                             </div>
                         </div>
 
@@ -309,7 +317,7 @@
                         <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
                         <PropertyColumn Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
                         <PropertyColumn Title="Dagar i klubben" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
-                        <PropertyColumn Title="Total kostnad" Property="@(c => BackEndClass.TotalCost(c.PurchasedDate, c.Salary, c.PurchaseAmount, c.TrainingModeTotalCost))" Sortable="true" />
+                        <PropertyColumn Title="Total kostnad" Property="@(c => BackEndClass.TotalCost(c.PurchasedDate, c.Salary, c.PurchaseAmount, c.TrainingModeTotalCost, c.SaleCharge))" Sortable="true" />
                         <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
@@ -330,10 +338,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelare? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort spelaren: @pageModel.Name? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spare </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelaren </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -382,7 +390,7 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelare? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort spelaren: @pageModel.Name? </h5>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
@@ -430,7 +438,6 @@
 {
     [SupplyParameterFromForm]
     private MZPurchasedPlayersViewModels pageModel { get; set; } = new();
-
     PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<MZPurchasedPlayersViewModels> queryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
 
@@ -468,7 +475,7 @@
 
         queryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
 
-        foreach (Data.Models.Games.ManagerZone.MZPurchasedPlayers model in db.MZPurchasedPlayers.OrderBy(c => c.ManagerZonePurchasedPlayersId))
+        foreach (MZPurchasedPlayers model in db.MZPurchasedPlayers.OrderBy(c => c.ManagerZonePurchasedPlayersId))
         {
             MZPurchasedPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
             queryable = queryable.Concat((new[] { vm }).AsQueryable());
