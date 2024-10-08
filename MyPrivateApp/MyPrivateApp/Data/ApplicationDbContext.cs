@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Farming;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
@@ -39,9 +40,10 @@ namespace MyPrivateApp.Data
         public DbSet<SharesInterestRates> SharesInterestRates { get; set; }
         public DbSet<SharesOtherImports> SharesOtherImports { get; set; }
         public DbSet<SharesDepositMoney> SharesDepositMoney { get; set; }
-        public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; }
         public DbSet<SharesImportsFile> SharesImportsFiles { get; set; }
         public DbSet<SharesErrorHandlings> SharesErrorHandlings { get; set; }
+        public DbSet<SharesProfitOrLossYears> SharesProfitOrLossYears { get; set; }
+        public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

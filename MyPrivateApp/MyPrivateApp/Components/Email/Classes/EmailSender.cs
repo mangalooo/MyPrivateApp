@@ -1,13 +1,14 @@
-﻿using MailKit.Net.Smtp;
+﻿
+using MailKit.Net.Smtp;
 using MimeKit;
 using static System.Configuration.ConfigurationManager;
 
-namespace MagnusPrivateApp.Services.EmailServices
+namespace MyPrivateApp.Components.Email.Classes
 {
     public class EmailSender : IEmailSender
     {
-        private IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
-        
+        private readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
+
         public void SendEmailBirthday(string emailTitle, string sendFrom, string subject, string text, string sendFrom2)
         {
             string mail = config.GetSection("AppSettings")["mail"];
@@ -52,11 +53,6 @@ namespace MagnusPrivateApp.Services.EmailServices
             client.Authenticate(sendFrom2, emailPassword2);
             client.Send(message);
             client.Disconnect(true);
-        }
-
-        public Task SendEmailAsync(string email, string v1, string v2)
-        {
-            throw new NotImplementedException();
         }
     }
 }

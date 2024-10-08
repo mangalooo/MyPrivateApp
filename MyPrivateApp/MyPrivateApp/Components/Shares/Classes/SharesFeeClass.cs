@@ -1,4 +1,5 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 
@@ -167,8 +168,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                 CompanyOrInformation = vm.CompanyOrInformation,
                 TypeOfTransaction = vm.TypeOfTransaction,
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} AVGIFTER: \r\nAvgiftsdatum: {vm.DateOfFee} \r\nImport: {importTrue} \r\nTax: {vm.Tax} " +
-                       $"\r\nCourtage: {vm.Brokerage} \r\nKonto: {vm.Account} \r\nISIN: {vm.ISIN}"
+                Note = $"{type} AVGIFTER: " +
+                       $"\r\nAvgiftsdatum: {vm.DateOfFee} " +
+                       $"\r\nImport: {importTrue} " +
+                       $"\r\nTax: {vm.Tax} " +
+                       $"\r\nCourtage: {vm.Brokerage} " +
+                       $"\r\nKonto: {vm.Account} " +
+                       $"\r\nISIN: {vm.ISIN}"
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

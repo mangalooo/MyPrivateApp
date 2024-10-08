@@ -21,6 +21,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public string? PercentProfitOrLoss { get; set; }
         public string? Currency { get; set; }
         public required string? ISIN { get; set; }
+        public bool CalculationFlag { get; set; }
         public string? Account { get; set; }
     }
 }

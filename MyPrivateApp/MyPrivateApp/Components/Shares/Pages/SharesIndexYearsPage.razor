@@ -1,25 +1,26 @@
-﻿@page "/SharesFeePage"
+﻿@page "/SharesIndexYearsPage"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Shares.Classes
 @using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.SharesModels
-@using MyPrivateApp.Components.Shares.Classes
 
 @rendermode InteractiveServer
 
-@inject ApplicationDbContext db;
+@inject ApplicationDbContext db
 @inject NavigationManager Navigation
-@inject ISharesFeeClass BackEndClass
+@inject ISharesIndexYearsClass BackEndClass
 
-<PageTitle> Avgifter och skatter </PageTitle>
+<PageTitle> Aktier </PageTitle>
 
 @* Header *@
 <div>
 
+    <br />
     <br />
 
     @* Navigation - Desktop *@
@@ -66,20 +67,22 @@
     <br />
     <br />
 
-    <h1 style="text-align:center"> Avgifter </h1>
+    <h1 style="text-align:center"> Resultat </h1>
 
-    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
+    <br />
+    <br />
 
-        <br />
-        <br />
-
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny avgift </button>
+    <div style="text-align:center">
+        <button class="btn btn-outline-success btn-sm" @onclick="@CalculateLastYearsResults"> Beräkna förra årets resultat </button>
     </div>
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
+
         <br />
         <br />
+
         <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
+
     </div>
 
     <br />
@@ -89,17 +92,87 @@
 
 @* Form and views *@
 <div class="container">
-    <div class="col-md-12">
+    <div class="col-md-16">
         <div class="card">
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" FormName="CreateOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
                     <ValidationSummary class="text-danger" role="alert" />
 
+                    <div class="row">
+
+                        <div id="mobile" class="col-4" />
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="pageModel.Year" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="Date"> År </label>
+                                <ValidationMessage For="() => pageModel.Year" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="pageModel.MoneyProfitOrLossYear" class="form-control" disabled="@DisabledForm" />
+                                <label for="MoneyProfitOrLossYear"> Vinst/förlust </label>
+                                <ValidationMessage For="() => pageModel.MoneyProfitOrLossYear" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="pageModel.PercentProfitOrLossYear" class="form-control" disabled="@DisabledForm" />
+                                <label for="PercentProfitOrLossYear"> Vinst/förlust i % </label>
+                                <ValidationMessage For="() => pageModel.PercentProfitOrLossYear" class="text-danger" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div id="mobile" class="col-3" />
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="pageModel.SharesYear" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="SharesYear"> Aktier </label>
+                                <ValidationMessage For="() => pageModel.SharesYear" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="pageModel.FundsYear" class="form-control" disabled="@DisabledForm" />
+                                <label for="FundsYear"> Funder </label>
+                                <ValidationMessage For="() => pageModel.FundsYear" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="pageModel.DividendYear" class="form-control" disabled="@DisabledForm" />
+                                <label for="DividendYear"> Utdelning </label>
+                                <ValidationMessage For="() => pageModel.DividendYear" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="pageModel.InterestRatesYear" class="form-control" disabled="@DisabledForm" />
+                                <label for="InterestRatesYear"> Ränta </label>
+                                <ValidationMessage For="() => pageModel.InterestRatesYear" class="text-danger" />
+                            </div>
+                        </div>
+
+                    </div>
+
                     <br />
 
                     <div class="row">
@@ -108,71 +181,26 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
-                                <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
+                                <InputNumber @bind-Value="pageModel.FeeYear" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="FeeYear"> Skatt </label>
+                                <ValidationMessage For="() => pageModel.FeeYear" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
-                                <label for="CompanyOrInformation"> Aktie / fond </label>
-                                <ValidationMessage For="() => pageModel.CompanyOrInformation" class="text-danger" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <br />
-
-                    <div class="row">
-
-                        <div id="mobile" class="col-6" />
-
-                        <div class="col-6">
-                            <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.Tax" class="form-control" disabled="@DisabledForm" />
-                                <label for="Tax"> Skatt </label>
-                                <ValidationMessage For="() => pageModel.Tax" class="text-danger" />
+                                <InputNumber @bind-Value="pageModel.BrokerageYear" class="form-control" disabled="@DisabledForm" />
+                                <label for="BrokerageYear"> Courtage </label>
+                                <ValidationMessage For="() => pageModel.BrokerageYear" class="text-danger" />
                             </div>
                         </div>
 
-                        <div class="col-6">
-                            <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.Brokerage" class="form-control" disabled="@DisabledForm" />
-                                <label for="Brokerage"> Courtage </label>
-                                <ValidationMessage For="() => pageModel.Brokerage" class="text-danger" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <br />
-
-                    <div class="row">
-
-                        <div class="col-12">
-                            <div class="form-floating">
-                                <InputTextArea rows="5" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
-                                <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
-                            </div>
-                        </div>
                     </div>
 
                     <br />
 
                     <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till avgift </button>
-                    </div>
-
-                    <div style="text-align:center">
-                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
-                    </div>
-
-                    <br />
-
-                    <div style="text-align:center">
-                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                        <button @onclick="RefreshPage" type="submit" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
                     </div>
 
                     <br />
@@ -182,15 +210,12 @@
 
             @* View - Desktop *@
             <div id="desktop">
-                <div class="card-body">
+                <div id="desktop" class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Aktie / Fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
-                        <PropertyColumn Title="Skatt" Property="@(c => c.Tax)" Sortable="true" />
-                        <PropertyColumn Title="Courtage" Property="@(c => c.Brokerage)" Sortable="true" />
-                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
-
+                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true" />
+                        <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLossYear)" Sortable="true" />
+                        <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
                         <TemplateColumn Title="Info">
 
                             <div class="btn-group" role="group">
@@ -199,7 +224,6 @@
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -208,10 +232,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort @pageModel.Year resultat? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort avgiften </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -239,8 +263,8 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Aktie / Fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
-
+                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true" />
+                        <PropertyColumn Title="%" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
                         <TemplateColumn Title="Info">
 
                             <div class="btn-group" role="group">
@@ -249,7 +273,6 @@
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -258,10 +281,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort avgiften? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort @pageModel.Year resultat? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort avgiften </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -281,7 +304,6 @@
 
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -305,18 +327,18 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesFeeViewModel pageModel { get; set; } = new();
+    private SharesProfitOrLossYearViewModel pageModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<SharesFeeViewModel> queryable = Enumerable.Empty<SharesFeeViewModel>().AsQueryable();
+    private IQueryable<SharesProfitOrLossYearViewModel> queryable = Enumerable.Empty<SharesProfitOrLossYearViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
 
     // Modol window settings
-    private Guid Guid = Guid.NewGuid();
-    private string ModalDisplay = "none;";
-    private string ModalClass = "";
-    private bool ShowBackdrop = false;
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
 
     // Hide button and fields
     private bool HideNewOrChangesFields { get; set; } = false;
@@ -332,13 +354,13 @@
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
-        if (db.SharesFees.Count() == 0) return;
+        if (db.SharesProfitOrLossYears.Count() == 0) return;
 
-        queryable = Enumerable.Empty<SharesFeeViewModel>().AsQueryable();
+        queryable = Enumerable.Empty<SharesProfitOrLossYearViewModel>().AsQueryable();
 
-        foreach (SharesFee model in db.SharesFees.OrderBy(c => c.SharesFeeId))
+        foreach (SharesProfitOrLossYears model in db.SharesProfitOrLossYears.OrderBy(c => c.DividendYear))
         {
-            SharesFeeViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            SharesProfitOrLossYearViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
             queryable = queryable.Concat(new[] { vm }.AsQueryable());
         }
 
@@ -356,50 +378,7 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void AddOrEdit()
-    {
-        DisabledForm = false;
-
-        if (pageModel.SharesFeeId > 0)
-        {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
-                ShowOrHideEditButton = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-        else
-        {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = true;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-    }
-
-    private void Info(SharesFeeViewModel vm)
+    private void Info(SharesProfitOrLossYearViewModel vm)
     {
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
@@ -407,28 +386,18 @@
         pageModel = vm;
     }
 
-    private void Edit(SharesFeeViewModel vm)
-    {
-        DisabledForm = false;
-        ShowOrHideEditButton = false;
-        ShowOrHideAddNewButton = true;
-        ShowOrHideCreateButton = true;
-        HideNewOrChangesFields = true;
-        pageModel = vm;
-    }
-
     private void Delete()
     {
-        if (db.SharesFees.Count() == 0) return;
+        if (db.Trips.Count() == 0) return;
 
-        bool findId = db.SharesFees.Any(a => a.SharesFeeId == TemporaryId);
+        bool findId = db.SharesProfitOrLossYears.Any(a => a.SharesProfitOrLossYearsId == TemporaryId);
 
         if (findId)
         {
-            SharesFee model = db.SharesFees.FirstOrDefault(a => a.SharesFeeId == TemporaryId);
-            SharesFeeViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            SharesProfitOrLossYears model = db.SharesProfitOrLossYears.FirstOrDefault(a => a.SharesProfitOrLossYearsId == TemporaryId);
+            SharesProfitOrLossYearViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = BackEndClass.Delete(db, vm, false);
+            ErrorMessage = BackEndClass.Delete(db, vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -444,13 +413,13 @@
         }
     }
 
-    private void OpenDeleteWindow(SharesFeeViewModel vm)
+    private void OpenDeleteWindow(SharesProfitOrLossYearViewModel vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
-        TemporaryId = vm.SharesFeeId;
+        TemporaryId = vm.SharesProfitOrLossYearsId;
     }
 
     private void CloseWindow()
@@ -459,5 +428,22 @@
         ModalClass = "";
         ShowBackdrop = false;
         StateHasChanged();
+    }
+
+    private void CalculateLastYearsResults()
+    {
+        ErrorMessage = BackEndClass.CalculateLastYearsResults(db);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = false;
+            return;
+        }
+        else
+        {
+            pageModel = new();
+            Navigation.Refresh(true);
+            return;
+        }
     }
 }

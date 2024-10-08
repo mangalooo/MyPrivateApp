@@ -2,7 +2,7 @@
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data;
 using Hangfire;
-using MagnusPrivateApp.Services.EmailServices;
+using MyPrivateApp.Components.Email.Classes;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {

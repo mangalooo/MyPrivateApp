@@ -13,9 +13,9 @@ using MyPrivateApp.Components.Trip.Classes;
 using MyPrivateApp.Data;
 using Hangfire;
 using Hangfire.SqlServer;
-using MagnusPrivateApp.Services.EmailServices;
 using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.Games.ManagerZone.Classes;
+using MyPrivateApp.Components.Email.Classes;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -58,7 +58,9 @@ builder.Services.AddScoped<ISharesInterestRatesClass, SharesInterestRatesClass>(
 builder.Services.AddScoped<ISharesOtherImportsClass, SharesOtherImportsClass>();
 builder.Services.AddScoped<ISharesDepositMoneyClass, SharesDepositMoneyClass>();
 builder.Services.AddScoped<ISharesImportsFileClass, SharesImportsFileClass>();
+builder.Services.AddScoped<ISharesIndexYearsClass, SharesIndexYearsClass>();
 
+// Other
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();

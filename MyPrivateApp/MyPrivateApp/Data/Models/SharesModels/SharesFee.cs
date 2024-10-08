@@ -10,6 +10,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public string? CompanyOrInformation { get; set; }
         public double Tax { get; set; }
         public double Brokerage { get; set; }
+        public bool CalculationFlag { get; set; }
         public string? Note { get; set; }
         
         // Error information

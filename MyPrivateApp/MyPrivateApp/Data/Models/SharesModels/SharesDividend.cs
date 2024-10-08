@@ -15,6 +15,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public double TotalAmount { get; set; }
         public string? Currency { get; set; }
         public string? ISIN { get; set; }
+        public bool CalculationFlag { get; set; }
         public string? Note { get; set; }
     }
 }

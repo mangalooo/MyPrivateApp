@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241008181327_AddSharesIndexYears")]
+    partial class AddSharesIndexYears
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -716,9 +719,6 @@ namespace MyPrivateApp.Migrations
                     b.Property<string>("AccountNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("CalculationFlag")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Company")
                         .HasColumnType("nvarchar(max)");
 
@@ -793,9 +793,6 @@ namespace MyPrivateApp.Migrations
                     b.Property<double>("Brokerage")
                         .HasColumnType("float");
 
-                    b.Property<bool>("CalculationFlag")
-                        .HasColumnType("bit");
-
                     b.Property<string>("CompanyOrInformation")
                         .HasColumnType("nvarchar(max)");
 
@@ -860,9 +857,6 @@ namespace MyPrivateApp.Migrations
 
                     b.Property<string>("Account")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("CalculationFlag")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Currency")
                         .HasColumnType("nvarchar(max)");
@@ -956,8 +950,8 @@ namespace MyPrivateApp.Migrations
                     b.Property<double>("MoneyProfitOrLossYear")
                         .HasColumnType("float");
 
-                    b.Property<string>("PercentProfitOrLossYear")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double>("PercentProfitOrLossYear")
+                        .HasColumnType("float");
 
                     b.Property<double>("SharesYear")
                         .HasColumnType("float");
@@ -1082,9 +1076,6 @@ namespace MyPrivateApp.Migrations
                     b.Property<double>("AmountSold")
                         .HasColumnType("float");
 
-                    b.Property<bool>("CalculationFlag")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Currency")
                         .HasColumnType("nvarchar(max)");
 
@@ -1148,9 +1139,6 @@ namespace MyPrivateApp.Migrations
 
                     b.Property<double>("Brokerage")
                         .HasColumnType("float");
-
-                    b.Property<bool>("CalculationFlag")
-                        .HasColumnType("bit");
 
                     b.Property<string>("CompanyName")
                         .IsRequired()
