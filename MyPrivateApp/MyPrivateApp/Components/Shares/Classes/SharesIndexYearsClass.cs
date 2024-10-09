@@ -15,7 +15,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         public string CalculateLastYearsResults(ApplicationDbContext db)
         {
             if (db == null) return "Ingen kontakt med databasen";
-            if (db.SharesProfitOrLossYears.Count() == 0) return "Befintlig databas är tom!";
+            if (!db.SharesProfitOrLossYears.Any()) return "Befintlig databas är tom!";
 
             int thisYear = DateTime.Now.Year;
             double sharesPurchaseds = 0;
