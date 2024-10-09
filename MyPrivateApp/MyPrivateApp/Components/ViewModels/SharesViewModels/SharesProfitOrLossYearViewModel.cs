@@ -42,5 +42,9 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Display(Name = "Vinst/förlust i %")]
         [DataType(DataType.Text)]
         public string? PercentProfitOrLossYear { get; set; } // (Årets alla: (säljvärden: aktiar och fonder + utdelningar + ränta) - (köp värderna + skatt + avgifter) )
+
+        [Display(Name = "Anteckningar")]
+        [DataType(DataType.Text)]
+        public string? Note { get; set; }
     }
 }

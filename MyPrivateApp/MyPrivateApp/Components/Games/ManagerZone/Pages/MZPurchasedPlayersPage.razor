@@ -370,7 +370,7 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
+                        <PropertyColumn Title="Dagar i klubben" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 

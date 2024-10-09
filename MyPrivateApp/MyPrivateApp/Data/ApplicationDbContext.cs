@@ -44,6 +44,7 @@ namespace MyPrivateApp.Data
         public DbSet<SharesErrorHandlings> SharesErrorHandlings { get; set; }
         public DbSet<SharesProfitOrLossYears> SharesProfitOrLossYears { get; set; }
         public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; }
+        public DbSet<SharesTotalProfitsOrLosses> SharesTotalProfitsOrLosses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

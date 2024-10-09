@@ -6,6 +6,10 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesIndexYearsClass : ISharesIndexYearsClass
     {
+        public SharesTotalProfitsOrLosses? GetTotalProfitsOrLosses(ApplicationDbContext db, int? id) => db.SharesTotalProfitsOrLosses.Any(r => r.SharesTotalProfitOrLossId == id) ?
+                                                                                                 db.SharesTotalProfitsOrLosses.FirstOrDefault(r => r.SharesTotalProfitOrLossId == id) :
+                                                                                                     throw new Exception("Totala summan hittades inte i databasen!");
+
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
 
         public string CalculateLastYearsResults(ApplicationDbContext db)
@@ -25,6 +29,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             string thisYearsErrorMessage = "Man kan inte beräknad detta året än, man måste vänta tills efter nyår!";
             int thisCalculationYear = 0;
             int biggerYear = 0;
+
+            if (db.SharesProfitOrLossYears.Any()) return "Finns inget i tabellen: SharesProfitOrLossYears. Måste finns en rad!";
 
             foreach (var item in db.SharesProfitOrLossYears)
             {
@@ -127,9 +133,9 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                double sharesYear = sharesSolds - sharesPurchaseds;
-                double fundsYear = fundsSold - fundsPurchased;
-                double moneyProfitOrLossYear = (sharesYear + fundsYear + dividends + interestRates) - (fees + brokerage);
+                double sharesYearResult = sharesSolds - sharesPurchaseds;
+                double fundsYearResult = fundsSold - fundsPurchased;
+                double moneyProfitOrLossYear = (sharesYearResult + fundsYearResult + dividends + interestRates) - (fees + brokerage);
                 double soldCalculation = (sharesSolds + fundsSold + dividends + interestRates) - (fees + brokerage);
                 double purchasedSharesAndFunds = sharesPurchaseds + fundsPurchased;
                 double percentProfitOrLossYear = (soldCalculation / purchasedSharesAndFunds) - 1;
@@ -137,19 +143,22 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesProfitOrLossYears model = new()
                 {
                     Year = thisCalculationYear.ToString(),
-                    SharesYear = sharesYear,
-                    FundsYear = fundsYear,
+                    SharesYear = sharesYearResult,
+                    FundsYear = fundsYearResult,
                     DividendYear = dividends,
                     InterestRatesYear = interestRates,
                     FeeYear = fees,
                     BrokerageYear = brokerage,
                     MoneyProfitOrLossYear = moneyProfitOrLossYear,
-                    PercentProfitOrLossYear = ConvertToPercentage(percentProfitOrLossYear)
+                    PercentProfitOrLossYear = ConvertToPercentage(percentProfitOrLossYear),
+                    Note = $"Sålda Aktier: {sharesSolds} - Köpta aktier: {sharesPurchaseds} = {sharesSolds - sharesPurchaseds}" +
+                           $"\r\nSålda fonder: {fundsSold} - Köpta fonder: {fundsPurchased} = {fundsSold - fundsPurchased}" +
+                           $"\r\nSkatt: {fees} + Courtage: {brokerage} = {fees + brokerage}"
                 };
 
                 db.SharesProfitOrLossYears.Add(model);
-                SharesTotalAmounts sharesTotalAmounts = db.SharesTotalAmounts.FirstOrDefault();
-                sharesTotalAmounts.TotalAmount += moneyProfitOrLossYear;
+                SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = db.SharesTotalProfitsOrLosses.FirstOrDefault();
+                sharesTotalProfitsOrLosses.TotalProfitOrLoss += moneyProfitOrLossYear;
                 db.SaveChanges();
             }
             catch (Exception ex)
@@ -173,7 +182,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 FeeYear = model.FeeYear,
                 BrokerageYear = model.BrokerageYear,
                 MoneyProfitOrLossYear = model.MoneyProfitOrLossYear,
-                PercentProfitOrLossYear = model.PercentProfitOrLossYear
+                PercentProfitOrLossYear = model.PercentProfitOrLossYear,
+                Note = model.Note
             };
 
             return vm;
@@ -192,7 +202,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 FeeYear = vm.FeeYear,
                 BrokerageYear = vm.BrokerageYear,
                 MoneyProfitOrLossYear = vm.MoneyProfitOrLossYear,
-                PercentProfitOrLossYear = vm.PercentProfitOrLossYear
+                PercentProfitOrLossYear = vm.PercentProfitOrLossYear,
+                Note = vm.Note
             };
 
             return model;

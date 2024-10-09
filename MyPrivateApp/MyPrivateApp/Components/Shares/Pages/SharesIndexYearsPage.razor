@@ -70,6 +70,10 @@
     <h1 style="text-align:center"> Resultat </h1>
 
     <br />
+
+    <h3 style="text-align:center">Total vinst: @GetTotalProfitsOrLosses()</h3>
+
+    <br />
     <br />
 
     <div style="text-align:center">
@@ -195,6 +199,19 @@
                             </div>
                         </div>
 
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <InputTextArea rows="4" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Anteckningar </label>
+                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
+                            </div>
+                        </div>
                     </div>
 
                     <br />
@@ -388,7 +405,7 @@
 
     private void Delete()
     {
-        if (db.Trips.Count() == 0) return;
+        if (db.SharesProfitOrLossYears.Count() == 0) return;
 
         bool findId = db.SharesProfitOrLossYears.Any(a => a.SharesProfitOrLossYearsId == TemporaryId);
 
@@ -445,5 +462,14 @@
             Navigation.Refresh(true);
             return;
         }
+    }
+
+    private double GetTotalProfitsOrLosses()
+    {
+        SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = BackEndClass.GetTotalProfitsOrLosses(db, 1);
+
+        if (sharesTotalProfitsOrLosses == null) return 0;
+
+        return sharesTotalProfitsOrLosses.TotalProfitOrLoss;
     }
 }

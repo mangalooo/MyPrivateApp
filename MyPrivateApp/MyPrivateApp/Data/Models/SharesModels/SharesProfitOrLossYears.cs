@@ -15,5 +15,6 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public double BrokerageYear { get; set; }
         public double MoneyProfitOrLossYear { get; set; } // ( Årets alla: (säljvärden: aktiar och fonder + utdelningar + ränta) - (köp värderna + skatt + avgifter) )
         public string? PercentProfitOrLossYear { get; set; } // ( Årets alla: (säljvärden + utdelningar) - (köp värderna + skatt + avgifter) )
+        public string? Note { get; set; }
     }
 }
