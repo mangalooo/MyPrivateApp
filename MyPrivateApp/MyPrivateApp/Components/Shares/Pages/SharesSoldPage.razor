@@ -418,7 +418,7 @@
 {
     [SupplyParameterFromForm]
     private SharesSoldViewModel pageModel { get; set; } = new();
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<SharesSoldViewModel> queryable = Enumerable.Empty<SharesSoldViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -451,7 +451,7 @@
         foreach (SharesSolds model in db.SharesSolds.OrderBy(c => c.SharesSoldId))
         {
             SharesSoldViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
+            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.DateOfPurchase);
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();

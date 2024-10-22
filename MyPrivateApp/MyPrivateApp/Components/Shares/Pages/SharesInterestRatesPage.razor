@@ -341,7 +341,7 @@
         foreach (SharesInterestRates model in db.SharesInterestRates.OrderBy(c => c.InterestRatesId))
         {
             SharesInterestRatesViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
+            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.Date);
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();

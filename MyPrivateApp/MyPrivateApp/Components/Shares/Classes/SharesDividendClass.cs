@@ -6,8 +6,8 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesDividendClass : ISharesDividendClass
     {
-        private static SharesDividend? Get(ApplicationDbContext db, string ISIN) => db.SharesDividends.Any(r => r.ISIN == ISIN) ?
-                                                                                        db.SharesDividends.FirstOrDefault(r => r.ISIN == ISIN) :
+        private static SharesDividend? Get(ApplicationDbContext db, int id) => db.SharesDividends.Any(r => r.DividendId == id) ?
+                                                                                        db.SharesDividends.FirstOrDefault(r => r.DividendId == id) :
                                                                                             throw new Exception("Den köpa aktien hittades inte i databasen!");
 
         public string Add(ApplicationDbContext db, SharesDividendViewModel vm, bool import)
@@ -58,7 +58,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     try
                     {
-                        SharesDividend dbModel = Get(db, vm.ISIN);
+                        SharesDividend dbModel = Get(db, vm.DividendId);
 
                         if (dbModel != null)
                         {

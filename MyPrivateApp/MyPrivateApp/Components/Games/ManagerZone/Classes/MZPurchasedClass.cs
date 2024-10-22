@@ -87,7 +87,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
         {
             int daysInTheClub = DaysInTheClub(vm.PurchasedDate);
 
-            if (daysInTheClub < 70) return "Spelaren har inte varit i klubben i 70 dagart";
+            if (daysInTheClub < 70) return "Spelaren har inte varit i klubben i 70 dagar!";
 
             if (vm != null && vm.ManagerZonePurchasedPlayersId != 0 && db != null)
             {

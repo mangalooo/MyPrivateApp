@@ -154,7 +154,7 @@
                         <div class="col-3">
                             <div class="form-floating">
                                 <InputNumber @bind-Value="pageModel.FundsYear" class="form-control" disabled="@DisabledForm" />
-                                <label for="FundsYear"> Funder </label>
+                                <label for="FundsYear"> Fonder </label>
                                 <ValidationMessage For="() => pageModel.FundsYear" class="text-danger" />
                             </div>
                         </div>
@@ -378,7 +378,7 @@
         foreach (SharesProfitOrLossYears model in db.SharesProfitOrLossYears.OrderBy(c => c.DividendYear))
         {
             SharesProfitOrLossYearViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
+            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.SharesYear);
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();

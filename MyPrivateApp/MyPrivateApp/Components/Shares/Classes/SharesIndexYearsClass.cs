@@ -30,7 +30,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             int thisCalculationYear = 0;
             int biggerYear = 0;
 
-            if (db.SharesProfitOrLossYears.Any()) return "Finns inget i tabellen: SharesProfitOrLossYears. Måste finns en rad!";
+            if (!db.SharesProfitOrLossYears.Any()) return "Finns inget i tabellen: SharesProfitOrLossYears. Måste finns en rad!";
 
             foreach (var item in db.SharesProfitOrLossYears)
             {
@@ -143,22 +143,23 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesProfitOrLossYears model = new()
                 {
                     Year = thisCalculationYear.ToString(),
-                    SharesYear = sharesYearResult,
-                    FundsYear = fundsYearResult,
-                    DividendYear = dividends,
-                    InterestRatesYear = interestRates,
-                    FeeYear = fees,
-                    BrokerageYear = brokerage,
-                    MoneyProfitOrLossYear = moneyProfitOrLossYear,
+                    SharesYear = double.Round(sharesYearResult, 2, MidpointRounding.AwayFromZero),
+                    FundsYear = double.Round(fundsYearResult, 2, MidpointRounding.AwayFromZero),
+                    DividendYear = double.Round(dividends, 2, MidpointRounding.AwayFromZero),
+                    InterestRatesYear = double.Round(interestRates, 2, MidpointRounding.AwayFromZero),
+                    FeeYear = double.Round(fees, 2, MidpointRounding.AwayFromZero),
+                    BrokerageYear = double.Round(brokerage, 2, MidpointRounding.AwayFromZero),
+                    MoneyProfitOrLossYear = double.Round(moneyProfitOrLossYear, 2, MidpointRounding.AwayFromZero),
                     PercentProfitOrLossYear = ConvertToPercentage(percentProfitOrLossYear),
                     Note = $"Sålda Aktier: {sharesSolds} - Köpta aktier: {sharesPurchaseds} = {sharesSolds - sharesPurchaseds}" +
                            $"\r\nSålda fonder: {fundsSold} - Köpta fonder: {fundsPurchased} = {fundsSold - fundsPurchased}" +
-                           $"\r\nSkatt: {fees} + Courtage: {brokerage} = {fees + brokerage}"
+                           $"\r\nUtdelning: {dividends}" +
+                           $"\r\nSkatt: {fees} + Courtage: {brokerage} = {double.Round(fees + brokerage, 2, MidpointRounding.AwayFromZero)}"
                 };
 
                 db.SharesProfitOrLossYears.Add(model);
                 SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = db.SharesTotalProfitsOrLosses.FirstOrDefault();
-                sharesTotalProfitsOrLosses.TotalProfitOrLoss += moneyProfitOrLossYear;
+                sharesTotalProfitsOrLosses.TotalProfitOrLoss += double.Round(moneyProfitOrLossYear, 2, MidpointRounding.AwayFromZero);
                 db.SaveChanges();
             }
             catch (Exception ex)

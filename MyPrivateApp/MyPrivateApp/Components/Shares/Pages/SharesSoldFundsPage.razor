@@ -451,7 +451,7 @@
         foreach (SharesSoldFunds model in db.SharesSoldFunds.OrderBy(c => c.SharesSoldFundId))
         {
             SharesSoldFundViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
+            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.DateOfPurchase);
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
