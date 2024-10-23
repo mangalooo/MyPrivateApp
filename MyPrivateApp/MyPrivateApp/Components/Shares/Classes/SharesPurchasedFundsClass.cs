@@ -16,7 +16,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             if (vm != null && db != null)
             {
-                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany < 0 && vm.PricePerFunds != string.Empty)
+                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerFunds))
                 {
                     SharesPurchasedFunds model = ChangesFromViewModelToModel(vm);
                     model.Note += $"Köper {model.FundName} fonden:\r\n Import: {importTrue} \r\n Datum: {model.DateOfPurchase.ToString()[..10]} \r\n Hur många: {model.HowMany} \r\n " +
@@ -56,7 +56,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && vm.SharesPurchasedFundId > 0 && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) &&
-                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany < 0 && vm.PricePerFunds == string.Empty)
+                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerFunds))
                 {
                     try
                     {

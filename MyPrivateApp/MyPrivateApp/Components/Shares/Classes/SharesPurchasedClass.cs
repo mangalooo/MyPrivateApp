@@ -1,4 +1,5 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿using Microsoft.IdentityModel.Tokens;
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 
@@ -17,7 +18,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) && !string.IsNullOrEmpty(vm.ISIN) &&
-                       vm.HowMany < 0 && vm.PricePerShares != string.Empty && vm.Brokerage < 0)
+                       vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0)
                 {
                     SharesPurchaseds model = ChangesFromViewModelToModel(vm);
 
@@ -65,7 +66,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && vm.SharesPurchasedId > 0 && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) &&
-                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany < 0 && string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage < 0)
+                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0)
                 {
                     try
                     {
@@ -441,6 +442,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         public SharesPurchasedViewModel ChangeFromImportSellToViewModel(SharesImports model)
         {
             DateTime date = DateTime.Parse(model.Date);
+            string amount = (double.Parse(model.NumberOfSharesString) * double.Parse(model.PricePerShareString)).ToString();
 
             SharesPurchasedViewModel vm = new()
             {
@@ -448,12 +450,21 @@ namespace MyPrivateApp.Components.Shares.Classes
                 CompanyName = model.CompanyOrInformation,
                 SaleHowMany = int.Parse(model.NumberOfSharesString),
                 SalePricePerShares = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
-                SaleBrokerage = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
+                Amount = double.Round(double.Parse(amount), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
             };
+
+            if (vm.Account == "Aktieinvest")
+            {
+                if (model.AmountString.Contains("-"))
+                    vm.SaleBrokerage = double.Parse(amount) - double.Parse(model.AmountString.Substring(1));
+                else
+                    vm.SaleBrokerage = double.Parse(amount) - double.Parse(model.AmountString);
+            }
+            else
+                vm.Brokerage = double.Parse(model.BrokerageString);
 
             return vm;
         }
@@ -461,6 +472,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         public SharesPurchasedViewModel ChangeFromImportAddToViewModel(SharesImports model)
         {
             DateTime date = DateTime.Parse(model.Date);
+            string amount = (double.Parse(model.NumberOfSharesString) * double.Parse(model.PricePerShareString)).ToString();
 
             SharesPurchasedViewModel vm = new()
             {
@@ -468,12 +480,21 @@ namespace MyPrivateApp.Components.Shares.Classes
                 CompanyName = model.CompanyOrInformation,
                 HowMany = int.Parse(model.NumberOfSharesString),
                 PricePerShares = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                Brokerage = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
+                Amount = double.Round(double.Parse(amount), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
             };
+
+            if (vm.Account == "Aktieinvest")
+            {
+                if (model.AmountString.Contains("-"))
+                    vm.Brokerage = double.Parse(model.AmountString.Substring(1)) - double.Parse(amount);
+                else
+                    vm.Brokerage = double.Parse(model.AmountString) - double.Parse(amount);
+            }  
+            else
+                vm.Brokerage = double.Parse(model.BrokerageString);
 
             return vm;
         }
@@ -486,9 +507,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 CompanyName = vm.CompanyName,
                 HowMany = vm.HowMany,
-                PricePerShares = double.Round(int.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
+                PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
                 Brokerage = vm.Brokerage,
-                Amount = double.Round(vm.HowMany * int.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
+                Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
                 ISIN = vm.ISIN,
                 Currency = vm.Currency,
                 Account = vm.Account,

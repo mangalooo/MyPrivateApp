@@ -475,7 +475,7 @@
     {
         if (db.FarmingsActive.Count() == 0) return;
 
-        bool findId = db.FarmingsActive.Any(a => a.FarmingId== TemporaryId);
+        bool findId = db.FarmingsActive.Any(a => a.FarmingId == TemporaryId);
 
         if (findId)
         {
