@@ -24,8 +24,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Required(ErrorMessage = "Skriv in pris per fond del")]
         [Display(Name = "Pris per aktie")]
-        [DataType(DataType.Currency)]
-        public double PricePerFunds { get; set; }
+        [DataType(DataType.Text)]
+        public string? PricePerFunds { get; set; }
 
         [Required(ErrorMessage = "Skriv in avgift")]
         [Display(Name = "Courtage")]
@@ -34,8 +34,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Required(ErrorMessage = "Skriv in vad fonden kostade totalt")]
         [Display(Name = "Inköpsvärdet")]
-        [DataType(DataType.Currency)]
-        public double Amount { get; set; }
+        [DataType(DataType.Text)]
+        public string? Amount { get; set; }
 
         [Display(Name = "Typ av fond")]
         [DataType(DataType.Text)]

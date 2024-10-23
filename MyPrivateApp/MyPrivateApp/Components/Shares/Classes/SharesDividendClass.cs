@@ -14,7 +14,8 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             if (vm != null && db != null)
             {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) && !string.IsNullOrEmpty(vm.ISIN) && vm.NumberOfShares > 0 && vm.PricePerShare > 0)
+                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) && !string.IsNullOrEmpty(vm.ISIN) 
+                    && vm.NumberOfShares > 0 && string.IsNullOrEmpty(vm.PricePerShare))
                 {
                     try
                     {
@@ -54,7 +55,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 if (vm.DividendId > 0 && vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) &&
-                    !string.IsNullOrEmpty(vm.ISIN) && vm.NumberOfShares > 0 && vm.PricePerShare > 0)
+                    !string.IsNullOrEmpty(vm.ISIN) && vm.NumberOfShares > 0 && string.IsNullOrEmpty(vm.PricePerShare))
                 {
                     try
                     {
@@ -68,8 +69,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                             dbModel.TypeOfTransaction = vm.TypeOfTransaction;
                             dbModel.Company = vm.Company;
                             dbModel.NumberOfShares = vm.NumberOfShares;
-                            dbModel.PricePerShare = vm.PricePerShare;
-                            dbModel.TotalAmount = vm.NumberOfShares * vm.PricePerShare;
+                            dbModel.PricePerShare = double.Parse(vm.PricePerShare);
+                            dbModel.TotalAmount = vm.NumberOfShares * double.Parse(vm.PricePerShare);
                             dbModel.Currency = vm.Currency;
                             dbModel.ISIN = vm.ISIN;
                             dbModel.Note = vm.Note;
@@ -128,8 +129,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 TypeOfTransaction = model.TypeOfTransaction,
                 Company = model.Company,
                 NumberOfShares = model.NumberOfShares,
-                PricePerShare = model.PricePerShare,
-                TotalAmount = model.TotalAmount,
+                PricePerShare = model.PricePerShare.ToString("#,##0.00"),
+                TotalAmount = model.TotalAmount.ToString("#,##0.00"),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Note = model.Note
@@ -147,11 +148,11 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Date = date,
                 Company = model.CompanyOrInformation,
                 NumberOfShares = int.Parse(model.NumberOfSharesString),
-                PricePerShare = double.Parse(model.PricePerShareString),
+                PricePerShare = double.Parse(model.PricePerShareString).ToString("#,##0.00"),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 AccountNumber = model.AccountNumber,
-                TotalAmount = double.Parse(model.AmountString),
+                TotalAmount = double.Parse(model.AmountString).ToString("#,##0.00"),
                 TypeOfTransaction = model.TypeOfTransaction
             };
 
@@ -168,8 +169,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 TypeOfTransaction = vm.TypeOfTransaction,
                 Company = vm.Company,
                 NumberOfShares = vm.NumberOfShares,
-                PricePerShare = vm.PricePerShare,
-                TotalAmount = vm.TotalAmount,
+                PricePerShare = double.Parse(vm.PricePerShare),
+                TotalAmount = double.Parse(vm.TotalAmount),
                 Currency = vm.Currency,
                 ISIN = vm.ISIN,
                 Note = vm.Note

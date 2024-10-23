@@ -8,27 +8,25 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         public int SharesSoldId { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Köpsdatum")]
         [DataType(DataType.Date)]
-        public DateTime DateOfPurchase { get; set; } //  Köpsdatum. String? 
+        public DateTime DateOfPurchase { get; set; }
 
         [Required(ErrorMessage = "Skriv in när aktien såldes")]
         [Display(Name = "Säljsdatum")]
         [DataType(DataType.Date)]
-        public DateTime DateOfSold { get; set; } //  Säljsdatum. String? 
+        public DateTime DateOfSold { get; set; }
 
         [Required(ErrorMessage = "Shares_Error_Amount")]
         [Display(Name = "Inköpsvärdet")]
-        [DataType(DataType.Currency)]
-        public double Amount { get; set; } // Totalbelopp. Uträkning nytt värde
+        [DataType(DataType.Text)]
+        public string? Amount { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad aktien kostade totalt")]
         [Display(Name = "Säljvärdet")]
-        [DataType(DataType.Currency)]
-        public double AmountSold { get; set; } // Totalbelopp från solda värdet 
+        [DataType(DataType.Text)]
+        public string? AmountSold { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Företag")]
         [DataType(DataType.Text)]
         public string? CompanyName { get; set; }
@@ -38,33 +36,29 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Text)]
         public string? TypeOfShares { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Antal")]
         public int HowMany { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad aktierna kostade per styck")]
         [Display(Name = "Pris per aktie")]
-        [DataType(DataType.Currency)]
-        public double PricePerShares { get; set; } // Uträkning nytt värde
+        [DataType(DataType.Text)]
+        public string? PricePerShares { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad aktierna såldes per styck")]
         [Display(Name = "Pris per såld aktie")]
-        [DataType(DataType.Currency)]
-        public double PricePerSharesSold { get; set; } // Uträkning nytt värde
+        [DataType(DataType.Text)]
+        public string? PricePerSharesSold { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust")]
-        [DataType(DataType.Currency)]
-        public double MoneyProfitOrLoss { get; set; } //Vinst eller förlust i pengar. Grön och röd färg?
+        [DataType(DataType.Text)]
+        public string? MoneyProfitOrLoss { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust i %")]
-        public string? PercentProfitOrLoss { get; set; } //Vinst eller förlust i %. Grön och röd färg?
+        public string? PercentProfitOrLoss { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Courtage")]
         [DataType(DataType.Currency)]
-        public double Brokerage { get; set; } //Courtage, köp kostnad
+        public double Brokerage { get; set; }
 
         [Display(Name = "Konto")]
         [DataType(DataType.Currency)]

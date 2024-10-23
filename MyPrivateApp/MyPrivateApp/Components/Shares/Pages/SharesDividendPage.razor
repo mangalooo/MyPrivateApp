@@ -188,7 +188,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.PricePerShare" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.PricePerShare" class="form-control" disabled="@DisabledForm" />
                                 <label for="PricePerShare"> Pris per aktie </label>
                                 <ValidationMessage For="() => pageModel.PricePerShare" class="text-danger" />
                             </div>
@@ -196,7 +196,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.TotalAmount" class="form-control" disabled="true" />
+                                <InputText @bind-Value="pageModel.TotalAmount" class="form-control" disabled="true" />
                                 <label for="TotalAmount"> Belopp </label>
                                 <ValidationMessage For="() => pageModel.TotalAmount" class="text-danger" />
                             </div>

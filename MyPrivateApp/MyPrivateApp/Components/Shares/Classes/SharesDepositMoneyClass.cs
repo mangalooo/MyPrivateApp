@@ -35,7 +35,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                                 model = new()
                                 {
                                     Date = vm.Date.ToString("yyyy-MM-dd"),
-                                    DepositMoney = vm.DepositMoney,
+                                    DepositMoney = double.Parse(vm.DepositMoney),
                                     SubmitOrWithdraw = SubmitOrWithdraw.Inbetalning,
                                     TypeOfTransaction = vm.TypeOfTransaction,
                                     TransferOptions = vm.TransferOptions,
@@ -133,7 +133,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 // Edit fields
                 dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                dbModel.DepositMoney = vm.DepositMoney;
+                dbModel.DepositMoney = double.Parse(vm.DepositMoney);
                 dbModel.SubmitOrWithdraw = SubmitOrWithdraw.Utbetalning;
                 dbModel.TypeOfTransaction = vm.TypeOfTransaction;
                 dbModel.TransferOptions = vm.TransferOptions;
@@ -192,7 +192,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 DepositMoneyId = model.DepositMoneyId,
                 Date = date,
-                DepositMoney = model.DepositMoney,
+                DepositMoney = model.DepositMoney.ToString("#,##0.00"),
                 SubmitOrWithdraw = model.SubmitOrWithdraw,
                 TypeOfTransaction = model.TypeOfTransaction,
                 TransferOptions = model.TransferOptions,
@@ -215,7 +215,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 TypeOfTransaction = model.TypeOfTransaction,
                 TransferOptions = model.CompanyOrInformation,
                 Currency = model.Currency,
-                DepositMoney = double.Parse(model.AmountString)
+                DepositMoney = double.Parse(model.AmountString).ToString("#,##0.00")
             };
 
             return vm;
@@ -227,7 +227,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 DepositMoneyId = vm.DepositMoneyId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
-                DepositMoney = vm.DepositMoney,
+                DepositMoney = double.Parse(vm.DepositMoney),
                 SubmitOrWithdraw = vm.SubmitOrWithdraw,
                 TypeOfTransaction = vm.TypeOfTransaction,
                 TransferOptions = vm.TransferOptions,

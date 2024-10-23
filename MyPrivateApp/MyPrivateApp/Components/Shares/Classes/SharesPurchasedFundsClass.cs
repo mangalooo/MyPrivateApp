@@ -16,7 +16,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             if (vm != null && db != null)
             {
-                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && vm.PricePerFunds > 0)
+                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany < 0 && vm.PricePerFunds != string.Empty)
                 {
                     SharesPurchasedFunds model = ChangesFromViewModelToModel(vm);
                     model.Note += $"Köper {model.FundName} fonden:\r\n Import: {importTrue} \r\n Datum: {model.DateOfPurchase.ToString()[..10]} \r\n Hur många: {model.HowMany} \r\n " +
@@ -56,7 +56,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && vm.SharesPurchasedFundId > 0 && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) &&
-                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && vm.PricePerFunds > 0)
+                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany < 0 && vm.PricePerFunds == string.Empty)
                 {
                     try
                     {
@@ -67,12 +67,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                             dbModel.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
                             dbModel.FundName = vm.FundName;
                             dbModel.HowMany = vm.HowMany;
-                            dbModel.PricePerFunds = vm.PricePerFunds;
+                            dbModel.PricePerFunds = double.Parse(vm.PricePerFunds);
                             dbModel.Fee = vm.Fee;
                             dbModel.Currency = vm.Currency;
                             dbModel.ISIN = vm.ISIN;
                             dbModel.Account = vm.Account;
-                            dbModel.Amount = vm.HowMany * vm.PricePerFunds;
+                            dbModel.Amount = vm.HowMany * double.Parse(vm.PricePerFunds);
                             dbModel.TypeOfFund = vm.TypeOfFund;
                             dbModel.Note = vm.Note;
 
@@ -113,7 +113,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     {
                         model.HowMany += vm.HowMany;
                         model.Fee += vm.Fee;
-                        model.Amount += vm.HowMany * vm.PricePerFunds;
+                        model.Amount += vm.HowMany * double.Parse(vm.PricePerFunds);
                         model.Note += $"\r\n \r\nKöper mer fond delar för {vm.FundName}: \r\nImport: {importTrue} \r\nDatum: " +
                                       $"{vm.DateOfPurchase.ToString()[..10]} \r\nHur många: {vm.HowMany} \r\nPris per st: " +
                                       $"{vm.PricePerFunds} \r\nSumman: {model.Amount} " +
@@ -231,6 +231,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                         // Removes the bought fund that is moved to sold fund
                         Delete(db, getDbFundsPurchasedsModel, vm, import);
                     }
+                    
+                    // Selling parts of the shares
                     else
                     {
                         // Selling parts of the shares
@@ -377,13 +379,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesPurchasedFundId = model.SharesPurchasedFundId,
                 DateOfPurchase = date,
                 FundName = model.FundName,
-                HowMany = double.Round(model.HowMany, 2, MidpointRounding.AwayFromZero),
-                PricePerFunds = double.Round(model.PricePerFunds, 2, MidpointRounding.AwayFromZero),
+                HowMany = model.HowMany,
+                PricePerFunds = double.Round(model.PricePerFunds, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
                 Fee = model.Fee,
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.Account,
-                Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero),
+                Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
                 TypeOfFund = model.TypeOfFund,
                 Note = model.Note
             };
@@ -405,7 +407,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
+                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
             };
 
             return vm;
@@ -419,13 +421,13 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 DateOfPurchase = date,
                 FundName = model.CompanyOrInformation,
-                HowMany = double.Round(double.Parse(model.NumberOfSharesString), 2, MidpointRounding.AwayFromZero),
-                PricePerFunds = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
+                HowMany = double.Parse(model.NumberOfSharesString),
+                PricePerFunds = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
                 Fee = double.Parse(model.BrokerageString),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
+                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
             };
 
             return vm;
@@ -438,10 +440,10 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesPurchasedFundId = vm.SharesPurchasedFundId,
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 FundName = vm.FundName,
-                HowMany = double.Round(vm.HowMany, 2, MidpointRounding.AwayFromZero),
-                PricePerFunds = double.Round(vm.PricePerFunds, 2, MidpointRounding.AwayFromZero),
+                HowMany = vm.HowMany,
+                PricePerFunds = double.Round(double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero),
                 Fee = vm.Fee,
-                Amount = double.Round(vm.HowMany * vm.PricePerFunds, 2, MidpointRounding.AwayFromZero),
+                Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero),
                 ISIN = vm.ISIN,
                 Currency = vm.Currency,
                 Account = vm.Account,

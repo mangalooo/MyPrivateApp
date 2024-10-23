@@ -121,7 +121,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.MoneyProfitOrLossYear" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.MoneyProfitOrLossYear" class="form-control" disabled="@DisabledForm" />
                                 <label for="MoneyProfitOrLossYear"> Vinst/förlust </label>
                                 <ValidationMessage For="() => pageModel.MoneyProfitOrLossYear" class="text-danger" />
                             </div>
@@ -145,7 +145,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.SharesYear" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.SharesYear" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="SharesYear"> Aktier </label>
                                 <ValidationMessage For="() => pageModel.SharesYear" class="text-danger" />
                             </div>
@@ -153,7 +153,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.FundsYear" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.FundsYear" class="form-control" disabled="@DisabledForm" />
                                 <label for="FundsYear"> Fonder </label>
                                 <ValidationMessage For="() => pageModel.FundsYear" class="text-danger" />
                             </div>
@@ -161,7 +161,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.DividendYear" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.DividendYear" class="form-control" disabled="@DisabledForm" />
                                 <label for="DividendYear"> Utdelning </label>
                                 <ValidationMessage For="() => pageModel.DividendYear" class="text-danger" />
                             </div>
@@ -169,7 +169,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.InterestRatesYear" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.InterestRatesYear" class="form-control" disabled="@DisabledForm" />
                                 <label for="InterestRatesYear"> Ränta </label>
                                 <ValidationMessage For="() => pageModel.InterestRatesYear" class="text-danger" />
                             </div>
@@ -185,7 +185,7 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.FeeYear" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.FeeYear" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="FeeYear"> Skatt </label>
                                 <ValidationMessage For="() => pageModel.FeeYear" class="text-danger" />
                             </div>
@@ -193,7 +193,7 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.BrokerageYear" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.BrokerageYear" class="form-control" disabled="@DisabledForm" />
                                 <label for="BrokerageYear"> Courtage </label>
                                 <ValidationMessage For="() => pageModel.BrokerageYear" class="text-danger" />
                             </div>
@@ -233,6 +233,9 @@
                         <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true" />
                         <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLossYear)" Sortable="true" />
                         <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
+                        <PropertyColumn Title="Aktier" Property="@(c => c.SharesYear)" Sortable="true" />
+                        <PropertyColumn Title="Fonder" Property="@(c => c.FundsYear)" Sortable="true" />
+                        <PropertyColumn Title="Utdelning" Property="@(c => c.DividendYear)" Sortable="true" />
                         <TemplateColumn Title="Info">
 
                             <div class="btn-group" role="group">
@@ -464,12 +467,14 @@
         }
     }
 
-    private double GetTotalProfitsOrLosses()
+    private string GetTotalProfitsOrLosses()
     {
         SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = BackEndClass.GetTotalProfitsOrLosses(db, 1);
 
-        if (sharesTotalProfitsOrLosses == null) return 0;
+        if (sharesTotalProfitsOrLosses == null) return string.Empty;
 
-        return sharesTotalProfitsOrLosses.TotalProfitOrLoss;
+        string sum = sharesTotalProfitsOrLosses.TotalProfitOrLoss.ToString("#,##0.00");
+
+        return sum;
     }
 }

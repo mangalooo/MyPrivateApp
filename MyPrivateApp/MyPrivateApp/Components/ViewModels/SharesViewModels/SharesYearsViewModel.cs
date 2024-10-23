@@ -13,12 +13,12 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust")]
-        [DataType(DataType.Date)]
-        public double MoneyProfitOrLossYear { get; set; }
+        [DataType(DataType.Text)]
+        public string? MoneyProfitOrLossYear { get; set; }
 
         [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust i %")]
-        [DataType(DataType.Date)]
-        public double PercentProfitOrLossYear { get; set; }
+        [DataType(DataType.Text)]
+        public string? PercentProfitOrLossYear { get; set; }
     }
 }

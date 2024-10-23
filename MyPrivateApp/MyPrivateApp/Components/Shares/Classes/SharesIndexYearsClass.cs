@@ -176,13 +176,13 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 SharesProfitOrLossYearsId = model.SharesProfitOrLossYearsId,
                 Year = model.Year,
-                SharesYear = model.SharesYear,
-                FundsYear = model.FundsYear,
-                DividendYear = model.DividendYear,
-                InterestRatesYear = model.InterestRatesYear,
-                FeeYear = model.FeeYear,
-                BrokerageYear = model.BrokerageYear,
-                MoneyProfitOrLossYear = model.MoneyProfitOrLossYear,
+                SharesYear = model.SharesYear.ToString("#,##0.00"),
+                FundsYear = model.FundsYear.ToString("#,##0.00"),
+                DividendYear = model.DividendYear.ToString("#,##0.00"),
+                InterestRatesYear = model.InterestRatesYear.ToString("#,##0.00"),
+                FeeYear = model.FeeYear.ToString("#,##0.00"),
+                BrokerageYear = model.BrokerageYear.ToString("#,##0.00"),
+                MoneyProfitOrLossYear = model.MoneyProfitOrLossYear.ToString("#,##0.00"),
                 PercentProfitOrLossYear = model.PercentProfitOrLossYear,
                 Note = model.Note
             };
@@ -196,13 +196,13 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 SharesProfitOrLossYearsId = vm.SharesProfitOrLossYearsId,
                 Year = vm.Year,
-                SharesYear = vm.SharesYear,
-                FundsYear = vm.FundsYear,
-                DividendYear = vm.DividendYear,
-                InterestRatesYear = vm.InterestRatesYear,
-                FeeYear = vm.FeeYear,
-                BrokerageYear = vm.BrokerageYear,
-                MoneyProfitOrLossYear = vm.MoneyProfitOrLossYear,
+                SharesYear = double.Parse(vm.SharesYear),
+                FundsYear = double.Parse(vm.FundsYear),
+                DividendYear = double.Parse(vm.DividendYear),
+                InterestRatesYear = double.Parse(vm.InterestRatesYear),
+                FeeYear = double.Parse(vm.FeeYear),
+                BrokerageYear = double.Parse(vm.BrokerageYear),
+                MoneyProfitOrLossYear = double.Parse(vm.MoneyProfitOrLossYear),
                 PercentProfitOrLossYear = vm.PercentProfitOrLossYear,
                 Note = vm.Note
             };

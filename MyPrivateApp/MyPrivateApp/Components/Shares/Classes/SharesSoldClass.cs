@@ -15,7 +15,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) && !string.IsNullOrEmpty(vm.ISIN) &&
-                        vm.HowMany > 0 && vm.PricePerShares > 0 && vm.Brokerage > 0)
+                        vm.HowMany > 0 && string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0)
                 {
                     SharesSolds model = ChangeFromViewModelToModel(vm);
 
@@ -53,7 +53,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) && !string.IsNullOrEmpty(vm.ISIN) &&
-                    vm.HowMany > 0 && vm.PricePerShares > 0 && vm.Brokerage > 0 && vm.DateOfSold != DateTime.MinValue && vm.PricePerSharesSold > 0)
+                    vm.HowMany > 0 && string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0 && vm.DateOfSold != DateTime.MinValue && string.IsNullOrEmpty(vm.PricePerSharesSold))
                 {
                     try
                     {
@@ -132,18 +132,18 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesSoldId = model.SharesSoldId,
                 DateOfPurchase = dateOfPurchase,
                 DateOfSold = dateOfSold,
-                Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero),
-                AmountSold = double.Round(model.AmountSold, 2, MidpointRounding.AwayFromZero),
+                Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
+                AmountSold = double.Round(model.AmountSold, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
                 CompanyName = model.CompanyName,
                 HowMany = model.HowMany,
-                PricePerShares = double.Round(model.PricePerShares, 2, MidpointRounding.AwayFromZero),
-                PricePerSharesSold = double.Round(model.PricePerSharesSold, 2, MidpointRounding.AwayFromZero),
+                PricePerShares = double.Round(model.PricePerShares, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
+                PricePerSharesSold = double.Round(model.PricePerSharesSold, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.Account,
                 Brokerage = model.Brokerage,
                 TypeOfShares = model.TypeOfShares,
-                MoneyProfitOrLoss = double.Round(model.MoneyProfitOrLoss, 2, MidpointRounding.AwayFromZero),
+                MoneyProfitOrLoss = double.Round(model.MoneyProfitOrLoss, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
                 PercentProfitOrLoss = model.PercentProfitOrLoss,
                 Note = model.Note
             };
@@ -158,12 +158,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesSoldId = vm.SharesSoldId,
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd"),
-                Amount = double.Round(vm.HowMany * vm.PricePerShares, 2, MidpointRounding.AwayFromZero),
-                AmountSold = double.Round(vm.HowMany * vm.PricePerSharesSold, 2, MidpointRounding.AwayFromZero),
+                Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
+                AmountSold = double.Round(vm.HowMany * int.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero),
                 CompanyName = vm.CompanyName,
                 HowMany = vm.HowMany,
-                PricePerShares = double.Round(vm.PricePerShares, 2, MidpointRounding.AwayFromZero),
-                PricePerSharesSold = double.Round(vm.PricePerSharesSold, 2, MidpointRounding.AwayFromZero),
+                PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
+                PricePerSharesSold = double.Round(double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero),
                 Brokerage = vm.Brokerage,
                 Currency = vm.Currency,
                 ISIN = vm.ISIN,

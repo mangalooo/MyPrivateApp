@@ -158,7 +158,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.Amount" class="form-control" disabled="true" />
+                                <InputText @bind-Value="pageModel.Amount" class="form-control" disabled="true" />
                                 <label for="Amount"> Inköpsvärdet </label>
                                 <ValidationMessage For="() => pageModel.Amount" class="text-danger" />
                             </div>
@@ -166,7 +166,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.PricePerShares" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.PricePerShares" class="form-control" disabled="@DisabledForm" />
                                 <label for="PricePerShares"> Pris per köpt aktie </label>
                                 <ValidationMessage For="() => pageModel.PricePerShares" class="text-danger" />
                             </div>
@@ -196,7 +196,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.AmountSold" class="form-control" disabled="true" />
+                                <InputText @bind-Value="pageModel.AmountSold" class="form-control" disabled="true" />
                                 <label for="AmountSold"> Säljvärdet </label>
                                 <ValidationMessage For="() => pageModel.AmountSold" class="text-danger" />
                             </div>
@@ -205,7 +205,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.PricePerSharesSold" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.PricePerSharesSold" class="form-control" disabled="@DisabledForm" />
                                 <label for="PricePerSharesSold"> Pris per såld aktie </label>
                                 <ValidationMessage For="() => pageModel.PricePerSharesSold" class="text-danger" />
                             </div>
@@ -228,7 +228,7 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.MoneyProfitOrLoss" class="form-control" disabled="true" />
+                                <InputText @bind-Value="pageModel.MoneyProfitOrLoss" class="form-control" disabled="true" />
                                 <label for="MoneyProfitOrLoss"> Vinst/förlust </label>
                                 <ValidationMessage For="() => pageModel.MoneyProfitOrLoss" class="text-danger" />
                             </div>

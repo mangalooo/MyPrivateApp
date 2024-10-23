@@ -20,54 +20,50 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Required(ErrorMessage = "Shares_Error_Amount")]
         [Display(Name = "Inköpsvärdet")]
-        [DataType(DataType.Currency)]
-        public double Amount { get; set; }
+        [DataType(DataType.Text)]
+        public string? Amount { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad aktien kostade totalt")]
         [Display(Name = "Säljvärdet")]
-        [DataType(DataType.Currency)]
-        public double AmountSold { get; set; }
+        [DataType(DataType.Text)]
+        public string? AmountSold { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Fond namn")]
         [DataType(DataType.Text)]
         public string? FundName { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Typ av fond")]
         [DataType(DataType.Text)]
         public string? TypeOfFund { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Antal")]
+        [DataType(DataType.Text)]
         public double HowMany { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad fonden kostade per styck")]
         [Display(Name = "Pris per fond")]
-        [DataType(DataType.Currency)]
-        public double PricePerFunds{ get; set; }
+        [DataType(DataType.Text)]
+        public string? PricePerFunds{ get; set; }
 
         [Required(ErrorMessage = "Skriv in vad fonden såldes per styck")]
         [Display(Name = "Pris per såld fond")]
-        [DataType(DataType.Currency)]
-        public double PricePerFundsSold { get; set; }
+        [DataType(DataType.Text)]
+        public string? PricePerFundsSold { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust")]
-        [DataType(DataType.Currency)]
-        public double MoneyProfitOrLoss { get; set; }
+        [DataType(DataType.Text)]
+        public string? MoneyProfitOrLoss { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Vinst/förlust i %")]
+        [DataType(DataType.Text)]
         public string? PercentProfitOrLoss { get; set; }
 
-        [ScaffoldColumn(false)]
         [Display(Name = "Avgift")]
-        [DataType(DataType.Currency)]
+        [DataType(DataType.Text)]
         public double Fee { get; set; }
 
         [Display(Name = "Konto")]
-        [DataType(DataType.Currency)]
+        [DataType(DataType.Text)]
         public string? Account { get; set; }
 
         [Display(Name = "Valuta")]

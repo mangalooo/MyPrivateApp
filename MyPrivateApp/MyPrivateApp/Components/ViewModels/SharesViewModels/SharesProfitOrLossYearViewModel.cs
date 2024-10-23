@@ -12,32 +12,32 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public string? Year { get; set; }
 
         [Display(Name = "Aktier")]
-        [DataType(DataType.Currency)]
-        public double SharesYear { get; set; }
+        [DataType(DataType.Text)]
+        public string? SharesYear { get; set; }
 
         [Display(Name = "Fonder")]
-        [DataType(DataType.Currency)]
-        public double FundsYear { get; set; }
+        [DataType(DataType.Text)]
+        public string? FundsYear { get; set; }
 
         [Display(Name = "Utdelning")]
-        [DataType(DataType.Currency)]
-        public double DividendYear { get; set; }
+        [DataType(DataType.Text)]
+        public string? DividendYear { get; set; }
 
         [Display(Name = "Ränta")]
-        [DataType(DataType.Currency)]
-        public double InterestRatesYear { get; set; }
+        [DataType(DataType.Text)]
+        public string? InterestRatesYear { get; set; }
 
         [Display(Name = "Skatt")]
-        [DataType(DataType.Currency)]
-        public double FeeYear { get; set; } // Tax
+        [DataType(DataType.Text)]
+        public string? FeeYear { get; set; } // Tax
 
         [Display(Name = "Courtage")]
-        [DataType(DataType.Currency)]
-        public double BrokerageYear { get; set; }
+        [DataType(DataType.Text)]
+        public string? BrokerageYear { get; set; }
 
         [Display(Name = "Vinst/förlust")]
-        [DataType(DataType.Currency)]
-        public double MoneyProfitOrLossYear { get; set; } // ( Årets alla: (säljvärden: aktiar och fonder + utdelningar + ränta) - (köp värderna + skatt + avgifter) )
+        [DataType(DataType.Text)]
+        public string? MoneyProfitOrLossYear { get; set; } // ( Årets alla: (säljvärden: aktiar och fonder + utdelningar + ränta) - (köp värderna + skatt + avgifter) )
 
         [Display(Name = "Vinst/förlust i %")]
         [DataType(DataType.Text)]

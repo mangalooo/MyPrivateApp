@@ -14,8 +14,8 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public DateTime Date { get; set; }
 
         [Display(Name = "Belopp")]
-        [DataType(DataType.Currency)]
-        public double DepositMoney { get; set; }
+        [DataType(DataType.Text)]
+        public string? DepositMoney { get; set; }
 
         [Display(Name = "In- eller utbetalningar")]
         [DataType(DataType.Text)]

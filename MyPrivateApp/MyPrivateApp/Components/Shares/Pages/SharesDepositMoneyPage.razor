@@ -141,7 +141,7 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.DepositMoney" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageModel.DepositMoney" class="form-control" disabled="@DisabledForm" />
                                 <label for="DepositMoney"> Belopp </label>
                                 <ValidationMessage For="() => pageModel.DepositMoney" class="text-danger" />
                             </div>

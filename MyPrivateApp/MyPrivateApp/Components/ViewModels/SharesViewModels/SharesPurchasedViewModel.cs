@@ -21,22 +21,23 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Required(ErrorMessage = "Skriv hur många aktier")]
         [Display(Name = "Antal")]
+        [DataType(DataType.Text)]
         public int HowMany { get; set; }
 
-        [Required(ErrorMessage = "Skriv in pris per aktie")]
+        [Required(ErrorMessage = "Skriv in pris per aktie")] 
         [Display(Name = "Pris per aktie")]
-        [DataType(DataType.Currency)]
-        public double PricePerShares { get; set; }
+        [DataType(DataType.Text)]
+        public string? PricePerShares { get; set; }
 
         [Required(ErrorMessage = "Skriv in courtage")]
         [Display(Name = "Courtage")]
-        [DataType(DataType.Currency)]
-        public double Brokerage { get; set; } //courtage, köp kostnad
+        [DataType(DataType.Text)]
+        public double Brokerage { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad aktien kostade totalt")]
         [Display(Name = "Inköpsvärdet")]
-        [DataType(DataType.Currency)]
-        public double Amount { get; set; } // totalbelopp
+        [DataType(DataType.Text)]
+        public string? Amount { get; set; }
 
         [Display(Name = "Typ av aktie")]
         [DataType(DataType.Text)]
@@ -61,7 +62,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         // Add more
         [Display(Name = "Köp mer: Datum")]
         [DataType(DataType.Date)]
-        public DateTime MoreDateOfPurchase { get; set; } //  Köp datum
+        public DateTime MoreDateOfPurchase { get; set; }
 
         [Display(Name = "Köp mer: Antal")]
         public int MoreHowMany { get; set; }
@@ -72,12 +73,12 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Köp mer: Courtage")]
         [DataType(DataType.Currency)]
-        public int MoreBrokerage { get; set; } //courtage, köp kostnad
+        public int MoreBrokerage { get; set; }
 
         // Sale
         [Display(Name = "Sälj: Datum")]
         [DataType(DataType.Date)]
-        public DateTime SaleDateOfPurchase { get; set; } //  Köp datum
+        public DateTime SaleDateOfPurchase { get; set; }
 
         [Display(Name = "Sälj: Antal")]
         public int SaleHowMany { get; set; }
@@ -88,6 +89,6 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Sälj: Courtage")]
         [DataType(DataType.Currency)]
-        public double SaleBrokerage { get; set; } //courtage, köp kostnad
+        public double SaleBrokerage { get; set; }
     }
 }

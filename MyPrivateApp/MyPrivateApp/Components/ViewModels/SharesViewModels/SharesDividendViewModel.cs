@@ -35,12 +35,12 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv in pris per aktie")]
         [Display(Name = "Kurs")]
         [DataType(DataType.Text)]
-        public double PricePerShare { get; set; }
+        public string? PricePerShare { get; set; }
 
         [Required(ErrorMessage = "Skriv in total summa")]
         [Display(Name = "Belopp")]
         [DataType(DataType.Text)]
-        public double TotalAmount { get; set; }
+        public string? TotalAmount { get; set; }
 
         [Required(ErrorMessage = "Skriv in courtage")]
         [Display(Name = "Courtage")]
