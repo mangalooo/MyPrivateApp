@@ -53,7 +53,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) && !string.IsNullOrEmpty(vm.ISIN) &&
-                    vm.HowMany > 0 && string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0 && vm.DateOfSold != DateTime.MinValue && string.IsNullOrEmpty(vm.PricePerSharesSold))
+                    vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0 && vm.DateOfSold != DateTime.MinValue && !string.IsNullOrEmpty(vm.PricePerSharesSold))
                 {
                     try
                     {
@@ -87,7 +87,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", import, ex.Message);
+                        return $"Ändra felmeddelande: {ex.Message}";
                     }
                 }
                 else
@@ -159,7 +159,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd"),
                 Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
-                AmountSold = double.Round(vm.HowMany * int.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero),
+                AmountSold = double.Round(vm.HowMany * double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero),
                 CompanyName = vm.CompanyName,
                 HowMany = vm.HowMany,
                 PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),

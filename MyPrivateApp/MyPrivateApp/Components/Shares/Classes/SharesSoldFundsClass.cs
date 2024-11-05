@@ -86,7 +86,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra", import, ex.Message);
+                        return $"Ändra felmeddelande: {ex.Message}";
                     }
                 }
                 else

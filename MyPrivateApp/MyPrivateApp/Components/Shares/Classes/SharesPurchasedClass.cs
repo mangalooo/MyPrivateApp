@@ -227,13 +227,14 @@ namespace MyPrivateApp.Components.Shares.Classes
                             PricePerSharesSold = vm.SalePricePerShares,
                             AmountSold = vm.SalePricePerShares * vm.SaleHowMany,
                             Note = $"{getDbSharesPurchasedsModel.Note}" +
-                                   $"\r\n\r\nSålt: " +
+                                   $"\r\n\r\nSåld: " +
                                    $"\r\nBolag: {getDbSharesPurchasedsModel.CompanyName}" +
                                    $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} " +
                                    $"\r\nHur många: {vm.SaleHowMany}" +
                                    $"\r\nPris per st: {vm.SalePricePerShares} " +
                                    $"\r\nSälj värdet: {vm.SaleHowMany * vm.SalePricePerShares}" +
-                                   $"\r\nCourtage: {getDbSharesPurchasedsModel.Brokerage + vm.SaleBrokerage} " +
+                                   $"\r\nCourtage: {vm.SaleBrokerage} " +
+                                   $"\r\nTotal courtage: {getDbSharesPurchasedsModel.Brokerage + vm.SaleBrokerage} " +
                                    $"\r\nImport: {importTrue} "
                         };
 
