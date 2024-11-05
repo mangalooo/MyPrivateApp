@@ -230,7 +230,14 @@
                 <div id="desktop" class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true" />
+                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchYear" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
                         <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLossYear)" Sortable="true" />
                         <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
                         <PropertyColumn Title="Aktier" Property="@(c => c.SharesYear)" Sortable="true" />
@@ -283,7 +290,14 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true" />
+                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchYear" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
                         <PropertyColumn Title="%" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
                         <TemplateColumn Title="Info">
 
@@ -476,5 +490,32 @@
         string sum = sharesTotalProfitsOrLosses.TotalProfitOrLoss.ToString("#,##0.00");
 
         return sum;
+    }
+
+    private void SetQuery(IEnumerable<SharesProfitOrLossYears> result)
+    {
+        queryable = Enumerable.Empty<SharesProfitOrLossYearViewModel>().AsQueryable();
+
+        if (result.Count() == 0) return;
+
+        if (result.Any())
+            foreach (SharesProfitOrLossYears model in result.OrderBy(c => c.SharesProfitOrLossYearsId))
+            {
+                SharesProfitOrLossYearViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+                queryable = queryable.Concat(new[] { vm }.AsQueryable());
+            }
+    }
+
+    private void SearchYear(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<SharesProfitOrLossYears> result = db.SharesProfitOrLossYears.Where(c => c.Year!.Contains(e.Value!.ToString()!));
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
     }
 }
