@@ -291,10 +291,32 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
-                        <PropertyColumn Title="Inköpsdatum" Property="@(c => c.DateOfPurchase)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Namn" Property="@(c => c.CompanyName)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchCompany" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Inköpsdatum" Property="@(c => c.DateOfPurchase)" Format="yyyy-MM-dd" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchPurchasedDate" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Säljsdatum" Property="@(c => c.DateOfSold)" Format="yyyy-MM-dd" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchSoldDate" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        
                         <PropertyColumn Title="Inköpsvärdet" Property="@(c => c.Amount)" Sortable="true" />
-                        <PropertyColumn Title="Säljsdatum" Property="@(c => c.DateOfSold)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Säljvärdet" Property="@(c => c.AmountSold)" Sortable="true" />
                         <PropertyColumn Title="Antal" Property="@(c => c.HowMany)" Sortable="true" />
                         <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
@@ -349,7 +371,13 @@
                     <div class="card-body">
                         <QuickGrid Items="@queryable" Pagination="pagination">
 
-                            <PropertyColumn Title="Företag" Property="@(c => c.CompanyName)" Sortable="true" />
+                            <PropertyColumn Title="Namn" Property="@(c => c.CompanyName)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchCompany" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
                             <PropertyColumn Title="%" Property="@(c => c.PercentProfitOrLoss)" Sortable="true" />
 
                             <TemplateColumn Title="Info">
@@ -451,7 +479,7 @@
         foreach (SharesSolds model in db.SharesSolds.OrderBy(c => c.SharesSoldId))
         {
             SharesSoldViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.DateOfPurchase);
+            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.DateOfSold);
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
@@ -572,5 +600,58 @@
         ModalClass = "";
         ShowBackdrop = false;
         StateHasChanged();
+    }
+
+    private void SetQuery(IEnumerable<SharesSolds> result)
+    {
+        queryable = Enumerable.Empty<SharesSoldViewModel>().AsQueryable();
+
+        if (result.Count() == 0) return;
+
+        if (result.Any())
+            foreach (SharesSolds model in result.OrderBy(c => c.SharesSoldId))
+            {
+                SharesSoldViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+                queryable = queryable.Concat(new[] { vm }.AsQueryable());
+            }
+    }
+
+    private void SearchCompany(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<SharesSolds> result = db.SharesSolds.Where(c => c.CompanyName!.Contains(e.Value!.ToString()!));
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchPurchasedDate(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<SharesSolds> result = db.SharesSolds.Where(c => c.DateOfPurchase!.Contains(e.Value!.ToString()!));
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchSoldDate(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IEnumerable<SharesSolds> result = db.SharesSolds.Where(c => c.DateOfSold!.Contains(e.Value!.ToString()!));
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
     }
 }
