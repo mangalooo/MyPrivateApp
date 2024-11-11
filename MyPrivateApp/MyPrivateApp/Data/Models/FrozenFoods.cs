@@ -16,6 +16,10 @@ namespace MyPrivateApp.Data.Models
         [StringLength(50)]
         public string? Name { get; set; }
 
+        [DataType(DataType.Text)]
+        [StringLength(50)]
+        public string? Type { get; set; }
+
         public int Number { get; set; }
 
         [DataType(DataType.Text)]
@@ -30,7 +34,7 @@ namespace MyPrivateApp.Data.Models
         [StringLength(50)]
         public FreezerFrozenGoods FrozenGoods { get; set; } //Frysvaror
 
-        public int Weight { get; set; }
+        public double Weight { get; set; }
 
         [DataType(DataType.MultilineText)]
         [StringLength(500)]

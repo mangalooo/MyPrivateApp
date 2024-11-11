@@ -2,6 +2,9 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
+using Hangfire;
+using MyPrivateApp.Components.Email.Classes;
+using MyPrivateApp.Components.Enum;
 
 namespace MyPrivateApp.Components.FrozenFood.Classes
 {
@@ -31,11 +34,11 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                 }
                 else
                     return "Ingen datum eller namn ifyllt!";
-                
+
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            
+
 
             return string.Empty;
         }
@@ -54,6 +57,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                         {
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
                             getDbModel.Name = vm.Name;
+                            getDbModel.Type = vm.Type;
                             getDbModel.Number = vm.Number;
                             getDbModel.Place = vm.Place;
                             getDbModel.FreezerCompartment = vm.FreezerCompartment;
@@ -111,6 +115,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             {
                 FrozenFoodId = model.FrozenFoodsId,
                 Name = model.Name,
+                Type = model.Type,
                 Date = date,
                 Number = model.Number,
                 Place = model.Place,
@@ -129,6 +134,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             {
                 FrozenFoodsId = vm.FrozenFoodId,
                 Name = vm.Name,
+                Type = vm.Type,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 Number = vm.Number,
                 Place = vm.Place,
@@ -139,6 +145,97 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             };
 
             return frozenFood;
+        }
+
+        public int HowLongTimeInFreezer(DateTime date)
+        {
+            int days = (DateTime.Now - date).Days;
+            int result = days / 365;
+
+            return result;
+        }
+
+        private static void SendEmailTo(EmailSender emailSender, string getName, FrozenFoods item, string mailFreezer)
+        {
+            string getPlace = string.Empty;
+
+            foreach (int frozenGoods in Enum.FreezerPlaces.GetValues(typeof(FreezerPlaces)))
+            {
+                Type enumType = typeof(FreezerPlaces);
+                getPlace = Enum.FreezerPlaces.GetName(enumType, frozenGoods).ToLower();
+
+                if (frozenGoods == (int)item.Place)
+                    break;
+            }
+
+            BackgroundJob.Schedule(() => emailSender.SendEmailFreezer(
+                                "Utgående frysvara", 
+                                mailFreezer, 
+                                $"{getName.ToUpper()} {item.Type} {item.Name}",
+                                $"Datum: {item.Date} \r\nPlats: {getPlace.ToUpper()} \r\nFack: {item.FreezerCompartment} \r\nAntal: {item.Number}",
+                                mailFreezer),
+                                new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
+        }
+
+        public void GetOutgoingFrosenFood(ApplicationDbContext db)
+        {
+            if (!db.FrozenFoods.Any()) return;
+
+            EmailSender emailSender = new();
+
+            IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
+            string mailFreezer = config.GetSection("AppSettings")["mailFreezer"];
+
+            foreach (FrozenFoods item in db.FrozenFoods)
+            {
+                if (!string.IsNullOrEmpty(mailFreezer))
+                {
+                    DateTime date = Convert.ToDateTime(item.Date);
+                    string getName = string.Empty;
+
+                    foreach (int frozenGoods in Enum.FreezerFrozenGoods.GetValues(typeof(FreezerFrozenGoods)))
+                    {
+                        Type enumType = typeof(FreezerFrozenGoods);
+                        getName = Enum.FreezerFrozenGoods.GetName(enumType, frozenGoods).ToLower();
+
+                        if (frozenGoods == (int)item.FrozenGoods)
+                            break;
+                    }
+
+                    switch (getName)
+                    {
+                        case "hare":
+                            if (HowLongTimeInFreezer(date) == 5)
+                                SendEmailTo(emailSender, getName, item, mailFreezer);
+                            break;
+
+                        case "ko":
+                            if (HowLongTimeInFreezer(date) == 5)
+                                SendEmailTo(emailSender, getName, item, mailFreezer);
+                            break;
+
+                        case "rådjur":
+                            if (HowLongTimeInFreezer(date) == 5)
+                                SendEmailTo(emailSender, getName, item, mailFreezer);
+                            break;
+
+                        case "vildsvin":
+                            if (HowLongTimeInFreezer(date) == 3)
+                                SendEmailTo(emailSender, getName, item, mailFreezer);
+                            break;
+
+                        case "älg":
+                            if (HowLongTimeInFreezer(date) == 5)
+                                SendEmailTo(emailSender, getName, item, mailFreezer);
+                            break;
+
+                        case "övrigt":
+                            if (HowLongTimeInFreezer(date) == 5)
+                                SendEmailTo(emailSender, getName, item, mailFreezer);
+                            break;
+                    }
+                }
+            }
         }
     }
 }

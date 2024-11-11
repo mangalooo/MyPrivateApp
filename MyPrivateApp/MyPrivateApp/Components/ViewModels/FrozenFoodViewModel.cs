@@ -11,6 +11,10 @@ namespace MyPrivateApp.Client.ViewModels
         [DataType(DataType.Text)]
         public string? Name { get; set; }
 
+        [Display(Name = "Typ")]
+        [DataType(DataType.Text)]
+        public string? Type { get; set; }
+
         [Display(Name = "Antal ")]
         public int Number { get; set; }
 
@@ -28,7 +32,7 @@ namespace MyPrivateApp.Client.ViewModels
         public FreezerFrozenGoods FrozenGoods { get; set; } 
 
         [Display(Name = "Vikt (gram)")]
-        public int Weight { get; set; }
+        public double Weight { get; set; }
 
         [Display(Name = "Anteckning")]
         [DataType(DataType.MultilineText)]

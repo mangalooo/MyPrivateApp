@@ -11,5 +11,6 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
         string Edit(ApplicationDbContext db, FrozenFoodViewModel vm);
         string Delete(ApplicationDbContext db, FrozenFoodViewModel vm, bool import);
         FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model);
+        int HowLongTimeInFreezer(DateTime date);
     }
 }

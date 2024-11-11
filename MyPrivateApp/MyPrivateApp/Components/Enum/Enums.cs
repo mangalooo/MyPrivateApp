@@ -111,7 +111,7 @@ namespace MyPrivateApp.Components.Enum
 
     public enum HuntingTodo
     {
-        Välj,
+        Inget,
         Bygga,
         Flytta,
         Reparera,

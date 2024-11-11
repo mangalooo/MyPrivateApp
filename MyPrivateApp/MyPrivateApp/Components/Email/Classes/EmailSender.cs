@@ -34,10 +34,10 @@ namespace MyPrivateApp.Components.Email.Classes
 
         public void SendEmailFreezer(string emailTitle, string sendFrom, string subject, string text, string sendFrom2)
         {
-            string mail = AppSettings["mail"];
-            string emailPassword2 = AppSettings["emailPassword2"];
-            string connect = AppSettings["connect"];
-            string port = AppSettings["port"];
+            string mail = config.GetSection("AppSettings")["mail"];
+            string emailPassword2 = config.GetSection("AppSettings")["emailPassword2"];
+            string connect = config.GetSection("AppSettings")["connect"];
+            string port = config.GetSection("AppSettings")["port"];
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(emailTitle, sendFrom));

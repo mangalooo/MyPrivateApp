@@ -144,7 +144,11 @@ app.MapAdditionalIdentityEndpoints();
 app.UseHangfireDashboard("/hangfire");
 
 // Sends automatic email if a contact has birthday
-//ContactClass contactClass = new();
-//contactClass.GetBirthday(db);
+ContactClass contactClass = new();
+contactClass.GetBirthday(db);
+
+// Sends automatic email if a the frozen food has past time.
+FrozenFoodClass frozenFoodClass = new();
+frozenFoodClass.GetOutgoingFrosenFood(db);
 
 app.Run();
