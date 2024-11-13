@@ -770,13 +770,16 @@
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
             string getName = string.Empty;
+            string target = e.Value.ToString();
 
-            foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+            foreach (int huntingTodo in Enum.GetValues(typeof(HuntingTodo)))
             {
-                getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
+                getName = Enum.GetName(typeof(HuntingTodo), huntingTodo);
 
-                if (getName == e.Value.ToString().ToLower())
+                if (getName.ToLower() == target.ToLower())
                     break;
+                else
+                    getName = string.Empty;
             }
 
             if (getName != string.Empty)
@@ -806,6 +809,10 @@
 
                     case "övrigt":
                         result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Övrigt);
+                        break;
+
+                    case "ny":
+                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Ny);
                         break;
                 }
 
@@ -916,16 +923,11 @@
 
     private void SearchTownNumber(ChangeEventArgs e)
     {
-        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
-
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            string result = e.Value!.ToString();
+            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.Number!.Contains(e.Value!.ToString()!));
 
-            HuntingTowerInspection model = db.HuntingTowerInspections.FirstOrDefault(a => a.Number == result);
-            HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat((new[] { vm }).AsQueryable());
-
+            SetQuery(result);
             return;
         }
 

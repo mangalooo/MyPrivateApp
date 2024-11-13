@@ -147,32 +147,23 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             return frozenFood;
         }
 
-        public int HowLongTimeInFreezer(DateTime date)
+        public double HowLongTimeInFreezer(DateTime date)
         {
-            int days = (DateTime.Now - date).Days;
-            int result = days / 365;
+            double days = (DateTime.Now - date).Days;
+            double result = days / 365;
 
-            return result;
+            return double.Round(result, 2, MidpointRounding.AwayFromZero);
         }
 
         private static void SendEmailTo(EmailSender emailSender, string getName, FrozenFoods item, string mailFreezer)
         {
-            string getPlace = string.Empty;
-
-            foreach (int frozenGoods in Enum.FreezerPlaces.GetValues(typeof(FreezerPlaces)))
-            {
-                Type enumType = typeof(FreezerPlaces);
-                getPlace = Enum.FreezerPlaces.GetName(enumType, frozenGoods).ToLower();
-
-                if (frozenGoods == (int)item.Place)
-                    break;
-            }
+            if (emailSender == null) return;
 
             BackgroundJob.Schedule(() => emailSender.SendEmailFreezer(
                                 "Utgående frysvara", 
                                 mailFreezer, 
                                 $"{getName.ToUpper()} {item.Type} {item.Name}",
-                                $"Datum: {item.Date} \r\nPlats: {getPlace.ToUpper()} \r\nFack: {item.FreezerCompartment} \r\nAntal: {item.Number}",
+                                $"Datum: {item.Date} \r\nPlats: {item.Place} \r\nFack: {item.FreezerCompartment} \r\nAntal: {item.Number}",
                                 mailFreezer),
                                 new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
         }
@@ -205,32 +196,32 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                     switch (getName)
                     {
                         case "hare":
-                            if (HowLongTimeInFreezer(date) == 5)
+                            if (HowLongTimeInFreezer(date) == 6)
                                 SendEmailTo(emailSender, getName, item, mailFreezer);
                             break;
 
                         case "ko":
-                            if (HowLongTimeInFreezer(date) == 5)
+                            if (HowLongTimeInFreezer(date) == 6)
                                 SendEmailTo(emailSender, getName, item, mailFreezer);
                             break;
 
                         case "rådjur":
-                            if (HowLongTimeInFreezer(date) == 5)
+                            if (HowLongTimeInFreezer(date) == 6)
                                 SendEmailTo(emailSender, getName, item, mailFreezer);
                             break;
 
                         case "vildsvin":
-                            if (HowLongTimeInFreezer(date) == 3)
+                            if (HowLongTimeInFreezer(date) == 4)
                                 SendEmailTo(emailSender, getName, item, mailFreezer);
                             break;
 
                         case "älg":
-                            if (HowLongTimeInFreezer(date) == 5)
+                            if (HowLongTimeInFreezer(date) == 6)
                                 SendEmailTo(emailSender, getName, item, mailFreezer);
                             break;
 
                         case "övrigt":
-                            if (HowLongTimeInFreezer(date) == 5)
+                            if (HowLongTimeInFreezer(date) == 2)
                                 SendEmailTo(emailSender, getName, item, mailFreezer);
                             break;
                     }

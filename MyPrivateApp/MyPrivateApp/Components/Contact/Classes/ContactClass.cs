@@ -1,4 +1,5 @@
-﻿using MyPrivateApp.Client.ViewModels;
+﻿
+using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data;
 using Hangfire;

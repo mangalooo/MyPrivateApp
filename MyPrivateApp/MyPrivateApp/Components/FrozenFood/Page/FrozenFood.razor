@@ -19,14 +19,12 @@
 <div>
 
     <br />
-    <br />
 
     <h1 style="text-align:center"> Frysvaror </h1>
 
     <br />
-    <br />
 
-    <h3 style="text-align:center">Totalt belopp: @GetTotalWeight() kg</h3>
+    <h3 style="text-align:center">Total vikt: @GetTotalWeight() kg</h3>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
@@ -229,7 +227,7 @@
 
                         <PropertyColumn Title="Frysfack" Property="@(c => c.FreezerCompartment)" Sortable="true" />
 
-                        <PropertyColumn Title="Vikt" Property="@(c => c.Weight)" Sortable="true" />
+                        <PropertyColumn Title="Vikt (gram)" Property="@(c => c.Weight)" Sortable="true" />
 
                         <PropertyColumn Title="Antal" Property="@(c => c.Number)" Sortable="true" />
 
@@ -253,7 +251,7 @@
                                             <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort frysvaran </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -279,7 +277,7 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
+                    <QuickGrid Items="@queryable">
 
                         <PropertyColumn Title="Varor" Property="@(c => c.FrozenGoods)" Sortable="true">
                             <ColumnOptions>
@@ -311,7 +309,7 @@
                                             <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort kontakt </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort frysvaran </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -518,7 +516,7 @@
     {
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.Name == e.Value!.ToString());
+            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.Name.Contains(e.Value!.ToString()));
             queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
 
             if (result.Count() == 0) return;
@@ -551,6 +549,8 @@
 
                 if (getName == e.Value.ToString().ToLower())
                     break;
+                else
+                    getName = string.Empty;
             }
 
             if (getName != string.Empty)

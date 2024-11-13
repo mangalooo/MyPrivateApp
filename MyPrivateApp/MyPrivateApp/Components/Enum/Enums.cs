@@ -116,6 +116,7 @@ namespace MyPrivateApp.Components.Enum
         Flytta,
         Reparera,
         Röja,
-        Övrigt
+        Övrigt,
+        Ny
     }
 }
