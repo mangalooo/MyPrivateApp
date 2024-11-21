@@ -315,8 +315,9 @@
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
-                        <PropertyColumn Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
                         <PropertyColumn Title="Dagar i klubben" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
+                        <PropertyColumn Title="Inköpsbelopp" Property="@(c => c.PurchaseAmount)" Sortable="true" />
+                        <PropertyColumn Title="Nummer" Property="@(c => c.Number)" Sortable="true" />
                         <PropertyColumn Title="Total kostnad" Property="@(c => BackEndClass.TotalCost(c.PurchasedDate, c.Salary, c.PurchaseAmount, c.TrainingModeTotalCost, c.SaleCharge))" Sortable="true" />
                         <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
 
@@ -370,7 +371,8 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Dagar i klubben" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
+                        <PropertyColumn Title="D" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
+                        <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
