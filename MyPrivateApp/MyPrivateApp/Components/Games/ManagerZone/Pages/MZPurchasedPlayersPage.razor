@@ -370,7 +370,7 @@
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true" />
-                        <PropertyColumn Title="D" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
+                        <PropertyColumn Title="Dagar" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
                         
                         <TemplateColumn Title="Info">
 
