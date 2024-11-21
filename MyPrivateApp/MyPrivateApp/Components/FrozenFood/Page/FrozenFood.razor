@@ -198,6 +198,34 @@
 
             @* View - Desktop *@
             <div id="desktop">
+
+                <br />
+
+                <div align="center">
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Rådjur <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchDeer">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Vildsvin <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchWildboar">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Älg <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchMoose">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Övrigt <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchOther">
+                        </label>
+                    </div>
+                </div>
+
+                <br />
+
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
@@ -277,6 +305,45 @@
             @* View - Mobile *@
             <div id="mobile">
                 <div class="card-body">
+
+                    <br />
+
+                    <div class="row" align="center">
+                        <div class="form-check-inline">
+
+                            <label class="form-check-label">
+                                Rådjur <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchDeer">
+                            </label>
+
+                            &nbsp;&nbsp;
+
+                            <label class="form-check-label">
+                                Vildsvin <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchWildboar">
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row" align="center">
+                        <div class="form-check-inline">
+
+                            <label class="form-check-label">
+                                Älg <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchMoose">
+                            </label>
+
+                            &nbsp;&nbsp;
+
+                            <label class="form-check-label">
+                                Övrigt <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchOther">
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <br />
+
                     <QuickGrid Items="@queryable">
 
                         <PropertyColumn Title="Varor" Property="@(c => c.FrozenGoods)" Sortable="true">
@@ -623,4 +690,78 @@
 
         return 0;
     }
+
+    private void SetQuery(IEnumerable<FrozenFoods> result)
+    {
+        queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+
+        if (result.Count() == 0) return;
+
+        if (result.Any())
+            foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
+            {
+                FrozenFoodViewModel contact = BackEndClass.ChangeFromModelToViewModel(model);
+                queryable = queryable.Concat(new[] { contact }.AsQueryable());
+            }
+    }
+
+    private void SearchDeer(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchWildboar(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchMoose(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchOther(ChangeEventArgs e)
+    {
+        string trueOrFalse = e.Value.ToString();
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt);
+
+            SetQuery(result);
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }    
 }
