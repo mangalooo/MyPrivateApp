@@ -407,7 +407,7 @@
         foreach (FarmWorks model in db.FarmWorks.OrderBy(c => c.FarmWorksId))
         {
             FarmWorksViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat((new[] { vm }).AsQueryable());
+            queryable = queryable.Concat((new[] { vm }).AsQueryable().OrderByDescending(c => c.Date));
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
