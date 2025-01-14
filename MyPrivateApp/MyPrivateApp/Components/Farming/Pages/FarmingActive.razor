@@ -205,7 +205,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenInactiveWindow())"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -276,7 +276,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => OpenInactiveWindow())"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
@@ -517,7 +517,11 @@
 
     private void Inactive(FarmingViewModels vm)
     {
-        if (vm.FarmingId > 0)
+        if (db.FarmingsActive.Count() == 0) return;
+
+        bool findId = db.FarmingsActive.Any(a => a.FarmingId == TemporaryId);
+
+        if (findId)
         {
             ErrorMessage = BackEndClass.Inactive(db, vm);
 
@@ -539,12 +543,13 @@
             ErrorMessage = "Id är 0!";
     }
 
-    private void OpenInactiveWindow()
+    private void OpenInactiveWindow(FarmingViewModels vm)
     {
         ModalDisplayInactive = "block;";
         ModalClassInactive = "Show";
         ShowBackdropInactive = true;
         StateHasChanged();
+        TemporaryId = vm.FarmingId;
     }
 
     private void CloseInactiveWindow()
