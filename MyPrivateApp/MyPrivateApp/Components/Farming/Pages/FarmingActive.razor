@@ -217,7 +217,7 @@
                                             <h5 class="modal-title"> Vill du inaktivera odlingen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Inactive(context))"> Inaktivera odlingen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Inactive())"> Inaktivera odlingen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseInactiveWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -288,7 +288,7 @@
                                             <h5 class="modal-title"> Vill du inaktivera odlingen? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Inactive(context))"> Inaktivera odlingen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Inactive())"> Inaktivera odlingen </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseInactiveWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -515,7 +515,7 @@
         StateHasChanged();
     }
 
-    private void Inactive(FarmingViewModels vm)
+    private void Inactive()
     {
         if (db.FarmingsActive.Count() == 0) return;
 
@@ -523,6 +523,9 @@
 
         if (findId)
         {
+            FarmingsActive model = db.FarmingsActive.FirstOrDefault(a => a.FarmingId == TemporaryId);
+            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+
             ErrorMessage = BackEndClass.Inactive(db, vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))

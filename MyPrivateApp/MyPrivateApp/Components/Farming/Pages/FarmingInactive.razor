@@ -342,7 +342,7 @@
         foreach (FarmingsInactive model in db.FarmingsInactive.OrderBy(c => c.FarmingId))
         {
             FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
+            queryable = queryable.Concat(new[] { vm }.AsQueryable().OrderByDescending(c => c.InactiveDate));
         }
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
