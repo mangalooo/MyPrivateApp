@@ -1,4 +1,4 @@
-﻿@page "/HuntingTeamMembersPage"
+﻿@page "/HuntingPreyPage"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -13,7 +13,7 @@
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IHuntingTeamMemberClass BackEndClass
+@inject IHuntingPreyClass BackEndClass
 
 <PageTitle> Jakt </PageTitle>
 
@@ -52,14 +52,14 @@
     <br />
     <br />
 
-    <h1 style="text-align:center"> Vårt jaktlag </h1>
+    <h1 style="text-align:center"> Jaktbyten på våra marker </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
         <br />
         <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny medelm </button>
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Nytt byte </button>
     </div>
 
     <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
@@ -88,74 +88,47 @@
 
                     <div class="row">
 
-                        <div id="mobile" class="col-6" />
-
-                        <div class="col-6">
-                            <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Name" class="form-control" disabled="@DisabledForm" />
-                                <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
-                            </div>
-                        </div>
-
-                        <div class="col-6">
-                            <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.Birthday" class="form-control" disabled="@DisabledForm" />
-                                <label for="Birthday"> Födelsedag </label>
-                                <ValidationMessage For="() => pageModel.Birthday" class="text-danger" />
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <br />
-
-                    <div class="row">
-
                         <div id="mobile" class="col-4" />
 
-                        <div class="col-4">
+                        <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="Address"> Adress </label>
-                                <ValidationMessage For="() => pageModel.Address" class="text-danger" />
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <InputText @bind-Value="pageModel.PostCode" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="PostCode"> Postnummer </label>
-                                <ValidationMessage For="() => pageModel.PostCode" class="text-danger" />
+                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
+                                <label for="Date"> Datum </label>
+                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
                             </div>
                         </div>
 
-                        <div class="col-4">
+                        <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.City" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="City"> Stad/ort </label>
-                                <ValidationMessage For="() => pageModel.City" class="text-danger" />
+                                <InputText @bind-Value="pageModel.Hunter" class="form-control" disabled="@DisabledForm" />
+                                <label for="Hunter"> Jägare </label>
+                                <ValidationMessage For="() => pageModel.Hunter" class="text-danger" />
                             </div>
                         </div>
-                    </div>
 
-                    <br />
-
-                    <div class="row">
-
-                        <div id="mobile" class="col-6" />
-
-                        <div class="col-6">
+                        <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Mail" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="Mail"> E-post </label>
-                                <ValidationMessage For="() => pageModel.Mail" class="text-danger" />
+                                <InputSelect @bind-Value="pageModel.HuntingPlaces" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+                                    {
+                                        <option value="@huntingPlaces">@huntingPlaces</option>
+                                    }
+                                </InputSelect>
+                                <label for="huntingPlaces"> Plats </label>
+                                <ValidationMessage For="() => pageModel.HuntingPlaces" class="text-danger" />
                             </div>
                         </div>
-                        <div class="col-6">
+
+                        <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.MobilePhone" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="MobilePhone"> Mobilnummer </label>
-                                <ValidationMessage For="() => pageModel.MobilePhone" class="text-danger" />
+                                <InputSelect @bind-Value="pageModel.HuntingForm" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object huntingType in Enum.GetValues(typeof(HuntingForm)))
+                                    {
+                                        <option value="@huntingType">@huntingType</option>
+                                    }
+                                </InputSelect>
+                                <label for="HuntingForm"> Jakt typ </label>
+                                <ValidationMessage For="() => pageModel.HuntingForm" class="text-danger" />
                             </div>
                         </div>
 
@@ -164,19 +137,66 @@
                     <br />
 
                     <div class="row">
+
+                        <div id="mobile" class="col-3" />
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="pageModel.HuntingPass" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="HuntingPass"> Pass </label>
+                                <ValidationMessage For="() => pageModel.HuntingPass" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputSelect @bind-Value="pageModel.WildAnimal" class="form-control" placeholder="" disabled="@DisabledForm">
+                                    @foreach (object wildAnimal in Enum.GetValues(typeof(WildAnimal)))
+                                    {
+                                        <option value="@wildAnimal">@wildAnimal</option>
+                                    }
+                                </InputSelect>
+                                <label for="wildAnimal"> Vilt </label>
+                                <ValidationMessage For="() => pageModel.WildAnimal" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="pageModel.Type" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="Type"> Vilt typ </label>
+                                <ValidationMessage For="() => pageModel.Type" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <InputText @bind-Value="pageModel.Dog" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="Dog"> Hund </label>
+                                <ValidationMessage For="() => pageModel.Dog" class="text-danger" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
-                                <label for="pageModel"> Anteckningar </label>
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Beskrivning </label>
                                 <ValidationMessage For="() => pageModel.Note" class="text-danger" />
                             </div>
                         </div>
+
                     </div>
 
                     <br />
 
                     <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny jakt </button>
+                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt byte </button>
                     </div>
 
                     <div style="text-align:center">
@@ -191,6 +211,7 @@
 
                     <br />
                     <br />
+
                 </EditForm>
             </div>
 
@@ -199,10 +220,27 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
-                        <PropertyColumn Title="Mobilnummer" Property="@(c => c.MobilePhone)" Sortable="true" />
-                        <PropertyColumn Title="E-post" Property="@(c => c.Mail)" Sortable="true" />
-                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Jägare" Property="@(c => c.Hunter)" Sortable="true" />
+                        <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchWildAnimal" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+                        <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
+                        <PropertyColumn Title="Pass" Property="@(c => c.HuntingPass)" Sortable="true" />
+                        <PropertyColumn Title="År" Property="@(c => HowManyYears(c.Date))" Sortable="true" />
+                        <PropertyColumn Title="Plats" Property="@(c => c.HuntingPlaces)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchPlace" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Hund" Property="@(c => c.Dog)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -221,10 +259,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort jaktmedlemmen? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort bytet? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort jaktmedlemmen </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort bytet </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -252,9 +290,16 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
-                        <PropertyColumn Title="Mobilnummer" Property="@(c => c.MobilePhone)" Sortable="true" />
+                        <PropertyColumn Title="År" Property="@(c => HowManyYears(c.Date))" Sortable="true" />
 
+                        <PropertyColumn Title="Vilt" Property="@(c => c.WildAnimal)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchWildAnimal" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+                        
                         <TemplateColumn Title="Info">
 
                             <div class="btn-group" role="group">
@@ -272,10 +317,10 @@
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort jaktmedlemmen? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort bytet? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort jaktmedlemmen? </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort byte </button>
                                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                         </div>
                                     </div>
@@ -319,10 +364,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingTeamMembersViewModels pageModel { get; set; } = new();
+    private HuntingPreyViewModels pageModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private IQueryable<HuntingTeamMembersViewModels> queryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
+    private IQueryable<HuntingPreyViewModels> queryable = Enumerable.Empty<HuntingPreyViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -347,13 +392,13 @@
     // Load data from database to the Queryable container
     private void ConvertListToQueryable()
     {
-        if (db.HuntingTeamMembers.Count() == 0) return;
+        if (db.HuntingPrey.Count() == 0) return;
 
-        queryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
+        queryable = Enumerable.Empty<HuntingPreyViewModels>().AsQueryable();
 
-        foreach (Data.Models.Hunting.HuntingTeamMembers model in db.HuntingTeamMembers.OrderBy(c => c.HuntingTeamMembersId))
+        foreach (Data.Models.Hunting.HuntingPrey model in db.HuntingPrey.OrderBy(c => c.HuntingPreyId))
         {
-            HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            HuntingPreyViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
             queryable = queryable.Concat((new[] { vm }).AsQueryable());
         }
 
@@ -375,7 +420,7 @@
     {
         DisabledForm = false;
 
-        if (pageModel.HuntingTeamMembersId > 0)
+        if (pageModel.HuntingPreyId > 0)
         {
             // Edit
             ErrorMessage = BackEndClass.Edit(db, pageModel);
@@ -416,7 +461,7 @@
         }
     }
 
-    private void Info(HuntingTeamMembersViewModels vm)
+    private void Info(HuntingPreyViewModels vm)
     {
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
@@ -424,7 +469,7 @@
         pageModel = vm;
     }
 
-    private void Edit(HuntingTeamMembersViewModels vm)
+    private void Edit(HuntingPreyViewModels vm)
     {
         DisabledForm = false;
         ShowOrHideEditButton = false;
@@ -436,14 +481,14 @@
 
     private void Delete()
     {
-        if (db.HuntingTeamMembers.Count() == 0) return;
+        if (db.HuntingPrey.Count() == 0) return;
 
-        bool findId = db.HuntingTeamMembers.Any(a => a.HuntingTeamMembersId == TemporaryId);
+        bool findId = db.HuntingPrey.Any(a => a.HuntingPreyId == TemporaryId);
 
         if (findId)
         {
-            HuntingTeamMembers model = db.HuntingTeamMembers.FirstOrDefault(a => a.HuntingTeamMembersId == TemporaryId);
-            HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            HuntingPrey model = db.HuntingPrey.FirstOrDefault(a => a.HuntingPreyId == TemporaryId);
+            HuntingPreyViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
             ErrorMessage = BackEndClass.Delete(db, vm, false);
 
@@ -461,13 +506,13 @@
         }
     }
 
-    private void OpenDeleteWindow(HuntingTeamMembersViewModels vm)
+    private void OpenDeleteWindow(HuntingPreyViewModels vm)
     {
         ModalDisplay = "block;";
         ModalClass = "Show";
         ShowBackdrop = true;
         StateHasChanged();
-        TemporaryId = vm.HuntingTeamMembersId;
+        TemporaryId = vm.HuntingPreyId;
     }
 
     private void CloseWindow()
@@ -476,6 +521,142 @@
         ModalClass = "";
         ShowBackdrop = false;
         StateHasChanged();
+    }
+
+    private void SearchPlace(ChangeEventArgs e)
+    {
+        queryable = Enumerable.Empty<HuntingPreyViewModels>().AsQueryable();
+
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            string getName = string.Empty;
+
+            foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
+            {
+                getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
+
+                if (getName == e.Value.ToString().ToLower())
+                    break;
+            }
+
+            if (getName != string.Empty)
+            {
+                IEnumerable<HuntingPrey> result = null;
+
+                switch (getName.ToLower())
+                {
+                    case "Välj":
+                        break;
+
+                    case "habäck":
+                        result = db.HuntingPrey.Where(c => c.HuntingPlaces == HuntingPlaces.Habäck);
+                        break;
+
+                    case "dalsjöfors":
+                        result = db.HuntingPrey.Where(c => c.HuntingPlaces == HuntingPlaces.Dalsjöfors);
+                        break;
+
+                    case "karlabo":
+                        result = db.HuntingPrey.Where(c => c.HuntingPlaces == HuntingPlaces.Karlabo);
+                        break;
+
+                    case "skog":
+                        result = db.HuntingPrey.Where(c => c.HuntingPlaces == HuntingPlaces.Skog);
+                        break;
+
+                    case "smältryd":
+                        result = db.HuntingPrey.Where(c => c.HuntingPlaces == HuntingPlaces.Smältryd);
+                        break;
+
+                    case "övrigt":
+                        result = db.HuntingPrey.Where(c => c.HuntingPlaces == HuntingPlaces.Övrigt);
+                        break;
+                }
+
+                if (result == null || result.Count() == 0) return;
+
+                if (result.Any())
+                    foreach (Data.Models.Hunting.HuntingPrey model in result.OrderBy(c => c.HuntingPreyId))
+                    {
+                        HuntingPreyViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
+                    }
+            }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
+    }
+
+    private void SearchWildAnimal(ChangeEventArgs e)
+    {
+        queryable = Enumerable.Empty<HuntingPreyViewModels>().AsQueryable();
+
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            string getName = string.Empty;
+
+            foreach (int wildAnimal in Enum.GetValues(typeof(WildAnimal)))
+            {
+                getName = Enum.GetName(typeof(WildAnimal), wildAnimal).ToLower();
+
+                if (getName == e.Value.ToString().ToLower())
+                    break;
+            }
+
+            if (getName != string.Empty)
+            {
+                IEnumerable<Data.Models.Hunting.HuntingPrey> result = null;
+
+                switch (getName.ToLower())
+                {
+                    case "Välj":
+                        break;
+
+                    case "hare":
+                        result = db.HuntingPrey.Where(c => c.WildAnimal == WildAnimal.Hare);
+                        break;
+
+                    case "lo":
+                        result = db.HuntingPrey.Where(c => c.WildAnimal == WildAnimal.Lo);
+                        break;
+
+                    case "rådjur":
+                        result = db.HuntingPrey.Where(c => c.WildAnimal == WildAnimal.Rådjur);
+                        break;
+
+                    case "räv":
+                        result = db.HuntingPrey.Where(c => c.WildAnimal == WildAnimal.Räv);
+                        break;
+
+                    case "vildsvin":
+                        result = db.HuntingPrey.Where(c => c.WildAnimal == WildAnimal.Vildsvin);
+                        break;
+
+                    case "älg":
+                        result = db.HuntingPrey.Where(c => c.WildAnimal == WildAnimal.Älg);
+                        break;
+
+                    case "övrigt":
+                        result = db.HuntingPrey.Where(c => c.WildAnimal == WildAnimal.Övrigt);
+                        break;
+                }
+
+                if (result == null || result.Count() == 0) return;
+
+                if (result.Any())
+                    foreach (HuntingPrey model in result.OrderBy(c => c.HuntingPreyId))
+                    {
+                        HuntingPreyViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
+                    }
+            }
+
+            return;
+        }
+
+        Navigation.Refresh(true);
     }
 
     private int HowManyYears(DateTime date) => DateTime.Now.Year - date.Year;

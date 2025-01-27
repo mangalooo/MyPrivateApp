@@ -40,6 +40,7 @@ builder.Services.AddScoped<IFarmWorkClass, FarmWorkClass>();
 
 // Hunting
 builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();
+builder.Services.AddScoped<IHuntingPreyClass, HuntingPreyClass>();
 builder.Services.AddScoped<IHuntingTeamMemberClass, HuntingTeamMemberClass>();
 builder.Services.AddScoped<IHuntingTowerInspectionClass, HuntingTowerInspectionClass>();
 

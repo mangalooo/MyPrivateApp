@@ -61,7 +61,9 @@ namespace MyPrivateApp.Components.Enum
         Vildkanin,
         Vildsvin,
         Älg,
-        Övrigt
+        Övrigt,
+        Dovhjort,
+        Kronhjort
     }
 
     public enum WildAnimal
@@ -75,7 +77,9 @@ namespace MyPrivateApp.Components.Enum
         Vildkanin,
         Vildsvin,
         Älg,
-        Övrigt
+        Övrigt,
+        Dovhjort,
+        Kronhjort
     }
 
     public enum HuntingName
@@ -90,7 +94,7 @@ namespace MyPrivateApp.Components.Enum
         Rävjakt,
         Vildsvinsjakt,
         Älgjakt,
-        Övrigt
+        Övrigt,
     }
 
     public enum HuntingForm
