@@ -11,7 +11,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                                                                                 db.SharesFees.FirstOrDefault(r => r.SharesFeeId == id) :
                                                                                     throw new Exception("Avgiften/skatten hittades inte i databasen!");
 
-        public string Add(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
+        public string Add(ApplicationDbContext db, SharesFeeViewModel vm, bool import, string soldDate)
         {
             if (vm != null && db != null)
             {
@@ -19,7 +19,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     try
                     {
-                        SharesFee model = ChangeFromViewModelToModel(vm);
+                        SharesFee model = ChangeFromViewModelToModel(vm, soldDate);
 
                         db.SharesFees.Add(model);
                         db.SaveChanges();
@@ -92,7 +92,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 try
                 {
-                    SharesFee model = ChangeFromViewModelToModel(vm);
+                    SharesFee model = ChangeFromViewModelToModel(vm, "");
 
                     db.ChangeTracker.Clear();
                     db.SharesFees.Remove(model);
@@ -138,12 +138,12 @@ namespace MyPrivateApp.Components.Shares.Classes
             return fee;
         }
 
-        private static SharesFee ChangeFromViewModelToModel(SharesFeeViewModel vm)
+        private static SharesFee ChangeFromViewModelToModel(SharesFeeViewModel vm, string soldDate)
         {
             SharesFee sharesFee = new()
             {
                 SharesFeeId = vm.SharesFeeId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
+                Date = soldDate,
                 CompanyOrInformation = vm.CompanyOrInformation,
                 Tax = vm.Tax,
                 Brokerage = vm.Brokerage,

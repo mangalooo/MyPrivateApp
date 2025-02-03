@@ -382,7 +382,7 @@
         else
         {
             // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
+            ErrorMessage = BackEndClass.Add(db, pageModel, false, pageModel.Date.ToString("yyyy-MM-dd"));
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {

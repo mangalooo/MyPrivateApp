@@ -19,7 +19,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 SharesDepositMoney model;
-                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 1); // Should always be just one total amount in the database
+                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 2); // Should always be just one total amount in the database
 
                 if (getTotalAmount != null)
                 {
@@ -123,7 +123,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 // Remove and add the new amount to the total.
                 SharesDepositMoney dbModel = Get(db, vm.DepositMoneyId);
-                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 1); // Should always be just one total amount in the database
+                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 2); // Should always be just one total amount in the database
                 string DBDepositMoneyString = dbModel.DepositMoney.ToString();
                 double DBDepositMoney = DBDepositMoneyString.Contains('-') ? double.Parse(DBDepositMoneyString[1..]) : double.Parse(DBDepositMoneyString);
                 string VMDepositMoneyString = vm.DepositMoney.ToString();
@@ -173,7 +173,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     ErrorHandling(db, vm, "Ta bort", false, ex.Message);
                 }
 
-                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 1); // Should always be just one total amount in the database
+                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 2); // Should always be just one total amount in the database
                 getTotalAmount.TotalAmount -= model.DepositMoney;
 
                 db.SaveChanges();

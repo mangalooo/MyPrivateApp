@@ -17,7 +17,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (db == null) return "Ingen kontakt med databasen";
             if (!db.SharesProfitOrLossYears.Any()) return "Befintlig databas är tom!";
 
-            int thisYear = DateTime.Now.Year;
+            int thisYear = 2010; //DateTime.Now.Year; // Magnus: Ändra tillbaka
             double sharesPurchaseds = 0;
             double sharesSolds = 0;
             double fundsPurchased = 0; ;
@@ -164,7 +164,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                return $"Lägg till. Felmeddelande: {ex.Message}";
+                return $"Lägg till årligt resultat. Felmeddelande: {ex.Message}";
             }
 
             return string.Empty;
