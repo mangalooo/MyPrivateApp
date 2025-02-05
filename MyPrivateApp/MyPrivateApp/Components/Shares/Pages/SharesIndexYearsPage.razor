@@ -242,7 +242,10 @@
                         <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
                         <PropertyColumn Title="Aktier" Property="@(c => c.SharesYear)" Sortable="true" />
                         <PropertyColumn Title="Fonder" Property="@(c => c.FundsYear)" Sortable="true" />
+                        <PropertyColumn Title="Ränta" Property="@(c => c.InterestRatesYear)" Sortable="true" />
                         <PropertyColumn Title="Utdelning" Property="@(c => c.DividendYear)" Sortable="true" />
+                        <PropertyColumn Title="Avgifter/skatt" Property="@(c => "-" + c.FeeYear)" Sortable="true" />
+                        <PropertyColumn Title="Courtage" Property="@(c => "-" + c.BrokerageYear)" Sortable="true" />
                         <TemplateColumn Title="Info">
 
                             <div class="btn-group" role="group">

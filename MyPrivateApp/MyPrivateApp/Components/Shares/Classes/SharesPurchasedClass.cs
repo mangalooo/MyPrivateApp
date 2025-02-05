@@ -66,7 +66,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && vm.SharesPurchasedId > 0 && db != null)
             {
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) &&
-                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0)
+                    !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0)
                 {
                     try
                     {
@@ -77,7 +77,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                             dbModel.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
                             dbModel.CompanyName = vm.CompanyName;
                             dbModel.HowMany = vm.HowMany;
-                            dbModel.PricePerShares = int.Parse(vm.PricePerShares);
+                            dbModel.PricePerShares = double.Parse(vm.PricePerShares);
                             dbModel.Brokerage = vm.Brokerage;
                             dbModel.Currency = vm.Currency;
                             dbModel.ISIN = vm.ISIN;
@@ -93,7 +93,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Ändra köpt", false, ex.Message);
+                        return $"Ändra köp: {ex.Message}";
                     }
                 }
                 else
@@ -158,7 +158,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                     catch (Exception ex)
                     {
-                        ErrorHandling(db, vm, "Köpt mera", import, ex.Message);
+                        
+
+                        if (import)
+                            ErrorHandling(db, vm, "Köpt mera", import, ex.Message);
+                        else
+                            return $"Köpt mera. Felmeddelande: {ex.Message}";
                     }
                 }
                 else
