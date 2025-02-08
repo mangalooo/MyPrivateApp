@@ -15,7 +15,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             if (vm != null && db != null)
             {
-                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0))
+                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0 || vm.Fee > 0))
                 {
                     try
                     {
@@ -32,9 +32,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 else
                 {
                     if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!");
+                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
                     else
-                        return "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!";
+                        return "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!";
                 }
             }
             else
@@ -52,7 +52,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             if (vm != null && vm.SharesFeeId > 0 && db != null)
             {
-                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0))
+                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0 || vm.Fee > 0))
                 {
                     try
                     {
@@ -63,6 +63,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                             getDbModel.SharesFeeId = vm.SharesFeeId;
                             getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
                             getDbModel.CompanyOrInformation = vm.CompanyOrInformation;
+                            getDbModel.Fee = vm.Fee;
                             getDbModel.Tax = vm.Tax;
                             getDbModel.Brokerage = vm.Brokerage;
                             getDbModel.Note = vm.Note;
@@ -78,7 +79,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     }
                 }
                 else
-                    return "Ingen datum ifyllt eller någon av skatt eller courtage måste vara mer än 0!";
+                    return "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!";
             }
             else
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
@@ -115,6 +116,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 SharesFeeId = model.SharesFeeId,
                 CompanyOrInformation = model.CompanyOrInformation,
+                Fee = model.Fee,
                 Tax = model.Tax,
                 Brokerage = model.Brokerage,
                 Note = model.Note,
@@ -145,6 +147,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesFeeId = vm.SharesFeeId,
                 Date = soldDate,
                 CompanyOrInformation = vm.CompanyOrInformation,
+                Fee = vm.Fee,
                 Tax = vm.Tax,
                 Brokerage = vm.Brokerage,
                 Note = vm.Note,
@@ -171,7 +174,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Note = $"{type} AVGIFTER: " +
                        $"\r\nAvgiftsdatum: {vm.DateOfFee} " +
                        $"\r\nImport: {importTrue} " +
-                       $"\r\nTax: {vm.Tax} " +
+                       $"\r\nAvgift: {vm.Fee} " +
+                       $"\r\nSkatt: {vm.Tax} " +
                        $"\r\nCourtage: {vm.Brokerage} " +
                        $"\r\nKonto: {vm.Account} " +
                        $"\r\nISIN: {vm.ISIN}"

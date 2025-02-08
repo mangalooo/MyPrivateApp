@@ -17,12 +17,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Text)]
         public string? CompanyOrInformation { get; set; }
 
-        [Required(ErrorMessage = "Skriv in aktiens skatteavgif")]
         [Display(Name = "Skatt")]
         [DataType(DataType.Currency)]
         public double Tax { get; set; }
 
-        [Required(ErrorMessage = "Skriv in aktiens courtage")] 
+        [Display(Name = "Avgift")]
+        [DataType(DataType.Currency)]
+        public double Fee { get; set; }
+
         [Display(Name = "Courtage")]
         [DataType(DataType.Currency)]
         public double Brokerage { get; set; }

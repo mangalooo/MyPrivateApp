@@ -71,7 +71,7 @@
 
     <br />
 
-    <h3 style="text-align:center">Total vinst: @GetTotalProfitsOrLosses()</h3>
+    <h3 style="text-align:center">Total vinst / förlust: @GetTotalProfitsOrLosses()</h3>
 
     <br />
     <br />
@@ -365,7 +365,7 @@
 {
     [SupplyParameterFromForm]
     private SharesProfitOrLossYearViewModel pageModel { get; set; } = new();
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<SharesProfitOrLossYearViewModel> queryable = Enumerable.Empty<SharesProfitOrLossYearViewModel>().AsQueryable();
 
     // Holds temporary id to delete items

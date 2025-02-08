@@ -127,9 +127,17 @@
 
                     <div class="row">
 
-                        <div id="mobile" class="col-6" />
+                        <div id="mobile" class="col-4" />
 
-                        <div class="col-6">
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputNumber @bind-Value="pageModel.Fee" class="form-control" disabled="@DisabledForm" />
+                                <label for="Fee"> Avgift </label>
+                                <ValidationMessage For="() => pageModel.Fee" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
                             <div class="form-floating">
                                 <InputNumber @bind-Value="pageModel.Tax" class="form-control" disabled="@DisabledForm" />
                                 <label for="Tax"> Skatt </label>
@@ -137,7 +145,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="form-floating">
                                 <InputNumber @bind-Value="pageModel.Brokerage" class="form-control" disabled="@DisabledForm" />
                                 <label for="Brokerage"> Courtage </label>
@@ -187,6 +195,7 @@
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Aktie / Fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
+                        <PropertyColumn Title="Avgifter" Property="@(c => c.Fee)" Sortable="true" />
                         <PropertyColumn Title="Skatt" Property="@(c => c.Tax)" Sortable="true" />
                         <PropertyColumn Title="Courtage" Property="@(c => c.Brokerage)" Sortable="true" />
                         <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
@@ -239,7 +248,7 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Aktie / Fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
+                        <PropertyColumn Title="Info" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 

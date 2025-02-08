@@ -29,7 +29,6 @@ namespace MyPrivateApp.Components.Shares.Classes
                     switch (vm.TypeOfTransaction)
                     {
                         case "Insättning":
-
                             try
                             {
                                 model = new()
@@ -51,7 +50,10 @@ namespace MyPrivateApp.Components.Shares.Classes
                             }
                             catch (Exception ex)
                             {
-                                ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                                if (import)
+                                    ErrorHandling(db, vm, "Lägg till", import, ex.Message);
+                                else
+                                    return $"Insättning. Felmeddelande: {ex.Message}";
                             }
 
                             break;
@@ -82,7 +84,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                                 if (import)
                                     ErrorHandling(db, vm, "Lägg till", import, ex.Message);
                                 else
-                                    return $"Felmeddelande: {ex.Message}";
+                                    return $"Uttag: Felmeddelande: {ex.Message}";
                             }
 
                             break;
