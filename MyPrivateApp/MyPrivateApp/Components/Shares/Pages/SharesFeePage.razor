@@ -194,7 +194,7 @@
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Aktie / Fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
+                        <PropertyColumn Title="Information" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
                         <PropertyColumn Title="Avgifter" Property="@(c => c.Fee)" Sortable="true" />
                         <PropertyColumn Title="Skatt" Property="@(c => c.Tax)" Sortable="true" />
                         <PropertyColumn Title="Courtage" Property="@(c => c.Brokerage)" Sortable="true" />

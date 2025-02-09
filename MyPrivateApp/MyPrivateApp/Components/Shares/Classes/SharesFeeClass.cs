@@ -160,6 +160,32 @@ namespace MyPrivateApp.Components.Shares.Classes
             return sharesFee;
         }
 
+        public SharesFeeViewModel ChangeFromImportAddToViewModel(SharesImports model)
+        {
+            DateTime date = DateTime.Parse(model.Date);
+
+            SharesFeeViewModel fee = new()
+            {
+                Date = date,
+                Account = model.AccountNumber,
+                CompanyOrInformation = model.CompanyOrInformation,
+                Brokerage = double.Parse(model.BrokerageString),
+                TypeOfTransaction = model.TypeOfTransaction,
+            };
+
+            switch (model.CompanyOrInformation)
+            {
+                case "Skatt":
+                    fee.Tax = double.Parse(model.AmountString); 
+                    break;
+                case "Avgift":
+                    fee.Fee = double.Parse(model.AmountString);
+                    break;
+            }
+
+            return fee;
+        }
+
         private static void ErrorHandling(ApplicationDbContext db, SharesFeeViewModel vm, string type, bool import, string errorMessage)
         {
             DateTime date = DateTime.Now;

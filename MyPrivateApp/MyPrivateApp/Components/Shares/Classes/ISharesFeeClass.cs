@@ -10,5 +10,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         string Edit(ApplicationDbContext db, SharesFeeViewModel vm);
         string Delete(ApplicationDbContext db, SharesFeeViewModel vm, bool import);
         SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model);
+        SharesFeeViewModel ChangeFromImportAddToViewModel(SharesImports import);
     }
 }
