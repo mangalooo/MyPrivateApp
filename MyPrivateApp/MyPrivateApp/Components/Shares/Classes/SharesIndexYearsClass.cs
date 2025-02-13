@@ -25,6 +25,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             double dividends = 0;
             double interestRates = 0;
             double fees = 0;
+            double taxes = 0;
             double brokerage = 0;
             string thisYearsErrorMessage = "Man kan inte beräknad detta året än, man måste vänta tills efter nyår!";
             int thisCalculationYear = 0;
@@ -119,11 +120,12 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     int checkYear = DateTime.Parse(item.Date).Year;
 
-                    if (checkYear == thisYear) return "Skatt/avgifter: " + thisYearsErrorMessage;
+                    if (checkYear == thisYear) return "Kostnader: " + thisYearsErrorMessage;
 
                     if (checkYear == thisCalculationYear && item.CalculationFlag == false)
                     {
-                        fees += item.Tax;
+                        fees += item.Fee;
+                        taxes += item.Tax;
                         brokerage += item.Brokerage;
                         item.CalculationFlag = true;
                         db.SaveChanges();
@@ -135,8 +137,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 double sharesYearResult = sharesSolds - sharesPurchaseds;
                 double fundsYearResult = fundsSold - fundsPurchased;
-                double moneyProfitOrLossYear = (sharesYearResult + fundsYearResult + dividends + interestRates) - (fees + brokerage);
-                double soldCalculation = (sharesSolds + fundsSold + dividends + interestRates) - (fees + brokerage);
+                double moneyProfitOrLossYear = (sharesYearResult + fundsYearResult + dividends + interestRates) - (fees + taxes + brokerage);
+                double soldCalculation = (sharesSolds + fundsSold + dividends + interestRates) - (fees + taxes + brokerage);
                 double purchasedSharesAndFunds = sharesPurchaseds + fundsPurchased;
                 double percentProfitOrLossYear = (soldCalculation / purchasedSharesAndFunds) - 1;
 

@@ -29,7 +29,11 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Skatt")]
         [DataType(DataType.Text)]
-        public string? FeeYear { get; set; } // Tax
+        public string? FeeYear { get; set; } // Avgifter
+
+        [Display(Name = "Skatt")]
+        [DataType(DataType.Text)]
+        public string?TaxYear { get; set; } // Skatt
 
         [Display(Name = "Courtage")]
         [DataType(DataType.Text)]
