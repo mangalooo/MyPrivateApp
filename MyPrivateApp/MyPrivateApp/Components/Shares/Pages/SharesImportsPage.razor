@@ -555,6 +555,8 @@
 
                         foreach (var import in importList)
                         {
+                            transactionCounter++;
+
                             switch (import.TypeOfTransaction)
                             {
                                 case "Köp":
@@ -591,9 +593,7 @@
                                     OtherImports(import);
                                     break;
                             }
-
-                            transactionCounter++;
-
+                           
                             Thread.Sleep(2000);
                         }
                     }

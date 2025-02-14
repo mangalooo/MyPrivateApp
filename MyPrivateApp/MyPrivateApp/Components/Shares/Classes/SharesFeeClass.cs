@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.IdentityModel.Tokens;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
@@ -34,7 +35,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     if (import)
                         ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
                     else
-                        return "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!";
+                        return "Ingen datum ifyllt eller någon av avgift, skatt eller courtage måste vara mer än 0!";
                 }
             }
             else
@@ -147,9 +148,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesFeeId = vm.SharesFeeId,
                 Date = soldDate,
                 CompanyOrInformation = vm.CompanyOrInformation,
-                Fee = vm.Fee,
-                Tax = vm.Tax,
-                Brokerage = vm.Brokerage,
+                Fee = double.Round(vm.Fee, 2, MidpointRounding.AwayFromZero),
+                Tax = double.Round(vm.Tax, 2, MidpointRounding.AwayFromZero),
+                Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero),
                 Note = vm.Note,
                 DateOfFee = vm.DateOfFee.ToString("yyyy-MM-dd"),
                 Account = vm.Account,
@@ -169,11 +170,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Date = date,
                 Account = model.AccountNumber,
                 CompanyOrInformation = model.CompanyOrInformation,
-                Brokerage = double.Parse(model.BrokerageString),
                 TypeOfTransaction = model.TypeOfTransaction,
             };
 
-            switch (model.CompanyOrInformation)
+            if (!string.IsNullOrEmpty(model.BrokerageString))
+                fee.Brokerage = double.Parse(model.BrokerageString);
+
+            switch (model.TypeOfTransaction)
             {
                 case "Skatt":
                     fee.Tax = double.Parse(model.AmountString); 

@@ -15,7 +15,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) && !string.IsNullOrEmpty(vm.ISIN) 
-                    && vm.NumberOfShares > 0 && string.IsNullOrEmpty(vm.PricePerShare))
+                    && vm.NumberOfShares > 0 && !string.IsNullOrEmpty(vm.PricePerShare))
                 {
                     try
                     {
