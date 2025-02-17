@@ -63,7 +63,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public DateTime MoreDateOfPurchase { get; set; }
 
         [Display(Name = "Köp mer: Antal")]
-        public int MoreHowMany { get; set; }
+        public double MoreHowMany { get; set; }
 
         [Display(Name = "Köp mer: Pris per fond del")]
         [DataType(DataType.Currency)]
@@ -71,7 +71,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Köp mer: Avgift")]
         [DataType(DataType.Currency)]
-        public int MoreFee { get; set; }
+        public double MoreFee { get; set; }
 
         // Sale
         [Display(Name = "Sälj: Datum")]

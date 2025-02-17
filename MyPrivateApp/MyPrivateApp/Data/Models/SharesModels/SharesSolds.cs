@@ -12,7 +12,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public required string CompanyName { get; set; }
         public required string DateOfPurchase { get; set; }
         public required string DateOfSold { get; set; }
-        public int HowMany { get; set; }
+        public double HowMany { get; set; }
         public string? Note { get; set; }
         public string? TypeOfShares { get; set; }
         public double PricePerShares { get; set; }

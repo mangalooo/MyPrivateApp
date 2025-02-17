@@ -19,8 +19,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerFunds))
                 {
                     SharesPurchasedFunds model = ChangesFromViewModelToModel(vm);
-                    model.Note += $"Köper {model.FundName} fonden:\r\n Import: {importTrue} \r\n Datum: {model.DateOfPurchase.ToString()[..10]} \r\n Hur många: {model.HowMany} \r\n " +
-                                  $"Pris per st: {model.PricePerFunds}\r\n Summan: {model.Amount}\r\n Avgift: {model.Fee} ";
+                    model.Note += $"Köper {model.FundName} fonden:\r\n " +
+                                  $"Import: {importTrue} \r\n " +
+                                  $"Datum: {model.DateOfPurchase.ToString()[..10]} \r\n " +
+                                  $"Hur många: {model.HowMany} \r\n " +
+                                  $"Pris per st: {model.PricePerFunds}\r\n " +
+                                  $"Summan: {model.Amount}\r\n " +
+                                  $"Avgift: {model.Fee} ";
 
                     try
                     {
@@ -79,7 +84,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                             db.SaveChanges();
                         }
                         else
-                            return "Fondem hittades inte i databasen!";
+                            return "Fonden hittades inte i databasen!";
                     }
                     catch (Exception ex)
                     {
@@ -114,20 +119,28 @@ namespace MyPrivateApp.Components.Shares.Classes
                         model.HowMany += vm.HowMany;
                         model.Fee += vm.Fee;
                         model.Amount += vm.HowMany * double.Parse(vm.PricePerFunds);
-                        model.Note += $"\r\n \r\nKöper mer fond delar för {vm.FundName}: \r\nImport: {importTrue} \r\nDatum: " +
-                                      $"{vm.DateOfPurchase.ToString()[..10]} \r\nHur många: {vm.HowMany} \r\nPris per st: " +
-                                      $"{vm.PricePerFunds} \r\nSumman: {model.Amount} " +
-                                      $" \r\nCourtage: {vm.Fee} ";
+                        model.Note += $"\r\n\r\n" +
+                                      $"Köper mer fond delar för {vm.FundName}: \r\n" +
+                                      $"Import: {importTrue} \r\n" +
+                                      $"Datum: {vm.DateOfPurchase.ToString()[..10]} \r\n" +
+                                      $"Hur många: {vm.HowMany} \r\n" +
+                                      $"Pris per st: {vm.PricePerFunds} \r\n" +
+                                      $"Summan: {model.Amount} \r\n" +
+                                      $"Courtage: {vm.Fee} ";
                     }
                     else
                     {
                         model.HowMany += vm.MoreHowMany;
                         model.Fee += vm.MoreFee;
                         model.Amount += vm.MoreHowMany * vm.MorePricePerFunds;
-                        model.Note += $"\r\n \r\nKöper mer fond delar för {vm.FundName}: \r\nImport: {importTrue} \r\nDatum: " +
-                                      $"{vm.MoreDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.MoreHowMany} \r\nPris per st: " +
-                                      $"{vm.MorePricePerFunds} \r\nSumman: {model.Amount} " +
-                                      $"\r\nCourtage: {vm.MoreFee} ";
+                        model.Note += $"\r\n \r\n" +
+                                      $"Köper mer fond delar för {vm.FundName}: \r\n" +
+                                      $"Import: {importTrue} \r\n" +
+                                      $"Datum: {vm.MoreDateOfPurchase.ToString()[..10]} \r\n" +
+                                      $"Hur många: {vm.MoreHowMany} \r\n" +
+                                      $"Pris per st: {vm.MorePricePerFunds} \r\n" +
+                                      $"Summan: {model.Amount} \r\n" +
+                                      $"Courtage: {vm.MoreFee} ";
                     }
 
                     model.PricePerFunds = model.Amount / model.HowMany;
@@ -171,16 +184,17 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             if (vm != null && vm.SharesPurchasedFundId != 0 && db != null)
             {
-                if (import == false)
-                {
-                    if (vm.SaleDateOfPurchase == DateTime.MinValue && vm.SaleHowMany > 0 && vm.SalePricePerFunds > 0 && vm.SaleFee > 0)
-                        return "Du måste fylla i fälten: Sälj: Datum, Sälj: Antal, Sälj: Pris per fond del, Sälj: Avgift! Den totala avgiften måsta skrivas in innan sälja fonden!";
-                }
-                else if (import == true && vm.SaleFee == 0)
-                {
-                    ErrorHandling(db, vm, "Sälj", import, "Du får inte sälja fonden utan avgift!");
-                    return string.Empty;
-                }
+                //if (import == false)
+                //{
+                //    if (vm.SaleDateOfPurchase == DateTime.MinValue && vm.SaleHowMany > 0 && vm.SalePricePerFunds > 0 && vm.SaleFee > 0)
+                //        return "Du måste fylla i fälten: Sälj: Datum, Sälj: Antal, Sälj: Pris per fond del, Sälj: Avgift! Den totala avgiften måsta skrivas in innan sälja fonden!";
+                //}
+                //else if (import == true && vm.SaleFee == 0)
+                //{
+                //    ErrorHandling(db, vm, "Sälj", import, "Du får inte sälja fonden utan avgift!");
+                //    return string.Empty;
+                //}
+
                 string importTrue = import ? "Ja" : "Nej";
 
                 SharesPurchasedFunds getDbFundsPurchasedsModel = Get(db, vm.ISIN);
@@ -205,9 +219,14 @@ namespace MyPrivateApp.Components.Shares.Classes
                             PricePerFunds= getDbFundsPurchasedsModel.PricePerFunds,
                             PricePerFundsSold = vm.SalePricePerFunds,
                             AmountSold = vm.SalePricePerFunds * vm.SaleHowMany,
-                            Note = $"{getDbFundsPurchasedsModel.Note} \r\n\r\nSålt fonden: {getDbFundsPurchasedsModel.FundName} \r\nImport: {importTrue}, " +
-                                   $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.SaleHowMany} \r\nPris per st: {vm.SalePricePerFunds} " +
-                                   $"\r\nSumman: {vm.SaleHowMany * vm.SalePricePerFunds} \r\nAvgift: {getDbFundsPurchasedsModel.Fee + vm.SaleFee} "
+                            Note = $"{getDbFundsPurchasedsModel.Note} \r\n\r\n" +
+                                   $"Sålt fonden: {getDbFundsPurchasedsModel.FundName} \r\n" +
+                                   $"Import: {importTrue}\r\n, " +
+                                   $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\n" +
+                                   $"Hur många: {vm.SaleHowMany} \r\n" +
+                                   $"Pris per st: {vm.SalePricePerFunds} \r\n " +
+                                   $"Summan: {vm.SaleHowMany * vm.SalePricePerFunds} \r\n" +
+                                   $"Avgift: {getDbFundsPurchasedsModel.Fee + vm.SaleFee} "
                         };
 
                         fund.MoneyProfitOrLoss = fund.AmountSold - fund.Amount;
@@ -251,9 +270,14 @@ namespace MyPrivateApp.Components.Shares.Classes
                             PricePerFunds= getDbFundsPurchasedsModel.PricePerFunds,
                             PricePerFundsSold = vm.SalePricePerFunds,
                             AmountSold = vm.SalePricePerFunds * vm.SaleHowMany,
-                            Note = $"{getDbFundsPurchasedsModel.Note} \r\n\r\nSålt delar av fonden: {getDbFundsPurchasedsModel.FundName} \r\nImport: {importTrue} " +
-                                   $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nHur många: {vm.SaleHowMany} " +
-                                   $"\r\nPris per st: {vm.SalePricePerFunds} \r\nSumman: {vm.SaleHowMany * vm.SalePricePerFunds} \r\nCourtage: {vm.SaleFee} "
+                            Note = $"{getDbFundsPurchasedsModel.Note} \r\n\r\n" +
+                                   $"Sålt delar av fonden: {getDbFundsPurchasedsModel.FundName} \r\n" +
+                                   $"Import: {importTrue} \r\n " +
+                                   $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\n" +
+                                   $"Hur många: {vm.SaleHowMany} \r\n" +
+                                   $"Pris per st: {vm.SalePricePerFunds} \r\n" +
+                                   $"Summan: {vm.SaleHowMany * vm.SalePricePerFunds} \r\n" +
+                                   $"Courtage: {vm.SaleFee} "
                         };
 
                         fund.MoneyProfitOrLoss = fund.AmountSold - fund.Amount;
@@ -311,17 +335,24 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                     if (string.IsNullOrEmpty(dbModel.Note))
                     {
-                        dbModel.Note = dbModel.Note + $"Sålt delar av fonden  {vm.FundName}: " +
-                                                      $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nImport: {importTrue} \r\nHur många: {vm.SaleHowMany} " +
-                                                      $"\r\nPris per st: {vm.SalePricePerFunds} \r\nSumman:  {vm.SaleHowMany * vm.SalePricePerFunds} " +
-                                                      $"\r\nCourtage: {vm.SaleFee}  ";
+                        dbModel.Note = dbModel.Note + $"Sålt delar av fonden  {vm.FundName}: \r\n " +
+                                                      $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\n" +
+                                                      $"Import: {importTrue} \r\n" +
+                                                      $"Hur många: {vm.SaleHowMany} \r\n" +
+                                                      $"Pris per st: {vm.SalePricePerFunds} \r\n" +
+                                                      $"Summan:  {vm.SaleHowMany * vm.SalePricePerFunds} \r\n" +
+                                                      $"Courtage: {vm.SaleFee}  ";
                     }
                     else 
                     {
-                        dbModel.Note = dbModel.Note + $"\r\n\r\nSålt delar av fonden  {vm.FundName}: " +
-                                                      $"\r\nDatum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\nImport: {importTrue} \r\nHur många: {vm.SaleHowMany} " +
-                                                      $"\r\nPris per st: {vm.SalePricePerFunds} \r\nSumman:  {vm.SaleHowMany * vm.SalePricePerFunds} " +
-                                                      $"\r\nCourtage: {vm.SaleFee}  ";
+                        dbModel.Note = dbModel.Note + $"\r\n\r\n" +
+                                                      $"Sålt delar av fonden  {vm.FundName}: \r\n" +
+                                                      $"Datum: {vm.SaleDateOfPurchase.ToString()[..10]} \r\n" +
+                                                      $"Import: {importTrue} \r\n" +
+                                                      $"Hur många: {vm.SaleHowMany} \r\n" +
+                                                      $"Pris per st: {vm.SalePricePerFunds} \r\n" +
+                                                      $"Summan:  {vm.SaleHowMany * vm.SalePricePerFunds} \r\n" +
+                                                      $"Courtage: {vm.SaleFee}  ";
                     }
                     
                     db.SaveChanges();
@@ -486,8 +517,11 @@ namespace MyPrivateApp.Components.Shares.Classes
                 CompanyOrInformation = vm.FundName,
                 TypeOfTransaction = type + " fond",
                 ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} FOND: \r\nDatum: {vm.DateOfPurchase} \r\nImport: {importTrue}, " +
-                        $"\r\nId: {vm.SharesPurchasedFundId} \r\nISIN: {vm.ISIN}."
+                Note = $"{type} FOND: \r\n" +
+                       $"Datum: {vm.DateOfPurchase} \r\n" +
+                       $"Import: {importTrue}, \r\n" +
+                       $"Id: {vm.SharesPurchasedFundId} \r\n" +
+                       $"ISIN: {vm.ISIN}."
             };
 
             db.SharesErrorHandlings.Add(sharesErrorHandling);

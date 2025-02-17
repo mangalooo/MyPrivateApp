@@ -593,7 +593,7 @@
                                     OtherImports(import);
                                     break;
                             }
-                           
+
                             Thread.Sleep(2000);
                         }
                     }
@@ -605,9 +605,15 @@
                                     db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageModel.SharesImportsFileId) :
                                         throw new Exception("Importen hittades inte i databasen!");
 
+                    string notsBefore = importModel.Note;
+
                     importModel.FileName = fileName;
                     importModel.NumbersOfTransaction = rowCount - 1;
-                    importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}";
+
+                    if (string.IsNullOrEmpty(notsBefore))
+                        importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
+                    else
+                        importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}. \n\n {notsBefore}";
 
                     db.SaveChanges();
                 }
@@ -655,7 +661,7 @@
                 importModel.Errors += $"Spara till databasen: Fel på rad {transactionCounter + 1}. Felmeddelande: {exc.Message}";
                 importModel.FileName = fileName;
                 importModel.NumbersOfTransaction = transactionCounter;
-                importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}";
+                importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
             }
 
             db.SaveChanges();

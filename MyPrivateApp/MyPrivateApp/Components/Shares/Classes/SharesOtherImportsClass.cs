@@ -167,7 +167,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (!string.IsNullOrEmpty(model.NumberOfSharesString) && model.NumberOfSharesString != "-")
             {
                 string numberOfSharesString = model.NumberOfSharesString;
-                int numberOfShares = numberOfSharesString.Contains("-") ? int.Parse(numberOfSharesString[1..]) : int.Parse(numberOfSharesString);
+                double numberOfShares = numberOfSharesString.Contains("-") ? double.Parse(numberOfSharesString[1..]) : double.Parse(numberOfSharesString);
 
                 vm.NumberOfShares = numberOfShares;
 
