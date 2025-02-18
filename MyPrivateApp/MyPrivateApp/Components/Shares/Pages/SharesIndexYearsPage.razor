@@ -71,7 +71,7 @@
 
     <br />
 
-    <h3 style="text-align:center">Total vinst / förlust: @GetTotalProfitsOrLosses()</h3>
+    <h3 style="text-align:center">Total vinst: @GetTotalProfitsOrLosses()</h3>
 
     <br />
     <br />
@@ -181,17 +181,25 @@
 
                     <div class="row">
 
-                        <div id="mobile" class="col-6" />
+                        <div id="mobile" class="col-4" />
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="form-floating">
                                 <InputText @bind-Value="pageModel.FeeYear" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="FeeYear"> Skatt </label>
+                                <label for="FeeYear"> Avgift </label>
                                 <ValidationMessage For="() => pageModel.FeeYear" class="text-danger" />
                             </div>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <InputText @bind-Value="pageModel.TaxYear" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <label for="TaxYear"> Skatt </label>
+                                <ValidationMessage For="() => pageModel.TaxYear" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="col-4">
                             <div class="form-floating">
                                 <InputText @bind-Value="pageModel.BrokerageYear" class="form-control" disabled="@DisabledForm" />
                                 <label for="BrokerageYear"> Courtage </label>
@@ -244,7 +252,8 @@
                         <PropertyColumn Title="Fonder" Property="@(c => c.FundsYear)" Sortable="true" />
                         <PropertyColumn Title="Ränta" Property="@(c => c.InterestRatesYear)" Sortable="true" />
                         <PropertyColumn Title="Utdelning" Property="@(c => c.DividendYear)" Sortable="true" />
-                        <PropertyColumn Title="Avgifter/skatt" Property="@(c => "-" + c.FeeYear)" Sortable="true" />
+                        <PropertyColumn Title="Avgifter" Property="@(c => "-" + c.FeeYear)" Sortable="true" />
+                        <PropertyColumn Title="Skatt" Property="@(c => "-" + c.TaxYear)" Sortable="true" />
                         <PropertyColumn Title="Courtage" Property="@(c => "-" + c.BrokerageYear)" Sortable="true" />
                         <TemplateColumn Title="Info">
 
@@ -395,7 +404,7 @@
 
         queryable = Enumerable.Empty<SharesProfitOrLossYearViewModel>().AsQueryable();
 
-        foreach (SharesProfitOrLossYears model in db.SharesProfitOrLossYears.OrderBy(c => c.DividendYear))
+        foreach (SharesProfitOrLossYears model in db.SharesProfitOrLossYears.OrderBy(c => c.SharesYear))
         {
             SharesProfitOrLossYearViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
             queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.SharesYear);
