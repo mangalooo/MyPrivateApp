@@ -22,7 +22,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (db == null) return "Ingen kontakt med databasen";
             if (!db.SharesProfitOrLossYears.Any()) return "Befintlig databas är tom!";
 
-            int thisYear = 2010; //DateTime.Now.Year; // Magnus: Ändra tillbaka
+            int thisYear = 2011; //DateTime.Now.Year; // Magnus: Ändra tillbaka
             double sharesPurchaseds = 0;
             double sharesSolds = 0;
             double fundsPurchased = 0; ;
@@ -155,13 +155,14 @@ namespace MyPrivateApp.Components.Shares.Classes
                     DividendYear = double.Round(dividends, 2, MidpointRounding.AwayFromZero),
                     InterestRatesYear = double.Round(interestRates, 2, MidpointRounding.AwayFromZero),
                     FeeYear = double.Round(fees, 2, MidpointRounding.AwayFromZero),
+                    TaxYear = double.Round(taxes, 2, MidpointRounding.AwayFromZero),
                     BrokerageYear = double.Round(brokerage, 2, MidpointRounding.AwayFromZero),
                     MoneyProfitOrLossYear = double.Round(moneyProfitOrLossYear, 2, MidpointRounding.AwayFromZero),
                     PercentProfitOrLossYear = ConvertToPercentage(percentProfitOrLossYear),
                     Note = $"Sålda Aktier: {sharesSolds} - Köpta aktier: {sharesPurchaseds} = {sharesSolds - sharesPurchaseds}" +
                            $"\r\nSålda fonder: {fundsSold} - Köpta fonder: {fundsPurchased} = {fundsSold - fundsPurchased}" +
                            $"\r\nUtdelning: {dividends}" +
-                           $"\r\nSkatt: {fees} + Courtage: {brokerage} = {double.Round(fees + brokerage, 2, MidpointRounding.AwayFromZero)}"
+                           $"\r\nSkatter: {taxes} + Avgifter: {fees} + Courtage: {brokerage} = {double.Round(taxes + fees + brokerage, 2, MidpointRounding.AwayFromZero)}"
                 };
 
                 db.SharesProfitOrLossYears.Add(model);
@@ -188,6 +189,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 DividendYear = model.DividendYear.ToString("#,##0.00"),
                 InterestRatesYear = model.InterestRatesYear.ToString("#,##0.00"),
                 FeeYear = model.FeeYear.ToString("#,##0.00"),
+                TaxYear = model.TaxYear.ToString("#,##0.00"),
                 BrokerageYear = model.BrokerageYear.ToString("#,##0.00"),
                 MoneyProfitOrLossYear = model.MoneyProfitOrLossYear.ToString("#,##0.00"),
                 PercentProfitOrLossYear = model.PercentProfitOrLossYear,
@@ -208,6 +210,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 DividendYear = double.Parse(vm.DividendYear),
                 InterestRatesYear = double.Parse(vm.InterestRatesYear),
                 FeeYear = double.Parse(vm.FeeYear),
+                TaxYear = double.Parse(vm.TaxYear),
                 BrokerageYear = double.Parse(vm.BrokerageYear),
                 MoneyProfitOrLossYear = double.Parse(vm.MoneyProfitOrLossYear),
                 PercentProfitOrLossYear = vm.PercentProfitOrLossYear,

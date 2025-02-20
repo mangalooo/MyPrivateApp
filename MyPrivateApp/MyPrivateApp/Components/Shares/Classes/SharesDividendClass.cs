@@ -15,13 +15,11 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Company) && !string.IsNullOrEmpty(vm.ISIN) 
-                    && vm.NumberOfShares > 0 && string.IsNullOrEmpty(vm.PricePerShare))
+                    && vm.NumberOfShares > 0 && !string.IsNullOrEmpty(vm.PricePerShare))
                 {
                     try
                     {
                         SharesDividend model = ChangeFromViewModelToModel(vm);
-
-                        model.TotalAmount = model.NumberOfShares * model.PricePerShare;
 
                         db.SharesDividends.Add(model);
                         db.SaveChanges();
@@ -163,14 +161,13 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             SharesDividend sharesDividend = new()
             {
-                DividendId = vm.DividendId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 AccountNumber = vm.AccountNumber,
                 TypeOfTransaction = vm.TypeOfTransaction,
                 Company = vm.Company,
                 NumberOfShares = vm.NumberOfShares,
                 PricePerShare = double.Parse(vm.PricePerShare),
-                TotalAmount = double.Parse(vm.TotalAmount),
+                TotalAmount = double.Parse(vm.PricePerShare) * vm.NumberOfShares,
                 Currency = vm.Currency,
                 ISIN = vm.ISIN,
                 Note = vm.Note

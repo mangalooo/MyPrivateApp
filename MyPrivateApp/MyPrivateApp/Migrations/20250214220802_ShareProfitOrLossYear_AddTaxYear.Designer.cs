@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPrivateApp.Data;
 
@@ -11,9 +12,11 @@ using MyPrivateApp.Data;
 namespace MyPrivateApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250214220802_ShareProfitOrLossYear_AddTaxYear")]
+    partial class ShareProfitOrLossYear_AddTaxYear
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -963,8 +966,8 @@ namespace MyPrivateApp.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("NumberOfShares")
-                        .HasColumnType("float");
+                    b.Property<int>("NumberOfShares")
+                        .HasColumnType("int");
 
                     b.Property<double>("PricePerShare")
                         .HasColumnType("float");
@@ -1097,8 +1100,8 @@ namespace MyPrivateApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("HowMany")
-                        .HasColumnType("float");
+                    b.Property<int>("HowMany")
+                        .HasColumnType("int");
 
                     b.Property<string>("ISIN")
                         .IsRequired()
@@ -1220,8 +1223,8 @@ namespace MyPrivateApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("HowMany")
-                        .HasColumnType("float");
+                    b.Property<int>("HowMany")
+                        .HasColumnType("int");
 
                     b.Property<string>("ISIN")
                         .IsRequired()

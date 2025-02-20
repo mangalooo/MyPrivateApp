@@ -10,7 +10,7 @@ namespace MyPrivateApp.Data.Models.SharesModels
         public string? Account { get; set; }
         public string? TypeOfTransaction { get; set; }
         public string? Company { get; set; }
-        public int NumberOfShares { get; set; }
+        public double NumberOfShares { get; set; }
         public double PricePerShare { get; set; }
         public double Amount { get; set; }
         public double Brokerage { get; set; }

@@ -37,7 +37,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public string? TypeOfShares { get; set; }
 
         [Display(Name = "Antal")]
-        public int HowMany { get; set; }
+        public double HowMany { get; set; }
 
         [Required(ErrorMessage = "Skriv in vad aktierna kostade per styck")]
         [Display(Name = "Pris per aktie")]

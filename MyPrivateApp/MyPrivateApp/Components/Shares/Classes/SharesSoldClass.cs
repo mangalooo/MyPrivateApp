@@ -155,7 +155,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             SharesSolds sharesSolds = new()
             {
-                SharesSoldId = vm.SharesSoldId,
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd"),
                 Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
@@ -164,7 +163,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 HowMany = vm.HowMany,
                 PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
                 PricePerSharesSold = double.Round(double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero),
-                Brokerage = vm.Brokerage,
+                Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero),
                 Currency = vm.Currency,
                 ISIN = vm.ISIN,
                 Account = vm.Account,
@@ -172,7 +171,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Note = vm.Note
             };
 
-            sharesSolds.MoneyProfitOrLoss = sharesSolds.AmountSold - sharesSolds.Amount;
+            sharesSolds.MoneyProfitOrLoss = double.Round(sharesSolds.AmountSold - sharesSolds.Amount, 2, MidpointRounding.AwayFromZero);
 
             double calculateMoneyProfitOrLoss = (sharesSolds.AmountSold / sharesSolds.Amount) - 1;
 

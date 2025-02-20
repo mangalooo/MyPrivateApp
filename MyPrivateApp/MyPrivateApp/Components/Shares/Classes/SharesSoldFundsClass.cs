@@ -100,7 +100,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public string Delete(ApplicationDbContext db, SharesSoldFundViewModel vm, bool import)
         {
-            if (vm != null && string.IsNullOrEmpty(vm.AmountSold) && db != null)
+            if (vm != null && !string.IsNullOrEmpty(vm.AmountSold) && db != null)
             {
                 SharesSoldFunds model = ChangeFromViewModelToModel(vm);
 

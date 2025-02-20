@@ -82,7 +82,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                             dbModel.Currency = vm.Currency;
                             dbModel.ISIN = vm.ISIN;
                             dbModel.Account = vm.Account;
-                            dbModel.Amount = vm.HowMany * int.Parse(vm.PricePerShares);
+                            dbModel.Amount = vm.HowMany * double.Parse(vm.PricePerShares);
                             dbModel.TypeOfShares = vm.TypeOfShares;
                             dbModel.Note = vm.Note;
 
@@ -494,7 +494,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             if (vm.Account == "Aktieinvest")
             {
-                if (model.AmountString.Contains("-"))
+                if (model.AmountString.Contains('-'))
                     vm.Brokerage = double.Parse(model.AmountString.Substring(1)) - double.Parse(amount);
                 else
                     vm.Brokerage = double.Parse(model.AmountString) - double.Parse(amount);
@@ -509,12 +509,11 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             SharesPurchaseds sharesPurchased = new()
             {
-                SharesPurchasedId = vm.SharesPurchasedId,
                 DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
                 CompanyName = vm.CompanyName,
                 HowMany = vm.HowMany,
                 PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
-                Brokerage = vm.Brokerage,
+                Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero),
                 Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
                 ISIN = vm.ISIN,
                 Currency = vm.Currency,

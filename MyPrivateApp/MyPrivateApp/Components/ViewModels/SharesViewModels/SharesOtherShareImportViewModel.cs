@@ -31,7 +31,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv hur många aktier")]
         [Display(Name = "Antal")]
         [DataType(DataType.Text)]
-        public int NumberOfShares { get; set; }
+        public double NumberOfShares { get; set; }
 
         [Required(ErrorMessage = "Skriv in pris per aktie")]
         [Display(Name = "Kurs")]

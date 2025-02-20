@@ -22,7 +22,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [Required(ErrorMessage = "Skriv hur många aktier")]
         [Display(Name = "Antal")]
         [DataType(DataType.Text)]
-        public int HowMany { get; set; }
+        public double HowMany { get; set; }
 
         [Required(ErrorMessage = "Skriv in pris per aktie")] 
         [Display(Name = "Pris per aktie")]
@@ -65,7 +65,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public DateTime MoreDateOfPurchase { get; set; }
 
         [Display(Name = "Köp mer: Antal")]
-        public int MoreHowMany { get; set; }
+        public double MoreHowMany { get; set; }
 
         [Display(Name = "Köp mer: Pris per aktie")]
         [DataType(DataType.Currency)]
@@ -73,7 +73,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Köp mer: Courtage")]
         [DataType(DataType.Currency)]
-        public int MoreBrokerage { get; set; }
+        public double MoreBrokerage { get; set; }
 
         // Sale
         [Display(Name = "Sälj: Datum")]
@@ -81,7 +81,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public DateTime SaleDateOfPurchase { get; set; }
 
         [Display(Name = "Sälj: Antal")]
-        public int SaleHowMany { get; set; }
+        public double SaleHowMany { get; set; }
 
         [Display(Name = "Sälj: Pris per aktie")]
         [DataType(DataType.Currency)]
