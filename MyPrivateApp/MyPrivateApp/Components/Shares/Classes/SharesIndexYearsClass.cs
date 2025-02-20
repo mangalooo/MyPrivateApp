@@ -1,4 +1,5 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 
@@ -6,9 +7,13 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesIndexYearsClass : ISharesIndexYearsClass
     {
-        public SharesTotalProfitsOrLosses? GetTotalProfitsOrLosses(ApplicationDbContext db, int? id) => db.SharesTotalProfitsOrLosses.Any(r => r.SharesTotalProfitOrLossId == id) ?
-                                                                                                 db.SharesTotalProfitsOrLosses.FirstOrDefault(r => r.SharesTotalProfitOrLossId == id) :
-                                                                                                     throw new Exception("Totala summan hittades inte i databasen!");
+        public async Task<SharesTotalProfitsOrLosses?> GetTotalProfitsOrLossesAsync(ApplicationDbContext db, int? id)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
+
+            return await db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync(r => r.SharesTotalProfitOrLossId == id)
+                ?? throw new Exception("Totala summan hittades inte i databasen!");
+        }
 
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
 

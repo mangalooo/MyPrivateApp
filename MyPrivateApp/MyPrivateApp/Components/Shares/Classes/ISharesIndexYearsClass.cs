@@ -6,7 +6,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public interface ISharesIndexYearsClass
     {
-        SharesTotalProfitsOrLosses? GetTotalProfitsOrLosses(ApplicationDbContext db, int? id);
+        Task<SharesTotalProfitsOrLosses?> GetTotalProfitsOrLossesAsync(ApplicationDbContext db, int? id);
         SharesProfitOrLossYearViewModel ChangeFromModelToViewModel(SharesProfitOrLossYears model);
         string CalculateLastYearsResults(ApplicationDbContext db);
         string Delete(ApplicationDbContext db, SharesProfitOrLossYearViewModel vm);
