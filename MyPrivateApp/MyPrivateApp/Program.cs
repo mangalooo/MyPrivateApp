@@ -16,6 +16,7 @@ using Hangfire.SqlServer;
 using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.Games.ManagerZone.Classes;
 using MyPrivateApp.Components.Email.Classes;
+using AutoMapper;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,8 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
@@ -74,10 +77,8 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin")); // Role admin
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -144,9 +145,20 @@ app.MapAdditionalIdentityEndpoints();
 //Hangfire
 app.UseHangfireDashboard("/hangfire");
 
+// Logs
+ILogger<ContactClass> logger = app.Services.GetRequiredService<ILogger<ContactClass>>();
+IMapper mapper = app.Services.GetRequiredService<IMapper>();
+
+MapperConfiguration config = new(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
+
+mapper = config.CreateMapper();
+
 // Sends automatic email if a contact has birthday
-ContactClass contactClass = new();
-contactClass.GetBirthday(db);
+ContactClass contactClass = new(db, logger, mapper);
+contactClass.GetBirthday();
 
 // Sends automatic email if a the frozen food has past time.
 FrozenFoodClass frozenFoodClass = new();

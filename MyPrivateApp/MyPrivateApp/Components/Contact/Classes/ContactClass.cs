@@ -1,216 +1,128 @@
-﻿
-using MyPrivateApp.Client.ViewModels;
+﻿using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data;
 using Hangfire;
 using MyPrivateApp.Components.Email.Classes;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using Microsoft.Extensions.Logging;
+using AutoMapper;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {
-    public class ContactClass : IContactClass
+    public class ContactClass(ApplicationDbContext db, ILogger<ContactClass> logger, IMapper mapper) : IContactClass
     {
-        private static Contacts? Get(ApplicationDbContext db, int? id) => db.Contacts.Any(r => r.ContactsId == id) ?
-                                                                               db.Contacts.FirstOrDefault(r => r.ContactsId == id) :
-                                                                                   throw new Exception("Kontakten hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<ContactClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, ContactsViewModels vm)
+        public async Task<Contacts?> Get(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (vm.Birthday != DateTime.MinValue && !string.IsNullOrEmpty(vm.Name))
-                {
-                    try
-                    {
-                        Contacts model = ChangeFromViewModelToModel(vm);
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-                        db.Contacts.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till ny kontakt. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen namn eller födelsedag ifyllt!";
-
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            return await _db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == id)
+                   ?? throw new Exception("Kontakten hittades inte i databasen!");
         }
 
-        public string Edit(ApplicationDbContext db, ContactsViewModels vm)
+        public async Task<string> Add(ContactsViewModels vm)
         {
-            if (vm != null && vm.ContactsId > 0 && db != null)
+            if (vm == null) return "Hittar ingen data från formuläret!";
+
+            if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
+                return "Ingen namn eller födelsedag ifyllt!";
+
+            try
             {
-                if (vm.Birthday != DateTime.MinValue && !string.IsNullOrEmpty(vm.Name))
-                {
-                    try
-                    {
-                        Contacts getDbModel = Get(db, vm.ContactsId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.Name = vm.Name;
-                            getDbModel.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
-                            getDbModel.Address = vm.Address;
-                            getDbModel.PostCode = vm.PostCode;
-                            getDbModel.MarriedPartner = vm.MarriedPartner;
-                            getDbModel.ChildOne = vm.ChildOne;
-                            getDbModel.ChildTwo = vm.ChildTwo;
-                            getDbModel.ChildThree = vm.ChildThree;
-                            getDbModel.ChildFour = vm.ChildFour;
-                            getDbModel.PrivateMail = vm.PrivateMail;
-                            getDbModel.WorkEMail = vm.WorkEMail;
-                            getDbModel.ExtraMail = vm.ExtraMail;
-                            getDbModel.PhoneNumber = vm.PhoneNumber;
-                            getDbModel.HomePhoneNumber = vm.HomePhoneNumber;
-                            getDbModel.WorkPhoneNumber = vm.WorkPhoneNumber;
-                            getDbModel.ExtraPhoneNumber = vm.ExtraPhoneNumber;
-                            getDbModel.City = vm.City;
-                            getDbModel.HomePage = vm.HomePage;
-                            getDbModel.Notes = vm.Notes;
-                            getDbModel.ChristmasCard = vm.ChristmasCard;
-                            getDbModel.Friends = vm.Friends;
-                            getDbModel.Relatives = vm.Relatives;
-                            getDbModel.Colleagues = vm.Colleagues;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte aktien i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra kontakten. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen name eller födelsedag ifyllt!";
+                Contacts model = _mapper.Map<Contacts>(vm);
+                await _db.Contacts.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att lägg till ny kontakt.");
+                return "Gick inte att lägg till ny kontakt.";
+            }
         }
 
-        public string Delete(ApplicationDbContext db, ContactsViewModels vm)
+        public async Task<string> Edit(ContactsViewModels vm)
         {
-            if (vm != null && vm.ContactsId > 0 && db != null)
+            if (vm == null || vm.ContactsId <= 0) return "Hittar ingen data från formuläret!";
+
+            if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
+                return "Ingen namn eller födelsedag ifyllt!";
+
+            try
             {
-                try
-                {
-                    Contacts model = ChangeFromViewModelToModel(vm);
+                Contacts? getDbModel = await Get(vm.ContactsId);
+                if (getDbModel == null) return "Hittar inte kontakten i databasen!";
 
-                    db.ChangeTracker.Clear();
-                    db.Contacts.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort kontakten. Felmeddelande: {ex.Message}";
-                }
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ändra kontakten.");
+                return "Gick inte att ändra kontakten.";
+            }
+        }
 
-            return string.Empty;
+        public async Task<string> Delete(ContactsViewModels vm)
+        {
+            if (vm == null || vm.ContactsId <= 0) return "Hittar ingen data från formuläret!";
+
+            try
+            {
+                Contacts model = _mapper.Map<Contacts>(vm);
+                _db.ChangeTracker.Clear();
+                _db.Contacts.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ta bort kontakten.");
+                return "Gick inte att ta bort kontakten.";
+            }
         }
 
         public ContactsViewModels ChangeFromModelToViewModel(Contacts model)
         {
-            DateTime birthday = DateTime.Parse(model.Birthday);
-
-            ContactsViewModels contact = new()
-            {
-                ContactsId = model.ContactsId,
-                Name = model.Name,
-                Birthday = birthday,
-                Address = model.Address,
-                PostCode = model.PostCode,
-                MarriedPartner = model.MarriedPartner,
-                ChildOne = model.ChildOne,
-                ChildTwo = model.ChildTwo,
-                ChildThree = model.ChildThree,
-                ChildFour = model.ChildFour,
-                PrivateMail = model.PrivateMail,
-                WorkEMail = model.WorkEMail,
-                ExtraMail = model.ExtraMail,
-                PhoneNumber = model.PhoneNumber,
-                HomePhoneNumber = model.HomePhoneNumber,
-                WorkPhoneNumber = model.WorkPhoneNumber,
-                ExtraPhoneNumber = model.ExtraPhoneNumber,
-                City = model.City,
-                HomePage = model.HomePage,
-                Notes = model.Notes,
-                ChristmasCard = model.ChristmasCard,
-                Friends = model.Friends,
-                Relatives = model.Relatives,
-                Colleagues = model.Colleagues
-            };
-
-            return contact;
+            return _mapper.Map<ContactsViewModels>(model);
         }
 
-        private static Contacts ChangeFromViewModelToModel(ContactsViewModels vm)
+        public void GetBirthday()
         {
-            Contacts contact = new()
+            foreach (var item in _db.Contacts)
             {
-                ContactsId = vm.ContactsId,
-                Name = vm.Name,
-                Birthday = vm.Birthday.ToString("yyyy-MM-dd"),
-                Address = vm.Address,
-                PostCode = vm.PostCode,
-                MarriedPartner = vm.MarriedPartner,
-                ChildOne = vm.ChildOne,
-                ChildTwo = vm.ChildTwo,
-                ChildThree = vm.ChildThree,
-                ChildFour = vm.ChildFour,
-                PrivateMail = vm.PrivateMail,
-                WorkEMail = vm.WorkEMail,
-                ExtraMail = vm.ExtraMail,
-                PhoneNumber = vm.PhoneNumber,
-                HomePhoneNumber = vm.HomePhoneNumber,
-                WorkPhoneNumber = vm.WorkPhoneNumber,
-                ExtraPhoneNumber = vm.ExtraPhoneNumber,
-                City = vm.City,
-                HomePage = vm.HomePage,
-                Notes = vm.Notes,
-                ChristmasCard = vm.ChristmasCard,
-                Friends = vm.Friends,
-                Relatives = vm.Relatives,
-                Colleagues = vm.Colleagues
-            };
-
-            return contact;
-        }
-
-        public void GetBirthday(ApplicationDbContext db)
-        {
-            foreach (Contacts item in db.Contacts)
-            {
-                DateTime date = Convert.ToDateTime(item.Birthday);
-
+                var date = Convert.ToDateTime(item.Birthday);
                 if (DateTime.Now.Month == date.Month && DateTime.Now.Day == date.Day)
                 {
-                    int year = DateTime.Now.Year - date.Year;
-
-                    EmailSender emailSender = new();
-
-                    IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
-                    string mailBirthday = config.GetSection("AppSettings")["mailBirthday"];
+                    var year = DateTime.Now.Year - date.Year;
+                    var emailSender = new EmailSender();
+                    var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
+                    var mailBirthday = config.GetSection("AppSettings")["mailBirthday"];
 
                     if (!string.IsNullOrEmpty(mailBirthday))
                     {
                         BackgroundJob.Schedule(() => emailSender.SendEmailBirthday(
-                        item.Name + " " + year.ToString() + " år", mailBirthday, "Födelsedag",
-                        "Ring: " + item.PhoneNumber, mailBirthday),
-                        new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
+                            $"{item.Name} {year} år", mailBirthday, "Födelsedag",
+                            $"Ring: {item.PhoneNumber}", mailBirthday),
+                            new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
                     }
                 }
             }
+        }
+    }
+
+
+
+public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            CreateMap<Contacts, ContactsViewModels>();
         }
     }
 }

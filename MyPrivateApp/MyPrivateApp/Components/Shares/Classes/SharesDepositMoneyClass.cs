@@ -1,4 +1,5 @@
-﻿using MyPrivateApp.Components.Enum;
+﻿using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.Enum;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
@@ -6,20 +7,29 @@ using MyPrivateApp.Data.Models.SharesModels;
 namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesDepositMoneyClass : ISharesDepositMoneyClass
-    {
-        private static SharesDepositMoney? Get(ApplicationDbContext db, int? id) => db.SharesDepositMoney.Any(r => r.DepositMoneyId == id) ?
-                                                                                           db.SharesDepositMoney.FirstOrDefault(r => r.DepositMoneyId == id) :
-                                                                                               throw new Exception("Den insatta eller uttagna summan hittades inte i databasen!");
-        public SharesTotalAmounts? GetTotalAmount(ApplicationDbContext db, int? id) => db.SharesTotalAmounts.Any(r => r.TotalAmountId == id) ?
-                                                                                                 db.SharesTotalAmounts.FirstOrDefault(r => r.TotalAmountId == id) :
-                                                                                                     throw new Exception("Totala summan hittades inte i databasen!");
+    {                                                                                          
+        public async Task<SharesDepositMoney?> Get(ApplicationDbContext db, int? id)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-        public string Add(ApplicationDbContext db, SharesDepositMoneyViewModel vm, bool import)
+            return await db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == id)
+                ?? throw new Exception("Den insatta eller uttagna summan hittades inte i databasen!");
+        }
+
+        public async Task<SharesTotalAmounts?> GetTotalAmount(ApplicationDbContext db, int? id)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
+
+            return await db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
+                ?? throw new Exception("Totala summan hittades inte i databasen!");
+        }
+
+        public async Task<string> Add(ApplicationDbContext db, SharesDepositMoneyViewModel vm, bool import)
         {
             if (vm != null && db != null)
             {
                 SharesDepositMoney model;
-                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 2); // Should always be just one total amount in the database
+                SharesTotalAmounts getTotalAmount = await GetTotalAmount(db, 2); // Should always be just one total amount in the database
 
                 if (getTotalAmount != null)
                 {
@@ -95,7 +105,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                                 ErrorHandling(db, vm, "Lägg till", import, "Felmeddelande: Inget Uttag eller Insättning i Transaktion fältet!");
                             else
                                 return $"Felmeddelande: Felmeddelande: Inget Uttag eller Insättning i Transaktion fältet!";
-                            
+
                             break;
                     }
                 }
@@ -119,13 +129,13 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
-        public string Edit(ApplicationDbContext db, SharesDepositMoneyViewModel vm)
+        public async Task<string> Edit(ApplicationDbContext db, SharesDepositMoneyViewModel vm)
         {
             if (db != null && vm.DepositMoneyId > 0)
             {
                 // Remove and add the new amount to the total.
-                SharesDepositMoney dbModel = Get(db, vm.DepositMoneyId);
-                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 2); // Should always be just one total amount in the database
+                SharesDepositMoney dbModel = await Get(db, vm.DepositMoneyId);
+                SharesTotalAmounts getTotalAmount = await GetTotalAmount(db, 2); // Should always be just one total amount in the database
                 string DBDepositMoneyString = dbModel.DepositMoney.ToString();
                 double DBDepositMoney = DBDepositMoneyString.Contains('-') ? double.Parse(DBDepositMoneyString[1..]) : double.Parse(DBDepositMoneyString);
                 string VMDepositMoneyString = vm.DepositMoney.ToString();
@@ -158,7 +168,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
-        public string Delete(ApplicationDbContext db, SharesDepositMoneyViewModel vm) 
+        public async Task<string> Delete(ApplicationDbContext db, SharesDepositMoneyViewModel vm)
         {
             SharesDepositMoney model = ChangeFromViewModelToModel(vm);
 
@@ -175,7 +185,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     ErrorHandling(db, vm, "Ta bort", false, ex.Message);
                 }
 
-                SharesTotalAmounts getTotalAmount = GetTotalAmount(db, 2); // Should always be just one total amount in the database
+                SharesTotalAmounts getTotalAmount = await GetTotalAmount(db, 2); // Should always be just one total amount in the database
                 getTotalAmount.TotalAmount -= model.DepositMoney;
 
                 db.SaveChanges();

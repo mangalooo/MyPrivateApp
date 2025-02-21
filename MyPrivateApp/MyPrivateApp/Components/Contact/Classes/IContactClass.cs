@@ -6,9 +6,9 @@ namespace MyPrivateApp.Components.Contact.Classes
 {
     public interface IContactClass
     {
-        string Add(ApplicationDbContext db, ContactsViewModels vm);
-        string Edit(ApplicationDbContext db, ContactsViewModels vm);
-        string Delete(ApplicationDbContext db, ContactsViewModels vm);
+        Task<string> Add(ContactsViewModels vm);
+        Task<string> Edit(ContactsViewModels vm);
+        Task<string> Delete(ContactsViewModels vm);
         ContactsViewModels ChangeFromModelToViewModel(Contacts model);
     }
 }

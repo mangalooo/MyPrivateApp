@@ -493,9 +493,9 @@
         }
     }
 
-    private string GetTotalProfitsOrLosses()
+    private async Task<string> GetTotalProfitsOrLosses()
     {
-        SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = BackEndClass.GetTotalProfitsOrLosses(db, 1);
+        SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = await BackEndClass.GetTotalProfitsOrLosses(db, 1);
 
         if (sharesTotalProfitsOrLosses == null) return string.Empty;
 

@@ -400,14 +400,14 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
         if (pageModel.DepositMoneyId > 0)
         {
             // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel);
+            ErrorMessage = await BackEndClass.Edit(db, pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -426,7 +426,7 @@
         else
         {
             // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
+            ErrorMessage = await BackEndClass.Add(db, pageModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -462,7 +462,7 @@
         pageModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
         if (db.SharesDepositMoney.Count() == 0) return;
 
@@ -473,7 +473,7 @@
             SharesDepositMoney model = db.SharesDepositMoney.FirstOrDefault(a => a.DepositMoneyId == TemporaryId);
             SharesDepositMoneyViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = BackEndClass.Delete(db, vm);
+            ErrorMessage = await BackEndClass.Delete(db, vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -506,9 +506,9 @@
         StateHasChanged();
     }
 
-    private double GetTotalAmount()
+    private async Task<double> GetTotalAmount()
     {
-        SharesTotalAmounts sharesTotalAmounts = BackEndClass.GetTotalAmount(db, 2);
+        SharesTotalAmounts sharesTotalAmounts = await BackEndClass.GetTotalAmount(db, 2);
 
         if (sharesTotalAmounts == null) return 0;
 

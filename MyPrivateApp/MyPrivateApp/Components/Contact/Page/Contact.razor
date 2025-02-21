@@ -7,12 +7,15 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.AspNetCore.Http;
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
 
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject IContactClass BackEndClass
+@inject IMapper mapper
 
 <PageTitle> Kontakter </PageTitle>
 
@@ -552,67 +555,57 @@
     private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryableAsync()
     {
-        if (db.Contacts.Count() == 0) return;
+        var contacts = await db.Contacts.OrderBy(c => c.ContactsId).ToListAsync();
 
-        queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+        if (!contacts.Any()) return;
 
-        foreach (Contacts model in db.Contacts.OrderBy(c => c.ContactsId))
-        {
-            ContactsViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
-        }
+        queryable = contacts
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.ContactsId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel);
+            if (pageModel.ContactsId > 0)
+            {
+                // Edit
+                ErrorMessage = await BackEndClass.Edit(pageModel);
+            }
+            else
+            {
+                // Add
+                ErrorMessage = await BackEndClass.Add(pageModel);
+            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = false;
-                return;
+                ShowOrHideEditButton = pageModel.ContactsId > 0;
+                ShowOrHideAddNewButton = pageModel.ContactsId == 0;
             }
             else
             {
                 pageModel = new();
                 Navigation.Refresh(true);
-                return;
             }
         }
-        else
+        catch (Exception ex)
         {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = true;
-                ShowOrHideAddNewButton = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            ErrorMessage = $"An error occurred: {ex.Message}";
+            ShowOrHideErrorMessage = false;
         }
     }
 
@@ -640,18 +633,18 @@
         pageModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.Contacts.Count() == 0) return;
+        if (await db.Contacts.CountAsync() == 0) return;
 
-        bool findId = db.Contacts.Any(a => a.ContactsId == TemporaryId);
+        bool findId = await db.Contacts.AnyAsync(a => a.ContactsId == TemporaryId);
 
         if (findId)
         {
-            Contacts model = db.Contacts.FirstOrDefault(a => a.ContactsId == TemporaryId);
-            ContactsViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            Contacts model = await db.Contacts.FirstOrDefaultAsync(a => a.ContactsId == TemporaryId);
+            ContactsViewModels vm = mapper.Map<ContactsViewModels>(model);
 
-            ErrorMessage = BackEndClass.Delete(db, vm);
+            ErrorMessage = await BackEndClass.Delete(vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -700,73 +693,78 @@
 
     private int GetDaysToNextBirthday(DateTime birthDate)
     {
-        DateTime date = DateTime.Now;
-        DateTime birthDay = new DateTime(date.Year, birthDate.Month, birthDate.Day);
+        DateTime today = DateTime.Today;
+        DateTime nextBirthday = new DateTime(today.Year, birthDate.Month, birthDate.Day);
 
-        string getDays = (birthDay - date).TotalDays.ToString();
-        string result = getDays.Substring(0, getDays.LastIndexOf(','));
+        if (nextBirthday < today)
+            nextBirthday = nextBirthday.AddYears(1);
 
-        if (getDays.Substring(0, 1) == "-")
-        {
-            DateTime firstDayOfThisYear = new DateTime(date.Year, 1, 1);
-            DateTime lastDayOfThisYear = new DateTime(date.Year, 12, 31);
-            double getDaysOfThisYear = (lastDayOfThisYear - firstDayOfThisYear).TotalDays;
-            string getDaysOfThisYearToString = getDaysOfThisYear.ToString();
-            int totalDaysOfThisYear = int.Parse(getDaysOfThisYearToString);
-            result = result.Substring(1);
-            int getNumber = int.Parse(result);
-            int count = totalDaysOfThisYear - getNumber;
-            result = count.ToString();
-        }
-
-        return int.Parse(result) + 1;
+        return (nextBirthday - today).Days;
     }
 
-    private void SetQuery(IEnumerable<Contacts> result)
+    private async Task SetQuery(IEnumerable<Contacts> result)
     {
-        queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-
-        if (result.Count() == 0) return;
-
-        if (result.Any())
-            foreach (Contacts model in result.OrderBy(c => c.ContactsId))
-            {
-                ContactsViewModels contact = BackEndClass.ChangeFromModelToViewModel(model);
-                queryable = queryable.Concat(new[] { contact }.AsQueryable());
-            }
-    }
-
-    private void SearchFirstName(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        if (!result.Any())
         {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Name!.Contains(e.Value!.ToString()!));
-
-            SetQuery(result);
-            return;
-        }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchAge(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
-        {
-            IEnumerable<Contacts> result = db.Contacts;
-
             queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+            return;
+        }
 
-            if (result.Count() == 0) return;
+        IEnumerable<ContactsViewModels> contactList = result
+            .OrderBy(c => c.ContactsId)
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .ToList();
 
-            if (result.Any())
-                foreach (Contacts model in result.OrderBy(c => c.ContactsId))
-                {
-                    ContactsViewModels contact = BackEndClass.ChangeFromModelToViewModel(model);
+        queryable = contactList.AsQueryable();
+    }
 
-                    if (e.Value.ToString() == GetAge(contact.Birthday).ToString())
-                        queryable = queryable.Concat(new[] { contact }.AsQueryable());
-                }
+    private async Task SearchFirstName(ChangeEventArgs e)
+    {
+        string searchValue = e.Value?.ToString();
+
+        if (!string.IsNullOrEmpty(searchValue))
+        {
+            IEnumerable<Contacts> result = await db.Contacts
+                .Where(c => c.Name!.Contains(searchValue))
+                .ToListAsync();
+
+            await SetQuery(result);
+        }
+        else
+        {
+            Navigation.Refresh(true);
+        }
+    }
+
+    private async Task SearchAge(ChangeEventArgs e)
+    {
+        string searchValue = e.Value?.ToString();
+
+        if (!string.IsNullOrEmpty(searchValue) && int.TryParse(searchValue, out int age))
+        {
+            var result = await db.Contacts.ToListAsync();
+            var filteredResult = result
+                .Where(c => GetAge(DateTime.Parse(c.Birthday)) == age)
+                .ToList();
+            await SetQuery(filteredResult);
+        }
+        else
+        {
+            Navigation.Refresh(true);
+        }
+    }
+
+    private async Task SearchFriends(ChangeEventArgs e)
+    {
+        if (e.Value == null) return;
+
+        string trueOrFalse = e.Value.ToString() ?? string.Empty;
+
+        if (trueOrFalse == "True")
+        {
+            IEnumerable<Contacts> result = await db.Contacts.AsNoTracking().Where(c => c.Friends).ToListAsync();
+
+            await SetQuery(result);
 
             return;
         }
@@ -774,62 +772,53 @@
         Navigation.Refresh(true);
     }
 
-    private void SearchFriends(ChangeEventArgs e)
+    private async Task SearchChristmasCard(ChangeEventArgs e)
     {
-        string trueOrFalse = e.Value.ToString();
+        if (e.Value == null) return;
+
+        string trueOrFalse = e.Value.ToString() ?? string.Empty;
 
         if (trueOrFalse == "True")
         {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Friends == true);
+            IEnumerable<Contacts> result = await db.Contacts.Where(c => c.ChristmasCard).ToListAsync();
 
-            SetQuery(result);
+            await SetQuery(result);
+
             return;
         }
 
         Navigation.Refresh(true);
     }
 
-    private void SearchChristmasCard(ChangeEventArgs e)
+    private async Task SearchRelatives(ChangeEventArgs e)
     {
-        string trueOrFalse = e.Value.ToString();
+        if (e.Value == null) return;
+
+        string trueOrFalse = e.Value.ToString() ?? string.Empty;
 
         if (trueOrFalse == "True")
         {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.ChristmasCard == true);
-            queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+            IEnumerable<Contacts> result = await db.Contacts.Where(c => c.Relatives).ToListAsync();
 
-            SetQuery(result);
+            await SetQuery(result);
+
             return;
         }
 
         Navigation.Refresh(true);
     }
 
-    private void SearchRelatives(ChangeEventArgs e)
+    private async Task SearchColleagues(ChangeEventArgs e)
     {
-        string trueOrFalse = e.Value.ToString();
+        if (e.Value == null) return;
+
+        string trueOrFalse = e.Value.ToString() ?? string.Empty;
 
         if (trueOrFalse == "True")
         {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Relatives == true);
-            queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+            IEnumerable<Contacts> result = await db.Contacts.Where(c => c.Colleagues).ToListAsync();
 
-            SetQuery(result);
-            return;
-        }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchColleagues(ChangeEventArgs e)
-    {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<Contacts> result = db.Contacts.Where(c => c.Colleagues == true);
-
-            SetQuery(result);
+            await SetQuery(result);
             return;
         }
 

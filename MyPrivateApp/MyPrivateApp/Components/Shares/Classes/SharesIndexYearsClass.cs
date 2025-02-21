@@ -7,7 +7,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesIndexYearsClass : ISharesIndexYearsClass
     {
-        public async Task<SharesTotalProfitsOrLosses?> GetTotalProfitsOrLossesAsync(ApplicationDbContext db, int? id)
+        public async Task<SharesTotalProfitsOrLosses?> GetTotalProfitsOrLosses(ApplicationDbContext db, int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
@@ -22,7 +22,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (db == null) return "Ingen kontakt med databasen";
             if (!db.SharesProfitOrLossYears.Any()) return "Befintlig databas är tom!";
 
-            int thisYear = 2011; //DateTime.Now.Year; // Magnus: Ändra tillbaka
+            int thisYear = 2012; //DateTime.Now.Year; // Magnus: Ändra tillbaka
             double sharesPurchaseds = 0;
             double sharesSolds = 0;
             double fundsPurchased = 0; ;
