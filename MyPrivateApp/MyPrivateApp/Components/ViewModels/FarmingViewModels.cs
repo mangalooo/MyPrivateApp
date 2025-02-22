@@ -23,10 +23,6 @@ namespace MyPrivateApp.Components.ViewModels
 
         [Display(Name = "Frö datum")]
         [DataType(DataType.Date)]
-        public DateTime InactiveDate { get; set; }
-
-        [Display(Name = "Frö datum")]
-        [DataType(DataType.Date)]
         public DateTime PutSeedDate { get; set; }
 
         [Display(Name = "Plantera ut datum")]
@@ -46,5 +42,9 @@ namespace MyPrivateApp.Components.ViewModels
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]
         public string? Note { get; set; }
+
+        [Display(Name = "Frö datum")]
+        [DataType(DataType.Date)]
+        public DateTime InactiveDate { get; set; }
     }
 }

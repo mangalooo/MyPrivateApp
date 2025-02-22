@@ -557,7 +557,7 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        var contacts = await db.Contacts.OrderBy(c => c.ContactsId).ToListAsync();
+        List<Contacts> contacts = await db.Contacts.OrderBy(c => c.ContactsId).ToListAsync();
 
         if (!contacts.Any()) return;
 
@@ -635,30 +635,23 @@
 
     private async Task Delete()
     {
-        if (await db.Contacts.CountAsync() == 0) return;
+        if (!db.Contacts.Any()) return;
 
-        bool findId = await db.Contacts.AnyAsync(a => a.ContactsId == TemporaryId);
+        Contacts? model = await db.Contacts.FirstOrDefaultAsync(a => a.ContactsId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        ContactsViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.Delete(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = false;
+        else
         {
-            Contacts model = await db.Contacts.FirstOrDefaultAsync(a => a.ContactsId == TemporaryId);
-            ContactsViewModels vm = mapper.Map<ContactsViewModels>(model);
-
-            ErrorMessage = await BackEndClass.Delete(vm);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageModel = new();
+            Navigation.Refresh(true);
         }
     }
+
 
     private void OpenDeleteWindow(ContactsViewModels vm)
     {

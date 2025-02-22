@@ -495,13 +495,22 @@
 
     private async Task<string> GetTotalProfitsOrLosses()
     {
-        SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = await BackEndClass.GetTotalProfitsOrLosses(db, 1);
+        try
+        {
+            SharesTotalProfitsOrLosses? sharesTotalProfitsOrLosses = await BackEndClass.GetTotalProfitsOrLosses(db, 1);
 
-        if (sharesTotalProfitsOrLosses == null) return string.Empty;
+            if (sharesTotalProfitsOrLosses == null)
+                return "No data available";
 
-        string sum = sharesTotalProfitsOrLosses.TotalProfitOrLoss.ToString("#,##0.00");
-
-        return sum;
+            string sum = sharesTotalProfitsOrLosses.TotalProfitOrLoss.ToString("#,##0.00");
+            return sum;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (consider using a logging framework)
+            Console.Error.WriteLine($"Error fetching total profits or losses: {ex.Message}");
+            return "Error fetching data";
+        }
     }
 
     private void SetQuery(IEnumerable<SharesProfitOrLossYears> result)

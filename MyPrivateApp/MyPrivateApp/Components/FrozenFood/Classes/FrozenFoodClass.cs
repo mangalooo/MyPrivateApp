@@ -172,59 +172,58 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
         {
             if (!db.FrozenFoods.Any()) return;
 
-            EmailSender emailSender = new();
-
             IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
-            string mailFreezer = config.GetSection("AppSettings")["mailFreezer"];
+            EmailSender emailSender = new(config);
+
+            string? mailFreezer = config.GetSection("AppSettings")["mailFreezer"];
+
+            if (string.IsNullOrEmpty(mailFreezer)) return;
 
             foreach (FrozenFoods item in db.FrozenFoods)
             {
-                if (!string.IsNullOrEmpty(mailFreezer))
+                DateTime date = Convert.ToDateTime(item.Date);
+                string getName = string.Empty;
+
+                foreach (int frozenGoods in Enum.FreezerFrozenGoods.GetValues(typeof(FreezerFrozenGoods)))
                 {
-                    DateTime date = Convert.ToDateTime(item.Date);
-                    string getName = string.Empty;
+                    Type enumType = typeof(FreezerFrozenGoods);
+                    getName = Enum.FreezerFrozenGoods.GetName(enumType, frozenGoods).ToLower();
 
-                    foreach (int frozenGoods in Enum.FreezerFrozenGoods.GetValues(typeof(FreezerFrozenGoods)))
-                    {
-                        Type enumType = typeof(FreezerFrozenGoods);
-                        getName = Enum.FreezerFrozenGoods.GetName(enumType, frozenGoods).ToLower();
+                    if (frozenGoods == (int)item.FrozenGoods)
+                        break;
+                }
 
-                        if (frozenGoods == (int)item.FrozenGoods)
-                            break;
-                    }
+                switch (getName)
+                {
+                    case "hare":
+                        if (HowLongTimeInFreezer(date) == 6)
+                            SendEmailTo(emailSender, getName, item, mailFreezer);
+                        break;
 
-                    switch (getName)
-                    {
-                        case "hare":
-                            if (HowLongTimeInFreezer(date) == 6)
-                                SendEmailTo(emailSender, getName, item, mailFreezer);
-                            break;
+                    case "ko":
+                        if (HowLongTimeInFreezer(date) == 6)
+                            SendEmailTo(emailSender, getName, item, mailFreezer);
+                        break;
 
-                        case "ko":
-                            if (HowLongTimeInFreezer(date) == 6)
-                                SendEmailTo(emailSender, getName, item, mailFreezer);
-                            break;
+                    case "rådjur":
+                        if (HowLongTimeInFreezer(date) == 6)
+                            SendEmailTo(emailSender, getName, item, mailFreezer);
+                        break;
 
-                        case "rådjur":
-                            if (HowLongTimeInFreezer(date) == 6)
-                                SendEmailTo(emailSender, getName, item, mailFreezer);
-                            break;
+                    case "vildsvin":
+                        if (HowLongTimeInFreezer(date) == 4)
+                            SendEmailTo(emailSender, getName, item, mailFreezer);
+                        break;
 
-                        case "vildsvin":
-                            if (HowLongTimeInFreezer(date) == 4)
-                                SendEmailTo(emailSender, getName, item, mailFreezer);
-                            break;
+                    case "älg":
+                        if (HowLongTimeInFreezer(date) == 6)
+                            SendEmailTo(emailSender, getName, item, mailFreezer);
+                        break;
 
-                        case "älg":
-                            if (HowLongTimeInFreezer(date) == 6)
-                                SendEmailTo(emailSender, getName, item, mailFreezer);
-                            break;
-
-                        case "övrigt":
-                            if (HowLongTimeInFreezer(date) == 2)
-                                SendEmailTo(emailSender, getName, item, mailFreezer);
-                            break;
-                    }
+                    case "övrigt":
+                        if (HowLongTimeInFreezer(date) == 2)
+                            SendEmailTo(emailSender, getName, item, mailFreezer);
+                        break;
                 }
             }
         }

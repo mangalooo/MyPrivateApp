@@ -11,6 +11,8 @@
 @using MyPrivateApp.Data.Models.Farming
 @using MyPrivateApp.Data.Models.SharesModels
 @using MyPrivateApp.Components.Shares.Classes
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
 
 @rendermode InteractiveServer
 
@@ -353,26 +355,24 @@
     [SupplyParameterFromForm]
     private FarmingViewModels pageModel { get; set; } = new();
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<FarmingViewModels> queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
 
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryableAsync()
     {
-        if (db.FarmingsActive.Count() == 0) return;
+        List<FarmingsActive> farmingsActive = await db.FarmingsActive.OrderBy(c => c.FarmingId).ToListAsync();
 
-        queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+        if (!farmingsActive.Any()) return;
 
-        foreach (FarmingsActive model in db.FarmingsActive.OrderBy(c => c.FarmingId))
-        {
-            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
-        }
+        queryable = farmingsActive
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -408,55 +408,47 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.FarmingId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.EditActive(db, pageModel);
+            if (pageModel.FarmingId > 0)
+            {
+                // Edit
+                ErrorMessage = await BackEndClass.EditActive(pageModel);
+            }
+            else
+            {
+                // Add
+                ErrorMessage = await BackEndClass.Add(pageModel);
+            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = false;
-                return;
+                ShowOrHideEditButton = pageModel.FarmingId > 0;
+                ShowOrHideAddNewButton = pageModel.FarmingId == 0;
             }
             else
             {
                 pageModel = new();
                 Navigation.Refresh(true);
-                return;
             }
         }
-        else
+        catch (Exception ex)
         {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = true;
-                ShowOrHideAddNewButton = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            ErrorMessage += $"\r\n\r\nAn error occurred: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
     private void Info(FarmingViewModels vm)
     {
         HideNewOrChangesForm();
-        ShowOrHideAddNewButton = true;
+        ShowOrHideAddNewButton = pageModel.FarmingId == 0;
         DisabledForm = true;
         pageModel = vm;
     }
@@ -464,37 +456,29 @@
     private void Edit(FarmingViewModels vm)
     {
         DisabledForm = false;
-        ShowOrHideEditButton = false;
-        ShowOrHideAddNewButton = true;
+        ShowOrHideEditButton = pageModel.FarmingId > 0;
+        ShowOrHideAddNewButton = pageModel.FarmingId == 0;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
         pageModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.FarmingsActive.Count() == 0) return;
+        if (!db.FarmingsActive.Any()) return;
 
-        bool findId = db.FarmingsActive.Any(a => a.FarmingId == TemporaryId);
+        FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.DeleteActive(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = false;
+        else
         {
-            FarmingsActive model = db.FarmingsActive.FirstOrDefault(a => a.FarmingId == TemporaryId);
-            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.DeleteActive(db, vm, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageModel = new();
+            Navigation.Refresh(true);
         }
     }
 
@@ -515,36 +499,41 @@
         StateHasChanged();
     }
 
-    private void Inactive()
+    private async Task Inactive()
     {
-        if (db.FarmingsActive.Count() == 0) return;
-
-        bool findId = db.FarmingsActive.Any(a => a.FarmingId == TemporaryId);
-
-        if (findId)
+        try
         {
-            FarmingsActive model = db.FarmingsActive.FirstOrDefault(a => a.FarmingId == TemporaryId);
-            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
 
-            ErrorMessage = BackEndClass.Inactive(db, vm);
+            if (model == null)
+            {
+                ErrorMessage = "Id är 0!";
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+
+            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            ErrorMessage = await BackEndClass.Inactive(vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                ShowOrHideErrorMessage = false;
+                ShowOrHideErrorMessage = true;
                 HideNewOrChangesFields = true;
-                ShowOrHideEditButton = false;
-                return;
+                ShowOrHideEditButton = pageModel.FarmingId > 0;
             }
             else
             {
                 pageModel = new();
                 Navigation.Refresh(true);
-                return;
             }
         }
-        else
-            ErrorMessage = "Id är 0!";
+        catch (Exception ex)
+        {
+            ErrorMessage = $"An error occurred: {ex.Message}";
+            ShowOrHideErrorMessage = true;
+        }
     }
+
 
     private void OpenInactiveWindow(FarmingViewModels vm)
     {

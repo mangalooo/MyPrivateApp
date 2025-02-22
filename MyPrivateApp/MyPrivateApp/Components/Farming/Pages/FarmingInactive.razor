@@ -358,14 +358,14 @@
 
     private void RefreshPage() => Navigation.Refresh(true);
 
-    private void Edit()
+    private async Task Edit()
     {
         DisabledForm = false;
 
         if (pageModel.FarmingId > 0)
         {
             // Edit
-            ErrorMessage = BackEndClass.EditInactive(db, pageModel);
+            ErrorMessage = await BackEndClass.EditInactive(pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -398,7 +398,7 @@
         pageModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
         if (db.FarmingsInactive.Count() == 0) return;
 
@@ -409,7 +409,7 @@
             FarmingsInactive model = db.FarmingsInactive.FirstOrDefault(a => a.FarmingId == TemporaryId);
             FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
 
-            ErrorMessage = BackEndClass.DeleteInactive(db, vm, false);
+            ErrorMessage = await BackEndClass.DeleteInactive(vm);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {

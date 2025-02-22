@@ -2,298 +2,232 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models.Farming;
+using AutoMapper;
+using MyPrivateApp.Components.Contact.Classes;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Farming.Classes
 {
-    public class FarmingClass : IFarmingClass
+    public class FarmingClass(ApplicationDbContext db, ILogger<ContactClass> logger, IMapper mapper) : IFarmingClass
     {
-        private static FarmingsActive? GetActive(ApplicationDbContext db, int? id) => db.FarmingsActive.Any(r => r.FarmingId == id) ?
-                                                                                        db.FarmingsActive.FirstOrDefault(r => r.FarmingId == id) :
-                                                                                            throw new Exception("Aktiv odlingen hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<ContactClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        private static FarmingsInactive? GetInactive(ApplicationDbContext db, int? id) => db.FarmingsInactive.Any(r => r.FarmingId == id) ?
-                                                                                            db.FarmingsInactive.FirstOrDefault(r => r.FarmingId == id) :
-                                                                                                throw new Exception("Inaktiv odlingen hittades inte i databasen!");
-
-        public string Add(ApplicationDbContext db, FarmingViewModels vm, bool import)
+        public async Task<FarmingsActive?> GetActive(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (!string.IsNullOrEmpty(vm.Name) && !string.IsNullOrEmpty(vm.Type))
-                {
-                    try
-                    {
-                        FarmingsActive model = ChangeFromViewModelToModel(vm);
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-                        db.FarmingsActive.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till ny odling. Felmeddelande: {ex.Message} ";
-                    }
-                }
-                else
-                    return "Du måste fylle i namn och typ!";
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            return await _db.FarmingsActive.FirstOrDefaultAsync(r => r.FarmingId == id)
+                   ?? throw new Exception("Aktiv odlingen hittades inte i databasen!");
         }
 
-        public string EditActive(ApplicationDbContext db, FarmingViewModels vm)
+        public async Task<FarmingsInactive?> GetInactive(int? id)
         {
-            if (vm != null && vm.FarmingId > 0 && db != null)
-            {
-                if (!string.IsNullOrEmpty(vm.Name) && !string.IsNullOrEmpty(vm.Type))
-                {
-                    try
-                    {
-                        FarmingsActive getDbModel = GetActive(db, vm.FarmingId);
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-                        if (getDbModel != null)
-                        {
-                            getDbModel.FarmingId = vm.FarmingId;
-                            getDbModel.Name = vm.Name;
-                            getDbModel.Type = vm.Type;
-                            getDbModel.Place = vm.Place;
-                            getDbModel.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
-                            getDbModel.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
-                            getDbModel.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
-                            getDbModel.HowMany = vm.HowMany;
-                            getDbModel.HowManySave = vm.HowManySave;
-                            getDbModel.Note = vm.Note;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte aktien i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra aktiv odling. Felmeddelande: {ex.Message} ";
-                    }
-                }
-                else
-                    return "Du måste fylle i namn och typ!";
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            return await _db.FarmingsInactive.FirstOrDefaultAsync(r => r.FarmingId == id)
+                   ?? throw new Exception("Inaktiv odlingen hittades inte i databasen!");
         }
 
-        public string EditInactive(ApplicationDbContext db, FarmingViewModels vm)
+        public async Task<string> Add(FarmingViewModels vm)
         {
-            if (vm != null && vm.FarmingId > 0 && db != null)
+            if (vm == null || _db == null)
+                return "Hittar ingen data från formuläret eller ingen aktiv odling i databasen!";
+
+            if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
+                return "Du måste fylle i namn och typ!";
+
+            try
             {
-                if (!string.IsNullOrEmpty(vm.Name) && !string.IsNullOrEmpty(vm.Type))
-                {
-                    try
-                    {
-                        FarmingsInactive getDbModel = GetInactive(db, vm.FarmingId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.FarmingId = vm.FarmingId;
-                            getDbModel.InactiveDate = vm.InactiveDate.ToString("yyyy-MM-dd");
-                            getDbModel.Name = vm.Name;
-                            getDbModel.Type = vm.Type;
-                            getDbModel.Place = vm.Place;
-                            getDbModel.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
-                            getDbModel.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
-                            getDbModel.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
-                            getDbModel.HowMany = vm.HowMany;
-                            getDbModel.HowManySave = vm.HowManySave;
-                            getDbModel.Note = vm.Note;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte aktien i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra inaktiv odling. Felmeddelande: {ex.Message} ";
-                    }
-                }
-                else
-                    return "Du måste fylle i namn och typ!";
+                FarmingsActive model = _mapper.Map<FarmingsActive>(vm);
+                await _db.FarmingsActive.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                return $"Gick inte att lägg till ny odling. Felmeddelande: {ex.Message} ";
+            }
         }
 
-        public string Inactive(ApplicationDbContext db, FarmingViewModels vm)
+        public async Task<string> EditActive(FarmingViewModels vm)
         {
-            if (vm != null && db != null)
+            if (vm == null || vm.FarmingId <= 0 || _db == null)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
+                return "Du måste fylle i namn och typ!";
+
+            try
             {
-                FarmingsInactive farmings = new()
-                {
-                    InactiveDate = DateTime.Now.ToString("yyyy-MM-dd"),
-                    Name = vm.Name,
-                    Type = vm.Type,
-                    Place = vm.Place,
-                    PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd"),
-                    SetDate = vm.SetDate.ToString("yyyy-MM-dd"),
-                    TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd"),
-                    HowMany = vm.HowMany,
-                    HowManySave = vm.HowManySave,
-                    Note = vm.Note
-                };
+                FarmingsActive? getDbModel = await GetActive(vm.FarmingId);
 
-                try
-                {
-                    db.FarmingsInactive.Add(farmings);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att inaktivera odlingen! Felmeddelande: {ex.Message}";
-                }
+                if (getDbModel == null) return "Hittar inte aktiv odling i databasen!";
 
-                // Removes active farming
-                DeleteActive(db, vm, false);
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ändra aktiv odling!");
+                return $"Gick inte att ändra aktiv odling. Felmeddelande: {ex.Message}";
+            }
+        }
+
+        public async Task<string> EditInactive(FarmingViewModels vm)
+        {
+            if (vm == null || vm.FarmingId <= 0 || _db == null)
+                return "Ändra: Hittar ingen data från formuläret eller ingen inaktiv odling i databasen!";
+
+            if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
+                return "Du måste fylle i namn och typ!";
+
+            try
+            {
+                FarmingsInactive? getDbModel = await GetInactive(vm.FarmingId);
+
+                if (getDbModel == null) return "Hittar inte odlingen i databasen!";
+
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ändra inaktiv odling!");
+                return $"Gick inte att ändra inaktiv odling! Felmeddelande: {ex.Message} ";
+            }
+        }
+
+        public async Task<string> Inactive(FarmingViewModels vm)
+        {
+            if (vm == null)
                 return "Får ingen kontakt med databasen eller formuläret!";
 
-            return string.Empty;
-        }
+            FarmingsInactive farmings = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsInactive>(vm);
+            farmings.InactiveDate = DateTime.Now.ToString("yyyy-MM-dd");
 
-        public string DeleteActive(ApplicationDbContext db, FarmingViewModels vm, bool import)
-        {
-            if (vm != null && vm.FarmingId > 0 && db != null)
+            try
             {
-                try
-                {
-                    FarmingsActive model = ChangeFromViewModelToModel(vm);
-
-                    db.ChangeTracker.Clear();
-                    db.FarmingsActive.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort aktiv odling. Felmeddelande: {ex.Message} ";
-                }
+                await _db.FarmingsInactive.AddAsync(farmings);
+                await _db.SaveChangesAsync();
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att inaktivera odlingen!");
+                return $"Gick inte att inaktivera odlingen! Felmeddelande: {ex.Message}";
+            }
+
+            // Removes active farming
+            await DeleteActive(vm);
 
             return string.Empty;
         }
 
-        public string DeleteInactive(ApplicationDbContext db, FarmingViewModels vm, bool import)
+        public async Task<string> DeleteActive(FarmingViewModels vm)
         {
-            if (vm != null && vm.FarmingId > 0 && db != null)
-            {
-                try
-                {
-                    FarmingsInactive model = ChangeFromViewModelToModelInactive(vm);
-
-                    db.ChangeTracker.Clear();
-                    db.FarmingsInactive.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort inaktiv odling. Felmeddelande: {ex.Message} ";
-                }
-            }
-            else
+            if (vm == null || vm.FarmingId <= 0)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            try
+            {
+                FarmingsActive model = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsActive>(vm);
+
+                _db.ChangeTracker.Clear();
+                _db.FarmingsActive.Remove(model);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ta bort aktiv odling.");
+                return $"Gick inte att ta bort aktiv odling. Felmeddelande: {ex.Message}";
+            }
+
+            return string.Empty;
+        }
+
+        public async Task<string> DeleteInactive(FarmingViewModels vm)
+        {
+            if (vm == null || vm.FarmingId <= 0)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            try
+            {
+                FarmingsInactive model = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsInactive>(vm);
+
+                _db.ChangeTracker.Clear();
+                _db.FarmingsInactive.Remove(model);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ta bort inaktiv odling.");
+                return $"Gick inte att ta bort inaktiv odling. Felmeddelande: {ex.Message}";
+            }
 
             return string.Empty;
         }
 
         public FarmingViewModels ChangeFromModelToViewModel(FarmingsActive model)
         {
-            DateTime putSeedDate = DateTime.Parse(model.PutSeedDate);
-            DateTime setDate = DateTime.Parse(model.SetDate);
-            DateTime takeUpDate = DateTime.Parse(model.TakeUpDate);
+            if (model == null) throw new ArgumentNullException(nameof(model));
 
-            FarmingViewModels farming = new()
-            {
-                FarmingId = model.FarmingId,
-                Name = model.Name,
-                Type = model.Type,
-                Place = model.Place,
-                PutSeedDate = putSeedDate,
-                SetDate = setDate,
-                TakeUpDate = takeUpDate,
-                HowMany = model.HowMany,
-                HowManySave = model.HowManySave,
-                Note = model.Note
-            };
+            FarmingViewModels farming = _mapper.Map<FarmingViewModels>(model);
+
+            farming.PutSeedDate = ParseDate(model.PutSeedDate);
+            farming.SetDate = ParseDate(model.SetDate);
+            farming.TakeUpDate = ParseDate(model.TakeUpDate);
 
             return farming;
+        }
+
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Invalid date format: {date}");
         }
 
         public FarmingViewModels ChangeFromModelToViewModel(FarmingsInactive model)
         {
-            DateTime putSeedDate = DateTime.Parse(model.PutSeedDate);
-            DateTime setDate = DateTime.Parse(model.SetDate);
-            DateTime takeUpDate = DateTime.Parse(model.TakeUpDate);
-            DateTime inactiveDate = DateTime.Parse(model.InactiveDate);
+            if (model == null) throw new ArgumentNullException(nameof(model));
 
-            FarmingViewModels farming = new()
-            {
-                FarmingId = model.FarmingId,
-                InactiveDate = inactiveDate,
-                Name = model.Name,
-                Type = model.Type,
-                Place = model.Place,
-                PutSeedDate = putSeedDate,
-                SetDate = setDate,
-                TakeUpDate = takeUpDate,
-                HowMany = model.HowMany,
-                HowManySave = model.HowManySave,
-                Note = model.Note
-            };
+            FarmingViewModels farming = _mapper.Map<FarmingViewModels>(model);
+
+            farming.PutSeedDate = ParseDate(model.PutSeedDate);
+            farming.SetDate = ParseDate(model.SetDate);
+            farming.TakeUpDate = ParseDate(model.TakeUpDate);
 
             return farming;
         }
 
-        private static FarmingsActive ChangeFromViewModelToModel(FarmingViewModels vm)
+        T IFarmingClass.ChangeFromViewModelToModel<T>(FarmingViewModels vm)
         {
-            FarmingsActive farmings = new()
+            if (vm == null) throw new ArgumentNullException(nameof(vm));
+
+            // Use AutoMapper to map the ViewModel to the Model
+            T model = _mapper.Map<T>(vm);
+
+            // Additional custom mapping if needed
+            if (model is FarmingsActive activeModel)
             {
-                FarmingId = vm.FarmingId,
-                Name = vm.Name,
-                Type = vm.Type,
-                Place = vm.Place,
-                PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd"),
-                SetDate = vm.SetDate.ToString("yyyy-MM-dd"),
-                TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd"),
-                HowMany = vm.HowMany,
-                HowManySave = vm.HowManySave,
-                Note = vm.Note
-            };
-
-            return farmings;
-        }
-
-        private static FarmingsInactive ChangeFromViewModelToModelInactive(FarmingViewModels vm)
-        {
-            FarmingsInactive farmings = new()
+                activeModel.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
+                activeModel.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
+                activeModel.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
+            }
+            else if (model is FarmingsInactive inactiveModel)
             {
-                FarmingId = vm.FarmingId,
-                Name = vm.Name,
-                Type = vm.Type,
-                Place = vm.Place,
-                PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd"),
-                SetDate = vm.SetDate.ToString("yyyy-MM-dd"),
-                TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd"),
-                HowMany = vm.HowMany,
-                HowManySave = vm.HowManySave,
-                Note = vm.Note
-            };
+                inactiveModel.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
+                inactiveModel.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
+                inactiveModel.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
+            }
 
-            return farmings;
+            return model;
         }
     }
 }

@@ -1,22 +1,23 @@
 ﻿
 using MailKit.Net.Smtp;
 using MimeKit;
-using static System.Configuration.ConfigurationManager;
 
 namespace MyPrivateApp.Components.Email.Classes
 {
-    public class EmailSender : IEmailSender
+    public class EmailSender(IConfiguration config) : IEmailSender
     {
-        private readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
+        private readonly IConfiguration _config = config;
 
-        public void SendEmailBirthday(string emailTitle, string sendFrom, string subject, string text, string sendFrom2)
+        private async Task SendEmail(string emailTitle, string sendFrom, string subject, string text, string sendFrom2, string emailPassword)
         {
-            string mail = config.GetSection("AppSettings")["mail"];
-            string emailPassword = config.GetSection("AppSettings")["emailPassword"];
-            string connect = config.GetSection("AppSettings")["connect"];
-            string port = config.GetSection("AppSettings")["port"];
+            string? mail = _config.GetSection("AppSettings")["mail"];
+            string? connect = _config.GetSection("AppSettings")["connect"];
+            string? port = _config.GetSection("AppSettings")["port"];
 
-            var message = new MimeMessage();
+            if (string.IsNullOrEmpty(mail) || string.IsNullOrEmpty(connect) || string.IsNullOrEmpty(port))
+                throw new InvalidOperationException("Email configuration settings cannot be null or empty.");
+
+            MimeMessage message = new();
             message.From.Add(new MailboxAddress(emailTitle, sendFrom));
             message.To.Add(new MailboxAddress("", mail));
             message.Subject = subject;
@@ -25,34 +26,40 @@ namespace MyPrivateApp.Components.Email.Classes
                 Text = text
             };
 
-            using var client = new SmtpClient();
-            client.Connect(connect, int.Parse(port), false);
-            client.Authenticate(sendFrom2, emailPassword);
-            client.Send(message);
-            client.Disconnect(true);
+            try
+            {
+                using var client = new SmtpClient();
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true; // Accept all certificates (not recommended for production)
+                await client.ConnectAsync(connect, int.Parse(port), false);
+                await client.AuthenticateAsync(sendFrom2, emailPassword);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                throw new InvalidOperationException("Failed to send email", ex);
+            }
         }
 
-        public void SendEmailFreezer(string emailTitle, string sendFrom, string subject, string text, string sendFrom2)
+        public async Task SendEmailBirthday(string emailTitle, string sendFrom, string subject, string text, string sendFrom2)
         {
-            string mail = config.GetSection("AppSettings")["mail"];
-            string emailPassword2 = config.GetSection("AppSettings")["emailPassword2"];
-            string connect = config.GetSection("AppSettings")["connect"];
-            string port = config.GetSection("AppSettings")["port"];
+            string? emailPassword = _config.GetSection("AppSettings")["emailPassword"];
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(emailTitle, sendFrom));
-            message.To.Add(new MailboxAddress("", mail));
-            message.Subject = subject;
-            message.Body = new TextPart("plain")
-            {
-                Text = text
-            };
+            if (string.IsNullOrEmpty(emailPassword))
+                throw new InvalidOperationException("Email password cannot be null or empty.");
 
-            using var client = new SmtpClient();
-            client.Connect(connect, int.Parse(port), false);
-            client.Authenticate(sendFrom2, emailPassword2);
-            client.Send(message);
-            client.Disconnect(true);
+            await SendEmail(emailTitle, sendFrom, subject, text, sendFrom2, emailPassword);
+        }
+
+        public async Task SendEmailFreezer(string emailTitle, string sendFrom, string subject, string text, string sendFrom2)
+        {
+            string? emailPassword2 = _config.GetSection("AppSettings")["emailPassword2"];
+
+            if (string.IsNullOrEmpty(emailPassword2))
+                throw new InvalidOperationException("Email password cannot be null or empty.");
+
+            await SendEmail(emailTitle, sendFrom, subject, text, sendFrom2, emailPassword2);
         }
     }
 }

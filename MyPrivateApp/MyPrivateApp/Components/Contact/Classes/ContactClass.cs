@@ -1,20 +1,21 @@
-﻿using MyPrivateApp.Client.ViewModels;
+﻿
+using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data;
 using Hangfire;
 using MyPrivateApp.Components.Email.Classes;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
-using AutoMapper;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {
-    public class ContactClass(ApplicationDbContext db, ILogger<ContactClass> logger, IMapper mapper) : IContactClass
+    public class ContactClass(ApplicationDbContext db, ILogger<ContactClass> logger, IMapper mapper, IConfiguration config, IEmailSender emailSender) : IContactClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<ContactClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        private readonly IConfiguration _config = config ?? throw new ArgumentNullException(nameof(config));
+        private readonly IEmailSender _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
 
         public async Task<Contacts?> Get(int? id)
         {
@@ -36,6 +37,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                 Contacts model = _mapper.Map<Contacts>(vm);
                 await _db.Contacts.AddAsync(model);
                 await _db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -87,42 +89,37 @@ namespace MyPrivateApp.Components.Contact.Classes
             }
         }
 
-        public ContactsViewModels ChangeFromModelToViewModel(Contacts model)
-        {
-            return _mapper.Map<ContactsViewModels>(model);
-        }
+        public ContactsViewModels ChangeFromModelToViewModel(Contacts model) => _mapper.Map<ContactsViewModels>(model);
 
-        public void GetBirthday()
+        public async Task GetBirthday()
         {
-            foreach (var item in _db.Contacts)
+            try
             {
-                var date = Convert.ToDateTime(item.Birthday);
-                if (DateTime.Now.Month == date.Month && DateTime.Now.Day == date.Day)
-                {
-                    var year = DateTime.Now.Year - date.Year;
-                    var emailSender = new EmailSender();
-                    var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
-                    var mailBirthday = config.GetSection("AppSettings")["mailBirthday"];
+                DateTime today = DateTime.Now;
+                List<Contacts> contactsWithBirthdayToday = await _db.Contacts
+                    .Where(c => c.Birthday != null)
+                    .ToListAsync();
 
-                    if (!string.IsNullOrEmpty(mailBirthday))
-                    {
-                        BackgroundJob.Schedule(() => emailSender.SendEmailBirthday(
-                            $"{item.Name} {year} år", mailBirthday, "Födelsedag",
-                            $"Ring: {item.PhoneNumber}", mailBirthday),
-                            new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
-                    }
+                contactsWithBirthdayToday = contactsWithBirthdayToday
+                    .Where(c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day)
+                    .ToList();
+
+                var mailBirthday = _config.GetSection("AppSettings")["mailBirthday"];
+                if (string.IsNullOrEmpty(mailBirthday)) return;
+
+                foreach (var item in contactsWithBirthdayToday)
+                {
+                    var year = today.Year - DateTime.Parse(item.Birthday ?? throw new InvalidOperationException("Birthday cannot be null")).Year;
+                    BackgroundJob.Schedule(() => _emailSender.SendEmailBirthday(
+                        $"{item.Name} {year} år", mailBirthday, "Födelsedag",
+                        $"Ring: {item.PhoneNumber}", mailBirthday),
+                        new DateTime(today.Year, today.Month, today.Day));
                 }
             }
-        }
-    }
-
-
-
-public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<Contacts, ContactsViewModels>();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kontakt: GetBirthday felmeddelande!");
+            }
         }
     }
 }

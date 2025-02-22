@@ -6,7 +6,6 @@ namespace MyPrivateApp.Data.Models.Farming
     {
         [Key]
         public int FarmingId { get; set; }
-        public string? InactiveDate { get; set; }
         public string? Name { get; set; }
         public string? Type { get; set; }
         public string? Place { get; set; }
@@ -16,5 +15,6 @@ namespace MyPrivateApp.Data.Models.Farming
         public int HowMany { get; set; }
         public int HowManySave { get; set; }
         public string? Note { get; set; }
+        public string? InactiveDate { get; set; }
     }
 }

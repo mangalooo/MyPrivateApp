@@ -1,6 +1,6 @@
-﻿using MyPrivateApp.Client.ViewModels;
+﻿
+using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
-using MyPrivateApp.Data;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {

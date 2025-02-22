@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,6 @@ builder.Services.AddRazorComponents()
 builder.Services.AddBlazorBootstrap();
 
 // Email
-//builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 // Private
@@ -147,21 +147,33 @@ app.UseHangfireDashboard("/hangfire");
 
 // Logs
 ILogger<ContactClass> logger = app.Services.GetRequiredService<ILogger<ContactClass>>();
-IMapper mapper = app.Services.GetRequiredService<IMapper>();
 
+// Mapper
+IMapper mapper = app.Services.GetRequiredService<IMapper>();
 MapperConfiguration config = new(cfg =>
 {
-    cfg.AddProfile<MappingProfile>();
+    cfg.AddProfile<ContactMappingProfile>();
+    cfg.AddProfile<FarmingMappingProfile>();
 });
-
 mapper = config.CreateMapper();
 
-// Sends automatic email if a contact has birthday
-ContactClass contactClass = new(db, logger, mapper);
-contactClass.GetBirthday();
+// Email
+IConfiguration configuration = app.Services.GetRequiredService<IConfiguration>();
+IEmailSender emailSender = app.Services.GetRequiredService<IEmailSender>();
 
-// Sends automatic email if a the frozen food has past time.
-FrozenFoodClass frozenFoodClass = new();
-frozenFoodClass.GetOutgoingFrosenFood(db);
+if (db == null)
+    throw new InvalidOperationException("Program filen. Felmeddelande: Failed to retrieve ApplicationDbContext from the service provider.");
+
+// Sends automatic email if a contact has birthday
+ContactClass contactClass = new(db, logger, mapper, configuration, emailSender);
+await contactClass.GetBirthday();
+
+//// Sends automatic email if a the frozen food has past time.
+//FrozenFoodClass frozenFoodClass = new();
+//await frozenFoodClass.GetOutgoingFrosenFood(db);
+
+//// Sends automatic email if a the frozen food has past time.
+//FrozenFoodClass frozenFoodClass = new();
+//frozenFoodClass.GetOutgoingFrosenFood(db); // Magnus
 
 app.Run();
