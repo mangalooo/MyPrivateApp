@@ -11,6 +11,8 @@
 @using MyPrivateApp.Data.Models.Farming
 @using MyPrivateApp.Data.Models.SharesModels
 @using MyPrivateApp.Components.Shares.Classes
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
 
 @rendermode InteractiveServer
 
@@ -54,7 +56,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="Edit" FormName="AddOrUpdateFarming" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -184,6 +186,12 @@
                 </EditForm>
             </div>
 
+            <style>
+                .highlighted-column {
+                    color: green;
+                }
+            </style>
+
             @* View - Desktop *@
             <div id="desktop">
                 <div class="card-body">
@@ -191,7 +199,7 @@
 
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
                         <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
-                        <PropertyColumn Title="Hur många" Property="@(c => c.HowMany)" Sortable="true" />
+                        <PropertyColumn class="highlighted-column" Title="Hur många" Property="@(c => c.HowMany)" Sortable="true" />
                         <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
@@ -311,7 +319,7 @@
     [SupplyParameterFromForm]
     private FarmingViewModels pageModel { get; set; } = new();
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<FarmingViewModels> queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -333,22 +341,20 @@
     private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryableAsync()
     {
-        if (db.FarmingsInactive.Count() == 0) return;
+        List<FarmingsInactive> farmingsInactive = await db.FarmingsInactive.OrderBy(c => c.FarmingId).ToListAsync();
 
-        queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+        if (!farmingsInactive.Any()) return;
 
-        foreach (FarmingsInactive model in db.FarmingsInactive.OrderBy(c => c.FarmingId))
-        {
-            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable().OrderByDescending(c => c.InactiveDate));
-        }
+        queryable = farmingsInactive
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
 
     private void HideNewOrChangesForm()
     {
@@ -356,30 +362,41 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
-    private async Task Edit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.FarmingId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = await BackEndClass.EditInactive(pageModel);
+            if (pageModel.FarmingId > 0)
+            {
+                // Edit
+                ErrorMessage = await BackEndClass.EditInactive(pageModel);
+            }
+            else
+            {
+                // Add
+                ErrorMessage = await BackEndClass.Add(pageModel);
+            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
-                ShowOrHideEditButton = false;
-                return;
+                ShowOrHideEditButton = pageModel.FarmingId > 0;
             }
             else
             {
                 pageModel = new();
                 Navigation.Refresh(true);
-                return;
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage += $"\r\n\r\nAn error occurred: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -400,28 +417,20 @@
 
     private async Task Delete()
     {
-        if (db.FarmingsInactive.Count() == 0) return;
+        if (!db.FarmingsActive.Any()) return;
 
-        bool findId = db.FarmingsInactive.Any(a => a.FarmingId == TemporaryId);
+        FarmingsInactive? model = await db.FarmingsInactive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.DeleteInactive(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = false;
+        else
         {
-            FarmingsInactive model = db.FarmingsInactive.FirstOrDefault(a => a.FarmingId == TemporaryId);
-            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = await BackEndClass.DeleteInactive(vm);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageModel = new();
+            Navigation.Refresh(true);
         }
     }
 

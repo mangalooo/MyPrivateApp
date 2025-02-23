@@ -406,7 +406,7 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private async Task AddOrEdit()
     {

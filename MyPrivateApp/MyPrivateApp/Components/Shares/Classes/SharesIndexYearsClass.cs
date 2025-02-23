@@ -7,11 +7,11 @@ namespace MyPrivateApp.Components.Shares.Classes
 {
     public class SharesIndexYearsClass : ISharesIndexYearsClass
     {
-        public async Task<SharesTotalProfitsOrLosses?> GetTotalProfitsOrLosses(ApplicationDbContext db, int? id)
+        public SharesTotalProfitsOrLosses? GetTotalProfitsOrLosses(ApplicationDbContext db, int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
-            return await db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync(r => r.SharesTotalProfitOrLossId == id)
+            return db.SharesTotalProfitsOrLosses.FirstOrDefault(r => r.SharesTotalProfitOrLossId == id)
                 ?? throw new Exception("Totala summan hittades inte i databasen!");
         }
 
