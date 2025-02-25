@@ -377,7 +377,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -472,7 +472,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -652,23 +652,17 @@
         }
     }
 
-
-    private void OpenDeleteWindow(ContactsViewModels vm)
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
-        TemporaryId = vm.ContactsId;
-    }
-
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
         StateHasChanged();
     }
+
+    private void OpenDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 
     private int GetAge(DateTime birthDate)
     {
@@ -695,12 +689,12 @@
         return (nextBirthday - today).Days;
     }
 
-    private async Task SetQuery(IEnumerable<Contacts> result)
+    private Task SetQuery(IEnumerable<Contacts> result)
     {
         if (!result.Any())
         {
             queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
-            return;
+            return Task.CompletedTask;
         }
 
         IEnumerable<ContactsViewModels> contactList = result
@@ -709,6 +703,7 @@
             .ToList();
 
         queryable = contactList.AsQueryable();
+        return Task.CompletedTask;
     }
 
     private async Task SearchFirstName(ChangeEventArgs e)

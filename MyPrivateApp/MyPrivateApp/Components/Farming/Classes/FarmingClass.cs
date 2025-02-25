@@ -47,6 +47,7 @@ namespace MyPrivateApp.Components.Farming.Classes
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Gick inte att lägg till ny odling!");
                 return $"Gick inte att lägg till ny odling. Felmeddelande: {ex.Message} ";
             }
         }

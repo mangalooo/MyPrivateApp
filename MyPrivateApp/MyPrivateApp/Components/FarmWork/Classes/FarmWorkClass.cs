@@ -2,95 +2,82 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public class FarmWorkClass : IFarmWorkClass
+    public class FarmWorkClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : IFarmWorkClass
     {
-        private static FarmWorks? Get(ApplicationDbContext db, int? id) => db.FarmWorks.Any(r => r.FarmWorksId == id) ?
-                                                                                db.FarmWorks.FirstOrDefault(r => r.FarmWorksId == id) :
-                                                                                    throw new Exception("Objektet gårdsarbete hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, FarmWorksViewModels vm, bool import)
+        public async Task<FarmWorks?> Get(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (vm.Date != DateTime.MinValue && vm.Hours > 0)
-                {
-                    try
-                    {
-                        FarmWorks model = ChangeFromViewModelToModel(vm);
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-                        db.FarmWorks.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till ett nytt gårdsarbete. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Inget datum eller timmar ifyllt!";
-
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            return await _db.FarmWorks.FirstOrDefaultAsync(r => r.FarmWorksId == id)
+                   ?? throw new Exception("Objektet gårdsarbete hittades inte i databasen!");
         }
 
-        public string Edit(ApplicationDbContext db, FarmWorksViewModels vm)
+        public async Task<string> Add(FarmWorksViewModels vm)
         {
-            if (vm != null && vm.FarmWorksId > 0 && db != null)
+            if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            if (vm.Date != DateTime.MinValue && vm.Hours > 0) return "Inget datum eller timmar ifyllt!";
+
+            try
             {
-                if (vm.Date != DateTime.MinValue && vm.Hours > 0)
-                {
-                    try
-                    {
-                        FarmWorks getDbModel = Get(db, vm.FarmWorksId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.FarmWorksId = vm.FarmWorksId;
-                            getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                            getDbModel.Place = vm.Place;
-                            getDbModel.Hours = vm.Hours;
-                            getDbModel.NextSalary = vm.NextSalary;
-                            getDbModel.Note = vm.Note;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte jakten i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra gårdsarbetet. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Inget datum eller timmar ifyllt!";
+                FarmWorks model = ChangeFromViewModelToModel(vm);
+                await _db.FarmWorks.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att lägg till ett nytt gårdsarbete!");
+                return $"Gick inte att lägg till ett nytt gårdsarbete. Felmeddelande: {ex.Message}";
+            }
         }
 
-        public string Delete(ApplicationDbContext db, FarmWorksViewModels vm, bool import)
+        public async Task<string> Edit(FarmWorksViewModels vm)
         {
-            if (vm != null && vm.FarmWorksId > 0 && db != null)
+            if (vm == null || vm.FarmWorksId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            if (vm.Date == DateTime.MinValue && vm.Hours > 0) return "Inget datum eller timmar ifyllt!";
+
+            try
+            {
+                FarmWorks? getDbModel = await Get(vm.FarmWorksId);
+
+                if (getDbModel == null) return "Hittar inte gårdsarbetet i databasen!";
+
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ändra gårdsarbetet!");
+                return $"Gick inte att ändra gårdsarbetet. Felmeddelande: {ex.Message}";
+            }
+        }
+
+        public async Task<string> Delete(FarmWorksViewModels vm)
+        {
+            if (vm != null && vm.FarmWorksId > 0 && _db != null)
             {
                 try
                 {
                     FarmWorks model = ChangeFromViewModelToModel(vm);
-
-                    db.ChangeTracker.Clear();
-                    db.FarmWorks.Remove(model);
-                    db.SaveChanges();
+                    _db.ChangeTracker.Clear();
+                    _db.FarmWorks.Remove(model);
+                    await _db.SaveChangesAsync();
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Gick inte att ta bort gårdsarbetet!");
                     return $"Gick inte att ta bort gårdsarbetet. Felmeddelande: {ex.Message}";
                 }
             }
@@ -100,36 +87,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             return string.Empty;
         }
 
-        public FarmWorksViewModels ChangeFromModelToViewModel(FarmWorks model)
-        {
-            DateTime date = DateTime.Parse(model.Date);
+        public FarmWorksViewModels ChangeFromModelToViewModel(FarmWorks model) => _mapper.Map<FarmWorksViewModels>(model);
 
-            FarmWorksViewModels vm = new()
-            {
-                FarmWorksId = model.FarmWorksId,
-                Date = date,
-                Place = model.Place,
-                Hours = model.Hours,
-                NextSalary = model.NextSalary,
-                Note = model.Note
-            };
-
-            return vm;
-        }
-
-        private static FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm)
-        {
-            FarmWorks farmWorks = new()
-            {
-                FarmWorksId = vm.FarmWorksId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                Place = vm.Place,
-                Hours = vm.Hours,
-                NextSalary = vm.NextSalary,
-                Note = vm.Note
-            };
-
-            return farmWorks;
-        }
+        private FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm) => _mapper.Map<FarmWorks>(vm);
     }
 }

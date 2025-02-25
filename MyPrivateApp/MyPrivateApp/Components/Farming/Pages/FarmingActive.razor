@@ -207,8 +207,8 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenInactiveWindow())"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -267,7 +267,6 @@
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
                         <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
-                        <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
 
@@ -278,8 +277,8 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => OpenInactiveWindow())"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -358,22 +357,6 @@
     PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<FarmingViewModels> queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
 
-    // Load data from database to the Queryable container
-    private async Task ConvertListToQueryableAsync()
-    {
-        List<FarmingsActive> farmingsActive = await db.FarmingsActive.OrderBy(c => c.FarmingId).ToListAsync();
-
-        if (!farmingsActive.Any()) return;
-
-        queryable = farmingsActive
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
-    }
-
-    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
-
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
 
@@ -399,14 +382,33 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
-    private void HideNewOrChangesForm()
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryableAsync()
     {
-        HideNewOrChangesFields = !HideNewOrChangesFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
+        List<FarmingsActive> farmingsActive = await db.FarmingsActive.OrderBy(c => c.FarmingId).ToListAsync();
+
+        if (!farmingsActive.Any()) return;
+
+        queryable = farmingsActive
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
+
+        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
+
+    private void HideNewOrChangesForm()
+    {
+        // Toggle the visibility of the form fields
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+
+        // Set the visibility of the buttons based on the form fields' visibility
+        ShowOrHideCreateButton = !HideNewOrChangesFields;
+        ShowOrHideEditButton = !HideNewOrChangesFields;
+    }
 
     private async Task AddOrEdit()
     {
@@ -435,33 +437,30 @@
             else
             {
                 pageModel = new();
-                Navigation.Refresh(true);
+                await RefreshPage();
             }
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nAn error occurred: {ex.Message}";
+            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
             ShowOrHideErrorMessage = true;
         }
     }
 
-    private void Info(FarmingViewModels vm)
+    private void SetPageModel(FarmingViewModels vm, bool isEditMode)
     {
         HideNewOrChangesForm();
-        ShowOrHideAddNewButton = pageModel.FarmingId == 0;
-        DisabledForm = true;
+        ShowOrHideAddNewButton = !isEditMode;
+        ShowOrHideEditButton = isEditMode;
+        ShowOrHideCreateButton = isEditMode;
+        HideNewOrChangesFields = isEditMode;
+        DisabledForm = !isEditMode;
         pageModel = vm;
     }
 
-    private void Edit(FarmingViewModels vm)
-    {
-        DisabledForm = false;
-        ShowOrHideEditButton = pageModel.FarmingId > 0;
-        ShowOrHideAddNewButton = pageModel.FarmingId == 0;
-        ShowOrHideCreateButton = true;
-        HideNewOrChangesFields = true;
-        pageModel = vm;
-    }
+    private void Info(FarmingViewModels vm) => SetPageModel(vm, false);
+
+    private void Edit(FarmingViewModels vm) => SetPageModel(vm, true);
 
     private async Task Delete()
     {
@@ -478,25 +477,8 @@
         else
         {
             pageModel = new();
-            Navigation.Refresh(true);
+            await RefreshPage();
         }
-    }
-
-    private void OpenDeleteWindow(FarmingViewModels vm)
-    {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
-        TemporaryId = vm.FarmingId;
-    }
-
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
     }
 
     private async Task Inactive()
@@ -524,7 +506,7 @@
             else
             {
                 pageModel = new();
-                Navigation.Refresh(true);
+                await RefreshPage();
             }
         }
         catch (Exception ex)
@@ -534,21 +516,19 @@
         }
     }
 
-
-    private void OpenInactiveWindow(FarmingViewModels vm)
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
     {
-        ModalDisplayInactive = "block;";
-        ModalClassInactive = "Show";
-        ShowBackdropInactive = true;
-        StateHasChanged();
-        TemporaryId = vm.FarmingId;
-    }
-
-    private void CloseInactiveWindow()
-    {
-        ModalDisplayInactive = "none";
-        ModalClassInactive = "";
-        ShowBackdropInactive = false;
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
         StateHasChanged();
     }
+
+    private void OpenDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private void OpenInactiveWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+
+    private void CloseInactiveWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 }

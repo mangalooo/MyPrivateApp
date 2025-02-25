@@ -154,6 +154,7 @@ MapperConfiguration config = new(cfg =>
 {
     cfg.AddProfile<ContactMappingProfile>();
     cfg.AddProfile<FarmingMappingProfile>();
+    cfg.AddProfile<FarmWorksMappingProfile>();
 });
 mapper = config.CreateMapper();
 
