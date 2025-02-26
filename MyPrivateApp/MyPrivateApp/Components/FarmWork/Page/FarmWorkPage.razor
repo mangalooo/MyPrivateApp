@@ -27,7 +27,7 @@
 
     <br />
 
-    <h3 style="text-align:center"> Nästa lön: @GetNextSalary()</h3>
+    <h3 style="text-align:center"> Nästa lön: @NextSalary</h3>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
@@ -215,7 +215,7 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    @if (ShowOrHideDetleteSalaryButton())
+                    @if (isDeleteSalaryButtonVisible)
                     {
                         <br />
 
@@ -312,7 +312,7 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    @if (ShowOrHideDetleteSalaryButton())
+                    @if (isDeleteSalaryButtonVisible)
                     {
                         <br />
                         <br />
@@ -367,10 +367,10 @@
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private FarmWorksViewModels pageModel { get; set; } = new();
+        [SupplyParameterFromForm]
+        private FarmWorksViewModels pageModel { get; set; } = new();
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
+        PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<FarmWorksViewModels> queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -395,6 +395,8 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = true;
+    private bool isDeleteSalaryButtonVisible;
+    private double NextSalary;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
@@ -402,7 +404,7 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<FarmWorks> farmWorks = await db.FarmWorks.OrderBy(c => c.FarmWorksId).ToListAsync();
+        List<FarmWorks> farmWorks = await db.FarmWorks.OrderByDescending(c => c.Date).ToListAsync();
 
         if (!farmWorks.Any()) return;
 
@@ -411,11 +413,14 @@
             .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
-
-        GetNextSalary();
     }
 
-    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        isDeleteSalaryButtonVisible = await ShowOrHideDetleteSalaryButton();
+        NextSalary = await GetNextSalary();
+        await ConvertListToQueryableAsync();
+    }
 
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
@@ -436,15 +441,9 @@
         try
         {
             if (pageModel.FarmWorksId > 0)
-            {
-                // Edit
                 ErrorMessage = await BackEndClass.Edit(pageModel);
-            }
             else
-            {
-                // Add
                 ErrorMessage = await BackEndClass.Add(pageModel);
-            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -523,11 +522,15 @@
     private async Task SearchPlace(ChangeEventArgs e)
     {
         queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+        string? placeName = e.Value?.ToString()?.ToLowerInvariant();
 
-        if (!string.IsNullOrEmpty(e.Value?.ToString()))
+        if (string.IsNullOrEmpty(placeName))
         {
-            string? placeName = e.Value?.ToString()?.ToLower();
-            var placeMapping = new Dictionary<string, FarmWorkPlaces>
+            await RefreshPage();
+            return;
+        }
+
+        var placeMapping = new Dictionary<string, FarmWorkPlaces>(StringComparer.OrdinalIgnoreCase)
         {
             { "habäck", FarmWorkPlaces.Habäck },
             { "karlabo", FarmWorkPlaces.Karlabo },
@@ -537,21 +540,18 @@
             { "övrigt", FarmWorkPlaces.Övrigt }
         };
 
-            if (placeMapping.TryGetValue(placeName, out var place))
-            {
-                var result = db.FarmWorks.Where(c => c.Place == place);
+        if (placeMapping.TryGetValue(placeName, out var place))
+        {
+            var result = db.FarmWorks.Where(c => c.Place == place);
 
-                if (result.Any())
-                {
-                    queryable = result
-                        .OrderBy(c => c.FarmWorksId)
-                        .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                        .AsQueryable();
-                }
+            if (result.Any())
+            {
+                queryable = result
+                    .OrderBy(c => c.FarmWorksId)
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .AsQueryable();
             }
         }
-        else
-            await RefreshPage();
     }
 
     private async Task<double> GetNextSalary()
@@ -590,29 +590,34 @@
         {
             if (trueOrFalse)
             {
-                var result = db.FarmWorks.Where(c => c.NextSalary);
+                IEnumerable<FarmWorks> result = await db.FarmWorks
+                    .Where(c => c.NextSalary)
+                    .ToListAsync();
 
-                if (!result.Any()) return;
+                if (!result.Any())
+                {
+                    queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+                    return;
+                }
 
-                queryable = result
+                IEnumerable<FarmWorksViewModels> farmWorksList = result
                     .OrderBy(c => c.FarmWorksId)
                     .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                    .AsQueryable();
+                    .ToList();
 
-                return;
+                queryable = farmWorksList.AsQueryable();
             }
+            else
+                await RefreshPage();
         }
-
-        await RefreshPage();
     }
 
-    private bool ShowOrHideDetleteSalaryButton()
+    private async Task<bool> ShowOrHideDetleteSalaryButton()
     {
-        bool any = false;
+        if (db.FarmWorks.Any())
+            if (await db.FarmWorks.AnyAsync(y => y.NextSalary == true))
+                return true;
 
-        if (db.FarmWorks.Count() > 0)
-            any = db.FarmWorks.Any(y => y.NextSalary == true);
-
-        return any;
+        return false;
     }
 }

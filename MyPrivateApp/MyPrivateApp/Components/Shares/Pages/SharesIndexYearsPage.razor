@@ -9,6 +9,7 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.SharesModels
 
+
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db
@@ -497,19 +498,16 @@
     {
         try
         {
-            SharesTotalProfitsOrLosses? sharesTotalProfitsOrLosses = BackEndClass.GetTotalProfitsOrLosses(db, 1);
+            var sharesTotalProfitsOrLosses = BackEndClass.GetTotalProfitsOrLosses(1);
 
             if (sharesTotalProfitsOrLosses == null)
                 return "No data available";
 
-            string sum = sharesTotalProfitsOrLosses.TotalProfitOrLoss.ToString("#,##0.00");
-            return sum;
+            return sharesTotalProfitsOrLosses.TotalProfitOrLoss.ToString("#,##0.00");
         }
         catch (Exception ex)
         {
-            // Log the exception (consider using a logging framework)
-            Console.Error.WriteLine($"Error fetching total profits or losses: {ex.Message}");
-            return "Error fetching data";
+            return $"Fel vid hämtning av totala vinster eller förluster. Felmeddelande: {ex.Message}";
         }
     }
 

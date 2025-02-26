@@ -570,7 +570,7 @@
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
 
-    private void RefreshPage() => Navigation.Refresh(true);
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private async Task AddOrEdit()
     {
@@ -599,7 +599,7 @@
             else
             {
                 pageModel = new();
-                Navigation.Refresh(true);
+                await RefreshPage();
             }
         }
         catch (Exception ex)
@@ -648,7 +648,7 @@
         else
         {
             pageModel = new();
-            Navigation.Refresh(true);
+            await RefreshPage();
         }
     }
 
@@ -708,7 +708,7 @@
 
     private async Task SearchFirstName(ChangeEventArgs e)
     {
-        string searchValue = e.Value?.ToString();
+        string? searchValue = e.Value?.ToString();
 
         if (!string.IsNullOrEmpty(searchValue))
         {
@@ -719,14 +719,12 @@
             await SetQuery(result);
         }
         else
-        {
-            Navigation.Refresh(true);
-        }
+            await RefreshPage();
     }
 
     private async Task SearchAge(ChangeEventArgs e)
     {
-        string searchValue = e.Value?.ToString();
+        string? searchValue = e.Value?.ToString();
 
         if (!string.IsNullOrEmpty(searchValue) && int.TryParse(searchValue, out int age))
         {
@@ -737,9 +735,7 @@
             await SetQuery(filteredResult);
         }
         else
-        {
-            Navigation.Refresh(true);
-        }
+            await RefreshPage();
     }
 
     private async Task SearchFriends(ChangeEventArgs e)
@@ -757,7 +753,7 @@
             return;
         }
 
-        Navigation.Refresh(true);
+        await RefreshPage();
     }
 
     private async Task SearchChristmasCard(ChangeEventArgs e)
@@ -775,7 +771,7 @@
             return;
         }
 
-        Navigation.Refresh(true);
+        await RefreshPage();
     }
 
     private async Task SearchRelatives(ChangeEventArgs e)
@@ -793,7 +789,7 @@
             return;
         }
 
-        Navigation.Refresh(true);
+        await RefreshPage();
     }
 
     private async Task SearchColleagues(ChangeEventArgs e)
@@ -810,6 +806,6 @@
             return;
         }
 
-        Navigation.Refresh(true);
+        await RefreshPage();
     }
 }

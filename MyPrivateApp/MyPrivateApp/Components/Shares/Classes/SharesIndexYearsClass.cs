@@ -1,18 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using AutoMapper;
+using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesIndexYearsClass : ISharesIndexYearsClass
+    public class SharesIndexYearsClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : ISharesIndexYearsClass
     {
-        public SharesTotalProfitsOrLosses? GetTotalProfitsOrLosses(ApplicationDbContext db, int? id)
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
+        public SharesTotalProfitsOrLosses GetTotalProfitsOrLosses(int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
-            return db.SharesTotalProfitsOrLosses.FirstOrDefault(r => r.SharesTotalProfitOrLossId == id)
-                ?? throw new Exception("Totala summan hittades inte i databasen!");
+            return _db.SharesTotalProfitsOrLosses.FirstOrDefault(r => r.SharesTotalProfitOrLossId == id)
+                   ?? throw new Exception("Totala summan hittades inte i databasen!");
         }
 
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
