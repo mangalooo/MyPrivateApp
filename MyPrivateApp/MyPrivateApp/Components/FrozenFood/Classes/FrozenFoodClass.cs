@@ -4,173 +4,116 @@ using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 using Hangfire;
 using MyPrivateApp.Components.Email.Classes;
-using MyPrivateApp.Components.Enum;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.FrozenFood.Classes
 {
-    public class FrozenFoodClass : IFrozenFoodClass
+    public class FrozenFoodClass(ApplicationDbContext db, ILogger<FrozenFoodClass> logger, IMapper mapper) : IFrozenFoodClass
     {
-        private static FrozenFoods? Get(ApplicationDbContext db, int? id) => db.FrozenFoods.Any(r => r.FrozenFoodsId == id) ?
-                                                                        db.FrozenFoods.FirstOrDefault(r => r.FrozenFoodsId == id) :
-                                                                            throw new Exception("Frysvaran hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<FrozenFoodClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, FrozenFoodViewModel vm, bool import)
+        public async Task<FrozenFoods?> Get(int? id)
         {
-            if (vm != null && db != null)
+            if (id == null) throw new ArgumentNullException(nameof(id));
+
+            return await _db.FrozenFoods.FirstOrDefaultAsync(r => r.FrozenFoodsId == id)
+                   ?? throw new Exception("Frysvaran hittades inte i databasen!");
+        }
+
+        public async Task<string> Add(FrozenFoodViewModel vm)
+        {
+            if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) return "Ingen datum eller namn ifyllt!";
+
+            try
             {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Name))
-                {
-                    try
-                    {
-                        FrozenFoods model = ChangeFromViewModelToModel(vm);
-
-                        db.FrozenFoods.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till en ny frysvara. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen datum eller namn ifyllt!";
-
+                FrozenFoods model = ChangeFromViewModelToModel(vm);
+                await _db.FrozenFoods.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-
-            return string.Empty;
-        }
-
-        public string Edit(ApplicationDbContext db, FrozenFoodViewModel vm)
-        {
-            if (vm != null && vm.FrozenFoodId > 0 && db != null)
+            catch (Exception ex)
             {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Name))
-                {
-                    try
-                    {
-                        FrozenFoods getDbModel = Get(db, vm.FrozenFoodId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                            getDbModel.Name = vm.Name;
-                            getDbModel.Type = vm.Type;
-                            getDbModel.Number = vm.Number;
-                            getDbModel.Place = vm.Place;
-                            getDbModel.FreezerCompartment = vm.FreezerCompartment;
-                            getDbModel.FrozenGoods = vm.FrozenGoods;
-                            getDbModel.Weight = vm.Weight;
-                            getDbModel.Notes = vm.Notes;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte aktien i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra frysvaran. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen datum eller namn ifyllt!";
+                _logger.LogError(ex, "Gick inte att lägg till en ny frysvara!");
+                return $"Gick inte att lägg till en ny frysvara. Felmeddelande: {ex.Message}";
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
         }
 
-        public string Delete(ApplicationDbContext db, FrozenFoodViewModel vm, bool import)
+        public async Task<string> Edit(FrozenFoodViewModel vm)
         {
-            if (vm != null && vm.FrozenFoodId > 0 && db != null)
-            {
-                try
-                {
-                    FrozenFoods model = ChangeFromViewModelToModel(vm);
+            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-                    db.ChangeTracker.Clear();
-                    db.FrozenFoods.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort frysvaran. Felmeddelande: {ex.Message}";
-                }
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) return "Ingen datum eller namn ifyllt!";
+
+            try
+            {
+                FrozenFoods? getDbModel = await Get(vm.FrozenFoodId);
+
+                if (getDbModel != null) return "Hittar inte frysvra i databasen!";
+
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
-        }
-
-        public FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model)
-        {
-            DateTime date = DateTime.Parse(model.Date);
-
-            FrozenFoodViewModel fee = new()
+            catch (Exception ex)
             {
-                FrozenFoodId = model.FrozenFoodsId,
-                Name = model.Name,
-                Type = model.Type,
-                Date = date,
-                Number = model.Number,
-                Place = model.Place,
-                FreezerCompartment = model.FreezerCompartment,
-                FrozenGoods = model.FrozenGoods,
-                Weight = model.Weight,
-                Notes = model.Notes
-            };
-
-            return fee;
+                _logger.LogError(ex, "Gick inte att ändra frysvaran!");
+                return $"Gick inte att ändra frysvaran. Felmeddelande: {ex.Message}";
+            }
         }
 
-        private static FrozenFoods ChangeFromViewModelToModel(FrozenFoodViewModel vm)
+        public async Task<string> Delete(FrozenFoodViewModel vm)
         {
-            FrozenFoods frozenFood = new()
-            {
-                FrozenFoodsId = vm.FrozenFoodId,
-                Name = vm.Name,
-                Type = vm.Type,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                Number = vm.Number,
-                Place = vm.Place,
-                FreezerCompartment = vm.FreezerCompartment,
-                FrozenGoods = vm.FrozenGoods,
-                Weight = vm.Weight,
-                Notes = vm.Notes
-            };
+            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return frozenFood;
+            try
+            {
+                FrozenFoods model = ChangeFromViewModelToModel(vm);
+                _db.ChangeTracker.Clear();
+                _db.FrozenFoods.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ta bort frysvaran!");
+                return $"Gick inte att ta bort frysvaran. Felmeddelande: {ex.Message}";
+            }
         }
+
+        public FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model) => _mapper.Map<FrozenFoodViewModel>(model);
+
+        private FrozenFoods ChangeFromViewModelToModel(FrozenFoodViewModel vm) => _mapper.Map<FrozenFoods>(vm);
 
         public double HowLongTimeInFreezer(DateTime date)
         {
-            double days = (DateTime.Now - date).Days;
-            double result = days / 365;
-
-            return double.Round(result, 2, MidpointRounding.AwayFromZero);
+            TimeSpan timeInFreezer = DateTime.UtcNow - date;
+            double yearsInFreezer = timeInFreezer.TotalDays / 365;
+            return Math.Round(yearsInFreezer, 2, MidpointRounding.AwayFromZero);
         }
 
-        private static void SendEmailTo(EmailSender emailSender, string getName, FrozenFoods item, string mailFreezer)
+        private static void SendEmailTo(IEmailSender emailSender, string getName, FrozenFoods item, string mailFreezer)
         {
             if (emailSender == null) return;
 
-            BackgroundJob.Schedule(() => emailSender.SendEmailFreezer(
-                                "Utgående frysvara", 
-                                mailFreezer, 
-                                $"{getName.ToUpper()} {item.Type} {item.Name}",
-                                $"Datum: {item.Date} \r\nPlats: {item.Place} \r\nFack: {item.FreezerCompartment} \r\nAntal: {item.Number}",
-                                mailFreezer),
-                                new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
+            string subject = $"{getName.ToUpper()} {item.Type} {item.Name}";
+            string body = $"Datum: {item.Date} \r\nPlats: {item.Place} \r\nFack: {item.FreezerCompartment} \r\nAntal: {item.Number}";
+
+            ScheduleEmail(emailSender, "Utgående frysvara", mailFreezer, subject, body, mailFreezer);
         }
 
-        public void GetOutgoingFrosenFood(ApplicationDbContext db)
+        private static void ScheduleEmail(IEmailSender emailSender, string title, string from, string subject, string body, string to)
         {
-            if (!db.FrozenFoods.Any()) return;
+            BackgroundJob.Schedule(() => emailSender.SendEmailFreezer(title, from, subject, body, to), DateTime.Now);
+        }
+
+        public void GetOutgoingFrosenFood()
+        {
+            if (!_db.FrozenFoods.Any()) return;
 
             IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
             EmailSender emailSender = new(config);
@@ -179,51 +122,24 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
             if (string.IsNullOrEmpty(mailFreezer)) return;
 
-            foreach (FrozenFoods item in db.FrozenFoods)
+            var freezerTimes = new Dictionary<string, double>
             {
-                DateTime date = Convert.ToDateTime(item.Date);
-                string getName = string.Empty;
+                { "hare", 6 },
+                { "ko", 6 },
+                { "rådjur", 6 },
+                { "vildsvin", 4 },
+                { "älg", 6 },
+                { "övrigt", 2 }
+            };
 
-                foreach (int frozenGoods in Enum.FreezerFrozenGoods.GetValues(typeof(FreezerFrozenGoods)))
+            foreach (var item in _db.FrozenFoods)
+            {
+                if (DateTime.TryParse(item.Date, out DateTime date))
                 {
-                    Type enumType = typeof(FreezerFrozenGoods);
-                    getName = Enum.FreezerFrozenGoods.GetName(enumType, frozenGoods).ToLower();
+                    string getName = System.Enum.GetName(item.FrozenGoods)?.ToLower() ?? string.Empty;
 
-                    if (frozenGoods == (int)item.FrozenGoods)
-                        break;
-                }
-
-                switch (getName)
-                {
-                    case "hare":
-                        if (HowLongTimeInFreezer(date) == 6)
-                            SendEmailTo(emailSender, getName, item, mailFreezer);
-                        break;
-
-                    case "ko":
-                        if (HowLongTimeInFreezer(date) == 6)
-                            SendEmailTo(emailSender, getName, item, mailFreezer);
-                        break;
-
-                    case "rådjur":
-                        if (HowLongTimeInFreezer(date) == 6)
-                            SendEmailTo(emailSender, getName, item, mailFreezer);
-                        break;
-
-                    case "vildsvin":
-                        if (HowLongTimeInFreezer(date) == 4)
-                            SendEmailTo(emailSender, getName, item, mailFreezer);
-                        break;
-
-                    case "älg":
-                        if (HowLongTimeInFreezer(date) == 6)
-                            SendEmailTo(emailSender, getName, item, mailFreezer);
-                        break;
-
-                    case "övrigt":
-                        if (HowLongTimeInFreezer(date) == 2)
-                            SendEmailTo(emailSender, getName, item, mailFreezer);
-                        break;
+                    if (freezerTimes.TryGetValue(getName, out double requiredTimeInFreezer) && HowLongTimeInFreezer(date) == requiredTimeInFreezer)
+                        SendEmailTo(emailSender, getName, item, mailFreezer);
                 }
             }
         }

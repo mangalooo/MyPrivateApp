@@ -25,7 +25,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         {
             if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.Date != DateTime.MinValue && vm.Hours > 0) return "Inget datum eller timmar ifyllt!";
+            if (vm.Date == DateTime.MinValue && vm.Hours > 0) return "Inget datum eller timmar ifyllt!";
 
             try
             {
@@ -66,25 +66,21 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public async Task<string> Delete(FarmWorksViewModels vm)
         {
-            if (vm != null && vm.FarmWorksId > 0 && _db != null)
-            {
-                try
-                {
-                    FarmWorks model = ChangeFromViewModelToModel(vm);
-                    _db.ChangeTracker.Clear();
-                    _db.FarmWorks.Remove(model);
-                    await _db.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Gick inte att ta bort gårdsarbetet!");
-                    return $"Gick inte att ta bort gårdsarbetet. Felmeddelande: {ex.Message}";
-                }
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.FarmWorksId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
+            try
+            {
+                FarmWorks model = ChangeFromViewModelToModel(vm);
+                _db.ChangeTracker.Clear();
+                _db.FarmWorks.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ta bort gårdsarbetet!");
+                return $"Gick inte att ta bort gårdsarbetet. Felmeddelande: {ex.Message}";
+            }
         }
 
         public FarmWorksViewModels ChangeFromModelToViewModel(FarmWorks model) => _mapper.Map<FarmWorksViewModels>(model);

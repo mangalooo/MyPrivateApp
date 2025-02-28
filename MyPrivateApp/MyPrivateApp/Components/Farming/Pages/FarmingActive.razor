@@ -207,8 +207,8 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenInactiveWindow())"> Inaktiv </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -277,8 +277,8 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => OpenInactiveWindow())"> Inaktiv </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow())"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -524,11 +524,19 @@
         StateHasChanged();
     }
 
-    private void OpenDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    private void OpenDeleteWindow(FarmingViewModels vm)
+    {
+        TemporaryId = vm.FarmingId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
 
     private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 
-    private void OpenInactiveWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    private void OpenInactiveWindow(FarmingViewModels vm)
+    {
+        TemporaryId = vm.FarmingId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
 
     private void CloseInactiveWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 }

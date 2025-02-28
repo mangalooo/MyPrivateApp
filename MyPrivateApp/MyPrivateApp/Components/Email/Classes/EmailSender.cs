@@ -1,5 +1,6 @@
 ﻿
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 
 namespace MyPrivateApp.Components.Email.Classes
@@ -30,7 +31,7 @@ namespace MyPrivateApp.Components.Email.Classes
             {
                 using var client = new SmtpClient();
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true; // Accept all certificates (not recommended for production)
-                await client.ConnectAsync(connect, int.Parse(port), false);
+                await client.ConnectAsync(connect, int.Parse(port), SecureSocketOptions.Auto);
                 await client.AuthenticateAsync(sendFrom2, emailPassword);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);

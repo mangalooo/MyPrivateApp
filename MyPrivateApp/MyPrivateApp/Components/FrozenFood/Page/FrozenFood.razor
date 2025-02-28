@@ -6,6 +6,8 @@
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
 
 @rendermode InteractiveServer
 
@@ -24,7 +26,7 @@
 
     <br />
 
-    <h3 style="text-align:center">Total vikt: @GetTotalWeight() kg</h3>
+    <h3 style="text-align:center">Total vikt: @totalWeight kg</h3>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
@@ -441,29 +443,32 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = true;
+    private string totalWeight = string.Empty;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
-    protected override void OnInitialized() => ConvertListToQueryable();
-
-    private void RefreshPage() => Navigation.Refresh(true);
-
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryable()
     {
-        if (db.FrozenFoods.Count() == 0) return;
+        List<FrozenFoods> farmWorks = await db.FrozenFoods.OrderByDescending(c => c.Date).ToListAsync();
 
-        queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+        if (!farmWorks.Any()) return;
 
-        foreach (FrozenFoods model in db.FrozenFoods.OrderBy(c => c.FrozenFoodsId))
-        {
-            FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderBy(c => c.Date);
-        }
+        queryable = farmWorks
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        totalWeight = await GetTotalWeight();
+        await ConvertListToQueryable();
+    }
+    
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
     {
@@ -472,33 +477,16 @@
         ShowOrHideEditButton = true;
     }
 
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.FrozenFoodId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = false;
-                return;
-            }
+            if (pageModel.FrozenFoodId > 0)
+                ErrorMessage = await BackEndClass.Edit(pageModel);
             else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-        else
-        {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
+                ErrorMessage = await BackEndClass.Add(pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -511,9 +499,13 @@
             else
             {
                 pageModel = new();
-                Navigation.Refresh(true);
-                return;
+                await RefreshPage();
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -535,233 +527,186 @@
         pageModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.FrozenFoods.Count() == 0) return;
+        if (!db.FrozenFoods.Any()) return;
 
-        bool findId = db.FrozenFoods.Any(a => a.FrozenFoodsId == TemporaryId);
+        FrozenFoods? model = await db.FrozenFoods.FirstOrDefaultAsync(a => a.FrozenFoodsId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.Delete(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = false;
+        else
         {
-            FrozenFoods model = db.FrozenFoods.FirstOrDefault(a => a.FrozenFoodsId == TemporaryId);
-            FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.Delete(db, vm, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageModel = new();
+            await RefreshPage();
         }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
     }
 
     private void OpenDeleteWindow(FrozenFoodViewModel vm)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
         TemporaryId = vm.FrozenFoodId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
-    }
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 
-    private void SearchName(ChangeEventArgs e)
+    private async Task SearchName(ChangeEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        string? searchValue = e.Value?.ToString();
+
+        if (!string.IsNullOrEmpty(searchValue))
         {
-            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.Name.Contains(e.Value!.ToString()));
-            queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            var result = await db.FrozenFoods
+                .AsNoTracking()
+                .Where(c => c.Name != null && c.Name.Contains(searchValue, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(c => c.FrozenFoodsId)
+                .ToListAsync();
 
-            if (result.Count() == 0) return;
+            queryable = result
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
 
-            if (result.Any())
-                foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
-                {
-                    FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-                    queryable = queryable.Concat(new[] { vm }.AsQueryable());
-                }
-
-            return;
+            if (!queryable.Any())
+                queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
         }
-
-        Navigation.Refresh(true);
+        else
+            await RefreshPage();
     }
 
-    private void SearchWildMeat(ChangeEventArgs e)
+    private async Task SearchWildMeat(ChangeEventArgs e)
     {
         queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
 
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        if (string.IsNullOrEmpty(e.Value?.ToString()))
         {
-            string getName = string.Empty;
-
-            foreach (int frozenGoods in Enum.GetValues(typeof(FreezerFrozenGoods)))
-            {
-                Type enumType = typeof(FreezerFrozenGoods);
-                getName = Enum.GetName(enumType, frozenGoods).ToLower();
-
-                if (getName == e.Value.ToString().ToLower())
-                    break;
-                else
-                    getName = string.Empty;
-            }
-
-            if (getName != string.Empty)
-            {
-                IEnumerable<FrozenFoods> result = null;
-
-                switch (getName.ToLower())
-                {
-                    case "Välj":
-                        break;
-
-                    case "hare":
-                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Hare);
-                        break;
-
-                    case "ko":
-                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Ko);
-                        break;
-
-                    case "rådjur":
-                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur);
-                        break;
-
-                    case "vildsvin":
-                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin);
-                        break;
-
-                    case "älg":
-                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg);
-                        break;
-
-                    case "övrigt":
-                        result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt);
-                        break;
-                }
-
-                if (result == null || result.Count() == 0) return;
-
-                if (result.Any())
-                    foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
-                    {
-                        FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-                        queryable = queryable.Concat(new[] { vm }.AsQueryable());
-                    }
-            }
-
+            await RefreshPage();
             return;
         }
 
-        Navigation.Refresh(true);
+        string? searchValue = e.Value?.ToString()?.ToLower() ?? string.Empty;
+        var frozenGoodsMapping = new Dictionary<string, FreezerFrozenGoods>
+        {
+            { "hare", FreezerFrozenGoods.Hare },
+            { "ko", FreezerFrozenGoods.Ko },
+            { "rådjur", FreezerFrozenGoods.Rådjur },
+            { "vildsvin", FreezerFrozenGoods.Vildsvin },
+            { "älg", FreezerFrozenGoods.Älg },
+            { "övrigt", FreezerFrozenGoods.Övrigt }
+        };
+
+        if (frozenGoodsMapping.TryGetValue(searchValue, out var frozenGoods))
+        {
+            var result = db.FrozenFoods
+                .AsNoTracking()
+                .Where(c => c.FrozenGoods == frozenGoods)
+                .OrderBy(c => c.FrozenFoodsId)
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            queryable = result.Any() ? result : Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+        }
     }
 
-    private double GetTotalWeight()
+    private async Task<string> GetTotalWeight()
     {
-        if (db.FrozenFoods.Count() > 0)
+        if (await db.FrozenFoods.AnyAsync())
         {
-            double counter = 0;
+            double totalWeight = await db.FrozenFoods
+                .SumAsync(item => item.Number > 0 ? item.Weight * item.Number : item.Weight);
 
-            foreach (var item in db.FrozenFoods)
-            {
-                if (item.Number > 0)
-                    counter += item.Weight * item.Number;
-                else
-                    counter += item.Weight;
-            }
-            
-            double result = double.Round(counter / 1000, 1, MidpointRounding.AwayFromZero);
-            return result;
+            return Math.Round(totalWeight / 1000, 1, MidpointRounding.AwayFromZero).ToString("#,##0.00");
         }
 
-        return 0;
+        return string.Empty;
     }
 
     private void SetQuery(IEnumerable<FrozenFoods> result)
     {
-        queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
-
-        if (result.Count() == 0) return;
-
-        if (result.Any())
-            foreach (FrozenFoods model in result.OrderBy(c => c.FrozenFoodsId))
-            {
-                FrozenFoodViewModel contact = BackEndClass.ChangeFromModelToViewModel(model);
-                queryable = queryable.Concat(new[] { contact }.AsQueryable());
-            }
-    }
-
-    private void SearchDeer(ChangeEventArgs e)
-    {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
+        if (!result.Any())
         {
-            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur);
-
-            SetQuery(result);
+            queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
             return;
         }
 
-        Navigation.Refresh(true);
+        queryable = result
+            .OrderBy(c => c.FrozenFoodsId)
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
     }
 
-    private void SearchWildboar(ChangeEventArgs e)
+    private async Task SearchDeer(ChangeEventArgs e)
     {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
         {
-            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin);
+            var result = await db.FrozenFoods
+                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur)
+                .ToListAsync();
 
-            SetQuery(result);
-            return;
+            queryable = result
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
         }
-
-        Navigation.Refresh(true);
+        else
+            await RefreshPage();
     }
 
-    private void SearchMoose(ChangeEventArgs e)
+    private async Task SearchWildboar(ChangeEventArgs e)
     {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
         {
-            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg);
+            var result = await db.FrozenFoods
+                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin)
+                .ToListAsync();
 
-            SetQuery(result);
-            return;
+            queryable = result
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
         }
-
-        Navigation.Refresh(true);
+        else
+            await RefreshPage();
     }
 
-    private void SearchOther(ChangeEventArgs e)
+    private async Task SearchMoose(ChangeEventArgs e)
     {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
         {
-            IEnumerable<FrozenFoods> result = db.FrozenFoods.Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt);
+            var result = await db.FrozenFoods
+                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg)
+                .ToListAsync();
 
-            SetQuery(result);
-            return;
+            queryable = result
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
         }
+        else
+            await RefreshPage();
+    }
 
-        Navigation.Refresh(true);
+    private async Task SearchOther(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+        {
+            var result = await db.FrozenFoods
+                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt)
+                .ToListAsync();
+
+            queryable = result
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+        }
+        else
+            await RefreshPage();
     }    
 }

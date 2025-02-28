@@ -79,7 +79,7 @@
                                 <InputSelect @bind-Value="pageModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
                                     {
-                                        <option value="@place">@place</option>
+                                            <option value="@place">@place</option>
                                     }
                                 </InputSelect>
                                 <label for="wildAnimal"> Plats </label>
@@ -207,7 +207,7 @@
 
                             @if (ShowBackdrop)
                             {
-                                <div class="modal-backdrop fade show"></div>
+                                    <div class="modal-backdrop fade show"></div>
                             }
 
                         </TemplateColumn>
@@ -217,27 +217,27 @@
 
                     @if (isDeleteSalaryButtonVisible)
                     {
-                        <br />
+                            <br />
 
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary())"> Ta bort nästa lön </button>
+                            <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary())"> Ta bort nästa lön </button>
 
-                        <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                            <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
                         @if (ShowBackdropSalary)
                         {
-                            <div class="modal-backdrop fade show"></div>
+                                    <div class="modal-backdrop fade show"></div>
                         }
                     }
 
@@ -306,7 +306,7 @@
 
                             @if (ShowBackdrop)
                             {
-                                <div class="modal-backdrop fade show"></div>
+                                    <div class="modal-backdrop fade show"></div>
                             }
 
                         </TemplateColumn>
@@ -314,28 +314,28 @@
 
                     @if (isDeleteSalaryButtonVisible)
                     {
-                        <br />
-                        <br />
+                            <br />
+                            <br />
 
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary())"> Ta bort nästa lön </button>
+                            <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary())"> Ta bort nästa lön </button>
 
-                        <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                            <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
                         @if (ShowBackdropSalary)
                         {
-                            <div class="modal-backdrop fade show"></div>
+                                    <div class="modal-backdrop fade show"></div>
                         }
                     }
 
@@ -367,10 +367,10 @@
 @* Back-End *@
 @code
 {
-        [SupplyParameterFromForm]
-        private FarmWorksViewModels pageModel { get; set; } = new();
+    [SupplyParameterFromForm]
+    private FarmWorksViewModels pageModel { get; set; } = new();
 
-        PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<FarmWorksViewModels> queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -396,7 +396,7 @@
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = true;
     private bool isDeleteSalaryButtonVisible;
-    private double NextSalary;
+    private string NextSalary = string.Empty;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
@@ -426,12 +426,9 @@
 
     private void HideNewOrChangesForm()
     {
-        // Toggle the visibility of the form fields
         HideNewOrChangesFields = !HideNewOrChangesFields;
-
-        // Set the visibility of the buttons based on the form fields' visibility
-        ShowOrHideCreateButton = !HideNewOrChangesFields;
-        ShowOrHideEditButton = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
     }
 
     private async Task AddOrEdit()
@@ -449,8 +446,9 @@
             {
                 HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = pageModel.FarmWorksId > 0;
-                ShowOrHideAddNewButton = pageModel.FarmWorksId == 0;
+                ShowOrHideEditButton = true;
+                ShowOrHideAddNewButton = false;
+                return;
             }
             else
             {
@@ -465,20 +463,23 @@
         }
     }
 
-    private void SetPageModel(FarmWorksViewModels vm, bool isEditMode)
+    private void Info(FarmWorksViewModels vm)
     {
         HideNewOrChangesForm();
-        ShowOrHideAddNewButton = !isEditMode;
-        ShowOrHideEditButton = isEditMode;
-        ShowOrHideCreateButton = isEditMode;
-        HideNewOrChangesFields = isEditMode;
-        DisabledForm = !isEditMode;
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
         pageModel = vm;
     }
 
-    private void Info(FarmWorksViewModels vm) => SetPageModel(vm, false);
-
-    private void Edit(FarmWorksViewModels vm) => SetPageModel(vm, true);
+    private void Edit(FarmWorksViewModels vm)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        ShowOrHideCreateButton = true;
+        HideNewOrChangesFields = true;
+        pageModel = vm;
+    }
 
     private async Task Delete()
     {
@@ -515,7 +516,11 @@
 
     private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 
-    private void OpenDeleteWindowSalary() => ToggleModal(ref ModalDisplaySalary, ref ModalClassSalary, ref ShowBackdropSalary, true);
+    private void OpenDeleteWindowSalary(FarmWorksViewModels vm)
+    {
+        TemporaryId = vm.FarmWorksId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
 
     private void CloseWindowSalary() => ToggleModal(ref ModalDisplaySalary, ref ModalClassSalary, ref ShowBackdropSalary, false);
 
@@ -554,7 +559,7 @@
         }
     }
 
-    private async Task<double> GetNextSalary()
+    private async Task<string> GetNextSalary()
     {
         double nextSalary = await db.FarmWorks
             .Where(item => item.NextSalary)
@@ -563,7 +568,7 @@
         // Calculate the result after tax
         double result = nextSalary * 0.7;
 
-        return result;
+        return result.ToString("#,##0.00");
     }
 
     private async Task RemoveNextSalary()

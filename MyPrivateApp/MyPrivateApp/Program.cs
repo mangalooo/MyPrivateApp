@@ -20,6 +20,8 @@ using MyPrivateApp.Components.Email.Classes;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection.PortableExecutable;
+using Microsoft.AspNetCore.Builder;
+using MyPrivateApp.Data.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -141,7 +143,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode();
-    //.AddAdditionalAssemblies(typeof(Counter).Assembly);
+//.AddAdditionalAssemblies(typeof(Counter).Assembly);
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
@@ -150,7 +152,8 @@ app.MapAdditionalIdentityEndpoints();
 app.UseHangfireDashboard("/hangfire");
 
 // Logs
-ILogger<ContactClass> logger = app.Services.GetRequiredService<ILogger<ContactClass>>();
+ILogger<ContactClass> loggerContact = app.Services.GetRequiredService<ILogger<ContactClass>>();
+ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
 
 // Mapper
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
@@ -159,6 +162,7 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<ContactMappingProfile>();
     cfg.AddProfile<FarmingMappingProfile>();
     cfg.AddProfile<FarmWorksMappingProfile>();
+    cfg.AddProfile<FrozenFoodMappingProfile>();
 });
 mapper = config.CreateMapper();
 
@@ -166,20 +170,52 @@ mapper = config.CreateMapper();
 IConfiguration configuration = app.Services.GetRequiredService<IConfiguration>();
 IEmailSender emailSender = app.Services.GetRequiredService<IEmailSender>();
 
+async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
+{
+    if (id == null) throw new ArgumentNullException(nameof(id));
+
+    return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
+           ?? throw new Exception("Frysvaran hittades inte i databasen!");
+}
+
+
 // Get ApplicationDbContext from the request services
 app.Use(async (context, next) =>
 {
     ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>() ??
         throw new InvalidOperationException("Program filen. Felmeddelande: Failed to retrieve ApplicationDbContext from the service provider.");
 
-    // Sends automatic email if a contact has birthday
-    ContactClass contactClass = new(db, logger, mapper, configuration, emailSender);
-    await contactClass.GetBirthday();
+    LastEmailSent? lastEmailSentBirthday = await Get(db, 1);
 
-    // Uncomment and use the following lines if needed
-    // Sends automatic email if a the frozen food has past time.
-    // FrozenFoodClass frozenFoodClass = new();
-    // await frozenFoodClass.GetOutgoingFrosenFood(db);
+    if (lastEmailSentBirthday == null)
+        db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
+    else
+    {
+        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 2)
+        {
+            // Sends automatic email if a contact has birthday
+            IContactClass contactClass = context.RequestServices.GetRequiredService<IContactClass>();
+            await contactClass.GetBirthday();
+            lastEmailSentBirthday.Time = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+        }
+    }
+
+    LastEmailSent? lastEmailSentFrozenFood = await Get(db, 2);
+
+    if (lastEmailSentFrozenFood == null)
+        db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
+    else
+    {
+        if ((DateTime.UtcNow - lastEmailSentFrozenFood.Time).Hours >= 2)
+        {
+            // Sends automatic email if a the frozen food has past time.
+            IFrozenFoodClass frozenFoodClass = context.RequestServices.GetRequiredService<IFrozenFoodClass>();
+            frozenFoodClass.GetOutgoingFrosenFood();
+            lastEmailSentFrozenFood.Time = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+        }
+    }
 
     await next();
 });

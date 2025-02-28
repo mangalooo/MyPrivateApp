@@ -1,5 +1,4 @@
 ﻿
-using MyPrivateApp.Data;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 
@@ -7,10 +6,11 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 {
     public interface IFrozenFoodClass
     {
-        string Add(ApplicationDbContext db, FrozenFoodViewModel vm, bool import);
-        string Edit(ApplicationDbContext db, FrozenFoodViewModel vm);
-        string Delete(ApplicationDbContext db, FrozenFoodViewModel vm, bool import);
+        Task<string> Add(FrozenFoodViewModel vm);
+        Task<string> Edit(FrozenFoodViewModel vm);
+        Task<string> Delete(FrozenFoodViewModel vm);
         FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model);
         double HowLongTimeInFreezer(DateTime date);
+        void GetOutgoingFrosenFood();
     }
 }

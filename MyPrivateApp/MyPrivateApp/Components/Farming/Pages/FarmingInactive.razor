@@ -433,20 +433,20 @@
         }
     }
 
-    private void OpenDeleteWindow(FarmingViewModels vm)
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
         StateHasChanged();
-        TemporaryId = vm.FarmingId;
     }
 
-    private void CloseWindow()
+    private void OpenDeleteWindow(FarmingViewModels vm)
     {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
+        TemporaryId = vm.FarmingId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
+
+
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 }

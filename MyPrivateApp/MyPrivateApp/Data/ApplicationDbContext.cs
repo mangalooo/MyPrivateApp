@@ -1,7 +1,6 @@
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Farming;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
@@ -46,6 +45,9 @@ namespace MyPrivateApp.Data
         public DbSet<SharesProfitOrLossYears> SharesProfitOrLossYears { get; set; }
         public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; }
         public DbSet<SharesTotalProfitsOrLosses> SharesTotalProfitsOrLosses { get; set; }
+
+        // Email check
+        public DbSet<LastEmailSent> LastEmailSent { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

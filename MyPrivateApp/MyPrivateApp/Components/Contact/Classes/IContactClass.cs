@@ -10,5 +10,6 @@ namespace MyPrivateApp.Components.Contact.Classes
         Task<string> Edit(ContactsViewModels vm);
         Task<string> Delete(ContactsViewModels vm);
         ContactsViewModels ChangeFromModelToViewModel(Contacts model);
+        Task GetBirthday();
     }
 }
