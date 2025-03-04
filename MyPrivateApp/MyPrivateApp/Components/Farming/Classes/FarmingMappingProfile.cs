@@ -3,7 +3,7 @@ using AutoMapper;
 using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models.Farming;
 
-namespace MyPrivateApp.Components.Contact.Classes
+namespace MyPrivateApp.Components.Farming.Classes
 {
     public class FarmingMappingProfile : Profile
     {

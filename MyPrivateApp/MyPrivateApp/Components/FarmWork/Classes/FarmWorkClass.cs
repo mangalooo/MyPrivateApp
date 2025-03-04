@@ -12,7 +12,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-
         public async Task<FarmWorks?> Get(int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
@@ -20,7 +19,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             return await _db.FarmWorks.FirstOrDefaultAsync(r => r.FarmWorksId == id)
                    ?? throw new Exception("Objektet gårdsarbete hittades inte i databasen!");
         }
-
         public async Task<string> Add(FarmWorksViewModels vm)
         {
             if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";

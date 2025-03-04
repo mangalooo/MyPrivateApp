@@ -1,46 +1,46 @@
 ﻿
+using AutoMapper;
+using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
+using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class MZPurchasedClass : IMZPurchasedClass
+    public class MZPurchasedClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : IMZPurchasedClass
     {
-        private static MZPurchasedPlayers? Get(ApplicationDbContext db, int? id) => db.MZPurchasedPlayers.Any(r => r.ManagerZonePurchasedPlayersId == id) 
-                                                                                        ? db.MZPurchasedPlayers.FirstOrDefault(r => r.ManagerZonePurchasedPlayersId == id) 
-                                                                                            : throw new Exception("Den köpta spelare hittades inte i databasen!");
-
-        public string Add(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        public async Task<MZPurchasedPlayers?> Get(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (vm.PurchasedDate != DateTime.MinValue && vm.PurchaseAmount > 0 && vm.Salary > 0)
-                {
-                    try
-                    {
-                        MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-                        model.TrainingModeTotalCost = vm.TrainingModeCost;
-
-                        db.MZPurchasedPlayers.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till en ny spelare. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
-
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            return await _db.MZPurchasedPlayers.FirstOrDefaultAsync(r => r.ManagerZonePurchasedPlayersId == id)
+                   ?? throw new Exception("Den köpta spelare hittades inte i databasen!");
         }
+        public async Task<string> Add(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
+        {
+            if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
+            if (vm.PurchasedDate != DateTime.MinValue && vm.PurchaseAmount > 0 && vm.Salary > 0) return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
+
+            try
+            {
+                MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
+                model.TrainingModeTotalCost = vm.TrainingModeCost;
+                await _db.MZPurchasedPlayers.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att lägg till en ny spelare!");
+                return $"Gick inte att lägg till en ny spelare. Felmeddelande: {ex.Message}";
+            }
+        }
         public string Edit(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
         {
             if (vm != null && vm.ManagerZonePurchasedPlayersId > 0 && db != null)
@@ -133,7 +133,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                         MoneyProfitOrLoss = MoneyProfitOrLoss,
                         PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss)
                     };
-                    
+
                     try
                     {
                         db.MZSoldPlayers.Add(soldPlayer);

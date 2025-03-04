@@ -210,36 +210,34 @@
                                     <div class="modal-backdrop fade show"></div>
                             }
 
-                            @if (isDeleteSalaryButtonVisible)
-                            {
-                                <br />
-
-                                <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(context))"> Ta bort nästa lön </button>
-
-                                <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                @if (ShowBackdropSalary)
-                                {
-                                    <div class="modal-backdrop fade show"></div>
-                                }
-                            }
-
                         </TemplateColumn>
                     </QuickGrid>
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    @if (isDeleteSalaryButtonVisible)
+                    {
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageModel))"> Ta bort nästa lön </button>
+
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropSalary)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
 
                     <br />
                     <br />
@@ -309,33 +307,33 @@
                                     <div class="modal-backdrop fade show"></div>
                             }
 
-                            @if (isDeleteSalaryButtonVisible)
-                            {
-                                <br />
-                                <br />
-
-                                <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(context))"> Ta bort nästa lön </button>
-
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                @if (ShowBackdropSalary)
-                                {
-                                    <div class="modal-backdrop fade show"></div>
-                                }
-                            }
-
                         </TemplateColumn>
                     </QuickGrid>
+
+                    @if (isDeleteSalaryButtonVisible)
+                    {
+                        <br />
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageModel))"> Ta bort nästa lön </button>
+
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropSalary)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
 
                     <br />
                     <br />
