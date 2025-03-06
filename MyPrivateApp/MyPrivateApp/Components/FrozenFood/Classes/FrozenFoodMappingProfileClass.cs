@@ -5,9 +5,9 @@ using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {
-    public class FrozenFoodMappingProfile : Profile
+    public class FrozenFoodMappingProfileClass : Profile
     {
-        public FrozenFoodMappingProfile()
+        public FrozenFoodMappingProfileClass()
         {
             CreateMap<FrozenFoodViewModel, FrozenFoods>();
             CreateMap<FrozenFoods, FrozenFoodViewModel>();

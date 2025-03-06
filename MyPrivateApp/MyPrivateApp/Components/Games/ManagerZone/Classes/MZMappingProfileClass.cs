@@ -5,9 +5,9 @@ using MyPrivateApp.Data.Models.Games.ManagerZone;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class MZWorksMappingProfile : Profile
+    public class MZMappingProfileClass : Profile
     {
-        public MZWorksMappingProfile()
+        public MZMappingProfileClass()
         {
             CreateMap<MZPurchasedPlayersViewModels, MZPurchasedPlayers>();
             CreateMap<MZPurchasedPlayers, MZPurchasedPlayersViewModels>();

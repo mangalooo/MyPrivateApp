@@ -56,7 +56,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -68,25 +68,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Name" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Type" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Type" class="form-control" disabled="@DisabledForm" />
                                 <label for="Type"> Typ </label>
-                                <ValidationMessage For="() => pageModel.Type" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Type" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Place" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Place" class="form-control" disabled="@DisabledForm" />
                                 <label for="Place"> Plats </label>
-                                <ValidationMessage For="() => pageModel.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Place" class="text-danger" />
                             </div>
                         </div>
 
@@ -100,33 +100,33 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.InactiveDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.InactiveDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="InactiveDate"> Inaktiv datum </label>
-                                <ValidationMessage For="() => pageModel.InactiveDate" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.InactiveDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.PutSeedDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.PutSeedDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="PutSeedDate"> Sätt frö datum </label>
-                                <ValidationMessage For="() => pageModel.PutSeedDate" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.PutSeedDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.SetDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.SetDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="SetDate"> Plantera ut datum </label>
-                                <ValidationMessage For="() => pageModel.SetDate" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.SetDate" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.TakeUpDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.TakeUpDate" class="form-control" disabled="@DisabledForm" />
                                 <label for="TakeUpDate"> Ta upp datum </label>
-                                <ValidationMessage For="() => pageModel.TakeUpDate" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.TakeUpDate" class="text-danger" />
                             </div>
                         </div>
 
@@ -140,17 +140,17 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.HowMany" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageViewModel.HowMany" class="form-control" disabled="@DisabledForm" />
                                 <label for="HowMany"> Hur många satta </label>
-                                <ValidationMessage For="() => pageModel.HowMany" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.HowMany" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.HowManySave" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageViewModel.HowManySave" class="form-control" disabled="@DisabledForm" />
                                 <label for="HowManySave"> Hur många sparade </label>
-                                <ValidationMessage For="() => pageModel.HowManySave" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.HowManySave" class="text-danger" />
                             </div>
                         </div>
 
@@ -162,9 +162,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="5" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="5" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -316,7 +316,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private FarmingViewModels pageModel { get; set; } = new();
+    private FarmingViewModels pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<FarmingViewModels> queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
@@ -369,26 +369,26 @@
 
         try
         {
-            if (pageModel.FarmingId > 0)
+            if (pageViewModel.FarmingId > 0)
             {
                 // Edit
-                ErrorMessage = await BackEndClass.EditInactive(pageModel);
+                ErrorMessage = await BackEndClass.EditInactive(pageViewModel);
             }
             else
             {
                 // Add
-                ErrorMessage = await BackEndClass.Add(pageModel);
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
             }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = pageModel.FarmingId > 0;
+                ShowOrHideEditButton = pageViewModel.FarmingId > 0;
             }
             else
             {
-                pageModel = new();
+                pageViewModel = new();
                 Navigation.Refresh(true);
             }
         }
@@ -404,14 +404,14 @@
         DisabledForm = false;
         ShowOrHideEditButton = false;
         HideNewOrChangesFields = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private void Info(FarmingViewModels vm)
     {
         HideNewOrChangesForm();
         DisabledForm = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private async Task Delete()
@@ -428,7 +428,7 @@
             ShowOrHideErrorMessage = false;
         else
         {
-            pageModel = new();
+            pageViewModel = new();
             Navigation.Refresh(true);
         }
     }

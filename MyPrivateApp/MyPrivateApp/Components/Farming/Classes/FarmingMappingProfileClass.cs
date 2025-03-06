@@ -5,9 +5,9 @@ using MyPrivateApp.Data.Models.Farming;
 
 namespace MyPrivateApp.Components.Farming.Classes
 {
-    public class FarmingMappingProfile : Profile
+    public class FarmingMappingProfileClass : Profile
     {
-        public FarmingMappingProfile()
+        public FarmingMappingProfileClass()
         {
             CreateMap<FarmingViewModels, FarmingsActive>();
             CreateMap<FarmingViewModels, FarmingsInactive>();

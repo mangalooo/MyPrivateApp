@@ -5,9 +5,9 @@ using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public class FarmWorksMappingProfile : Profile
+    public class FarmWorkMappingProfileClass : Profile
     {
-        public FarmWorksMappingProfile()
+        public FarmWorkMappingProfileClass()
         {
             CreateMap<FarmWorksViewModels, FarmWorks>();
             CreateMap<FarmWorks, FarmWorksViewModels>();

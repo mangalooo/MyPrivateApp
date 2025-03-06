@@ -4,9 +4,9 @@ using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {
-    public class ContactMappingProfile : Profile
+    public class ContactMappingProfileClass : Profile
     {
-        public ContactMappingProfile()
+        public ContactMappingProfileClass()
         {
             CreateMap<ContactsViewModels, Contacts>();
             CreateMap<Contacts, ContactsViewModels>();

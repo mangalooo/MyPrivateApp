@@ -25,9 +25,11 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
         public async Task<string> Add(FrozenFoodViewModel vm)
         {
-            if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || _db == null) 
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) return "Ingen datum eller namn ifyllt!";
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) 
+                return "Ingen datum eller namn ifyllt!";
 
             try
             {
@@ -68,7 +70,8 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
         public async Task<string> Delete(FrozenFoodViewModel vm)
         {
-            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) 
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             try
             {

@@ -18,6 +18,10 @@ using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.Games.ManagerZone.Classes;
 using MyPrivateApp.Components.Email.Classes;
 using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection.PortableExecutable;
+using Microsoft.AspNetCore.Builder;
+using MyPrivateApp.Data.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -82,11 +86,15 @@ builder.Services.AddAuthorizationBuilder()
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseSqlServer(connectionString));
 
-ApplicationDbContext? db = builder.Services.BuildServiceProvider().GetService<ApplicationDbContext>();
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, x =>
+{
+    x.CommandTimeout(180);
+}), ServiceLifetime.Transient);
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
@@ -95,8 +103,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-// Trusted_Connection=True
 
 // Hangfire
 builder.Services.AddHangfire(x => x
@@ -113,10 +119,10 @@ builder.Services.AddHangfire(x => x
     }));
 
 builder.Services.AddHangfireServer();
+builder.Services.AddRazorComponents();
 
 WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
@@ -137,7 +143,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode();
-    //.AddAdditionalAssemblies(typeof(Counter).Assembly);
+//.AddAdditionalAssemblies(typeof(Counter).Assembly);
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
@@ -146,16 +152,18 @@ app.MapAdditionalIdentityEndpoints();
 app.UseHangfireDashboard("/hangfire");
 
 // Logs
-ILogger<ContactClass> logger = app.Services.GetRequiredService<ILogger<ContactClass>>();
+ILogger<ContactClass> loggerContact = app.Services.GetRequiredService<ILogger<ContactClass>>();
+ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
 
 // Mapper
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
 MapperConfiguration config = new(cfg =>
 {
-    cfg.AddProfile<ContactMappingProfile>();
-    cfg.AddProfile<FarmingMappingProfile>();
-    cfg.AddProfile<FarmWorksMappingProfile>();
-    cfg.AddProfile<MZWorksMappingProfile>();
+    cfg.AddProfile<ContactMappingProfileClass>();
+    cfg.AddProfile<FarmingMappingProfileClass>();
+    cfg.AddProfile<FarmWorkMappingProfileClass>();
+    cfg.AddProfile<FrozenFoodMappingProfileClass>();
+    cfg.AddProfile<MZMappingProfileClass>();
 });
 mapper = config.CreateMapper();
 
@@ -163,19 +171,54 @@ mapper = config.CreateMapper();
 IConfiguration configuration = app.Services.GetRequiredService<IConfiguration>();
 IEmailSender emailSender = app.Services.GetRequiredService<IEmailSender>();
 
-if (db == null)
-    throw new InvalidOperationException("Program filen. Felmeddelande: Failed to retrieve ApplicationDbContext from the service provider.");
+async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
+{
+    if (id == null) throw new ArgumentNullException(nameof(id));
 
-// Sends automatic email if a contact has birthday
-ContactClass contactClass = new(db, logger, mapper, configuration, emailSender);
-await contactClass.GetBirthday();
+    return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
+           ?? throw new Exception("Frysvaran hittades inte i databasen!");
+}
 
-//// Sends automatic email if a the frozen food has past time.
-//FrozenFoodClass frozenFoodClass = new();
-//await frozenFoodClass.GetOutgoingFrosenFood(db);
 
-//// Sends automatic email if a the frozen food has past time.
-//FrozenFoodClass frozenFoodClass = new();
-//frozenFoodClass.GetOutgoingFrosenFood(db); // Magnus
+// Get ApplicationDbContext from the request services
+app.Use(async (context, next) =>
+{
+    ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>() ??
+        throw new InvalidOperationException("Program filen. Felmeddelande: Failed to retrieve ApplicationDbContext from the service provider.");
+
+    LastEmailSent? lastEmailSentBirthday = await Get(db, 1);
+
+    if (lastEmailSentBirthday == null)
+        db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
+    else
+    {
+        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 2)
+        {
+            // Sends automatic email if a contact has birthday
+            IContactClass contactClass = context.RequestServices.GetRequiredService<IContactClass>();
+            await contactClass.GetBirthday();
+            lastEmailSentBirthday.Time = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+        }
+    }
+
+    LastEmailSent? lastEmailSentFrozenFood = await Get(db, 2);
+
+    if (lastEmailSentFrozenFood == null)
+        db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
+    else
+    {
+        if ((DateTime.UtcNow - lastEmailSentFrozenFood.Time).Hours >= 2)
+        {
+            // Sends automatic email if a the frozen food has past time.
+            IFrozenFoodClass frozenFoodClass = context.RequestServices.GetRequiredService<IFrozenFoodClass>();
+            frozenFoodClass.GetOutgoingFrosenFood();
+            lastEmailSentFrozenFood.Time = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+        }
+    }
+
+    await next();
+});
 
 app.Run();

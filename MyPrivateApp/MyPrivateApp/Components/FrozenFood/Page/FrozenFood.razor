@@ -54,7 +54,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdateFrozenFood" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdateFrozenFood" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -68,17 +68,17 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Type" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Type" class="form-control" disabled="@DisabledForm" />
                                 <label for="Type"> Typ </label>
-                                <ValidationMessage For="() => pageModel.Type" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Type" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -91,21 +91,21 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Name" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="pageModel.FrozenGoods" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageViewModel.FrozenGoods" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object frozenGoods in Enum.GetValues(typeof(FreezerFrozenGoods)))
                                     {
                                         <option value="@frozenGoods">@frozenGoods</option>
                                     }
                                 </InputSelect>
                                 <label for="frozenGoods"> Vilt </label>
-                                <ValidationMessage For="() => pageModel.FrozenGoods" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.FrozenGoods" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -118,26 +118,26 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="pageModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object freezerPlaces in Enum.GetValues(typeof(FreezerPlaces)))
                                     {
                                         <option value="@freezerPlaces">@freezerPlaces</option>
                                     }
                                 </InputSelect>
                                 <label for="FreezerPlaces"> Frys plats </label>
-                                <ValidationMessage For="() => pageModel.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Place" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="pageModel.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageViewModel.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object freezerCompartment in Enum.GetValues(typeof(FreezerCompartment)))
                                     {
                                         <option value="@freezerCompartment">@freezerCompartment</option>
                                     }
                                 </InputSelect>
                                 <label for="FreezerCompartment"> Frysfack </label>
-                                <ValidationMessage For="() => pageModel.FreezerCompartment" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.FreezerCompartment" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -150,16 +150,16 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.Weight" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageViewModel.Weight" class="form-control" disabled="@DisabledForm" />
                                 <label for="Weight"> Vikt (gram) </label>
-                                <ValidationMessage For="() => pageModel.Weight" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Weight" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.Number" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageViewModel.Number" class="form-control" disabled="@DisabledForm" />
                                 <label for="Number"> Antal </label>
-                                <ValidationMessage For="() => pageModel.Number" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Number" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -169,9 +169,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="pageModel.Notes" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
                                 <label for="Notes"> Anteckningar </label>
-                                <ValidationMessage For="() => pageModel.Notes" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Notes" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -422,7 +422,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private FrozenFoodViewModel pageModel { get; set; } = new();
+    private FrozenFoodViewModel pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<FrozenFoodViewModel> queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
@@ -451,11 +451,11 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
-        List<FrozenFoods> farmWorks = await db.FrozenFoods.OrderByDescending(c => c.Date).ToListAsync();
+        List<FrozenFoods> frozenFoods = await db.FrozenFoods.OrderByDescending(c => c.Date).ToListAsync();
 
-        if (!farmWorks.Any()) return;
+        if (!frozenFoods.Any()) return;
 
-        queryable = farmWorks
+        queryable = frozenFoods
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
             .AsQueryable();
 
@@ -483,10 +483,10 @@
 
         try
         {
-            if (pageModel.FrozenFoodId > 0)
-                ErrorMessage = await BackEndClass.Edit(pageModel);
+            if (pageViewModel.FrozenFoodId > 0)
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
             else
-                ErrorMessage = await BackEndClass.Add(pageModel);
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -498,7 +498,7 @@
             }
             else
             {
-                pageModel = new();
+                pageViewModel = new();
                 await RefreshPage();
             }
         }
@@ -514,7 +514,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private void Edit(FrozenFoodViewModel vm)
@@ -524,7 +524,7 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private async Task Delete()
@@ -541,7 +541,7 @@
             ShowOrHideErrorMessage = false;
         else
         {
-            pageModel = new();
+            pageViewModel = new();
             await RefreshPage();
         }
     }
