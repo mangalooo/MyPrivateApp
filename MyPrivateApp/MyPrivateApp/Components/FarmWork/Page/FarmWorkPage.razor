@@ -79,7 +79,7 @@
                                 <InputSelect @bind-Value="pageModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
                                     {
-                                            <option value="@place">@place</option>
+                                        <option value="@place">@place</option>
                                     }
                                 </InputSelect>
                                 <label for="wildAnimal"> Plats </label>
@@ -207,7 +207,7 @@
 
                             @if (ShowBackdrop)
                             {
-                                    <div class="modal-backdrop fade show"></div>
+                                <div class="modal-backdrop fade show"></div>
                             }
 
                         </TemplateColumn>
@@ -221,14 +221,16 @@
 
                         <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageModel))"> Ta bort nästa lön </button>
 
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                        <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -304,7 +306,7 @@
 
                             @if (ShowBackdrop)
                             {
-                                    <div class="modal-backdrop fade show"></div>
+                                <div class="modal-backdrop fade show"></div>
                             }
 
                         </TemplateColumn>
@@ -317,14 +319,16 @@
 
                         <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageModel))"> Ta bort nästa lön </button>
 
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                        <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -372,13 +376,13 @@
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
 
-    // Modol window settings
+    // Modol window settings Delete
     public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";
     public string ModalClass = "";
     public bool ShowBackdrop = false;
 
-    // Modol window settings
+    // Modol window settings Salary
     public Guid GuidSalary = Guid.NewGuid();
     public string ModalDisplaySalary = "none;";
     public string ModalClassSalary = "";
@@ -515,7 +519,7 @@
     private void OpenDeleteWindowSalary(FarmWorksViewModels vm)
     {
         TemporaryId = vm.FarmWorksId;
-        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+        ToggleModal(ref ModalDisplaySalary, ref ModalClassSalary, ref ShowBackdropSalary, true);
     }
 
     private void CloseWindowSalary() => ToggleModal(ref ModalDisplaySalary, ref ModalClassSalary, ref ShowBackdropSalary, false);

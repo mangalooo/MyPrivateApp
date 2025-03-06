@@ -7,6 +7,8 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.Games.ManagerZone
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
 
 @rendermode InteractiveServer
 
@@ -19,7 +21,7 @@
 @* Header *@
 <div>
 
-     @* Desktop Navigation*@
+    @* Desktop Navigation*@
     <div id="desktop" style="text-align:center">
         <div class="btn-group">
             <NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink>
@@ -279,7 +281,7 @@
                                     <br />
 
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton(pageModel))"> Sälj </button>
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton())"> Sälj </button>
                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSale()"> Ångra </button>
                                     </div>
                                 </div>
@@ -299,7 +301,7 @@
                         <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
                     </div>
 
-                    
+
 
                     <br />
                     <br />
@@ -371,7 +373,7 @@
 
                         <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true" />
                         <PropertyColumn Title="Dagar" Property="@(c => BackEndClass.DaysInTheClub(c.PurchasedDate))" Sortable="true" />
-                        
+
                         <TemplateColumn Title="Info">
 
                             <div class="btn-group" role="group">
@@ -469,22 +471,22 @@
     private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryable()
     {
-        if (db.MZPurchasedPlayers.Count() == 0) return;
+        List<MZPurchasedPlayers> farmWorks = await db.MZPurchasedPlayers.OrderByDescending(c => c.PurchasedDate).ToListAsync();
 
-        queryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
+        if (!farmWorks.Any()) return;
 
-        foreach (MZPurchasedPlayers model in db.MZPurchasedPlayers.OrderBy(c => c.ManagerZonePurchasedPlayersId))
-        {
-            MZPurchasedPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat((new[] { vm }).AsQueryable());
-        }
+        queryable = farmWorks
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryable();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
     {
@@ -493,35 +495,16 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.ManagerZonePurchasedPlayersId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = false;
-                return;
-            }
+            if (pageModel.ManagerZonePurchasedPlayersId > 0)
+                ErrorMessage = await BackEndClass.Edit(pageModel);
             else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-        else
-        {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel);
+                ErrorMessage = await BackEndClass.Add(pageModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -534,9 +517,13 @@
             else
             {
                 pageModel = new();
-                Navigation.Refresh(true);
-                return;
+                await RefreshPage();
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -570,24 +557,28 @@
         pageModel = vm;
     }
 
-    private void SellButton(MZPurchasedPlayersViewModels vm)
+    private async Task SellButton()
     {
-        if (vm == null) return;
-
-        ErrorMessage = BackEndClass.Sell(db, pageModel);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        try
         {
-            ShowOrHideErrorMessage = false;
-            HideNewOrChangesFields = true;
-            ShowOrHideEditButton = false;
-            return;
+            ErrorMessage = await BackEndClass.Sell(pageModel);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+            }
+            else
+            {
+                pageModel = new ();
+                await RefreshPage();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            pageModel = new();
-            Navigation.Refresh(true);
-            return;
+            ErrorMessage = $"Ett fel uppstod när spelaren skulle säljas: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -607,47 +598,38 @@
         StateHasChanged();
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.MZPurchasedPlayers.Count() == 0) return;
+        if (!db.MZPurchasedPlayers.Any()) return;
 
-        bool findId = db.MZPurchasedPlayers.Any(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
+        MZPurchasedPlayers? model = await db.MZPurchasedPlayers.FirstOrDefaultAsync(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        MZPurchasedPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.Delete(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = false;
+        else
         {
-            MZPurchasedPlayers model = db.MZPurchasedPlayers.FirstOrDefault(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
-            MZPurchasedPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.Delete(db, vm);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageModel = new();
+            await RefreshPage();
         }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
     }
 
     private void OpenDeleteWindow(MZPurchasedPlayersViewModels vm)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
         TemporaryId = vm.ManagerZonePurchasedPlayersId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 
-    private void CloseDeleteWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
-    }
+    private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 }

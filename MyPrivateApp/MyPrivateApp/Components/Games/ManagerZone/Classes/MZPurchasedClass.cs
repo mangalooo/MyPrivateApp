@@ -3,7 +3,6 @@ using AutoMapper;
 using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
-using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +13,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
         public async Task<MZPurchasedPlayers?> Get(int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
@@ -21,11 +21,13 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return await _db.MZPurchasedPlayers.FirstOrDefaultAsync(r => r.ManagerZonePurchasedPlayersId == id)
                    ?? throw new Exception("Den köpta spelare hittades inte i databasen!");
         }
-        public async Task<string> Add(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
+        public async Task<string> Add(MZPurchasedPlayersViewModels vm)
         {
-            if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || _db == null)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.PurchasedDate != DateTime.MinValue && vm.PurchaseAmount > 0 && vm.Salary > 0) return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
+            if (vm.PurchasedDate != DateTime.MinValue && vm.PurchaseAmount > 0 && vm.Salary > 0)
+                return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
 
             try
             {
@@ -41,205 +43,145 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 return $"Gick inte att lägg till en ny spelare. Felmeddelande: {ex.Message}";
             }
         }
-        public string Edit(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
+
+        public async Task<string> Edit(MZPurchasedPlayersViewModels vm)
         {
-            if (vm != null && vm.ManagerZonePurchasedPlayersId > 0 && db != null)
-            {
-                if (vm.PurchasedDate != DateTime.MinValue && vm.PurchaseAmount > 0 && vm.Salary > 0)
-                {
-                    try
-                    {
-                        MZPurchasedPlayers getDbModel = Get(db, vm.ManagerZonePurchasedPlayersId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.ManagerZonePurchasedPlayersId = vm.ManagerZonePurchasedPlayersId;
-                            getDbModel.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
-                            getDbModel.Name = vm.Name;
-                            getDbModel.YearsOld = vm.YearsOld;
-                            getDbModel.Number = vm.Number;
-                            getDbModel.PurchaseAmount = vm.PurchaseAmount;
-                            getDbModel.Salary = vm.Salary;
-                            getDbModel.SalarySaved = vm.SalarySaved;
-                            getDbModel.TrainingModeTotalCost += vm.TrainingModeCost;
-                            getDbModel.Note = vm.Note;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte spelaren i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra spelaren. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
-            }
-            else
+            if (vm == null || vm.ManagerZonePurchasedPlayersId <= 0 && _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
+            if (vm.PurchasedDate == DateTime.MinValue && vm.PurchaseAmount <= 0 && vm.Salary <= 0)
+                return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
+
+            try
+            {
+                MZPurchasedPlayers? getDbModel = await Get(vm.ManagerZonePurchasedPlayersId);
+
+                if (getDbModel == null)
+                    return "Hittar inte spelaren i databasen!";
+
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ändra spelaren!");
+                return $"Gick inte att ändra spelaren. Felmeddelande: {ex.Message}";
+            }
         }
 
-        public string Sell(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
+        public async Task<string> Sell(MZPurchasedPlayersViewModels vm)
         {
-            int daysInTheClub = DaysInTheClub(vm.PurchasedDate);
-
-            if (daysInTheClub < 70) return "Spelaren har inte varit i klubben i 70 dagar!";
-
-            if (vm != null && vm.ManagerZonePurchasedPlayersId != 0 && db != null)
-            {
-                MZPurchasedPlayers purchasedPlayers = Get(db, vm.ManagerZonePurchasedPlayersId);
-
-                if (purchasedPlayers == null) return "Spelaren hittades inte i databasen!";
-
-                if (vm.SoldDate == DateTime.MinValue && vm.SoldAmount > 0)
-                    return "Du måste fylla i fälten: Säljdatum och Säljvärdet!";
-
-                if (purchasedPlayers != null)
-                {
-                    double totalCost = TotalCost(vm.PurchasedDate, vm.Salary, vm.PurchaseAmount, vm.TrainingModeTotalCost, vm.SaleCharge);
-                    double MoneyProfitOrLoss = vm.SoldAmount - totalCost;
-                    double calculateMoneyProfitOrLoss;
-
-                    // Calculate the tax on the profit
-                    if (MoneyProfitOrLoss > 0)
-                    {
-                        double tax = MoneyProfitOrLoss * 0.15;
-                        totalCost += tax;
-                        MoneyProfitOrLoss -= tax;
-                        calculateMoneyProfitOrLoss = (vm.SoldAmount / totalCost) - 1;
-                    }
-                    else
-                        calculateMoneyProfitOrLoss = (vm.SoldAmount / totalCost) - 1;
-
-                    MZSoldPlayers soldPlayer = new()
-                    {
-                        PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd"),
-                        SoldDate = vm.SoldDate.ToString("yyyy-MM-dd"),
-                        Name = vm.Name,
-                        YearsOld = vm.YearsOld,
-                        Number = vm.Number,
-                        DaysInTheClub = daysInTheClub,
-                        PurchaseAmount = vm.PurchaseAmount,
-                        SalaryTotal = TotalSalary(vm.PurchasedDate, vm.Salary),
-                        TrainingModeTotalCost = vm.TrainingModeTotalCost,
-                        TotalCost = totalCost,
-                        SoldAmount = vm.SoldAmount,
-                        SaleCharge = vm.SaleCharge,
-                        Note = vm.Note,
-                        MoneyProfitOrLoss = MoneyProfitOrLoss,
-                        PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss)
-                    };
-
-                    try
-                    {
-                        db.MZSoldPlayers.Add(soldPlayer);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Lägg till såld spelare. Felmeddelande: {ex.Message} ";
-                    }
-
-                    // Removes the bought player that is moved to sold player
-                    Delete(db, vm);
-                }
-                else
-                    return "Hittar inte spelaren i databasen!";
-            }
-            else
+            if (vm == null || db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
+            if (vm.ManagerZonePurchasedPlayersId == 0)
+                return "Ogiltigt spelare ID!";
+
+            int daysInTheClub = DaysInTheClub(vm.PurchasedDate);
+            if (daysInTheClub < 70)
+                return "Spelaren har inte varit i klubben i 70 dagar!";
+
+            if (vm.SoldDate == DateTime.MinValue || vm.SoldAmount <= 0)
+                return "Du måste fylla i fälten: Säljdatum och Säljvärdet!";
+
+            try
+            {
+                MZPurchasedPlayers? purchasedPlayer = await _db.MZPurchasedPlayers
+                    .FirstOrDefaultAsync(r => r.ManagerZonePurchasedPlayersId == vm.ManagerZonePurchasedPlayersId);
+
+                if (purchasedPlayer == null)
+                    return "Spelaren hittades inte i databasen!";
+
+                double totalCost = TotalCost(vm.PurchasedDate, vm.Salary, vm.PurchaseAmount, vm.TrainingModeTotalCost, vm.SaleCharge);
+                double moneyProfitOrLoss = vm.SoldAmount - totalCost;
+                double calculateMoneyProfitOrLoss = (vm.SoldAmount / totalCost) - 1;
+
+                if (moneyProfitOrLoss > 0)
+                {
+                    double tax = moneyProfitOrLoss * 0.15;
+                    totalCost += tax;
+                    moneyProfitOrLoss -= tax;
+                    calculateMoneyProfitOrLoss = (vm.SoldAmount / totalCost) - 1;
+                }
+
+                MZSoldPlayers soldPlayer = new()
+                {
+                    PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd"),
+                    SoldDate = vm.SoldDate.ToString("yyyy-MM-dd"),
+                    Name = vm.Name,
+                    YearsOld = vm.YearsOld,
+                    Number = vm.Number,
+                    DaysInTheClub = daysInTheClub,
+                    PurchaseAmount = vm.PurchaseAmount,
+                    SalaryTotal = TotalSalary(vm.PurchasedDate, vm.Salary),
+                    TrainingModeTotalCost = vm.TrainingModeTotalCost,
+                    TotalCost = totalCost,
+                    SoldAmount = vm.SoldAmount,
+                    SaleCharge = vm.SaleCharge,
+                    Note = vm.Note,
+                    MoneyProfitOrLoss = moneyProfitOrLoss,
+                    PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss)
+                };
+
+                await db.MZSoldPlayers.AddAsync(soldPlayer);
+                await db.SaveChangesAsync();
+
+                // Removes the bought player that is moved to sold player
+                await Delete(vm);
+
+                return string.Empty;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Gick inte att lägga till såld spelare!");
+                return $"Gick inte att lägga till såld spelare! Felmeddelande: {ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ett oväntat fel inträffade!");
+                return $"Ett oväntat fel inträffade. Felmeddelande: {ex.Message}";
+            }
         }
 
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
 
-        public int DaysInTheClub(DateTime PurchasedDate)
+        public int DaysInTheClub(DateTime purchasedDate) => (DateTime.Now - purchasedDate).Days;
+
+        public int TotalSalary(DateTime purchasedDate, int salary)
         {
-            TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
-            return DaysInTheClub.Days;
+            int weeksInTheClub = (DateTime.Now - purchasedDate).Days / 7;
+            return weeksInTheClub * salary;
         }
 
-        public int TotalSalary(DateTime PurchasedDate, int salary)
+        public double TotalCost(DateTime purchasedDate, int salary, int purchaseAmount, int trainingModeTotalCost, double saleCharge)
         {
-            TimeSpan DaysInTheClub = DateTime.Now - PurchasedDate;
-            int weeks = DaysInTheClub.Days / 7;
-            int result = weeks * salary;
-            return result;
+            int totalSalary = TotalSalary(purchasedDate, salary);
+            return totalSalary + purchaseAmount + trainingModeTotalCost + saleCharge;
         }
 
-        public double TotalCost(DateTime PurchasedDate, int salary, int PurchaseAmount, int TrainingModeTotalCost, double SaleCharge)
+        public async Task<string> Delete(MZPurchasedPlayersViewModels vm)
         {
-            double totalSalary = double.Parse(TotalSalary(PurchasedDate, salary).ToString());
-            double result = totalSalary + PurchaseAmount + TrainingModeTotalCost + SaleCharge;
-            return result;
-        }
-
-        public string Delete(ApplicationDbContext db, MZPurchasedPlayersViewModels vm)
-        {
-            if (vm != null && vm.ManagerZonePurchasedPlayersId > 0 && db != null)
-            {
-                try
-                {
-                    MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
-
-                    db.ChangeTracker.Clear();
-                    db.MZPurchasedPlayers.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort spelaren. Felmeddelande: {ex.Message}";
-                }
-            }
-            else
+            if (vm == null || vm.ManagerZonePurchasedPlayersId <= 0 && _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
-        }
-
-        public MZPurchasedPlayersViewModels ChangeFromModelToViewModel(MZPurchasedPlayers model)
-        {
-            DateTime purchasedDate = DateTime.Parse(model.PurchasedDate);
-
-            MZPurchasedPlayersViewModels vm = new()
+            try
             {
-                ManagerZonePurchasedPlayersId = model.ManagerZonePurchasedPlayersId,
-                PurchasedDate = purchasedDate,
-                Name = model.Name,
-                YearsOld = model.YearsOld,
-                Number = model.Number,
-                PurchaseAmount = model.PurchaseAmount,
-                Salary = model.Salary,
-                SalarySaved = model.SalarySaved,
-                TrainingModeTotalCost = model.TrainingModeTotalCost,
-                Note = model.Note
-            };
-
-            return vm;
-        }
-
-        private static MZPurchasedPlayers ChangeFromViewModelToModel(MZPurchasedPlayersViewModels vm)
-        {
-            MZPurchasedPlayers managerZoneSoldPlayers = new()
+                MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
+                _db.ChangeTracker.Clear();
+                _db.MZPurchasedPlayers.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
             {
-                ManagerZonePurchasedPlayersId = vm.ManagerZonePurchasedPlayersId,
-                PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd"),
-                Name = vm.Name,
-                YearsOld = vm.YearsOld,
-                Number = vm.Number,
-                PurchaseAmount = vm.PurchaseAmount,
-                Salary = vm.Salary,
-                SalarySaved = vm.SalarySaved,
-                TrainingModeTotalCost = vm.TrainingModeTotalCost,
-                Note = vm.Note
-            };
-
-            return managerZoneSoldPlayers;
+                _logger.LogError(ex, "Gick inte att ta bort spelaren!");
+                return $"Gick inte att ta bort spelaren! Felmeddelande: {ex.Message}";
+            }
         }
+
+        public MZPurchasedPlayersViewModels ChangeFromModelToViewModel(MZPurchasedPlayers model) => _mapper.Map<MZPurchasedPlayersViewModels>(model);
+
+        private MZPurchasedPlayers ChangeFromViewModelToModel(MZPurchasedPlayersViewModels vm) => _mapper.Map<MZPurchasedPlayers>(vm);
     }
 }
