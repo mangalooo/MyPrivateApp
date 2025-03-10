@@ -3,15 +3,14 @@ using MyPrivateApp.Data;
 using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models.Farming;
 using AutoMapper;
-using MyPrivateApp.Components.Contact.Classes;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Farming.Classes
 {
-    public class FarmingClass(ApplicationDbContext db, ILogger<ContactClass> logger, IMapper mapper) : IFarmingClass
+    public class FarmingClass(ApplicationDbContext db, ILogger<FarmingClass> logger, IMapper mapper) : IFarmingClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
-        private readonly ILogger<ContactClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly ILogger<FarmingClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<FarmingsActive?> GetActive(int? id)

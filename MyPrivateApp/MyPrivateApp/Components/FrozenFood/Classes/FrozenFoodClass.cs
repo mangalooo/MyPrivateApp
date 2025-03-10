@@ -47,15 +47,18 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
         public async Task<string> Edit(FrozenFoodViewModel vm)
         {
-            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) 
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) return "Ingen datum eller namn ifyllt!";
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) 
+                return "Ingen datum eller namn ifyllt!";
 
             try
             {
                 FrozenFoods? getDbModel = await Get(vm.FrozenFoodId);
 
-                if (getDbModel != null) return "Hittar inte frysvra i databasen!";
+                if (getDbModel != null) 
+                    return "Hittar inte frysvra i databasen!";
 
                 _mapper.Map(vm, getDbModel);
                 await _db.SaveChangesAsync();

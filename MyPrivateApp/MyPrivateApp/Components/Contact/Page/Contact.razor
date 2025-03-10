@@ -33,11 +33,15 @@
         <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny kontakt </button>
     </div>
 
-    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
-        <br />
-        <br />
-        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
-    </div>
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
 
     <br />
     <br />
@@ -549,7 +553,7 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool ShowOrHideErrorMessage { get; set; } = true;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
@@ -644,7 +648,7 @@
         ErrorMessage = await BackEndClass.Delete(vm);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = false;
+            ShowOrHideErrorMessage = true;
         else
         {
             pageViewModel = new();

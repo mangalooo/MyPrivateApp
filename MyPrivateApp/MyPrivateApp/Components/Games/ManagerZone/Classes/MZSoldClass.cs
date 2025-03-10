@@ -1,17 +1,16 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Components.FrozenFood.Classes;
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class MZSoldClass(ApplicationDbContext db, ILogger<FrozenFoodClass> logger, IMapper mapper) : IMZSoldClass
+    public class MZSoldClass(ApplicationDbContext db, ILogger<MZSoldClass> logger, IMapper mapper) : IMZSoldClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
-        private readonly ILogger<FrozenFoodClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly ILogger<MZSoldClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<MZSoldPlayers?> Get(int? id)

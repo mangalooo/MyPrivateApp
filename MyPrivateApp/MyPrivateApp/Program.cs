@@ -18,10 +18,8 @@ using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.Games.ManagerZone.Classes;
 using MyPrivateApp.Components.Email.Classes;
 using AutoMapper;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection.PortableExecutable;
-using Microsoft.AspNetCore.Builder;
 using MyPrivateApp.Data.Models;
+using MyPrivateApp.Data.Models.Hunting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -86,9 +84,6 @@ builder.Services.AddAuthorizationBuilder()
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlServer(connectionString));
-
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, x =>
 {
     x.CommandTimeout(180);
@@ -143,7 +138,6 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode();
-//.AddAdditionalAssemblies(typeof(Counter).Assembly);
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
@@ -153,7 +147,12 @@ app.UseHangfireDashboard("/hangfire");
 
 // Logs
 ILogger<ContactClass> loggerContact = app.Services.GetRequiredService<ILogger<ContactClass>>();
+ILogger<FarmingClass> loggerFarmingClass = app.Services.GetRequiredService<ILogger<FarmingClass>>();
+ILogger<FarmWorkClass> loggerFarmWorkClass = app.Services.GetRequiredService<ILogger<FarmWorkClass>>();
+ILogger<MZPurchasedClass> loggerMZPurchasedClass = app.Services.GetRequiredService<ILogger<MZPurchasedClass>>();
+ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger<MZSoldClass>>();
 ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
+ILogger<HuntingMyList> loggerHuntingMyList = app.Services.GetRequiredService<ILogger<HuntingMyList>>();
 
 // Mapper
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
@@ -162,8 +161,9 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<ContactMappingProfileClass>();
     cfg.AddProfile<FarmingMappingProfileClass>();
     cfg.AddProfile<FarmWorkMappingProfileClass>();
-    cfg.AddProfile<FrozenFoodMappingProfileClass>();
     cfg.AddProfile<MZMappingProfileClass>();
+    cfg.AddProfile<FrozenMappingProfileClass>();
+    cfg.AddProfile<HuntingMappingProfileClass>();
 });
 mapper = config.CreateMapper();
 
@@ -192,7 +192,7 @@ app.Use(async (context, next) =>
         db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
     else
     {
-        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 2)
+        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 4)
         {
             // Sends automatic email if a contact has birthday
             IContactClass contactClass = context.RequestServices.GetRequiredService<IContactClass>();
@@ -208,7 +208,7 @@ app.Use(async (context, next) =>
         db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
     else
     {
-        if ((DateTime.UtcNow - lastEmailSentFrozenFood.Time).Hours >= 2)
+        if ((DateTime.UtcNow - lastEmailSentFrozenFood.Time).Hours >= 6)
         {
             // Sends automatic email if a the frozen food has past time.
             IFrozenFoodClass frozenFoodClass = context.RequestServices.GetRequiredService<IFrozenFoodClass>();

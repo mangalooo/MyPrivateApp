@@ -3,11 +3,11 @@ using AutoMapper;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 
-namespace MyPrivateApp.Components.Contact.Classes
+namespace MyPrivateApp.Components.FrozenFood.Classes
 {
-    public class FrozenFoodMappingProfileClass : Profile
+    public class FrozenMappingProfileClass : Profile
     {
-        public FrozenFoodMappingProfileClass()
+        public FrozenMappingProfileClass()
         {
             CreateMap<FrozenFoodViewModel, FrozenFoods>();
             CreateMap<FrozenFoods, FrozenFoodViewModel>();

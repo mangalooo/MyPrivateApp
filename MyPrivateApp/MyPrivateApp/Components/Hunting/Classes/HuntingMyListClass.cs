@@ -2,140 +2,95 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.FrozenFood.Classes;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingMyListClass : IHuntingMyListClass
+    public class HuntingMyListClass(ApplicationDbContext db, ILogger<FrozenFoodClass> logger, IMapper mapper) : IHuntingMyListClass
     {
-        private static HuntingMyList? Get(ApplicationDbContext db, int? id) => db.HuntingMyList.Any(r => r.HuntingMyListId == id) ?
-                                                                                db.HuntingMyList.FirstOrDefault(r => r.HuntingMyListId == id) :
-                                                                                    throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<FrozenFoodClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, HuntingMyListViewModels vm, bool import)
+        public async Task<HuntingMyList?> Get(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Type))
-                {
-                    try
-                    {
-                        HuntingMyList model = ChangeFromViewModelToModel(vm);
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-                        db.HuntingMyList.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till ett nytt byte. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen datum eller typ av vilt ifyllt!";
-                
-            }
-            else
+            return await _db.HuntingMyList.FirstOrDefaultAsync(r => r.HuntingMyListId == id)
+                   ?? throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
+        }
+
+        public async Task<string> Add(HuntingMyListViewModels vm)
+        {
+            if (vm == null || _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Type))
+                return "Ingen datum eller typ av vilt ifyllt!";
+
+            try
+            {
+                HuntingMyList model = ChangeFromViewModelToModel(vm);
+                await _db.HuntingMyList.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att lägg till ett nytt byte!");
+                return $"Gick inte att lägg till ett nytt byte! Felmeddelande: {ex.Message}";
+            }
         }
 
-        public string Edit(ApplicationDbContext db, HuntingMyListViewModels vm)
+        public async Task<string> Edit(HuntingMyListViewModels vm)
         {
-            if (vm != null && vm.HuntingMyListId > 0 && db != null)
-            {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.Type))
-                {
-                    try
-                    {
-                        HuntingMyList getDbModel = Get(db, vm.HuntingMyListId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.HuntingMyListId = vm.HuntingMyListId;
-                            getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                            getDbModel.WildAnimal = vm.WildAnimal;
-                            getDbModel.HuntingForm = vm.HuntingForm;
-                            getDbModel.Type = vm.Type;
-                            getDbModel.Dog = vm.Dog;
-                            getDbModel.HuntingPlaces = vm.HuntingPlaces;
-                            getDbModel.Note = vm.Note;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte jakten i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra bytet. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen datum eller typ av vilt ifyllt!";
-            }
-            else
+            if (vm == null || vm.HuntingMyListId <= 0 && _db == null) 
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Type)) 
+                return "Ingen datum eller typ av vilt ifyllt!";
+
+            try
+            {
+                HuntingMyList? getDbModel = await Get(vm.HuntingMyListId);
+
+                if (getDbModel != null) return "Hittar inte frysvra i databasen!";
+
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Hittar inte jakten i databasen!");
+                return $"Hittar inte jakten i databasen! Felmeddelande: {ex.Message}";
+            }
         }
 
-        public string Delete(ApplicationDbContext db, HuntingMyListViewModels vm, bool import)
+        public async Task<string> Delete(HuntingMyListViewModels vm)
         {
-            if (vm != null && vm.HuntingMyListId > 0 && db != null)
-            {
-                try
-                {
-                    HuntingMyList model = ChangeFromViewModelToModel(vm);
-
-                    db.ChangeTracker.Clear();
-                    db.HuntingMyList.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort bytet. Felmeddelande: {ex.Message}";
-                }
-            }
-            else
+            if (vm == null || vm.HuntingMyListId <= 0 && _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
-        }
-
-        public HuntingMyListViewModels ChangeFromModelToViewModel(HuntingMyList model)
-        {
-            DateTime date = DateTime.Parse(model.Date);
-
-            HuntingMyListViewModels vm = new()
+            try
             {
-                HuntingMyListId = model.HuntingMyListId,
-                Date = date,
-                WildAnimal = model.WildAnimal,
-                HuntingForm = model.HuntingForm,
-                Type = model.Type,
-                Dog = model.Dog,
-                HuntingPlaces = model.HuntingPlaces,
-                Note = model.Note
-            };
-
-            return vm;
-        }
-
-        private static HuntingMyList ChangeFromViewModelToModel(HuntingMyListViewModels vm)
-        {
-            HuntingMyList huntings = new()
+                HuntingMyList model = ChangeFromViewModelToModel(vm);
+                _db.ChangeTracker.Clear();
+                _db.HuntingMyList.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
             {
-                HuntingMyListId = vm.HuntingMyListId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                WildAnimal = vm.WildAnimal,
-                HuntingForm = vm.HuntingForm,
-                Type = vm.Type,
-                Dog = vm.Dog,
-                HuntingPlaces = vm.HuntingPlaces,
-                Note = vm.Note
-            };
-
-            return huntings;
+                _logger.LogError(ex, "Gick inte att ta bort bytet!");
+                return $"Gick inte att ta bort bytet! Felmeddelande: {ex.Message}";
+            }
         }
+
+        public HuntingMyListViewModels ChangeFromModelToViewModel(HuntingMyList model) => _mapper.Map<HuntingMyListViewModels>(model);
+
+        private HuntingMyList ChangeFromViewModelToModel(HuntingMyListViewModels vm) => _mapper.Map<HuntingMyList>(vm);
     }
 }

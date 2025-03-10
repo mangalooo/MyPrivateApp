@@ -21,48 +21,37 @@
 @* Header *@
 <div>
 
-    @* Desktop Navigation*@
-    <div id="desktop" style="text-align:center">
+    @* Navigation*@
+    <div style="text-align:center">
         <div class="btn-group">
             <NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink>
-            <NavLink href="MZSoldPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda spelare </NavLink>
         </div>
     </div>
 
-    @* Mobile Navigation*@
-    <div id="mobile">
-        <div class="btn-group" role="group">
-            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Alla aktier sidor
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li class="dropdown-item"><NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink></li>
-                <li class="dropdown-item"><NavLink href="MZSoldPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda spelare </NavLink></li>
-            </ul>
-        </div>
-    </div>
-
-    <br />
     <br />
 
     <h1 style="text-align:center"> Sålda spelare </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-        <br />
-        <br />
+        <br /> 
 
         <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny såld spelare </button>
     </div>
 
-    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
-        <br />
-        <br />
-        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
-    </div>
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
 
-    <br />
-    <br />
+       
+    }
+
+    <br /><br />
 
 </div>
 
@@ -394,7 +383,7 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool ShowOrHideErrorMessage { get; set; } = true;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
@@ -485,7 +474,7 @@
         ErrorMessage = await BackEndClass.Delete(vm);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = false;
+            ShowOrHideErrorMessage = true;
         else
         {
             pageViewModel = new();

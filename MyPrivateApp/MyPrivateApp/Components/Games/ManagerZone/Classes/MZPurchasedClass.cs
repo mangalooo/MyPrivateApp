@@ -1,6 +1,5 @@
 ﻿
 using AutoMapper;
-using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
@@ -8,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class MZPurchasedClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : IMZPurchasedClass
+    public class MZPurchasedClass(ApplicationDbContext db, ILogger<MZPurchasedClass> logger, IMapper mapper) : IMZPurchasedClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
-        private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly ILogger<MZPurchasedClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<MZPurchasedPlayers?> Get(int? id)
@@ -26,7 +25,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             if (vm == null || _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.PurchasedDate != DateTime.MinValue && vm.PurchaseAmount > 0 && vm.Salary > 0)
+            if (vm.PurchasedDate == DateTime.MinValue && vm.PurchaseAmount <= 0 && vm.Salary <= 0)
                 return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
 
             try
@@ -72,7 +71,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
         public async Task<string> Sell(MZPurchasedPlayersViewModels vm)
         {
-            if (vm == null || db == null)
+            if (vm == null || _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             if (vm.ManagerZonePurchasedPlayersId == 0)
