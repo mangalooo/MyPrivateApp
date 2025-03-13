@@ -7,6 +7,10 @@ namespace MyPrivateApp.Client.ViewModels
     {
         public int FrozenFoodId { get; set; }
 
+        [Display(Name = "Datum")]
+        [DataType(DataType.Date)]
+        public DateTime Date { get; set; }
+
         [Display(Name = "Namn")]
         [DataType(DataType.Text)]
         public string? Name { get; set; }
@@ -17,10 +21,6 @@ namespace MyPrivateApp.Client.ViewModels
 
         [Display(Name = "Antal ")]
         public int Number { get; set; }
-
-        [Display( Name = "Datum")]
-        [DataType(DataType.Date)]
-        public DateTime Date { get; set; }
 
         [Display(Name = "Frys plats")]
         public FreezerPlaces Place { get; set; }

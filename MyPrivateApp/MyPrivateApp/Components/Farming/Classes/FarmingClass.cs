@@ -170,19 +170,6 @@ namespace MyPrivateApp.Components.Farming.Classes
             return string.Empty;
         }
 
-        public FarmingViewModels ChangeFromModelToViewModel(FarmingsActive model)
-        {
-            if (model == null) throw new ArgumentNullException(nameof(model));
-
-            FarmingViewModels farming = _mapper.Map<FarmingViewModels>(model);
-
-            farming.PutSeedDate = ParseDate(model.PutSeedDate);
-            farming.SetDate = ParseDate(model.SetDate);
-            farming.TakeUpDate = ParseDate(model.TakeUpDate);
-
-            return farming;
-        }
-
         private static DateTime ParseDate(string date)
         {
             if (DateTime.TryParse(date, out DateTime parsedDate))
@@ -193,9 +180,22 @@ namespace MyPrivateApp.Components.Farming.Classes
             throw new FormatException($"Invalid date format: {date}");
         }
 
+        public FarmingViewModels ChangeFromModelToViewModel(FarmingsActive model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            FarmingViewModels farming = _mapper.Map<FarmingViewModels>(model);
+
+            farming.PutSeedDate = ParseDate(model.PutSeedDate);
+            farming.SetDate = ParseDate(model.SetDate);
+            farming.TakeUpDate = ParseDate(model.TakeUpDate);
+
+            return farming;
+        }
+
         public FarmingViewModels ChangeFromModelToViewModel(FarmingsInactive model)
         {
-            if (model == null) throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             FarmingViewModels farming = _mapper.Map<FarmingViewModels>(model);
 
@@ -208,7 +208,7 @@ namespace MyPrivateApp.Components.Farming.Classes
 
         T IFarmingClass.ChangeFromViewModelToModel<T>(FarmingViewModels vm)
         {
-            if (vm == null) throw new ArgumentNullException(nameof(vm));
+            ArgumentNullException.ThrowIfNull(vm);
 
             // Use AutoMapper to map the ViewModel to the Model
             T model = _mapper.Map<T>(vm);

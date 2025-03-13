@@ -100,9 +100,10 @@ namespace MyPrivateApp.Components.Contact.Classes
                     .Where(c => c.Birthday != null)
                     .ToListAsync();
 
-                contactsWithBirthdayToday = contactsWithBirthdayToday
-                    .Where(c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day)
-                    .ToList();
+                contactsWithBirthdayToday = [.. contactsWithBirthdayToday.Where
+                    (
+                        c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day
+                    )];
 
                 var mailBirthday = _config.GetSection("AppSettings")["mailBirthday"];
                 if (string.IsNullOrEmpty(mailBirthday)) return;

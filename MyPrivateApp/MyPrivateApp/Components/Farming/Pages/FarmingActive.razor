@@ -31,15 +31,13 @@
         <NavLink href="FarmingInactive" type="button" class="btn btn-outline-dark btn-sm"> Inaktiv odling </NavLink>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <h1 style="text-align:center"> Odling (aktiv) </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-        <br />
-        <br />
+        <br /> <br />
 
         <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny odling </button>
     </div>
@@ -54,8 +52,7 @@
         </div>
     }
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -451,20 +448,23 @@
         }
     }
 
-    private void SetPageModel(FarmingViewModels vm, bool isEditMode)
+    private void Info(FarmingViewModels vm)
     {
         HideNewOrChangesForm();
-        ShowOrHideAddNewButton = !isEditMode;
-        ShowOrHideEditButton = isEditMode;
-        ShowOrHideCreateButton = isEditMode;
-        HideNewOrChangesFields = isEditMode;
-        DisabledForm = !isEditMode;
+        ShowOrHideAddNewButton = true;
+        DisabledForm = true;
         pageViewModel = vm;
     }
 
-    private void Info(FarmingViewModels vm) => SetPageModel(vm, false);
-
-    private void Edit(FarmingViewModels vm) => SetPageModel(vm, true);
+    private void Edit(FarmingViewModels vm)
+    {
+        DisabledForm = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
+        ShowOrHideCreateButton = true;
+        HideNewOrChangesFields = true;
+        pageViewModel = vm;
+    }
 
     private async Task Delete()
     {
