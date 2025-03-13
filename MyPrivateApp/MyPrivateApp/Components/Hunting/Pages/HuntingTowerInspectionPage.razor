@@ -8,6 +8,9 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.Hunting
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
+@using System.Linq.Expressions
 
 @rendermode InteractiveServer
 
@@ -24,52 +27,54 @@
 
     @* Navigation - Desktop *@
     <div id="desktop" style="text-align:center">
-        <div class="btn-group">
-            <NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-            <NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Mina jaktbyten </NavLink>
-            <NavLink href="HuntingPreyPage" type="button" class="btn btn-outline-dark btn-sm"> Jaktbyten </NavLink>
-            <NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink>
-            <NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink>
+        <div class="btn-group" role="group" aria-label="Desktop Navigation">
+            @foreach (var page in navList)
+            {
+                <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+            }
         </div>
     </div>
 
     @* Navigation - Mobile *@
     <div id="mobile">
         <div class="btn-group" role="group">
-            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
                 Alla aktier sidor
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li class="dropdown-item"><NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Mina jaktbyten </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingPreyPage" type="button" class="btn btn-outline-dark btn-sm"> Jaktbyten </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink></li>
+                @foreach (var page in navList)
+                {
+                    <li class="dropdown-item">
+                        <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                    </li>
+                }
             </ul>
         </div>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <h1 style="text-align:center"> Jakttornsbesiktningar </h1>
 
+
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-        <br />
-        <br />
+        <br /> <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny besikning </button>
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Nytt byte </button>
     </div>
 
-    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
-        <br />
-        <br />
-        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
-    </div>
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -80,12 +85,11 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="hunting" OnSubmit="AddOrEdit" FormName="AddOrUpdateHunting" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
                     <ValidationSummary class="text-danger" role="alert" />
-
 
                     <div class="row">
 
@@ -93,41 +97,41 @@
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputDate @bind-Value="hunting.LastInspected" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.LastInspected" class="form-control" disabled="@DisabledForm" />
                                 <label for="LastInspected"> Senast besiktad </label>
-                                <ValidationMessage For="() => hunting.LastInspected" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.LastInspected" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="hunting.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object place in Enum.GetValues(typeof(HuntingPlaces)))
                                     {
                                         <option value="@place">@place</option>
                                     }
                                 </InputSelect>
                                 <label for="Place"> Plats </label>
-                                <ValidationMessage For="() => hunting.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Place" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputText @bind-Value="hunting.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Number"> Nummer </label>
-                                <ValidationMessage For="() => hunting.Number" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Number" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-3">
                             <div class="form-floating">
-                                <InputSelect @bind-Value="hunting.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
+                                <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
                                     @foreach (object Todo in Enum.GetValues(typeof(HuntingTodo)))
                                     {
                                         <option value="@Todo">@Todo</option>
                                     }
                                 </InputSelect>
                                 <label for="Todo"> Att göra </label>
-                                <ValidationMessage For="() => hunting.Todo" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Todo" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -137,9 +141,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="hunting.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Beskrivning </label>
-                                <ValidationMessage For="() => hunting.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -147,68 +151,26 @@
                     <br />
 
                     @* View - Desktop *@
-                    <div id="desktop" class="form-group" align="center">
-                        <label for="ChristmasCard">  Besiktad? </label>
-                        <InputCheckbox @bind-Value="hunting.Inspected" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                        <ValidationMessage For="() => hunting.Inspected" class="text-danger" />
-
-                        &nbsp;&nbsp;
-
-                        <label for="InspectedTodo"> Att göra </label>
-                        <InputCheckbox @bind-Value="hunting.InspectedTodo" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                        <ValidationMessage For="() => hunting.InspectedTodo" class="text-danger" />
-
-                        &nbsp;&nbsp;
-
-                        <label for="NotBeUsed"> Utdömd </label>
-                        <InputCheckbox @bind-Value="hunting.NotBeUsed" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                        <ValidationMessage For="() => hunting.NotBeUsed" class="text-danger" />
-
-                        &nbsp;&nbsp;
-
-                        <label for="MooseTower"> Älgtorn </label>
-                        <InputCheckbox @bind-Value="hunting.MooseTower" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                        <ValidationMessage For="() => hunting.MooseTower" class="text-danger" />
-
-                        &nbsp;&nbsp;
-
-                        <label for="WildBoarTower"> Vildsvinstorn </label>
-                        <InputCheckbox @bind-Value="hunting.WildBoarTower" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                        <ValidationMessage For="() => hunting.WildBoarTower" class="text-danger" />
+                    <div id="desktop">
+                        @foreach (var checkbox in GetCheckboxes())
+                        {
+                            <InputCheckbox id="@checkbox.Id" @bind-Value="@checkbox.Value" class="form-check-input" disabled="@DisabledForm" />
+                            <label class="form-check-label" for="@checkbox.Id"> @checkbox.Label </label>
+                            <ValidationMessage For="@checkbox.ValidationExpression" class="text-danger" />
+                            <div>&nbsp; &nbsp;</div>
+                        }
                     </div>
 
                     @* View - Mobile *@
                     <div id="mobile">
-                        <div class="form-check">
-                            <InputCheckbox id="Inspected" @bind-Value="hunting.Inspected" class="form-check-input" disabled="@DisabledForm" />
-                            <label class="form-check-label" for="Inspected"> Besiktad? </label>
-                            <ValidationMessage For="() => hunting.Inspected" class="text-danger" />
-                        </div>
-
-                        <div class="form-check">
-                            <InputCheckbox id="InspectedTodo" @bind-Value="hunting.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
-                            <label class="form-check-label" for="InspectedTodo"> Att göra </label>
-                            <ValidationMessage For="() => hunting.InspectedTodo" class="text-danger" />
-                        </div>
-
-                        <div class="form-check">
-                            <InputCheckbox id="NotBeUsed" @bind-Value="hunting.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
-                            <label class="form-check-label" for="NotBeUsed"> Utdömd </label>
-                            <ValidationMessage For="() => hunting.NotBeUsed" class="text-danger" />
-                        </div>
-
-                        <div class="form-check">
-                            <InputCheckbox id="MooseTower" @bind-Value="hunting.MooseTower" class="form-check-input" disabled="@DisabledForm" />
-                            <label class="form-check-label" for="MooseTower"> Älgtorn </label>
-                            <ValidationMessage For="() => hunting.MooseTower" class="text-danger" />
-                        </div>
-
-                        <div class="form-check">
-                            <InputCheckbox id="WildBoarTower" @bind-Value="hunting.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
-                            <label class="form-check-label" for="WildBoarTower"> Vildsvinstorn </label>
-                            <ValidationMessage For="() => hunting.WildBoarTower" class="text-danger" />
-                        </div>
-
+                        @foreach (var checkbox in GetCheckboxes())
+                        {
+                            <div class="form-check">
+                                <InputCheckbox id="@checkbox.Id" @bind-Value="@checkbox.Value" class="form-check-input" disabled="@DisabledForm" />
+                                <label class="form-check-label" for="@checkbox.Id"> @checkbox.Label </label>
+                                <ValidationMessage For="@checkbox.ValidationExpression" class="text-danger" />
+                            </div>
+                        }
                     </div>
 
                     <br />
@@ -339,7 +301,7 @@
                     {
                         <br />
 
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection())"> Ta bort alla besiktningar </button>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection(pageViewModel))"> Ta bort alla besiktningar </button>
 
                         <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
                             <div class="modal-dialog" role="document">
@@ -466,7 +428,7 @@
                     {
                         <br />
 
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection())"> Ta bort alla besiktningar </button>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection(pageViewModel))"> Ta bort alla besiktningar </button>
 
                         <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
                             <div class="modal-dialog" role="document">
@@ -518,7 +480,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingTowerInspectionViewModels hunting { get; set; } = new();
+    private HuntingTowerInspectionViewModels pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 50 };
     private IQueryable<HuntingTowerInspectionViewModels> queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
@@ -544,28 +506,59 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool ShowOrHideErrorMessage { get; set; } = true;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
-    // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
     {
-        if (db.HuntingTowerInspections.Count() == 0) return;
+        ("HuntingPage", "Start"),
+        ("HuntingMyListPage", "Mina jaktbyten"),
+        ("HuntingPreyPage", "Jaktbyten"),
+        ("HuntingTeamMembersPage", "Medlemmar"),
+        ("HuntingTowerInspectionPage", "Torn besiktningar")
+    };
 
-        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
-
-        foreach (HuntingTowerInspection model in db.HuntingTowerInspections.OrderBy(c => c.HuntingTowerInspectionId))
+    // Checkbox list
+    private IEnumerable<CheckboxItem> GetCheckboxes()
+    {
+        return new List<CheckboxItem>
         {
-            HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat((new[] { vm }).AsQueryable()).OrderByDescending(c => c.LastInspected);
-        }
+            new CheckboxItem { Id = "Inspected", Value = pageViewModel.Inspected, Label = "Besiktad?", ValidationExpression = () => pageViewModel.Inspected },
+            new CheckboxItem { Id = "InspectedTodo", Value = pageViewModel.InspectedTodo, Label = "Att göra", ValidationExpression = () => pageViewModel.InspectedTodo },
+            new CheckboxItem { Id = "NotBeUsed", Value = pageViewModel.NotBeUsed, Label = "Utdömd", ValidationExpression = () => pageViewModel.NotBeUsed },
+            new CheckboxItem { Id = "MooseTower", Value = pageViewModel.MooseTower, Label = "Älgtorn", ValidationExpression = () => pageViewModel.MooseTower },
+            new CheckboxItem { Id = "WildBoarTower", Value = pageViewModel.WildBoarTower, Label = "Vildsvinstorn", ValidationExpression = () => pageViewModel.WildBoarTower }
+        };
+    }
+
+    private class CheckboxItem
+    {
+        public string Id { get; set; } = string.Empty;
+        public bool Value { get; set; } = false;
+        public string Label { get; set; } = string.Empty;
+        public Expression<Func<bool>> ValidationExpression { get; set; } = () => false;
+    }
+
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryable()
+    {
+        List<HuntingTowerInspection> huntingTowerInspection = await db.HuntingTowerInspections.OrderByDescending(c => c.Number).ToListAsync();
+
+        if (!huntingTowerInspection.Any()) return;
+
+        queryable = huntingTowerInspection
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryable();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
     {
@@ -574,35 +567,16 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (hunting.HuntingTowerInspectionId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, hunting);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = false;
-                return;
-            }
+            if (pageViewModel.HuntingTowerInspectionId > 0)
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
             else
-            {
-                hunting = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-        else
-        {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, hunting);
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -614,10 +588,14 @@
             }
             else
             {
-                hunting = new();
-                Navigation.Refresh(true);
-                return;
+                pageViewModel = new();
+                await RefreshPage();
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -626,7 +604,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        hunting = vm;
+        pageViewModel = vm;
     }
 
     private void Edit(HuntingTowerInspectionViewModels vm)
@@ -636,304 +614,201 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        hunting = vm;
+        pageViewModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.HuntingTowerInspections.Count() == 0) return;
+        if (!db.HuntingTowerInspections.Any()) return;
 
-        bool findId = db.HuntingTowerInspections.Any(a => a.HuntingTowerInspectionId == TemporaryId);
+        HuntingTowerInspection? model = await db.HuntingTowerInspections.FirstOrDefaultAsync(a => a.HuntingTowerInspectionId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.Delete(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = true;
+        else
         {
-            HuntingTowerInspection model = db.HuntingTowerInspections.FirstOrDefault(a => a.HuntingTowerInspectionId == TemporaryId);
-            HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.Delete(db, vm);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                hunting = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageViewModel = new();
+            await RefreshPage();
         }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
     }
 
     private void OpenDeleteWindow(HuntingTowerInspectionViewModels vm)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
         TemporaryId = vm.HuntingTowerInspectionId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 
-    private void CloseWindow()
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private void OpenDeleteWindowInspection(HuntingTowerInspectionViewModels vm)
     {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
+        TemporaryId = vm.HuntingTowerInspectionId;
+        ToggleModal(ref ModalDisplayInspection, ref ModalClassInspection, ref ShowBackdropInspection, true);
     }
 
-    private void OpenDeleteWindowInspection()
-    {
-        ModalDisplayInspection = "block;";
-        ModalClassInspection = "Show";
-        ShowBackdropInspection = true;
-        StateHasChanged();
-    }
+    private void CloseWindowInspection() => ToggleModal(ref ModalDisplayInspection, ref ModalClassInspection, ref ShowBackdropInspection, false);
 
-    private void CloseWindowInspection()
-    {
-        ModalDisplayInspection = "none";
-        ModalClassInspection = "";
-        ShowBackdropInspection = false;
-        StateHasChanged();
-    }
-
-    private void SearchPlace(ChangeEventArgs e)
+    private async Task SearchPlace(ChangeEventArgs e)
     {
         queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        string? placeName = e.Value?.ToString()?.ToLowerInvariant();
+
+        if (string.IsNullOrEmpty(placeName))
         {
-            string getName = string.Empty;
-
-            foreach (int huntingPlaces in Enum.GetValues(typeof(HuntingPlaces)))
-            {
-                getName = Enum.GetName(typeof(HuntingPlaces), huntingPlaces).ToLower();
-
-                if (getName == e.Value.ToString().ToLower())
-                    break;
-            }
-
-            if (getName != string.Empty)
-            {
-                IEnumerable<HuntingTowerInspection> result = null;
-
-                switch (getName.ToLower())
-                {
-                    case "Välj":
-                        break;
-
-                    case "habäck":
-                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Habäck);
-                        break;
-
-                    case "dalsjöfors":
-                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Dalsjöfors);
-                        break;
-
-                    case "karlabo":
-                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Karlabo);
-                        break;
-
-                    case "skog":
-                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Skog);
-                        break;
-
-                    case "smältryd":
-                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Smältryd);
-                        break;
-
-                    case "övrigt":
-                        result = db.HuntingTowerInspections.Where(c => c.Place == HuntingPlaces.Övrigt);
-                        break;
-                }
-
-                if (result == null || result.Count() == 0) return;
-
-                if (result.Any())
-                    foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
-                    {
-                        HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
-                    }
-            }
-
+            await RefreshPage();
             return;
         }
 
-        Navigation.Refresh(true);
+        var placeMapping = new Dictionary<string, HuntingPlaces>
+        {
+            { "habäck", HuntingPlaces.Habäck },
+            { "dalsjöfors", HuntingPlaces.Dalsjöfors },
+            { "karlabo", HuntingPlaces.Karlabo },
+            { "skog", HuntingPlaces.Skog },
+            { "smältryd", HuntingPlaces.Smältryd },
+            { "övrigt", HuntingPlaces.Övrigt }
+        };
+
+        if (placeMapping.TryGetValue(placeName, out var place))
+        {
+            var result = db.HuntingTowerInspections.Where(c => c.Place == place);
+
+            if (result.Any())
+            {
+                queryable = result
+                    .OrderBy(c => c.HuntingTowerInspectionId)
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .AsQueryable();
+            }
+        }
+
     }
 
-    private void SearchTodo(ChangeEventArgs e)
+    private async Task SearchTodo(ChangeEventArgs e)
     {
         queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        if (string.IsNullOrEmpty(e.Value!.ToString()))
         {
-            string getName = string.Empty;
-            string target = e.Value.ToString();
-
-            foreach (int huntingTodo in Enum.GetValues(typeof(HuntingTodo)))
-            {
-                getName = Enum.GetName(typeof(HuntingTodo), huntingTodo);
-
-                if (getName.ToLower() == target.ToLower())
-                    break;
-                else
-                    getName = string.Empty;
-            }
-
-            if (getName != string.Empty)
-            {
-                IEnumerable<Data.Models.Hunting.HuntingTowerInspection> result = null;
-
-                switch (getName.ToLower())
-                {
-                    case "välj":
-                        break;
-
-                    case "bygga":
-                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Bygga);
-                        break;
-
-                    case "flytta":
-                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Flytta);
-                        break;
-
-                    case "reparera":
-                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Reparera);
-                        break;
-
-                    case "röja":
-                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Röja);
-                        break;
-
-                    case "övrigt":
-                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Övrigt);
-                        break;
-
-                    case "ny":
-                        result = db.HuntingTowerInspections.Where(c => c.Todo == HuntingTodo.Ny);
-                        break;
-                }
-
-                if (result == null || result.Count() == 0) return;
-
-                if (result.Any())
-                    foreach (Data.Models.Hunting.HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
-                    {
-                        HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-                        queryable = queryable.Concat((new[] { vm }).AsQueryable());
-                    }
-            }
-
+            await RefreshPage();
             return;
         }
+        string target = e.Value.ToString().ToLower();
 
-        Navigation.Refresh(true);
+        var todoMapping = new Dictionary<string, HuntingTodo>
+        {
+            { "välj", HuntingTodo.Inget },
+            { "bygga", HuntingTodo.Bygga },
+            { "flytta", HuntingTodo.Flytta },
+            { "reparera", HuntingTodo.Reparera },
+            { "röja", HuntingTodo.Röja },
+            { "övrigt", HuntingTodo.Övrigt },
+            { "ny", HuntingTodo.Ny }
+        };
+
+        if (todoMapping.TryGetValue(target, out var todo))
+        {
+            var result = db.HuntingTowerInspections.Where(c => c.Todo == todo);
+
+            if (result.Any())
+            {
+                queryable = result
+                    .OrderBy(c => c.HuntingTowerInspectionId)
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .AsQueryable();
+            }
+        }
     }
 
     private void SetQuery(IEnumerable<HuntingTowerInspection> result)
     {
-        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        queryable = result
+            .OrderBy(c => c.HuntingTowerInspectionId)
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
+    }
 
-        if (result.Count() == 0) return;
+    private void SearchInspectionsByCriteria(Func<HuntingTowerInspection, bool> criteria)
+    {
+        var result = db.HuntingTowerInspections.Where(criteria);
+        SetQuery(result);
+    }
 
-        if (result.Any())
-            foreach (HuntingTowerInspection model in result.OrderBy(c => c.HuntingTowerInspectionId))
+    private async Task SearchInspections(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            SearchInspectionsByCriteria(c => !c.Inspected);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchInspectionsTodo(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            SearchInspectionsByCriteria(c => c.InspectedTodo);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchNotBeUsed(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            SearchInspectionsByCriteria(c => c.NotBeUsed);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearcMooseTower(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            SearchInspectionsByCriteria(c => c.MooseTower);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchWildBoarTower(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            SearchInspectionsByCriteria(c => c.WildBoarTower);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchTownNumber(ChangeEventArgs e)
+    {
+        try
+        {
+            string? searchValue = e.Value?.ToString();
+            if (!string.IsNullOrEmpty(searchValue))
             {
-                HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-                queryable = queryable.Concat(new[] { vm }.AsQueryable());
+                IEnumerable<HuntingTowerInspection> result = await db.HuntingTowerInspections
+                    .Where(c => c.Number != null && c.Number.Contains(searchValue))
+                    .ToListAsync();
+
+                SetQuery(result);
             }
-    }
-
-    private void SearchInspections(ChangeEventArgs e)
-    {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.Inspected == false);
-
-            SetQuery(result);
-            return;
+            else
+                await RefreshPage();
         }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchInspectionsTodo(ChangeEventArgs e)
-    {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
+        catch (Exception ex)
         {
-            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.InspectedTodo == true);
-
-            SetQuery(result);
-            return;
+            ErrorMessage = $"Ett fel uppstod vid sökning efter pass nummer! Felmeddelande: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchNotBeUsed(ChangeEventArgs e)
-    {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.NotBeUsed == true);
-
-            SetQuery(result);
-            return;
-        }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearcMooseTower(ChangeEventArgs e)
-    {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.MooseTower == true);
-
-            SetQuery(result);
-            return;
-        }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchWildBoarTower(ChangeEventArgs e)
-    {
-        string trueOrFalse = e.Value.ToString();
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.WildBoarTower == true);
-
-            SetQuery(result);
-            return;
-        }
-
-        Navigation.Refresh(true);
-    }
-
-    private void SearchTownNumber(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
-        {
-            IEnumerable<HuntingTowerInspection> result = db.HuntingTowerInspections.Where(c => c.Number!.Contains(e.Value!.ToString()!));
-
-            SetQuery(result);
-            return;
-        }
-
-        Navigation.Refresh(true);
     }
 
     private bool ShowOrHideDetleteInspectionsButton()
@@ -948,21 +823,17 @@
         return any;
     }
 
-    private void RemoveInspections()
+    private async Task RemoveInspections()
     {
-        if (db.HuntingTowerInspections.Count() > 0)
+        var inspectionsToUpdate = db.HuntingTowerInspections.Where(item => item.Inspected).ToList();
+
+        if (inspectionsToUpdate.Any())
         {
-            foreach (var item in db.HuntingTowerInspections)
-            {
-                if (item.Inspected)
-                {
-                    item.Inspected = false;
+            foreach (var item in inspectionsToUpdate)
+                item.Inspected = false;
 
-                    db.SaveChanges();
-                }
-            }
-
-            Navigation.Refresh(true);
+            await db.SaveChangesAsync();
+            await RefreshPage();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿
-using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 
@@ -7,9 +6,9 @@ namespace MyPrivateApp.Components.Hunting.Classes
 {
     public interface IHuntingTowerInspectionClass
     {
-        string Add(ApplicationDbContext db, HuntingTowerInspectionViewModels vm);
-        string Edit(ApplicationDbContext db, HuntingTowerInspectionViewModels vm);
-        string Delete(ApplicationDbContext db, HuntingTowerInspectionViewModels vm);
+        Task<string> Add(HuntingTowerInspectionViewModels vm);
+        Task<string> Edit(HuntingTowerInspectionViewModels vm);
+        Task<string> Delete(HuntingTowerInspectionViewModels vm);
         HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model);
     }
 }

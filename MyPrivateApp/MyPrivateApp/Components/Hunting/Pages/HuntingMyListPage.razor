@@ -374,6 +374,7 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
+    // Navigation list
     private readonly (string Href, string Text)[] navList = new[]
     {
         ("HuntingPage", "Start"),
@@ -386,11 +387,11 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
-        List<HuntingMyList> funtingMyList = await db.HuntingMyList.OrderByDescending(c => c.Date).ToListAsync();
+        List<HuntingMyList> huntingMyList = await db.HuntingMyList.OrderByDescending(c => c.Date).ToListAsync();
 
-        if (!funtingMyList.Any()) return;
+        if (!huntingMyList.Any()) return;
 
-        queryable = funtingMyList
+        queryable = huntingMyList
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
             .AsQueryable();
 
@@ -526,7 +527,6 @@
         else
             await RefreshPage();
     }
-
 
     private async Task SearchWildAnimal(ChangeEventArgs e)
     {

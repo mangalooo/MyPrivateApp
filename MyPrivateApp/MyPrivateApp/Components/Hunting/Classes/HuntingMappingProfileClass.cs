@@ -9,8 +9,21 @@ namespace MyPrivateApp.Components.Hunting.Classes
     {
         public HuntingMappingProfileClass()
         {
+            // My list
             CreateMap<HuntingMyListViewModels, HuntingMyList>();
             CreateMap<HuntingMyList, HuntingMyListViewModels>();
+
+            // Prey
+            CreateMap<HuntingPrey, HuntingPreyViewModels>();
+            CreateMap<HuntingPreyViewModels, HuntingPrey>();
+
+            // Team members
+            CreateMap<HuntingTeamMembers, HuntingTeamMembersViewModels>();
+            CreateMap<HuntingTeamMembersViewModels, HuntingTeamMembers>();
+
+            // Tower inspections
+            CreateMap<HuntingTowerInspection, HuntingTowerInspectionViewModels>();
+            CreateMap<HuntingTowerInspectionViewModels, HuntingTowerInspection>();
         }
     }
 }

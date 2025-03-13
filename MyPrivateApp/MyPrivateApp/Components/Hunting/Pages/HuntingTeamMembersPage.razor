@@ -8,6 +8,8 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.Hunting
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
 
 @rendermode InteractiveServer
 
@@ -24,52 +26,54 @@
 
     @* Navigation - Desktop *@
     <div id="desktop" style="text-align:center">
-        <div class="btn-group">
-            <NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-            <NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Mina jaktbyten </NavLink>
-            <NavLink href="HuntingPreyPage" type="button" class="btn btn-outline-dark btn-sm"> Jaktbyten </NavLink>
-            <NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink>
-            <NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink>
+        <div class="btn-group" role="group" aria-label="Desktop Navigation">
+            @foreach (var page in navList)
+            {
+                <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+            }
         </div>
     </div>
 
     @* Navigation - Mobile *@
     <div id="mobile">
         <div class="btn-group" role="group">
-            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
                 Alla aktier sidor
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li class="dropdown-item"><NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Mina jaktbyten </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingPreyPage" type="button" class="btn btn-outline-dark btn-sm"> Jaktbyten </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink></li>
+                @foreach (var page in navList)
+                {
+                    <li class="dropdown-item">
+                        <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                    </li>
+                }
             </ul>
         </div>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <h1 style="text-align:center"> Vårt jaktlag </h1>
 
+
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-        <br />
-        <br />
+        <br /> <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny medelm </button>
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Nytt byte </button>
     </div>
 
-    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
-        <br />
-        <br />
-        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
-    </div>
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -80,7 +84,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -92,17 +96,17 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Name" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
                                 <label for="Name"> Namn </label>
-                                <ValidationMessage For="() => pageModel.Name" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Name" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.Birthday" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.Birthday" class="form-control" disabled="@DisabledForm" />
                                 <label for="Birthday"> Födelsedag </label>
-                                <ValidationMessage For="() => pageModel.Birthday" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Birthday" class="text-danger" />
                             </div>
                         </div>
 
@@ -116,24 +120,24 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Address"> Adress </label>
-                                <ValidationMessage For="() => pageModel.Address" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Address" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.PostCode" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.PostCode" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="PostCode"> Postnummer </label>
-                                <ValidationMessage For="() => pageModel.PostCode" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.PostCode" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.City" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.City" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="City"> Stad/ort </label>
-                                <ValidationMessage For="() => pageModel.City" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.City" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -146,16 +150,16 @@
 
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Mail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Mail" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="Mail"> E-post </label>
-                                <ValidationMessage For="() => pageModel.Mail" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Mail" class="text-danger" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.MobilePhone" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.MobilePhone" class="form-control" placeholder="" disabled="@DisabledForm" />
                                 <label for="MobilePhone"> Mobilnummer </label>
-                                <ValidationMessage For="() => pageModel.MobilePhone" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.MobilePhone" class="text-danger" />
                             </div>
                         </div>
 
@@ -166,9 +170,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
-                                <label for="pageModel"> Anteckningar </label>
-                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
+                                <InputTextArea @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <label for="Note"> Anteckningar </label>
+                                <ValidationMessage For="() => pageViewModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -225,7 +229,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort jaktmedlemmen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -276,7 +280,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort jaktmedlemmen? </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -319,7 +323,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingTeamMembersViewModels pageModel { get; set; } = new();
+    private HuntingTeamMembersViewModels pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<HuntingTeamMembersViewModels> queryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
@@ -339,28 +343,38 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool ShowOrHideErrorMessage { get; set; } = true;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
-    // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
     {
-        if (db.HuntingTeamMembers.Count() == 0) return;
+        ("HuntingPage", "Start"),
+        ("HuntingMyListPage", "Mina jaktbyten"),
+        ("HuntingPreyPage", "Jaktbyten"),
+        ("HuntingTeamMembersPage", "Medlemmar"),
+        ("HuntingTowerInspectionPage", "Torn besiktningar")
+    };
 
-        queryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryable()
+    {
+        List<HuntingTeamMembers> huntingTeamMembers = await db.HuntingTeamMembers.OrderByDescending(c => c.Name).ToListAsync();
 
-        foreach (Data.Models.Hunting.HuntingTeamMembers model in db.HuntingTeamMembers.OrderBy(c => c.HuntingTeamMembersId))
-        {
-            HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat((new[] { vm }).AsQueryable());
-        }
+        if (!huntingTeamMembers.Any()) return;
+
+        queryable = huntingTeamMembers
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryable();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
     {
@@ -369,35 +383,16 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.HuntingTeamMembersId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = false;
-                return;
-            }
+            if (pageViewModel.HuntingTeamMembersId > 0)
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
             else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-        else
-        {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -409,10 +404,14 @@
             }
             else
             {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
+                pageViewModel = new();
+                await RefreshPage();
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -421,7 +420,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private void Edit(HuntingTeamMembersViewModels vm)
@@ -431,52 +430,53 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.HuntingTeamMembers.Count() == 0) return;
+        if (!db.HuntingTeamMembers.Any()) return;
 
-        bool findId = db.HuntingTeamMembers.Any(a => a.HuntingTeamMembersId == TemporaryId);
+        HuntingTeamMembers? model = await db.HuntingTeamMembers.FirstOrDefaultAsync(a => a.HuntingTeamMembersId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.Delete(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = true;
+        else
         {
-            HuntingTeamMembers model = db.HuntingTeamMembers.FirstOrDefault(a => a.HuntingTeamMembersId == TemporaryId);
-            HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.Delete(db, vm, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageViewModel = new();
+            await RefreshPage();
         }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
     }
 
     private void OpenDeleteWindow(HuntingTeamMembersViewModels vm)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
         TemporaryId = vm.HuntingTeamMembersId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 
-    private void CloseWindow()
+    private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private int HowManyYears(DateTime date)
     {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
-    }
+        DateTime now = DateTime.Now;
+        int years = now.Year - date.Year;
 
-    private int HowManyYears(DateTime date) => DateTime.Now.Year - date.Year;
+        // Check if the date has not occurred yet this year
+        if (now < date.AddYears(years))
+            years--;
+
+        return years;
+    }
 }

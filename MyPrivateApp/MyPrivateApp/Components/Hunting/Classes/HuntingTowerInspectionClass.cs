@@ -1,151 +1,94 @@
 ﻿
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
-
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingTowerInspectionClass : IHuntingTowerInspectionClass
+    public class HuntingTowerInspectionClass(ApplicationDbContext db, ILogger<HuntingTowerInspectionClass> logger, IMapper mapper) : IHuntingTowerInspectionClass
     {
-        private static HuntingTowerInspection? Get(ApplicationDbContext db, int? id) => db.HuntingTowerInspections.Any(r => r.HuntingTowerInspectionId == id) ?
-                                                                                            db.HuntingTowerInspections.FirstOrDefault(r => r.HuntingTowerInspectionId == id) :
-                                                                                                throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<HuntingTowerInspectionClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, HuntingTowerInspectionViewModels vm)
+        public async Task<HuntingTowerInspection?> Get(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (!string.IsNullOrEmpty(vm.Number))
-                {
-                    try
-                    {
-                        HuntingTowerInspection model = ChangeFromViewModelToModel(vm);
+            if (id == null) throw new ArgumentNullException(nameof(id));
 
-                        db.HuntingTowerInspections.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till ett ny besikning. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Du måste fylla i ett pass nummer!";
+            return await _db.HuntingTowerInspections.FirstOrDefaultAsync(r => r.HuntingTowerInspectionId == id)
+                   ?? throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
+        }
 
-            }
-            else
+        public async Task<string> Add(HuntingTowerInspectionViewModels vm)
+        {
+            if (vm == null || _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
+            if (string.IsNullOrEmpty(vm.Number))
+                return "Du måste fylla i ett pass nummer!";
+
+            try
+            {
+                HuntingTowerInspection model = ChangeFromViewModelToModel(vm);
+                await _db.HuntingTowerInspections.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att lägg till ett ny besikning!");
+                return $"Gick inte att lägg till ett ny besikning! Felmeddelande: {ex.Message}";
+            }
         }
 
-        public string Edit(ApplicationDbContext db, HuntingTowerInspectionViewModels vm)
+        public async Task<string> Edit(HuntingTowerInspectionViewModels vm)
         {
-            if (vm != null && vm.HuntingTowerInspectionId > 0 && db != null)
-            {
-                if (!string.IsNullOrEmpty(vm.Number))
-                {
-                    try
-                    {
-                        HuntingTowerInspection getDbModel = Get(db, vm.HuntingTowerInspectionId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.HuntingTowerInspectionId = vm.HuntingTowerInspectionId;
-                            getDbModel.LastInspected = vm.LastInspected.ToString("yyyy-MM-dd");
-                            getDbModel.Place = vm.Place;
-                            getDbModel.Inspected = vm.Inspected;
-                            getDbModel.InspectedTodo = vm.InspectedTodo;
-                            getDbModel.NotBeUsed = vm.NotBeUsed;
-                            getDbModel.MooseTower = vm.MooseTower;
-                            getDbModel.WildBoarTower = vm.WildBoarTower;
-                            getDbModel.Number = vm.Number;
-                            getDbModel.Todo = vm.Todo;
-                            getDbModel.Note = vm.Note;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte besikningen i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra besikningen. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Du måste fylla i ett pass nummer!";
-            }
-            else
+            if (vm == null || vm.HuntingTowerInspectionId <= 0 && _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
-        }
+            if (string.IsNullOrEmpty(vm.Number))
+                return "Du måste fylla i ett pass nummer!";
 
-        public string Delete(ApplicationDbContext db, HuntingTowerInspectionViewModels vm)
-        {
-            if (vm != null && vm.HuntingTowerInspectionId > 0 && db != null)
+            try
             {
-                try
-                {
-                    HuntingTowerInspection model = ChangeFromViewModelToModel(vm);
+                HuntingTowerInspection? getDbModel = await Get(vm.HuntingTowerInspectionId);
 
-                    db.ChangeTracker.Clear();
-                    db.HuntingTowerInspections.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort besikningen. Felmeddelande: {ex.Message}";
-                }
+                if (getDbModel != null) return "Hittar inte bytet i databasen!";
+
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
-        }
-
-        public HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model)
-        {
-            DateTime date = DateTime.Parse(model.LastInspected);
-
-            HuntingTowerInspectionViewModels vm = new()
+            catch (Exception ex)
             {
-                HuntingTowerInspectionId = model.HuntingTowerInspectionId,
-                LastInspected = date,
-                Place = model.Place,
-                Inspected = model.Inspected,
-                InspectedTodo = model.InspectedTodo,
-                MooseTower = model.MooseTower,
-                WildBoarTower = model.WildBoarTower,
-                NotBeUsed = model.NotBeUsed,
-                Number = model.Number,
-                Todo = model.Todo,
-                Note = model.Note
-            };
-
-            return vm;
+                _logger.LogError(ex, "Hittar inte besikningen i databasen!");
+                return $"Hittar inte besikningen i databasen! Felmeddelande: {ex.Message}";
+            }
         }
 
-        private static HuntingTowerInspection ChangeFromViewModelToModel(HuntingTowerInspectionViewModels vm)
+        public async Task<string> Delete(HuntingTowerInspectionViewModels vm)
         {
-            HuntingTowerInspection inspection = new()
-            {
-                HuntingTowerInspectionId = vm.HuntingTowerInspectionId,
-                LastInspected = vm.LastInspected.ToString("yyyy-MM-dd"),
-                Place = vm.Place,
-                Inspected = vm.Inspected,
-                InspectedTodo = vm.InspectedTodo,
-                MooseTower = vm.MooseTower,
-                WildBoarTower = vm.WildBoarTower,
-                NotBeUsed = vm.NotBeUsed,
-                Number = vm.Number,
-                Todo = vm.Todo,
-                Note = vm.Note
-            };
+            if (vm == null || vm.HuntingTowerInspectionId <= 0 && _db == null)
+                return "Hittar ingen data från formuläret eller ingen besikningen med databasen!";
 
-            return inspection;
+            try
+            {
+                HuntingTowerInspection model = ChangeFromViewModelToModel(vm);
+                _db.ChangeTracker.Clear();
+                _db.HuntingTowerInspections.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ta bort besikningen!");
+                return $"Gick inte att ta bort besikningen! Felmeddelande: {ex.Message}";
+            }
         }
+        public HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model) => _mapper.Map<HuntingTowerInspectionViewModels>(model);
+
+        private HuntingTowerInspection ChangeFromViewModelToModel(HuntingTowerInspectionViewModels vm) => _mapper.Map<HuntingTowerInspection>(vm);
     }
 }

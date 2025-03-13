@@ -1,5 +1,4 @@
 ﻿
-using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 
@@ -7,9 +6,9 @@ namespace MyPrivateApp.Components.Hunting.Classes
 {
     public interface IHuntingPreyClass
     {
-        string Add(ApplicationDbContext db, HuntingPreyViewModels vm, bool import);
-        string Edit(ApplicationDbContext db, HuntingPreyViewModels vm);
-        string Delete(ApplicationDbContext db, HuntingPreyViewModels vm, bool import);
+        Task<string> Add(HuntingPreyViewModels vm);
+        Task<string> Edit(HuntingPreyViewModels vm);
+        Task<string> Delete(HuntingPreyViewModels vm);
         HuntingPreyViewModels ChangeFromModelToViewModel(HuntingPrey model);
     }
 }

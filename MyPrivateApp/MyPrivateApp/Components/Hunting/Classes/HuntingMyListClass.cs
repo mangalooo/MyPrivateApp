@@ -4,14 +4,13 @@ using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Components.FrozenFood.Classes;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingMyListClass(ApplicationDbContext db, ILogger<FrozenFoodClass> logger, IMapper mapper) : IHuntingMyListClass
+    public class HuntingMyListClass(ApplicationDbContext db, ILogger<HuntingMyListClass> logger, IMapper mapper) : IHuntingMyListClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
-        private readonly ILogger<FrozenFoodClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly ILogger<HuntingMyListClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<HuntingMyList?> Get(int? id)
@@ -56,7 +55,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
             {
                 HuntingMyList? getDbModel = await Get(vm.HuntingMyListId);
 
-                if (getDbModel != null) return "Hittar inte frysvra i databasen!";
+                if (getDbModel != null) return "Hittar inte bytet i databasen!";
 
                 _mapper.Map(vm, getDbModel);
                 await _db.SaveChangesAsync();
@@ -64,15 +63,15 @@ namespace MyPrivateApp.Components.Hunting.Classes
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Hittar inte jakten i databasen!");
-                return $"Hittar inte jakten i databasen! Felmeddelande: {ex.Message}";
+                _logger.LogError(ex, "Hittar inte bytet i databasen!");
+                return $"Hittar inte bytet i databasen! Felmeddelande: {ex.Message}";
             }
         }
 
         public async Task<string> Delete(HuntingMyListViewModels vm)
         {
             if (vm == null || vm.HuntingMyListId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+                return "Hittar ingen data från formuläret eller ingen bytet med databasen!";
 
             try
             {
