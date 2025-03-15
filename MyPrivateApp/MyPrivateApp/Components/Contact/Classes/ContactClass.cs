@@ -27,14 +27,15 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Add(ContactsViewModels vm)
         {
-            if (vm == null) return "Hittar ingen data från formuläret!";
+            if (vm == null) 
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
                 return "Ingen namn eller födelsedag ifyllt!";
 
             try
             {
-                Contacts model = _mapper.Map<Contacts>(vm);
+                Contacts model = ChangeFromViewModelToModel(vm);
                 await _db.Contacts.AddAsync(model);
                 await _db.SaveChangesAsync();
 
@@ -49,7 +50,8 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Edit(ContactsViewModels vm)
         {
-            if (vm == null || vm.ContactsId <= 0) return "Hittar ingen data från formuläret!";
+            if (vm == null || vm.ContactsId <= 0) 
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
                 return "Ingen namn eller födelsedag ifyllt!";
@@ -57,7 +59,8 @@ namespace MyPrivateApp.Components.Contact.Classes
             try
             {
                 Contacts? getDbModel = await Get(vm.ContactsId);
-                if (getDbModel == null) return "Hittar inte kontakten i databasen!";
+                if (getDbModel == null) 
+                    return "Hittar inte kontakten i databasen!";
 
                 _mapper.Map(vm, getDbModel);
                 await _db.SaveChangesAsync();
@@ -76,7 +79,7 @@ namespace MyPrivateApp.Components.Contact.Classes
 
             try
             {
-                Contacts model = _mapper.Map<Contacts>(vm);
+                Contacts model = ChangeFromViewModelToModel(vm);
                 _db.ChangeTracker.Clear();
                 _db.Contacts.Remove(model);
                 await _db.SaveChangesAsync();
@@ -89,7 +92,39 @@ namespace MyPrivateApp.Components.Contact.Classes
             }
         }
 
-        public ContactsViewModels ChangeFromModelToViewModel(Contacts model) => _mapper.Map<ContactsViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public ContactsViewModels ChangeFromModelToViewModel(Contacts model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            ContactsViewModels contact = _mapper.Map<ContactsViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.Birthday))
+                contact.Birthday = ParseDate(model.Birthday);
+
+            return contact;
+        }
+
+        public Contacts ChangeFromViewModelToModel(ContactsViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            Contacts contact = _mapper.Map<Contacts>(vm);
+
+            if (vm.Birthday != DateTime.MinValue)
+                contact.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
+
+            return contact;
+        }
 
         public async Task GetBirthday()
         {
