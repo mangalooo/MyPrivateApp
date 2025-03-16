@@ -4,6 +4,7 @@ using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Client.ViewModels;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
@@ -88,8 +89,38 @@ namespace MyPrivateApp.Components.Hunting.Classes
             }
         }
 
-        public HuntingTeamMembersViewModels ChangeFromModelToViewModel(HuntingTeamMembers model) => _mapper.Map<HuntingTeamMembersViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
 
-        private HuntingTeamMembers ChangeFromViewModelToModel(HuntingTeamMembersViewModels vm) => _mapper.Map<HuntingTeamMembers>(vm);
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public HuntingTeamMembersViewModels ChangeFromModelToViewModel(HuntingTeamMembers model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            HuntingTeamMembersViewModels vm = _mapper.Map<HuntingTeamMembersViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.Birthday))
+                vm.Birthday = ParseDate(model.Birthday);
+
+            return vm;
+        }
+
+        public HuntingTeamMembers ChangeFromViewModelToModel(HuntingTeamMembersViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            HuntingTeamMembers model = _mapper.Map<HuntingTeamMembers>(vm);
+
+            if (vm.Birthday != DateTime.MinValue)
+                model.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
+
+            return model;
+        }
     }
 }

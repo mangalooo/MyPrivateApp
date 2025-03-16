@@ -91,12 +91,39 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             }
         }
 
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
         public FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model)
         {
-            return _mapper.Map<FrozenFoodViewModel>(model);
-        } 
+            ArgumentNullException.ThrowIfNull(model);
 
-        private FrozenFoods ChangeFromViewModelToModel(FrozenFoodViewModel vm) => _mapper.Map<FrozenFoods>(vm);
+            FrozenFoodViewModel vm = _mapper.Map<FrozenFoodViewModel>(model);
+
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
+
+            return vm;
+        }
+
+        public FrozenFoods ChangeFromViewModelToModel(FrozenFoodViewModel vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            FrozenFoods model = _mapper.Map<FrozenFoods>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
+
+            return model;
+        }
 
         public double HowLongTimeInFreezer(DateTime date)
         {

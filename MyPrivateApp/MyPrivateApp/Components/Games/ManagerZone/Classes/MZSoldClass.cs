@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
@@ -87,8 +88,44 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             }
         }
 
-        public MZSoldPlayersViewModels ChangeFromModelToViewModel(MZSoldPlayers model) => _mapper.Map<MZSoldPlayersViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
 
-        private MZSoldPlayers ChangeFromViewModelToModel(MZSoldPlayersViewModels vm) => _mapper.Map<MZSoldPlayers>(vm);
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public MZSoldPlayersViewModels ChangeFromModelToViewModel(MZSoldPlayers model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            MZSoldPlayersViewModels vm = _mapper.Map<MZSoldPlayersViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.PurchasedDate))
+                vm.PurchasedDate = ParseDate(model.PurchasedDate);
+
+            if (!string.IsNullOrEmpty(model.SoldDate))
+                vm.SoldDate = ParseDate(model.SoldDate);
+
+            return vm;
+        }
+
+        public MZSoldPlayers ChangeFromViewModelToModel(MZSoldPlayersViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            MZSoldPlayers model = _mapper.Map<MZSoldPlayers>(vm);
+
+            if (vm.PurchasedDate != DateTime.MinValue)
+                model.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
+
+            if (vm.SoldDate != DateTime.MinValue)
+                model.SoldDate = vm.SoldDate.ToString("yyyy-MM-dd");
+
+            return model;
+        }
     }
 }

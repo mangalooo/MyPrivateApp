@@ -179,7 +179,6 @@ async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
            ?? throw new Exception("Frysvaran hittades inte i databasen!");
 }
 
-
 // Get ApplicationDbContext from the request services
 app.Use(async (context, next) =>
 {

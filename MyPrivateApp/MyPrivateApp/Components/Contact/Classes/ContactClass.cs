@@ -106,24 +106,24 @@ namespace MyPrivateApp.Components.Contact.Classes
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            ContactsViewModels contact = _mapper.Map<ContactsViewModels>(model);
+            ContactsViewModels vm = _mapper.Map<ContactsViewModels>(model);
 
             if (!string.IsNullOrEmpty(model.Birthday))
-                contact.Birthday = ParseDate(model.Birthday);
+                vm.Birthday = ParseDate(model.Birthday);
 
-            return contact;
+            return vm;
         }
 
         public Contacts ChangeFromViewModelToModel(ContactsViewModels vm)
         {
             ArgumentNullException.ThrowIfNull(vm);
 
-            Contacts contact = _mapper.Map<Contacts>(vm);
+            Contacts model = _mapper.Map<Contacts>(vm);
 
             if (vm.Birthday != DateTime.MinValue)
-                contact.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
+                model.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
 
-            return contact;
+            return model;
         }
 
         public async Task GetBirthday()
@@ -140,12 +140,13 @@ namespace MyPrivateApp.Components.Contact.Classes
                         c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day
                     )];
 
-                var mailBirthday = _config.GetSection("AppSettings")["mailBirthday"];
+                string? mailBirthday = _config.GetSection("AppSettings")["mailBirthday"];
+
                 if (string.IsNullOrEmpty(mailBirthday)) return;
 
                 foreach (var item in contactsWithBirthdayToday)
                 {
-                    var year = today.Year - DateTime.Parse(item.Birthday ?? throw new InvalidOperationException("Birthday cannot be null")).Year;
+                    var year = today.Year - DateTime.Parse(item.Birthday ?? throw new InvalidOperationException("Födelsedag kan inte vara null")).Year;
                     BackgroundJob.Schedule(() => _emailSender.SendEmailBirthday(
                         $"{item.Name} {year} år", mailBirthday, "Födelsedag",
                         $"Ring: {item.PhoneNumber}", mailBirthday),

@@ -9,8 +9,11 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
     {
         public MZMappingProfileClass()
         {
+            // Purchased
             CreateMap<MZPurchasedPlayersViewModels, MZPurchasedPlayers>();
             CreateMap<MZPurchasedPlayers, MZPurchasedPlayersViewModels>();
+
+            // Sold
             CreateMap<MZSoldPlayersViewModels, MZSoldPlayers>();
             CreateMap<MZSoldPlayers, MZSoldPlayersViewModels>();
         }

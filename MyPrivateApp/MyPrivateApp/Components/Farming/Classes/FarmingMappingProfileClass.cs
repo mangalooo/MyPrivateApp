@@ -9,9 +9,12 @@ namespace MyPrivateApp.Components.Farming.Classes
     {
         public FarmingMappingProfileClass()
         {
-            CreateMap<FarmingViewModels, FarmingsActive>();
+            //Inactive 
             CreateMap<FarmingViewModels, FarmingsInactive>();
             CreateMap<FarmingsInactive, FarmingViewModels>();
+
+            // Active
+            CreateMap<FarmingViewModels, FarmingsActive>();
             CreateMap<FarmingsActive, FarmingViewModels>()
                 .ForMember(dest => dest.PutSeedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.SetDate, opt => opt.Ignore())

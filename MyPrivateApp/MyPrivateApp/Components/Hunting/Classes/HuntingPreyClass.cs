@@ -3,7 +3,6 @@ using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 using AutoMapper;
-using MyPrivateApp.Components.FrozenFood.Classes;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
@@ -89,8 +88,38 @@ namespace MyPrivateApp.Components.Hunting.Classes
             }
         }
 
-        public HuntingPreyViewModels ChangeFromModelToViewModel(HuntingPrey model) => _mapper.Map<HuntingPreyViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
 
-        private HuntingPrey ChangeFromViewModelToModel(HuntingPreyViewModels vm) => _mapper.Map<HuntingPrey>(vm);
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public HuntingPreyViewModels ChangeFromModelToViewModel(HuntingPrey model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            HuntingPreyViewModels vm = _mapper.Map<HuntingPreyViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
+
+            return vm;
+        }
+
+        public HuntingPrey ChangeFromViewModelToModel(HuntingPreyViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            HuntingPrey model = _mapper.Map<HuntingPrey>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
+
+            return model;
+        }
     }
 }
