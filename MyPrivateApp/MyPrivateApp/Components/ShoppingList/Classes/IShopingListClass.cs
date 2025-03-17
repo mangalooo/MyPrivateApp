@@ -6,9 +6,9 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
 {
     public interface IShopingListClass
     {
-        string Add(ApplicationDbContext db, ShopingListViewModels vm, bool import);
-        string Edit(ApplicationDbContext db, ShopingListViewModels vm);
-        string Delete(ApplicationDbContext db, ShopingListViewModels vm, bool import);
+        Task<string> Add(ShopingListViewModels vm);
+        Task<string> Edit(ShopingListViewModels vm);
+        Task<string> Delete(ShopingListViewModels vm);
         ShopingListViewModels ChangeFromModelToViewModel(ShopingList model);
     }
 }

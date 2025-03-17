@@ -19,7 +19,8 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<Contacts?> Get(int? id)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (id == null) 
+                throw new ArgumentNullException(nameof(id));
 
             return await _db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == id)
                    ?? throw new Exception("Kontakten hittades inte i databasen!");
@@ -38,7 +39,6 @@ namespace MyPrivateApp.Components.Contact.Classes
                 Contacts model = ChangeFromViewModelToModel(vm);
                 await _db.Contacts.AddAsync(model);
                 await _db.SaveChangesAsync();
-
                 return string.Empty;
             }
             catch (Exception ex)
@@ -59,6 +59,7 @@ namespace MyPrivateApp.Components.Contact.Classes
             try
             {
                 Contacts? getDbModel = await Get(vm.ContactsId);
+
                 if (getDbModel == null) 
                     return "Hittar inte kontakten i databasen!";
 
@@ -68,14 +69,15 @@ namespace MyPrivateApp.Components.Contact.Classes
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Gick inte att ändra kontakten.");
-                return "Gick inte att ändra kontakten.";
+                _logger.LogError(ex, "Gick inte att ändra kontakten!");
+                return "Gick inte att ändra kontakten!";
             }
         }
 
         public async Task<string> Delete(ContactsViewModels vm)
         {
-            if (vm == null || vm.ContactsId <= 0) return "Hittar ingen data från formuläret!";
+            if (vm == null || vm.ContactsId <= 0) 
+                return "Hittar ingen data från formuläret!";
 
             try
             {

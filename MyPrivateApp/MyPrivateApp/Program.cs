@@ -20,6 +20,7 @@ using MyPrivateApp.Components.Email.Classes;
 using AutoMapper;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Hunting;
+using MyPrivateApp.Components.Layout.Classes;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -153,6 +154,7 @@ ILogger<MZPurchasedClass> loggerMZPurchasedClass = app.Services.GetRequiredServi
 ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger<MZSoldClass>>();
 ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
 ILogger<HuntingMyList> loggerHuntingMyList = app.Services.GetRequiredService<ILogger<HuntingMyList>>();
+ILogger<ShopingList> loggerShopingList = app.Services.GetRequiredService<ILogger<ShopingList>>();
 
 // Mapper
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
@@ -164,6 +166,7 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<MZMappingProfileClass>();
     cfg.AddProfile<FrozenMappingProfileClass>();
     cfg.AddProfile<HuntingMappingProfileClass>();
+    cfg.AddProfile<ShopingListProfileClass>();
 });
 mapper = config.CreateMapper();
 
