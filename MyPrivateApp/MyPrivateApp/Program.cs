@@ -38,7 +38,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
 builder.Services.AddScoped<IContactClass, ContactClass>();
 builder.Services.AddScoped<IFrozenFoodClass, FrozenFoodClass>();
-builder.Services.AddScoped<ITripClass, NewModulesClass>();
+builder.Services.AddScoped<ITripClass, TripClass>();
 builder.Services.AddScoped<IFarmingClass, FarmingClass>();
 builder.Services.AddScoped<IFarmWorkClass, FarmWorkClass>();
 
@@ -155,6 +155,7 @@ ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger
 ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
 ILogger<HuntingMyList> loggerHuntingMyList = app.Services.GetRequiredService<ILogger<HuntingMyList>>();
 ILogger<ShopingList> loggerShopingList = app.Services.GetRequiredService<ILogger<ShopingList>>();
+ILogger<Trips> loggerTrips = app.Services.GetRequiredService<ILogger<Trips>>();
 
 // Mapper
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
@@ -167,6 +168,7 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<FrozenMappingProfileClass>();
     cfg.AddProfile<HuntingMappingProfileClass>();
     cfg.AddProfile<ShopingListProfileClass>();
+    cfg.AddProfile<TripMappingProfileClass>();
 });
 mapper = config.CreateMapper();
 
