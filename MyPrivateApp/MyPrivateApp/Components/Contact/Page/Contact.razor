@@ -582,15 +582,9 @@
         try
         {
             if (pageViewModel.ContactsId > 0)
-            {
-                // Edit
                 ErrorMessage = await BackEndClass.Edit(pageViewModel);
-            }
             else
-            {
-                // Add
                 ErrorMessage = await BackEndClass.Add(pageViewModel);
-            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
