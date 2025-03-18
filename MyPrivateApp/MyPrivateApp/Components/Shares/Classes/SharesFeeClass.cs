@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.IdentityModel.Tokens;
+using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;

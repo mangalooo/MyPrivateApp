@@ -1,4 +1,5 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿using MyPrivateApp.Components.Shares.Classes.Interface;
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 

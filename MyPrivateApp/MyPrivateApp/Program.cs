@@ -21,6 +21,7 @@ using AutoMapper;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.Layout.Classes;
+using MyPrivateApp.Components.Shares.Classes.Interface;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -169,6 +170,7 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<HuntingMappingProfileClass>();
     cfg.AddProfile<ShopingListProfileClass>();
     cfg.AddProfile<TripMappingProfileClass>();
+    cfg.AddProfile<SharesMappingProfileClass>();
 });
 mapper = config.CreateMapper();
 
@@ -181,14 +183,14 @@ async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
     if (id == null) throw new ArgumentNullException(nameof(id));
 
     return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
-           ?? throw new Exception("Frysvaran hittades inte i databasen!");
+           ?? throw new Exception("Datum för mejl-utskick hittades inte i databasen!");
 }
 
 // Get ApplicationDbContext from the request services
 app.Use(async (context, next) =>
 {
     ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>() ??
-        throw new InvalidOperationException("Program filen. Felmeddelande: Failed to retrieve ApplicationDbContext from the service provider.");
+        throw new InvalidOperationException("Program felmeddelande: Gick inte att koppla till databasen!");
 
     LastEmailSent? lastEmailSentBirthday = await Get(db, 1);
 
@@ -196,7 +198,7 @@ app.Use(async (context, next) =>
         db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
     else
     {
-        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 4)
+        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 5)
         {
             // Sends automatic email if a contact has birthday
             IContactClass contactClass = context.RequestServices.GetRequiredService<IContactClass>();

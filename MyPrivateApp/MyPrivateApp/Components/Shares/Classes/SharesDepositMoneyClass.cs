@@ -1,26 +1,33 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using MyPrivateApp.Components.Enum;
+using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesDepositMoneyClass : ISharesDepositMoneyClass
-    {                                                                                          
-        public async Task<SharesDepositMoney?> Get(ApplicationDbContext db, int? id)
+    public class SharesDepositMoneyClass(ApplicationDbContext db, ILogger<SharesDepositMoneyClass> logger, IMapper mapper) : ISharesDepositMoneyClass
+    {
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<SharesDepositMoneyClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
+        public async Task<SharesDepositMoney?> Get(int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
-            return await db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == id)
+            return await _db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == id)
                 ?? throw new Exception("Den insatta eller uttagna summan hittades inte i databasen!");
         }
 
-        public async Task<SharesTotalAmounts?> GetTotalAmount(ApplicationDbContext db, int? id)
+        public async Task<SharesTotalAmounts?> GetTotalAmount(int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
-            return await db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
+            return await _db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
                 ?? throw new Exception("Totala summan hittades inte i databasen!");
         }
 
@@ -29,7 +36,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm != null && db != null)
             {
                 SharesDepositMoney model;
-                SharesTotalAmounts getTotalAmount = await GetTotalAmount(db, 2); // Should always be just one total amount in the database
+                SharesTotalAmounts getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
 
                 if (getTotalAmount != null)
                 {
@@ -134,8 +141,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (db != null && vm.DepositMoneyId > 0)
             {
                 // Remove and add the new amount to the total.
-                SharesDepositMoney dbModel = await Get(db, vm.DepositMoneyId);
-                SharesTotalAmounts getTotalAmount = await GetTotalAmount(db, 2); // Should always be just one total amount in the database
+                SharesDepositMoney dbModel = await Get(vm.DepositMoneyId);
+                SharesTotalAmounts getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
                 string DBDepositMoneyString = dbModel.DepositMoney.ToString();
                 double DBDepositMoney = DBDepositMoneyString.Contains('-') ? double.Parse(DBDepositMoneyString[1..]) : double.Parse(DBDepositMoneyString);
                 string VMDepositMoneyString = vm.DepositMoney.ToString();
@@ -185,7 +192,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     ErrorHandling(db, vm, "Ta bort", false, ex.Message);
                 }
 
-                SharesTotalAmounts getTotalAmount = await GetTotalAmount(db, 2); // Should always be just one total amount in the database
+                SharesTotalAmounts getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
                 getTotalAmount.TotalAmount -= model.DepositMoney;
 
                 db.SaveChanges();

@@ -128,6 +128,19 @@ namespace MyPrivateApp.Components.Contact.Classes
             return model;
         }
 
+        // public async Task<FarmWorksViewModels> ChangeFromModelToViewModelAsync(FarmWorks model)
+        // {
+        //     ArgumentNullException.ThrowIfNull(model);
+
+        //     // Ensure asynchronous mapping if needed
+        //     FarmWorksViewModels farmWorks = await Task.Run(() => _mapper.Map<FarmWorksViewModels>(model));
+
+        //     if (!string.IsNullOrEmpty(model.Date))
+        //         farmWorks.Date = ParseDate(model.Date);
+
+        //     return farmWorks;
+        // }
+
         public async Task GetBirthday()
         {
             try

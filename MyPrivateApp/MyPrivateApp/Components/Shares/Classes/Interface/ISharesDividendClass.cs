@@ -2,7 +2,7 @@
 using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 
-namespace MyPrivateApp.Components.Shares.Classes
+namespace MyPrivateApp.Components.Shares.Classes.Interface
 {
     public interface ISharesDividendClass
     {
