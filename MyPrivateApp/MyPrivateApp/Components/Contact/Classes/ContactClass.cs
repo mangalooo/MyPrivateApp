@@ -128,19 +128,6 @@ namespace MyPrivateApp.Components.Contact.Classes
             return model;
         }
 
-        // public async Task<FarmWorksViewModels> ChangeFromModelToViewModelAsync(FarmWorks model)
-        // {
-        //     ArgumentNullException.ThrowIfNull(model);
-
-        //     // Ensure asynchronous mapping if needed
-        //     FarmWorksViewModels farmWorks = await Task.Run(() => _mapper.Map<FarmWorksViewModels>(model));
-
-        //     if (!string.IsNullOrEmpty(model.Date))
-        //         farmWorks.Date = ParseDate(model.Date);
-
-        //     return farmWorks;
-        // }
-
         public async Task GetBirthday()
         {
             try
@@ -151,21 +138,25 @@ namespace MyPrivateApp.Components.Contact.Classes
                     .ToListAsync();
 
                 contactsWithBirthdayToday = [.. contactsWithBirthdayToday.Where
-                    (
-                        c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day
-                    )];
+                (
+                    c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day
+                )];
 
                 string? mailBirthday = _config.GetSection("AppSettings")["mailBirthday"];
 
                 if (string.IsNullOrEmpty(mailBirthday)) return;
 
-                foreach (var item in contactsWithBirthdayToday)
+                foreach (Contacts item in contactsWithBirthdayToday)
                 {
-                    var year = today.Year - DateTime.Parse(item.Birthday ?? throw new InvalidOperationException("Födelsedag kan inte vara null")).Year;
-                    BackgroundJob.Schedule(() => _emailSender.SendEmailBirthday(
+                    int year = today.Year - DateTime.Parse(item.Birthday ??
+                        throw new InvalidOperationException("Födelsedag kan inte vara null")).Year;
+
+                    BackgroundJob.Schedule(() => _emailSender.SendEmailBirthday
+                    (
                         $"{item.Name} {year} år", mailBirthday, "Födelsedag",
                         $"Ring: {item.PhoneNumber}", mailBirthday),
-                        new DateTime(today.Year, today.Month, today.Day));
+                        new DateTime(today.Year, today.Month, today.Day
+                    ));
                 }
             }
             catch (Exception ex)
@@ -175,3 +166,17 @@ namespace MyPrivateApp.Components.Contact.Classes
         }
     }
 }
+
+
+// public async Task<FarmWorksViewModels> ChangeFromModelToViewModelAsync(FarmWorks model)
+// {
+//     ArgumentNullException.ThrowIfNull(model);
+
+//     // Ensure asynchronous mapping if needed
+//     FarmWorksViewModels farmWorks = await Task.Run(() => _mapper.Map<FarmWorksViewModels>(model));
+
+//     if (!string.IsNullOrEmpty(model.Date))
+//         farmWorks.Date = ParseDate(model.Date);
+
+//     return farmWorks;
+// }

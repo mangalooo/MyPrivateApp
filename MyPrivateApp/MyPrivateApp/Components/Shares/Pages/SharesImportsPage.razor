@@ -758,7 +758,7 @@
     private void DepositMoneyImport(SharesImports import)
     {
         SharesDepositMoneyViewModel vm = SharesDepositMoneyClass.ChangeFromImportToViewModel(import);
-        SharesDepositMoneyClass.Add(db, vm, true);
+        SharesDepositMoneyClass.Add(vm, true);
     }
 
     private void InterestRatesImport(SharesImports import)

@@ -7,6 +7,25 @@ html, body {
     /* Other styles */
 }
 
+.page {
+    background-color: #f0f0f0; /* Change this to your desired color */
+}
+
+.sidebar {
+    background-color: #333; /* Change this to your desired color */
+    color: #fff; /* Change this to your desired color */
+}
+
+.content {
+    background-color: #fff; /* Change this to your desired color */
+    color: #000; /* Change this to your desired color */
+}
+
+#blazor-error-ui {
+    background-color: #ffdddd; /* Change this to your desired color */
+    color: #d8000c; /* Change this to your desired color */
+}
+
 a, .btn-link {
     color: #006bb7;
 }
@@ -18,7 +37,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {

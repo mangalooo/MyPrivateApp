@@ -17,7 +17,8 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<SharesDepositMoney?> Get(int? id)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (id == null) 
+                throw new ArgumentNullException(nameof(id));
 
             return await _db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == id)
                 ?? throw new Exception("Den insatta eller uttagna summan hittades inte i databasen!");
@@ -25,254 +26,246 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<SharesTotalAmounts?> GetTotalAmount(int? id)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (id == null) 
+                throw new ArgumentNullException(nameof(id));
 
             return await _db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
                 ?? throw new Exception("Totala summan hittades inte i databasen!");
         }
 
-        public async Task<string> Add(ApplicationDbContext db, SharesDepositMoneyViewModel vm, bool import)
+        public async Task<string> Add(SharesDepositMoneyViewModel vm, bool import)
         {
-            if (vm != null && db != null)
+            if (_db == null || vm == null)
+                return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+
+            SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+
+            if (getTotalAmount == null)
+                return await HandleError(vm, "Lägg till", import, "Hittar inte de totala beloppet!");
+
+            if (string.IsNullOrEmpty(vm.DepositMoney) || string.IsNullOrEmpty(vm.TypeOfTransaction))
+                return await HandleError(vm, "Lägg till", import, "Inget insatt belopp eller typ av överföring!");
+
+            double amount = ParseAmount(vm.DepositMoney);
+
+            try
             {
-                SharesDepositMoney model;
-                SharesTotalAmounts getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+                SharesDepositMoney model = CreateModel(vm, amount);
+                UpdateTotalAmount(getTotalAmount, vm.TypeOfTransaction, amount);
 
-                if (getTotalAmount != null)
-                {
-                    string amountString = vm.DepositMoney.ToString();
-                    double amount = amountString.Contains('-') ? double.Parse(amountString[1..]) : double.Parse(amountString);
-
-                    switch (vm.TypeOfTransaction)
-                    {
-                        case "Insättning":
-                            try
-                            {
-                                model = new()
-                                {
-                                    Date = vm.Date.ToString("yyyy-MM-dd"),
-                                    DepositMoney = double.Parse(vm.DepositMoney),
-                                    SubmitOrWithdraw = SubmitOrWithdraw.Inbetalning,
-                                    TypeOfTransaction = vm.TypeOfTransaction,
-                                    TransferOptions = vm.TransferOptions,
-                                    Account = vm.Account,
-                                    Currency = vm.Currency,
-                                    Note = vm.Note
-                                };
-
-                                getTotalAmount.TotalAmount += amount;
-
-                                db.SharesDepositMoney.Add(model);
-                                db.SaveChanges();
-                            }
-                            catch (Exception ex)
-                            {
-                                if (import)
-                                    ErrorHandling(db, vm, "Lägg till", import, ex.Message);
-                                else
-                                    return $"Insättning. Felmeddelande: {ex.Message}";
-                            }
-
-                            break;
-
-                        case "Uttag":
-
-                            try
-                            {
-                                model = new()
-                                {
-                                    Date = vm.Date.ToString("yyyy-MM-dd"),
-                                    DepositMoney = -amount, // Kolla minus tecken
-                                    SubmitOrWithdraw = SubmitOrWithdraw.Utbetalning,
-                                    TypeOfTransaction = vm.TypeOfTransaction,
-                                    TransferOptions = vm.TransferOptions,
-                                    Account = vm.Account,
-                                    Currency = vm.Currency,
-                                    Note = vm.Note
-                                };
-
-                                getTotalAmount.TotalAmount -= amount;
-
-                                db.SharesDepositMoney.Add(model);
-                                db.SaveChanges();
-                            }
-                            catch (Exception ex)
-                            {
-                                if (import)
-                                    ErrorHandling(db, vm, "Lägg till", import, ex.Message);
-                                else
-                                    return $"Uttag: Felmeddelande: {ex.Message}";
-                            }
-
-                            break;
-
-                        default:
-
-                            if (import)
-                                ErrorHandling(db, vm, "Lägg till", import, "Felmeddelande: Inget Uttag eller Insättning i Transaktion fältet!");
-                            else
-                                return $"Felmeddelande: Felmeddelande: Inget Uttag eller Insättning i Transaktion fältet!";
-
-                            break;
-                    }
-                }
-                else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Hittar inte banköverföringen!");
-                    else
-                        return "Hittar inte banköverföringen!";
-                }
-
+                await _db.SharesDepositMoney.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
+            catch (Exception ex)
             {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+                return await HandleError(vm, "Lägg till", import, ex.Message);
             }
-
-            return string.Empty;
         }
 
-        public async Task<string> Edit(ApplicationDbContext db, SharesDepositMoneyViewModel vm)
+        private static double ParseAmount(string amountString) => amountString.Contains('-') ? double.Parse(amountString[1..]) : double.Parse(amountString);
+
+        private static SharesDepositMoney CreateModel(SharesDepositMoneyViewModel vm, double amount)
         {
-            if (db != null && vm.DepositMoneyId > 0)
+            return new SharesDepositMoney
             {
-                // Remove and add the new amount to the total.
-                SharesDepositMoney dbModel = await Get(vm.DepositMoneyId);
-                SharesTotalAmounts getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
-                string DBDepositMoneyString = dbModel.DepositMoney.ToString();
-                double DBDepositMoney = DBDepositMoneyString.Contains('-') ? double.Parse(DBDepositMoneyString[1..]) : double.Parse(DBDepositMoneyString);
-                string VMDepositMoneyString = vm.DepositMoney.ToString();
-                double VMDepositMoney = VMDepositMoneyString.Contains('-') ? double.Parse(VMDepositMoneyString[1..]) : double.Parse(VMDepositMoneyString);
-                getTotalAmount.TotalAmount -= DBDepositMoney;
-                getTotalAmount.TotalAmount += VMDepositMoney;
-
-                // Edit fields
-                dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                dbModel.DepositMoney = double.Parse(vm.DepositMoney);
-                dbModel.SubmitOrWithdraw = SubmitOrWithdraw.Utbetalning;
-                dbModel.TypeOfTransaction = vm.TypeOfTransaction;
-                dbModel.TransferOptions = vm.TransferOptions;
-                dbModel.Account = vm.Account;
-                dbModel.Currency = vm.Currency;
-                dbModel.Note = vm.Note;
-
-                try
-                {
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    ErrorHandling(db, vm, "Ändra", false, ex.Message);
-                }
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
-        }
-
-        public async Task<string> Delete(ApplicationDbContext db, SharesDepositMoneyViewModel vm)
-        {
-            SharesDepositMoney model = ChangeFromViewModelToModel(vm);
-
-            if (db != null && model != null)
-            {
-                try
-                {
-                    db.ChangeTracker.Clear();
-                    db.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    ErrorHandling(db, vm, "Ta bort", false, ex.Message);
-                }
-
-                SharesTotalAmounts getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
-                getTotalAmount.TotalAmount -= model.DepositMoney;
-
-                db.SaveChanges();
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
-        }
-
-        public SharesDepositMoneyViewModel ChangeFromModelToViewModel(SharesDepositMoney model)
-        {
-            DateTime date = DateTime.Parse(model.Date);
-
-            SharesDepositMoneyViewModel vm = new()
-            {
-                DepositMoneyId = model.DepositMoneyId,
-                Date = date,
-                DepositMoney = model.DepositMoney.ToString("#,##0.00"),
-                SubmitOrWithdraw = model.SubmitOrWithdraw,
-                TypeOfTransaction = model.TypeOfTransaction,
-                TransferOptions = model.TransferOptions,
-                Account = model.Account,
-                Currency = model.Currency,
-                Note = model.Note
-            };
-
-            return vm;
-        }
-
-        public SharesDepositMoneyViewModel ChangeFromImportToViewModel(SharesImports model)
-        {
-            DateTime date = DateTime.Parse(model.Date);
-
-            SharesDepositMoneyViewModel vm = new()
-            {
-                Date = date,
-                Account = model.AccountNumber,
-                TypeOfTransaction = model.TypeOfTransaction,
-                TransferOptions = model.CompanyOrInformation,
-                Currency = model.Currency,
-                DepositMoney = double.Parse(model.AmountString).ToString("#,##0.00")
-            };
-
-            return vm;
-        }
-
-        private static SharesDepositMoney ChangeFromViewModelToModel(SharesDepositMoneyViewModel vm)
-        {
-            SharesDepositMoney model = new()
-            {
-                DepositMoneyId = vm.DepositMoneyId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
-                DepositMoney = double.Parse(vm.DepositMoney),
-                SubmitOrWithdraw = vm.SubmitOrWithdraw,
+                DepositMoney = vm.TypeOfTransaction == "Insättning" ? amount : -amount,
+                SubmitOrWithdraw = vm.TypeOfTransaction == "Insättning" ? SubmitOrWithdraw.Inbetalning : SubmitOrWithdraw.Utbetalning,
                 TypeOfTransaction = vm.TypeOfTransaction,
                 TransferOptions = vm.TransferOptions,
                 Account = vm.Account,
                 Currency = vm.Currency,
                 Note = vm.Note
             };
+        }
+
+        private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, string transactionType, double amount)
+        {
+            if (transactionType == "Insättning")
+                totalAmount.TotalAmount += amount;
+            else if (transactionType == "Uttag")
+                totalAmount.TotalAmount -= amount;
+        }
+
+        public async Task<string> Edit(SharesDepositMoneyViewModel vm)
+        {
+            if (_db == null || vm == null || vm.DepositMoneyId <= 0)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            try
+            {
+                SharesDepositMoney? dbModel = await Get(vm.DepositMoneyId);
+                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+
+                if (dbModel == null || getTotalAmount == null || string.IsNullOrEmpty(vm.DepositMoney))
+                    return "Hittar inte data från: Kontot, Total summa eller inget insatt belopp!";
+
+                UpdateTotalAmount(getTotalAmount, dbModel.DepositMoney, false); // Update the total amount with the old amount
+                UpdateTotalAmount(getTotalAmount, double.Parse(vm.DepositMoney), true); // Update the total amount with the new amount
+
+                UpdateDbModel(dbModel, vm);
+
+                await _db.SaveChangesAsync();
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return await HandleError(vm, "Ändra", false, ex.Message);
+            }
+        }
+
+        private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, double amount, bool isAdding)
+        {
+            if (isAdding)
+                totalAmount.TotalAmount += amount;
+            else
+                totalAmount.TotalAmount -= amount;
+        }
+
+        private static void UpdateDbModel(SharesDepositMoney dbModel, SharesDepositMoneyViewModel vm)
+        {
+            dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
+            dbModel.SubmitOrWithdraw = vm.SubmitOrWithdraw;
+            dbModel.TypeOfTransaction = vm.TypeOfTransaction;
+            dbModel.TransferOptions = vm.TransferOptions;
+            dbModel.Account = vm.Account;
+            dbModel.Currency = vm.Currency;
+            dbModel.Note = vm.Note;
+
+            if (!string.IsNullOrEmpty(vm.DepositMoney))
+                dbModel.DepositMoney = double.Parse(vm.DepositMoney);
+        }
+
+        public async Task<string> Delete(SharesDepositMoneyViewModel vm)
+        {
+            if (_db == null || vm == null)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            SharesDepositMoney model = ChangeFromViewModelToModel(vm);
+
+            if (model == null)
+                return "Hittar ingen data från formuläret!";
+
+            try
+            {
+                _db.ChangeTracker.Clear();
+                _db.Remove(model);
+                await _db.SaveChangesAsync();
+
+                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+                if (getTotalAmount != null)
+                {
+                    getTotalAmount.TotalAmount -= model.DepositMoney;
+                    await _db.SaveChangesAsync();
+                }
+                else
+                    return "Totala summan hittades inte i databasen!";
+            }
+            catch (Exception ex)
+            {
+                return await HandleError(vm, "Ta bort", false, ex.Message);
+            }
+
+            return string.Empty;
+        }
+
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public SharesDepositMoneyViewModel ChangeFromModelToViewModel(SharesDepositMoney model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            SharesDepositMoneyViewModel vm = _mapper.Map<SharesDepositMoneyViewModel>(model);
+
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
+
+            if (model.DepositMoney <= 0)
+                vm.DepositMoney = model.DepositMoney.ToString("#,##0.00");
+
+            return vm;
+        }
+
+        public SharesDepositMoneyViewModel ChangeFromImportToViewModel(SharesImports model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            SharesDepositMoneyViewModel vm = _mapper.Map<SharesDepositMoneyViewModel>(model);
+
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
+
+            if (!string.IsNullOrEmpty(model.AmountString))
+                vm.DepositMoney = double.Parse(model.AmountString).ToString("#,##0.00");
+
+            return vm;
+        }
+
+        public SharesDepositMoney ChangeFromViewModelToModel(SharesDepositMoneyViewModel vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            SharesDepositMoney model = _mapper.Map<SharesDepositMoney>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
 
             return model;
         }
 
-        private static void ErrorHandling(ApplicationDbContext db, SharesDepositMoneyViewModel vm, string type, bool import, string errorMessage)
+        private async Task ErrorHandling(SharesDepositMoneyViewModel? vm, string type, bool import, string errorMessage)
         {
             DateTime date = DateTime.Now;
             string importTrue = import ? "Ja" : "Nej";
+            SharesErrorHandlings sharesErrorHandling;
 
-            SharesErrorHandlings sharesErrorHandling = new()
+            if (vm == null)
             {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                TypeOfTransaction = type,
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} BANKÖVERFÖRING: \r\nDatum: {vm.Date} \r\nImport: {importTrue} \r\nBelopp: {vm.DepositMoney} \r\nId: {vm.DepositMoneyId}. "
-            };
+                sharesErrorHandling = new()
+                {
+                    Date = date.ToString("yyyy-MM-dd"),
+                    TypeOfTransaction = type,
+                    ErrorMessage = $"Felmeddelande: {errorMessage}",
+                };
+            }
+            else
+            {
+                sharesErrorHandling = new()
+                {
+                    Date = date.ToString("yyyy-MM-dd"),
+                    TypeOfTransaction = type,
+                    ErrorMessage = $"Felmeddelande: {errorMessage}",
+                    Note = $"{type} BANKÖVERFÖRING: \r\nDatum: {vm.Date:yyyy-MM-dd} \r\nImport: {importTrue} \r\nBelopp: {vm.DepositMoney} \r\nId: {vm.DepositMoneyId}. "
+                };
+            }
+                
+            try
+            {
+                await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ett fel uppstod när felhanteringsinformation skulle sparas!");
+            }
+        }
 
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
+        private async Task<string> HandleError(SharesDepositMoneyViewModel? vm, string type, bool import, string errorMessage)
+        {
+            if (import)
+                await ErrorHandling(vm, type, import, errorMessage);
+
+            return $"{type}: Felmeddelande: {errorMessage}";
         }
     }
 }
