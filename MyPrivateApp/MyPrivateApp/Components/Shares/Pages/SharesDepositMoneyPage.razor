@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <br />
+    <br /> <br />
 
     <h1 style="text-align:center"> Banköverföringar </h1>
 
@@ -60,7 +60,7 @@
 
     <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny kontakt </button>
+        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny banköverföring </button>
 
     </div>
 
@@ -231,7 +231,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort summan </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -282,7 +282,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort summan </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -480,13 +480,13 @@
         StateHasChanged();
     }
 
-    private void OpenDeleteWindow(ContactsViewModels vm)
+    private void OpenDeleteWindow(SharesDepositMoneyViewModel vm)
     {
-        TemporaryId = vm.ContactsId;
+        TemporaryId = vm.DepositMoneyId;
         ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 
-    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+    private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 
     private async Task<double> GetTotalAmount()
     {
