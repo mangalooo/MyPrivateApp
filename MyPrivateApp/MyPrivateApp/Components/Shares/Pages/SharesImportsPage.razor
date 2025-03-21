@@ -1,12 +1,13 @@
 ﻿@page "/SharesImportsPage"
 
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Shares.Classes
+@using MyPrivateApp.Components.Shares.Classes.Interface
 @using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.SharesModels
 @using OfficeOpenXml;
 
@@ -757,7 +758,7 @@
     private void DepositMoneyImport(SharesImports import)
     {
         SharesDepositMoneyViewModel vm = SharesDepositMoneyClass.ChangeFromImportToViewModel(import);
-        SharesDepositMoneyClass.Add(db, vm, true);
+        SharesDepositMoneyClass.Add(vm, true);
     }
 
     private void InterestRatesImport(SharesImports import)

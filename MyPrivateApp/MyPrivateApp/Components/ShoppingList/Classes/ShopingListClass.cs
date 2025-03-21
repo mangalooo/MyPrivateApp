@@ -2,130 +2,126 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Client.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace MyPrivateApp.Components.ShoppingList.Classes
 {
-    public class ShopingListClass : IShopingListClass
+    public class ShopingListClass(ApplicationDbContext db, ILogger<ShopingListClass> logger, IMapper mapper) : IShopingListClass
     {
-        private static ShopingList? Get(ApplicationDbContext db, int? id) => db.ShopingLists.Any(r => r.ShopingListId == id) ?
-                                                                                db.ShopingLists.FirstOrDefault(r => r.ShopingListId == id) :
-                                                                                    throw new Exception("Inköpslistan hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<ShopingListClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, ShopingListViewModels vm, bool import)
+        public async Task<ShopingList?> Get(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.List))
-                {
-                    try
-                    {
-                        ShopingList model = ChangeFromViewModelToModel(vm);
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
 
-                        db.ShopingLists.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att lägg till en ny inköpslista. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen datum eller plats ifylld!";
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            return await _db.ShopingLists.FirstOrDefaultAsync(r => r.ShopingListId == id)
+                   ?? throw new Exception("Inköpslistan hittades inte i databasen!");
         }
 
-        public string Edit(ApplicationDbContext db, ShopingListViewModels vm)
+        public async Task<string> Add(ShopingListViewModels vm)
         {
-            if (vm != null && vm.ShopingListId > 0 && db != null)
-            {
-                if (vm.Date != DateTime.MinValue && !string.IsNullOrEmpty(vm.List))
-                {
-                    try
-                    {
-                        ShopingList getDbModel = Get(db, vm.ShopingListId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.ShopingListId = vm.ShopingListId;
-                            getDbModel.Name = vm.Name;
-                            getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                            getDbModel.Place = vm.Place;
-                            getDbModel.List = vm.List;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte aktien i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Gick inte att ändra inköpslistan. Felmeddelande: {ex.Message}";
-                    }
-                }
-                else
-                    return "Ingen datum eller uppgifter ifylld!";
-            }
-            else
+            if (vm == null || db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            return string.Empty;
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.List))
+                return "Ingen datum eller plats ifylld!";
+
+            try
+            {
+                ShopingList model = ChangeFromViewModelToModel(vm);
+                await _db.ShopingLists.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att lägg till en ny inköpslista!");
+                return $"Gick inte att lägg till en ny inköpslista! Felmeddelande: {ex.Message}";
+            }
         }
 
-        public string Delete(ApplicationDbContext db, ShopingListViewModels vm, bool import)
+        public async Task<string> Edit(ShopingListViewModels vm)
         {
-            if (vm != null && vm.ShopingListId > 0 && db != null)
+            if (vm == null || vm.ShopingListId <= 0)
+                return "Hittar ingen data från formuläret!";
+
+            if (vm.Date == DateTime.MinValue || string.IsNullOrEmpty(vm.List))
+                return "Ingen datum eller uppgifter ifylld!";
+
+            try
             {
-                try
-                {
-                    ShopingList model = ChangeFromViewModelToModel(vm);
+                ShopingList? getDbModel = await Get(vm.ShopingListId);
 
-                    db.ChangeTracker.Clear();
-                    db.ShopingLists.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Gick inte att ta bort inköpslistan. Felmeddelande: {ex.Message}";
-                }
+                if (getDbModel == null)
+                    return "Hittar inte inköpslistan i databasen!";
+
+                _mapper.Map(vm, getDbModel);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ändra inköpslistan!");
+                return "Gick inte att ändra inköpslistan!";
+            }
+        }
 
-            return string.Empty;
+        public async Task<string> Delete(ShopingListViewModels vm)
+        {
+            if (vm == null || vm.ShopingListId <= 0)
+                return "Hittar ingen data från formuläret!";
+
+            try
+            {
+                ShopingList model = ChangeFromViewModelToModel(vm);
+                db.ChangeTracker.Clear();
+                db.ShopingLists.Remove(model);
+                await db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Gick inte att ta bort inköpslistan!");
+                return $"Gick inte att ta bort inköpslistan! Felmeddelande: {ex.Message}";
+            }
+        }
+
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
         }
 
         public ShopingListViewModels ChangeFromModelToViewModel(ShopingList model)
         {
-            DateTime date = DateTime.Parse(model.Date);
+            ArgumentNullException.ThrowIfNull(model);
 
-            ShopingListViewModels shopingList = new()
-            {
-                ShopingListId = model.ShopingListId,
-                Name = model.Name,
-                Date = date,
-                Place = model.Place,
-                List = model.List
-            };
+            ShopingListViewModels vm = _mapper.Map<ShopingListViewModels>(model);
 
-            return shopingList;
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
+
+            return vm;
         }
 
-        private static ShopingList ChangeFromViewModelToModel(ShopingListViewModels vm)
+        private ShopingList ChangeFromViewModelToModel(ShopingListViewModels vm)
         {
-            ShopingList shopingList = new()
-            {
-                ShopingListId = vm.ShopingListId,
-                Name = vm.Name,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                Place = vm.Place,
-                List = vm.List
-            };
+            ArgumentNullException.ThrowIfNull(vm);
 
-            return shopingList;
+            ShopingList model = _mapper.Map<ShopingList>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
+
+            return model;
         }
     }
 }

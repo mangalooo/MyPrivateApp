@@ -4,6 +4,7 @@ using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Client.ViewModels;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
@@ -179,8 +180,38 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             }
         }
 
-        public MZPurchasedPlayersViewModels ChangeFromModelToViewModel(MZPurchasedPlayers model) => _mapper.Map<MZPurchasedPlayersViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
 
-        private MZPurchasedPlayers ChangeFromViewModelToModel(MZPurchasedPlayersViewModels vm) => _mapper.Map<MZPurchasedPlayers>(vm);
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public MZPurchasedPlayersViewModels ChangeFromModelToViewModel(MZPurchasedPlayers model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            MZPurchasedPlayersViewModels vm = _mapper.Map<MZPurchasedPlayersViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.PurchasedDate))
+                vm.PurchasedDate = ParseDate(model.PurchasedDate);
+
+            return vm;
+        }
+
+        public MZPurchasedPlayers ChangeFromViewModelToModel(MZPurchasedPlayersViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            MZPurchasedPlayers model = _mapper.Map<MZPurchasedPlayers>(vm);
+
+            if (vm.PurchasedDate != DateTime.MinValue)
+                model.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
+
+            return model;
+        }
     }
 }

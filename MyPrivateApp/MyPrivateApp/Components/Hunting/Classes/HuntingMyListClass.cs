@@ -88,8 +88,38 @@ namespace MyPrivateApp.Components.Hunting.Classes
             }
         }
 
-        public HuntingMyListViewModels ChangeFromModelToViewModel(HuntingMyList model) => _mapper.Map<HuntingMyListViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
 
-        private HuntingMyList ChangeFromViewModelToModel(HuntingMyListViewModels vm) => _mapper.Map<HuntingMyList>(vm);
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public HuntingMyListViewModels ChangeFromModelToViewModel(HuntingMyList model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            HuntingMyListViewModels vm = _mapper.Map<HuntingMyListViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
+
+            return vm;
+        }
+
+        public HuntingMyList ChangeFromViewModelToModel(HuntingMyListViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            HuntingMyList model = _mapper.Map<HuntingMyList>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
+
+            return model;
+        }
     }
 }

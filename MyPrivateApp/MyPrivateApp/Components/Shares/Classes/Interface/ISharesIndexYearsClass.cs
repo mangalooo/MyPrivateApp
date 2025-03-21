@@ -2,7 +2,7 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
 
-namespace MyPrivateApp.Components.Shares.Classes
+namespace MyPrivateApp.Components.Shares.Classes.Interface
 {
     public interface ISharesIndexYearsClass
     {

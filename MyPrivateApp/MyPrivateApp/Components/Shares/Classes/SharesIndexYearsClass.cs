@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using MyPrivateApp.Components.FarmWork.Classes;
+using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;

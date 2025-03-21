@@ -5,6 +5,8 @@
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using AutoMapper;
 
 @rendermode InteractiveServer
 
@@ -18,26 +20,27 @@
 <div>
 
     <br />
-    <br />
 
-    <h1 style="text-align:center"> Resor </h1>
+    <h1 style="text-align:center"> Kontakter </h1>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-        <br />
         <br />
 
         <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny resa </button>
     </div>
 
-    <div style="text-align:center" hidden="@ShowOrHideErrorMessage">
-        <br />
-        <br />
-        <Alert Color="AlertColor.Danger"> <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon> <b>@ErrorMessage</b> </Alert>
-    </div>
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -48,7 +51,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="CreateOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="CreateOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
 
                      <DataAnnotationsValidator />
 
@@ -60,16 +63,16 @@
 
                          <div class="col-6">
                              <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Date" class="text-danger" />
                              </div>
                          </div>
                          <div class="col-6">
                              <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.HomeDate" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.HomeDate" class="form-control" disabled="@DisabledForm" />
                                  <label for="HomeDate"> Hem </label>
-                                <ValidationMessage For="() => pageModel.HomeDate" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.HomeDate" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -82,16 +85,16 @@
 
                          <div class="col-6">
                              <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Country" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Country" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Country"> Land </label>
-                                <ValidationMessage For="() => pageModel.Country" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Country" class="text-danger" />
                              </div>
                          </div>
                          <div class="col-6">
                              <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Place" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm" />
                                  <label for="Place"> Plats </label>
-                                <ValidationMessage For="() => pageModel.Place" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Place" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -101,9 +104,9 @@
                      <div class="row">
                          <div class="col-12">
                              <div class="form-floating">
-                                <InputText @bind-Value="pageModel.TravelBuddies" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.TravelBuddies" class="form-control" disabled="@DisabledForm" />
                                  <label for="TravelBuddies"> Medpassagerare</label>
-                                <ValidationMessage For="() => pageModel.TravelBuddies" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.TravelBuddies" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -113,9 +116,9 @@
                      <div class="row">
                          <div class="col-12">
                              <div class="form-floating">
-                                <InputTextArea @bind-Value="pageModel.Description" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageViewModel.Description" class="form-control" disabled="@DisabledForm" />
                                  <label for="Description"> Beskrivning </label>
-                                <ValidationMessage For="() => pageModel.Description" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Description" class="text-danger" />
                              </div>
                          </div>
                      </div>
@@ -282,7 +285,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private TripsViewModel pageModel { get; set; } = new();
+    private TripsViewModel pageViewModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<TripsViewModel> queryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
 
@@ -301,28 +304,28 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool ShowOrHideErrorMessage { get; set; } = true;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryableAsync()
     {
-        if (db.Trips.Count() == 0) return;
+        List<Trips> trips = await db.Trips.OrderBy(c => c.Date).ToListAsync();
 
-        queryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
+        if (!trips.Any()) return;
 
-        foreach (Trips model in db.Trips.OrderBy(c => c.TripsId))
-        {
-            TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
-        }
+        queryable = trips
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
     {
@@ -331,50 +334,34 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.TripsId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel);
+            if (pageViewModel.TripsId > 0)
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
+            else
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = false;
-                return;
+                ShowOrHideEditButton = pageViewModel.TripsId > 0;
+                ShowOrHideAddNewButton = pageViewModel.TripsId == 0;
             }
             else
             {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
+                pageViewModel = new();
+                await RefreshPage();
             }
         }
-        else
+        catch (Exception ex)
         {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = true;
-                ShowOrHideAddNewButton = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            ErrorMessage = $"An error occurred: {ex.Message}";
+            ShowOrHideErrorMessage = false;
         }
     }
 
@@ -383,7 +370,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private void Edit(TripsViewModel vm)
@@ -393,52 +380,43 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.Trips.Count() == 0) return;
+        if (!db.Trips.Any()) return;
 
-        bool findId = db.Trips.Any(a => a.TripsId == TemporaryId);
+        Trips? model = await db.Trips.FirstOrDefaultAsync(a => a.TripsId  == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.Delete(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = true;
+        else
         {
-            Trips model = db.Trips.FirstOrDefault(a => a.TripsId == TemporaryId);
-            TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.Delete(db, vm, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageViewModel = new();
+            await RefreshPage();
         }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
     }
 
     private void OpenDeleteWindow(TripsViewModel vm)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
         TemporaryId = vm.TripsId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
-    }
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 
     private void GetGuery(IEnumerable<Trips> result)
     {

@@ -39,7 +39,7 @@ namespace MyPrivateApp.Components.Email.Classes
             catch (Exception ex)
             {
                 // Log or handle the exception as needed
-                throw new InvalidOperationException("Failed to send email", ex);
+                throw new InvalidOperationException("Fel när e-post skickades!", ex);
             }
         }
 
@@ -48,7 +48,7 @@ namespace MyPrivateApp.Components.Email.Classes
             string? emailPassword = _config.GetSection("AppSettings")["emailPassword"];
 
             if (string.IsNullOrEmpty(emailPassword))
-                throw new InvalidOperationException("Email password cannot be null or empty.");
+                throw new InvalidOperationException("E-post lösenord måste finnas!");
 
             await SendEmail(emailTitle, sendFrom, subject, text, sendFrom2, emailPassword);
         }
@@ -58,7 +58,7 @@ namespace MyPrivateApp.Components.Email.Classes
             string? emailPassword2 = _config.GetSection("AppSettings")["emailPassword2"];
 
             if (string.IsNullOrEmpty(emailPassword2))
-                throw new InvalidOperationException("Email password cannot be null or empty.");
+                throw new InvalidOperationException("E-post lösenord måste finnas!");
 
             await SendEmail(emailTitle, sendFrom, subject, text, sendFrom2, emailPassword2);
         }

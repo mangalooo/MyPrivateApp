@@ -19,7 +19,8 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<Contacts?> Get(int? id)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (id == null) 
+                throw new ArgumentNullException(nameof(id));
 
             return await _db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == id)
                    ?? throw new Exception("Kontakten hittades inte i databasen!");
@@ -27,17 +28,17 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Add(ContactsViewModels vm)
         {
-            if (vm == null) return "Hittar ingen data från formuläret!";
+            if (vm == null) 
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
                 return "Ingen namn eller födelsedag ifyllt!";
 
             try
             {
-                Contacts model = _mapper.Map<Contacts>(vm);
+                Contacts model = ChangeFromViewModelToModel(vm);
                 await _db.Contacts.AddAsync(model);
                 await _db.SaveChangesAsync();
-
                 return string.Empty;
             }
             catch (Exception ex)
@@ -49,7 +50,8 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Edit(ContactsViewModels vm)
         {
-            if (vm == null || vm.ContactsId <= 0) return "Hittar ingen data från formuläret!";
+            if (vm == null || vm.ContactsId <= 0) 
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
                 return "Ingen namn eller födelsedag ifyllt!";
@@ -57,7 +59,9 @@ namespace MyPrivateApp.Components.Contact.Classes
             try
             {
                 Contacts? getDbModel = await Get(vm.ContactsId);
-                if (getDbModel == null) return "Hittar inte kontakten i databasen!";
+
+                if (getDbModel == null) 
+                    return "Hittar inte kontakten i databasen!";
 
                 _mapper.Map(vm, getDbModel);
                 await _db.SaveChangesAsync();
@@ -65,18 +69,19 @@ namespace MyPrivateApp.Components.Contact.Classes
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Gick inte att ändra kontakten.");
-                return "Gick inte att ändra kontakten.";
+                _logger.LogError(ex, "Gick inte att ändra kontakten!");
+                return "Gick inte att ändra kontakten!";
             }
         }
 
         public async Task<string> Delete(ContactsViewModels vm)
         {
-            if (vm == null || vm.ContactsId <= 0) return "Hittar ingen data från formuläret!";
+            if (vm == null || vm.ContactsId <= 0) 
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                Contacts model = _mapper.Map<Contacts>(vm);
+                Contacts model = ChangeFromViewModelToModel(vm);
                 _db.ChangeTracker.Clear();
                 _db.Contacts.Remove(model);
                 await _db.SaveChangesAsync();
@@ -89,7 +94,39 @@ namespace MyPrivateApp.Components.Contact.Classes
             }
         }
 
-        public ContactsViewModels ChangeFromModelToViewModel(Contacts model) => _mapper.Map<ContactsViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public ContactsViewModels ChangeFromModelToViewModel(Contacts model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            ContactsViewModels vm = _mapper.Map<ContactsViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.Birthday))
+                vm.Birthday = ParseDate(model.Birthday);
+
+            return vm;
+        }
+
+        public Contacts ChangeFromViewModelToModel(ContactsViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            Contacts model = _mapper.Map<Contacts>(vm);
+
+            if (vm.Birthday != DateTime.MinValue)
+                model.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
+
+            return model;
+        }
 
         public async Task GetBirthday()
         {
@@ -101,20 +138,25 @@ namespace MyPrivateApp.Components.Contact.Classes
                     .ToListAsync();
 
                 contactsWithBirthdayToday = [.. contactsWithBirthdayToday.Where
-                    (
-                        c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day
-                    )];
+                (
+                    c => DateTime.TryParse(c.Birthday, out DateTime birthday) && birthday.Month == today.Month && birthday.Day == today.Day
+                )];
 
-                var mailBirthday = _config.GetSection("AppSettings")["mailBirthday"];
+                string? mailBirthday = _config.GetSection("AppSettings")["mailBirthday"];
+
                 if (string.IsNullOrEmpty(mailBirthday)) return;
 
-                foreach (var item in contactsWithBirthdayToday)
+                foreach (Contacts item in contactsWithBirthdayToday)
                 {
-                    var year = today.Year - DateTime.Parse(item.Birthday ?? throw new InvalidOperationException("Birthday cannot be null")).Year;
-                    BackgroundJob.Schedule(() => _emailSender.SendEmailBirthday(
+                    int year = today.Year - DateTime.Parse(item.Birthday ??
+                        throw new InvalidOperationException("Födelsedag kan inte vara null")).Year;
+
+                    BackgroundJob.Schedule(() => _emailSender.SendEmailBirthday
+                    (
                         $"{item.Name} {year} år", mailBirthday, "Födelsedag",
                         $"Ring: {item.PhoneNumber}", mailBirthday),
-                        new DateTime(today.Year, today.Month, today.Day));
+                        new DateTime(today.Year, today.Month, today.Day
+                    ));
                 }
             }
             catch (Exception ex)
@@ -124,3 +166,17 @@ namespace MyPrivateApp.Components.Contact.Classes
         }
     }
 }
+
+
+// public async Task<FarmWorksViewModels> ChangeFromModelToViewModelAsync(FarmWorks model)
+// {
+//     ArgumentNullException.ThrowIfNull(model);
+
+//     // Ensure asynchronous mapping if needed
+//     FarmWorksViewModels farmWorks = await Task.Run(() => _mapper.Map<FarmWorksViewModels>(model));
+
+//     if (!string.IsNullOrEmpty(model.Date))
+//         farmWorks.Date = ParseDate(model.Date);
+
+//     return farmWorks;
+// }

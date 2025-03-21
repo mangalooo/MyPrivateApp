@@ -87,8 +87,39 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 return $"Gick inte att ta bort besikningen! Felmeddelande: {ex.Message}";
             }
         }
-        public HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model) => _mapper.Map<HuntingTowerInspectionViewModels>(model);
 
-        private HuntingTowerInspection ChangeFromViewModelToModel(HuntingTowerInspectionViewModels vm) => _mapper.Map<HuntingTowerInspection>(vm);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            HuntingTowerInspectionViewModels vm = _mapper.Map<HuntingTowerInspectionViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.LastInspected))
+                vm.LastInspected = ParseDate(model.LastInspected);
+
+            return vm;
+        }
+
+        public HuntingTowerInspection ChangeFromViewModelToModel(HuntingTowerInspectionViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            HuntingTowerInspection model = _mapper.Map<HuntingTowerInspection>(vm);
+
+            if (vm.LastInspected != DateTime.MinValue)
+                model.LastInspected = vm.LastInspected.ToString("yyyy-MM-dd");
+
+            return model;
+        }
     }
 }

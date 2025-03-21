@@ -184,26 +184,36 @@ namespace MyPrivateApp.Components.Farming.Classes
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            FarmingViewModels farming = _mapper.Map<FarmingViewModels>(model);
+            FarmingViewModels vm = _mapper.Map<FarmingViewModels>(model);
 
-            farming.PutSeedDate = ParseDate(model.PutSeedDate);
-            farming.SetDate = ParseDate(model.SetDate);
-            farming.TakeUpDate = ParseDate(model.TakeUpDate);
+            if (!string.IsNullOrEmpty(model.PutSeedDate))
+                vm.PutSeedDate = ParseDate(model.PutSeedDate);
 
-            return farming;
+            if (!string.IsNullOrEmpty(model.SetDate))
+                vm.SetDate = ParseDate(model.SetDate);
+
+            if (!string.IsNullOrEmpty(model.TakeUpDate))
+                vm.TakeUpDate = ParseDate(model.TakeUpDate);
+
+            return vm;
         }
 
         public FarmingViewModels ChangeFromModelToViewModel(FarmingsInactive model)
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            FarmingViewModels farming = _mapper.Map<FarmingViewModels>(model);
+            FarmingViewModels vm = _mapper.Map<FarmingViewModels>(model);
 
-            farming.PutSeedDate = ParseDate(model.PutSeedDate);
-            farming.SetDate = ParseDate(model.SetDate);
-            farming.TakeUpDate = ParseDate(model.TakeUpDate);
+            if (!string.IsNullOrEmpty(model.PutSeedDate))
+                vm.PutSeedDate = ParseDate(model.PutSeedDate);
 
-            return farming;
+            if (!string.IsNullOrEmpty(model.SetDate))
+                vm.SetDate = ParseDate(model.SetDate);
+
+            if (!string.IsNullOrEmpty(model.TakeUpDate))
+                vm.TakeUpDate = ParseDate(model.TakeUpDate);
+
+            return vm;
         }
 
         T IFarmingClass.ChangeFromViewModelToModel<T>(FarmingViewModels vm)

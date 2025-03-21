@@ -4,6 +4,7 @@ using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Client.ViewModels;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
@@ -81,8 +82,38 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             }
         }
 
-        public FarmWorksViewModels ChangeFromModelToViewModel(FarmWorks model) => _mapper.Map<FarmWorksViewModels>(model);
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
 
-        private FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm) => _mapper.Map<FarmWorks>(vm);
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
+        public FarmWorksViewModels ChangeFromModelToViewModel(FarmWorks model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            FarmWorksViewModels farmWorks = _mapper.Map<FarmWorksViewModels>(model);
+
+            if (!string.IsNullOrEmpty(model.Date))
+                farmWorks.Date = ParseDate(model.Date);
+
+            return farmWorks;
+        }
+
+        public FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            FarmWorks farmWorks = _mapper.Map<FarmWorks>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                farmWorks.Date = vm.Date.ToString("yyyy-MM-dd");
+
+            return farmWorks;
+        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
-using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes

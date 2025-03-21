@@ -39,7 +39,7 @@
     <div id="mobile">
         <div class="btn-group" role="group">
             <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
-                Alla aktier sidor
+                Alla jakt sidor
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 @foreach (var page in navList)
@@ -297,7 +297,7 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    @if (ShowOrHideDetleteInspectionsButton())
+                    @if (ShowOrHideDeleteInspectionsButton)
                     {
                         <br />
 
@@ -424,7 +424,7 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    @if (ShowOrHideDetleteInspectionsButton())
+                    @if (ShowOrHideDeleteInspectionsButton)
                     {
                         <br />
 
@@ -507,6 +507,7 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = false;
+    private bool ShowOrHideDeleteInspectionsButton { get; set; } = false;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
@@ -545,6 +546,8 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
+        ShowOrHideDeleteInspectionsButton = await db.HuntingTowerInspections.AnyAsync(y => y.Inspected);
+
         List<HuntingTowerInspection> huntingTowerInspection = await db.HuntingTowerInspections.OrderByDescending(c => c.Number).ToListAsync();
 
         if (!huntingTowerInspection.Any()) return;
@@ -809,18 +812,6 @@
             ErrorMessage = $"Ett fel uppstod vid sökning efter pass nummer! Felmeddelande: {ex.Message}";
             ShowOrHideErrorMessage = true;
         }
-    }
-
-    private bool ShowOrHideDetleteInspectionsButton()
-    {
-        bool any = false;
-
-        if (db.HuntingTowerInspections.Count() > 0)
-        {
-            any = db.HuntingTowerInspections.Any(y => y.Inspected == true);
-        }
-
-        return any;
     }
 
     private async Task RemoveInspections()

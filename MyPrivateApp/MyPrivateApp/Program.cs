@@ -20,6 +20,8 @@ using MyPrivateApp.Components.Email.Classes;
 using AutoMapper;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Hunting;
+using MyPrivateApp.Components.Layout.Classes;
+using MyPrivateApp.Components.Shares.Classes.Interface;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +39,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
 builder.Services.AddScoped<IContactClass, ContactClass>();
 builder.Services.AddScoped<IFrozenFoodClass, FrozenFoodClass>();
-builder.Services.AddScoped<ITripClass, NewModulesClass>();
+builder.Services.AddScoped<ITripClass, TripClass>();
 builder.Services.AddScoped<IFarmingClass, FarmingClass>();
 builder.Services.AddScoped<IFarmWorkClass, FarmWorkClass>();
 
@@ -153,6 +155,8 @@ ILogger<MZPurchasedClass> loggerMZPurchasedClass = app.Services.GetRequiredServi
 ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger<MZSoldClass>>();
 ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
 ILogger<HuntingMyList> loggerHuntingMyList = app.Services.GetRequiredService<ILogger<HuntingMyList>>();
+ILogger<ShopingList> loggerShopingList = app.Services.GetRequiredService<ILogger<ShopingList>>();
+ILogger<Trips> loggerTrips = app.Services.GetRequiredService<ILogger<Trips>>();
 
 // Mapper
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
@@ -164,6 +168,9 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<MZMappingProfileClass>();
     cfg.AddProfile<FrozenMappingProfileClass>();
     cfg.AddProfile<HuntingMappingProfileClass>();
+    cfg.AddProfile<ShopingListProfileClass>();
+    cfg.AddProfile<TripMappingProfileClass>();
+    cfg.AddProfile<SharesMappingProfileClass>();
 });
 mapper = config.CreateMapper();
 
@@ -176,15 +183,14 @@ async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
     if (id == null) throw new ArgumentNullException(nameof(id));
 
     return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
-           ?? throw new Exception("Frysvaran hittades inte i databasen!");
+           ?? throw new Exception("Datum för mejl-utskick hittades inte i databasen!");
 }
-
 
 // Get ApplicationDbContext from the request services
 app.Use(async (context, next) =>
 {
     ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>() ??
-        throw new InvalidOperationException("Program filen. Felmeddelande: Failed to retrieve ApplicationDbContext from the service provider.");
+        throw new InvalidOperationException("Program felmeddelande: Gick inte att koppla till databasen!");
 
     LastEmailSent? lastEmailSentBirthday = await Get(db, 1);
 
@@ -192,7 +198,7 @@ app.Use(async (context, next) =>
         db.LastEmailSent.Add(new LastEmailSent { Time = DateTime.UtcNow });
     else
     {
-        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 4)
+        if ((DateTime.UtcNow - lastEmailSentBirthday.Time).Hours >= 5)
         {
             // Sends automatic email if a contact has birthday
             IContactClass contactClass = context.RequestServices.GetRequiredService<IContactClass>();
