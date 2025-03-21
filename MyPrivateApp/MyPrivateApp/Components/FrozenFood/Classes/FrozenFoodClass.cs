@@ -91,10 +91,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             }
         }
 
-        public FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model)
-        {
-            _mapper.Map<FrozenFoodViewModel>(model);
-        } 
+        public FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model) => _mapper.Map<FrozenFoodViewModel>(model);
 
         private FrozenFoods ChangeFromViewModelToModel(FrozenFoodViewModel vm) => _mapper.Map<FrozenFoods>(vm);
 
