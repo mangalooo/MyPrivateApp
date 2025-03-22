@@ -104,11 +104,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 UpdateTotalAmount(getTotalAmount, dbModel.DepositMoney, false); // Update the total amount with the old amount
                 UpdateTotalAmount(getTotalAmount, double.Parse(vm.DepositMoney), true); // Update the total amount with the new amount
 
-                UpdateDbModel(dbModel, vm);
-
+                _mapper.Map(vm, dbModel);
                 await _db.SaveChangesAsync();
-
-                return string.Empty;
+                return string.Empty; ;
             }
             catch (Exception ex)
             {
@@ -122,20 +120,6 @@ namespace MyPrivateApp.Components.Shares.Classes
                 totalAmount.TotalAmount += amount;
             else
                 totalAmount.TotalAmount -= amount;
-        }
-
-        private static void UpdateDbModel(SharesDepositMoney dbModel, SharesDepositMoneyViewModel vm)
-        {
-            dbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-            dbModel.SubmitOrWithdraw = vm.SubmitOrWithdraw;
-            dbModel.TypeOfTransaction = vm.TypeOfTransaction;
-            dbModel.TransferOptions = vm.TransferOptions;
-            dbModel.Account = vm.Account;
-            dbModel.Currency = vm.Currency;
-            dbModel.Note = vm.Note;
-
-            if (!string.IsNullOrEmpty(vm.DepositMoney))
-                dbModel.DepositMoney = double.Parse(vm.DepositMoney);
         }
 
         public async Task<string> Delete(SharesDepositMoneyViewModel vm)
@@ -162,13 +146,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
                 else
                     return "Totala summan hittades inte i databasen!";
+
+                return string.Empty;
             }
             catch (Exception ex)
             {
                 return await HandleError(vm, "Ta bort", false, ex.Message);
             }
-
-            return string.Empty;
         }
 
         private static DateTime ParseDate(string date)

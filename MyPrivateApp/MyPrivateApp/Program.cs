@@ -158,6 +158,19 @@ ILogger<HuntingMyList> loggerHuntingMyList = app.Services.GetRequiredService<ILo
 ILogger<ShopingList> loggerShopingList = app.Services.GetRequiredService<ILogger<ShopingList>>();
 ILogger<Trips> loggerTrips = app.Services.GetRequiredService<ILogger<Trips>>();
 
+// Shares logs
+ILogger<SharesDepositMoneyClass> loggerDepositMoney = app.Services.GetRequiredService<ILogger<SharesDepositMoneyClass>>();
+ILogger<SharesDividendClass> loggerDividend = app.Services.GetRequiredService<ILogger<SharesDividendClass>>();
+ILogger<SharesPurchasedClass> loggerPurchased = app.Services.GetRequiredService<ILogger<SharesPurchasedClass>>();
+ILogger<SharesSoldClass> loggerSold = app.Services.GetRequiredService<ILogger<SharesSoldClass>>();
+ILogger<SharesPurchasedFundsClass> LoggerPurchasedFunds = app.Services.GetRequiredService<ILogger<SharesPurchasedFundsClass>>();
+ILogger<SharesSoldFundsClass> loggerSoldFunds = app.Services.GetRequiredService<ILogger<SharesSoldFundsClass>>();
+ILogger<SharesFeeClass> loggerFee = app.Services.GetRequiredService<ILogger<SharesFeeClass>>();
+ILogger<SharesInterestRatesClass> loggerInterestRates = app.Services.GetRequiredService<ILogger<SharesInterestRatesClass>>();
+ILogger<SharesOtherImportsClass> loggerOtherImports = app.Services.GetRequiredService<ILogger<SharesOtherImportsClass>>();
+ILogger<SharesImportsFileClass> loggerImportsFile = app.Services.GetRequiredService<ILogger<SharesImportsFileClass>>();
+ILogger<SharesIndexYearsClass> loggerIndexYears = app.Services.GetRequiredService<ILogger<SharesIndexYearsClass>>();
+
 // Mapper
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
 MapperConfiguration config = new(cfg =>
