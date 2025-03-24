@@ -106,7 +106,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 _mapper.Map(vm, dbModel);
                 await _db.SaveChangesAsync();
-                return string.Empty; ;
+                return string.Empty;
             }
             catch (Exception ex)
             {
