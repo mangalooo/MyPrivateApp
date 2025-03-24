@@ -752,7 +752,7 @@
     private void DividendImport(SharesImports import)
     {
         SharesDividendViewModel vm = SharesDividendClass.ChangeFromImportToViewModel(import);
-        SharesDividendClass.Add(db, vm, true);
+        SharesDividendClass.Add(vm, true);
     }
 
     private void DepositMoneyImport(SharesImports import)

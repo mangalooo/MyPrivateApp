@@ -1,4 +1,5 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Components.Shares.Classes.Interface;
@@ -44,14 +45,14 @@ namespace MyPrivateApp.Components.Shares.Classes
             }  
         }
 
-        public async Task<string> Edit(SharesDividendViewModel vm, bool import)
+        public async Task<string> Edit(SharesDividendViewModel vm)
         {
             if (vm == null)
-                return await HandleError(null, "Ändra", import, "Hittar ingen data från formuläret!");
+                return await HandleError(null, "Ändra", false, "Hittar ingen data från formuläret!");
 
             if (vm.DividendId <= 0 || vm.Date == DateTime.MinValue || string.IsNullOrEmpty(vm.Company)
                 || string.IsNullOrEmpty(vm.ISIN) || vm.NumberOfShares <= 0 || string.IsNullOrEmpty(vm.PricePerShare))
-                return await HandleError(vm, "Ändra", import, "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie.");
+                return await HandleError(vm, "Ändra", false, "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie.");
 
             try
             {
@@ -65,14 +66,14 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                return await HandleError(vm, "Ändra", import, ex.Message);
+                return await HandleError(vm, "Ändra", false, ex.Message);
             }
         }
 
-        public async Task<string> Delete(SharesDividendViewModel vm, bool import)
+        public async Task<string> Delete(SharesDividendViewModel vm)
         {
             if (vm == null || _db == null || vm.DividendId <= 0)
-                return await HandleError(null, "Ta bort", import, "Hittar ingen data från formuläret eller databasen!");
+                return await HandleError(null, "Ta bort", false, "Hittar ingen data från formuläret eller databasen!");
 
             try
             {
@@ -84,7 +85,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                return await HandleError(vm, "Ta bort", import, ex.Message);
+                return await HandleError(vm, "Ta bort", false, ex.Message);
             }
         }
 

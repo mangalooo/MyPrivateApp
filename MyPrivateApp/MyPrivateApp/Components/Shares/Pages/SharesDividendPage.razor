@@ -8,6 +8,7 @@
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
 @using MyPrivateApp.Data.Models.SharesModels
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
 
 @rendermode InteractiveServer
 
@@ -80,7 +81,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="AddOrEdit" FormName="AddOrEditShares" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrEditShares" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -94,25 +95,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Company" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Company" class="form-control" disabled="@DisabledForm" />
                                 <label for="Company"> Företag </label>
-                                <ValidationMessage For="() => pageModel.Company" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Company" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.ISIN" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.ISIN" class="form-control" disabled="@DisabledForm" />
                                 <label for="ISIN"> ISIN </label>
-                                <ValidationMessage For="() => pageModel.ISIN" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.ISIN" class="text-danger" />
                             </div>
                         </div>
 
@@ -126,25 +127,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                 <label for="TypeOfTransaction"> Typ av transaktion </label>
-                                <ValidationMessage For="() => pageModel.TypeOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.AccountNumber" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.AccountNumber" class="form-control" disabled="@DisabledForm" />
                                 <label for="AccountNumber"> Konto </label>
-                                <ValidationMessage For="() => pageModel.AccountNumber" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.AccountNumber" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.Currency" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.Currency" class="form-control" disabled="@DisabledForm" />
                                 <label for="Currency"> Valuta </label>
-                                <ValidationMessage For="() => pageModel.Currency" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Currency" class="text-danger" />
                             </div>
                         </div>
 
@@ -158,25 +159,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputNumber @bind-Value="pageModel.NumberOfShares" class="form-control" disabled="@DisabledForm" />
+                                <InputNumber @bind-Value="pageViewModel.NumberOfShares" class="form-control" disabled="@DisabledForm" />
                                 <label for="NumberOfShares"> Antal </label>
-                                <ValidationMessage For="() => pageModel.NumberOfShares" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.NumberOfShares" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.PricePerShare" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.PricePerShare" class="form-control" disabled="@DisabledForm" />
                                 <label for="PricePerShare"> Pris per aktie </label>
-                                <ValidationMessage For="() => pageModel.PricePerShare" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.PricePerShare" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.TotalAmount" class="form-control" disabled="true" />
+                                <InputText @bind-Value="pageViewModel.TotalAmount" class="form-control" disabled="true" />
                                 <label for="TotalAmount"> Belopp </label>
-                                <ValidationMessage For="() => pageModel.TotalAmount" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.TotalAmount" class="text-danger" />
                             </div>
                         </div>
 
@@ -188,9 +189,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Note" class="text-danger" />
                             </div>
                         </div>
 
@@ -246,7 +247,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -258,7 +259,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort utdelningen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -296,7 +297,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                     <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -308,7 +309,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort utdelaningen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -349,7 +350,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesDividendViewModel pageModel { get; set; } = new();
+    private SharesDividendViewModel pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
     private IQueryable<SharesDividendViewModel> queryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
@@ -404,22 +405,22 @@
     }
 
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryableAsync()
     {
-        if (db.SharesDividends.Count() == 0) return;
+        List<SharesDividend> items = await db.SharesDividends.OrderBy(c => c.DividendId).ToListAsync();
 
-        queryable = Enumerable.Empty<SharesDividendViewModel>().AsQueryable();
+        if (!items.Any()) return;
 
-        foreach (SharesDividend model in db.SharesDividends.OrderBy(c => c.DividendId))
-        {
-            SharesDividendViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable()).OrderByDescending(c => c.Date);
-        }
+        queryable = items
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
     {
@@ -428,49 +429,34 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void AddOrEdit()
+    private async Task AddOrEdit()
     {
         DisabledForm = false;
 
-        if (pageModel.DividendId > 0)
+        try
         {
-            // Edit
-            ErrorMessage = BackEndClass.Edit(db, pageModel, false);
+            if (pageViewModel.DividendId > 0)
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
+            else
+                ErrorMessage = await BackEndClass.Add(pageViewModel, false);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
+                HideNewOrChangesForm();
                 ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
-                ShowOrHideEditButton = false;
-                return;
+                ShowOrHideEditButton = pageViewModel.DividendId > 0;
+                ShowOrHideAddNewButton = pageViewModel.DividendId == 0;
             }
             else
             {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
+                pageViewModel = new();
+                await RefreshPage();
             }
         }
-        else
+        catch (Exception ex)
         {
-            // Add
-            ErrorMessage = BackEndClass.Add(db, pageModel, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
-                ShowOrHideEditButton = true;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
+            ShowOrHideErrorMessage = false;
         }
     }
 
@@ -481,7 +467,7 @@
         HideNewOrChangesForm();
         ShowOrHideAddNewButton = true;
         DisabledForm = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private void Edit(SharesDividendViewModel vm)
@@ -493,50 +479,41 @@
         ShowOrHideAddNewButton = true;
         ShowOrHideCreateButton = true;
         HideNewOrChangesFields = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.SharesDividends.Count() == 0) return;
+        if (!db.SharesDividends.Any()) return;
 
-        bool findId = db.SharesDividends.Any(a => a.DividendId == TemporaryId);
+        SharesDividend? model = await db.SharesDividends.FirstOrDefaultAsync(a => a.DividendId == TemporaryId);
+        if (model == null) return;
 
-        if (findId)
+        SharesDividendViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+        ErrorMessage = await BackEndClass.Delete(vm);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+            ShowOrHideErrorMessage = true;
+        else
         {
-            SharesDividend model = db.SharesDividends.FirstOrDefault(a => a.DividendId == TemporaryId);
-            SharesDividendViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.Delete(db, vm, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
+            pageViewModel = new();
+            await RefreshPage();
         }
     }
 
-    private void OpenWindowDelete(SharesDividendViewModel vm)
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
         StateHasChanged();
-        TemporaryId = vm.DividendId;
     }
 
-    private void CloseWindowDelete()
+    private void OpenDeleteWindow(SharesDividendViewModel vm)
     {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
+        TemporaryId = vm.DividendId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
+
+    private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 }
