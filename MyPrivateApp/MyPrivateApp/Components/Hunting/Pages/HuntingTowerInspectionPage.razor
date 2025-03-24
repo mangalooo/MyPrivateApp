@@ -704,13 +704,13 @@
     private async Task SearchTodo(ChangeEventArgs e)
     {
         queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+        string? target = e.Value?.ToString()?.ToLower();
 
-        if (string.IsNullOrEmpty(e.Value!.ToString()))
+        if (string.IsNullOrEmpty(target))
         {
             await RefreshPage();
             return;
         }
-        string target = e.Value.ToString().ToLower();
 
         var todoMapping = new Dictionary<string, HuntingTodo>
         {
