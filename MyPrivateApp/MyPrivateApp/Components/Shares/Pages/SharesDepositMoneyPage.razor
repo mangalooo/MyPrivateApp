@@ -58,7 +58,7 @@
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-    <br />
+        <br />
 
         <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny banköverföring </button>
 
@@ -418,7 +418,7 @@
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
+                ShowOrHideErrorMessage = true;
                 ShowOrHideEditButton = pageViewModel.DepositMoneyId > 0;
                 ShowOrHideAddNewButton = pageViewModel.DepositMoneyId == 0;
             }
@@ -431,7 +431,7 @@
         catch (Exception ex)
         {
             ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
-            ShowOrHideErrorMessage = false;
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -455,20 +455,38 @@
 
     private async Task Delete()
     {
-        if (!db.SharesDepositMoney.Any()) return;
-
-        SharesDepositMoney? model = await db.SharesDepositMoney.FirstOrDefaultAsync(a => a.DepositMoneyId == TemporaryId);
-        if (model == null) return;
-
-        SharesDepositMoneyViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
+        if (!db.SharesDepositMoney.Any())
         {
-            pageViewModel = new();
-            await RefreshPage();
+            ErrorMessage = "Det finns inga överföringar att ta bort!";
+            ShowOrHideErrorMessage = true;
+            return;
+        }
+
+        try
+        {
+            SharesDepositMoney? model = await db.SharesDepositMoney.FirstOrDefaultAsync(a => a.DepositMoneyId == TemporaryId);
+            if (model == null)
+            {
+                ErrorMessage = "Hittar ingen överföring att ta bort!";
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+
+            SharesDepositMoneyViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
+            ErrorMessage = await BackEndClass.Delete(vm);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
@@ -492,7 +510,7 @@
     {
         SharesTotalAmounts? sharesTotalAmounts = await BackEndClass.GetTotalAmount(2);
 
-        if (sharesTotalAmounts == null) 
+        if (sharesTotalAmounts == null)
             return 0;
 
         return sharesTotalAmounts.TotalAmount;

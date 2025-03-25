@@ -42,25 +42,26 @@ namespace MyPrivateApp.Components.Shares.Classes
             catch (Exception ex)
             {
                 return await HandleError(vm, "Lägg till", import, ex.Message);
-            }  
+            }
         }
 
         public async Task<string> Edit(SharesDividendViewModel vm)
         {
-            if (vm == null)
-                return await HandleError(null, "Ändra", false, "Hittar ingen data från formuläret!");
+            if (vm == null || _db == null)
+                return await HandleError(null, "Ändra", false, "Hittar ingen data från formuläret eller databasen!");
 
             if (vm.DividendId <= 0 || vm.Date == DateTime.MinValue || string.IsNullOrEmpty(vm.Company)
                 || string.IsNullOrEmpty(vm.ISIN) || vm.NumberOfShares <= 0 || string.IsNullOrEmpty(vm.PricePerShare))
                 return await HandleError(vm, "Ändra", false, "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie.");
-
             try
             {
-                SharesDividend? dbModel = await Get(vm.DividendId);
-                if (dbModel == null)
-                    return "Hittar inte aktien i databasen!";
 
-                _mapper.Map(vm, dbModel);
+
+                SharesDividend? model = await Get(vm.DividendId);
+                if (model == null)
+                    return "Hittar inte utdelningen i databasen!";
+
+                _mapper.Map(vm, model);
                 await _db.SaveChangesAsync();
                 return string.Empty; ;
             }
@@ -70,14 +71,13 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public async Task<string> Delete(SharesDividendViewModel vm)
+        public async Task<string> Delete(SharesDividend model)
         {
-            if (vm == null || _db == null || vm.DividendId <= 0)
+            if (model == null || _db == null || model.DividendId <= 0)
                 return await HandleError(null, "Ta bort", false, "Hittar ingen data från formuläret eller databasen!");
 
             try
             {
-                SharesDividend model = ChangeFromViewModelToModel(vm);
                 _db.ChangeTracker.Clear();
                 _db.SharesDividends.Remove(model);
                 await _db.SaveChangesAsync();
@@ -85,7 +85,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                return await HandleError(vm, "Ta bort", false, ex.Message);
+                return $"Gick inte att ta bort utdelningen! Felmeddelande: {ex.Message} ";
             }
         }
 
@@ -159,16 +159,17 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             DateTime date = DateTime.Now;
             string importTrue = import ? "Ja" : "Nej";
-            SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = date.ToString("yyyy-MM-dd"),
-                TypeOfTransaction = type,
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = vm == null ? null : $"{type} UTDELNING: \r\nDatum: {vm.Date} \r\nImport: {importTrue}  \r\nISIN: {vm.ISIN} \r\nId: {vm.DividendId}. "
-            };
 
             try
             {
+                SharesErrorHandlings sharesErrorHandling = new()
+                {
+                    Date = date.ToString("yyyy-MM-dd"),
+                    TypeOfTransaction = type,
+                    ErrorMessage = $"Felmeddelande: {errorMessage}",
+                    Note = vm == null ? null : $"{type} UTDELNING: \r\nDatum: {vm.Date} \r\nImport: {importTrue}  \r\nISIN: {vm.ISIN} \r\nId: {vm.DividendId}. "
+                };
+
                 await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
                 await _db.SaveChangesAsync();
             }

@@ -17,7 +17,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<SharesDepositMoney?> Get(int? id)
         {
-            if (id == null) 
+            if (id == null)
                 throw new ArgumentNullException(nameof(id));
 
             return await _db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == id)
@@ -26,7 +26,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<SharesTotalAmounts?> GetTotalAmount(int? id)
         {
-            if (id == null) 
+            if (id == null)
                 throw new ArgumentNullException(nameof(id));
 
             return await _db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
@@ -126,27 +126,23 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             if (_db == null || vm == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            SharesDepositMoney model = ChangeFromViewModelToModel(vm);
-
-            if (model == null)
-                return "Hittar ingen data från formuläret!";
-
             try
             {
+                SharesDepositMoney model = ChangeFromViewModelToModel(vm);
+
+                if (model == null)
+                    return "Hittar ingen data från formuläret!";
+
                 _db.ChangeTracker.Clear();
                 _db.Remove(model);
                 await _db.SaveChangesAsync();
 
                 SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
-                if (getTotalAmount != null)
-                {
-                    getTotalAmount.TotalAmount -= model.DepositMoney;
-                    await _db.SaveChangesAsync();
-                }
-                else
+                if (getTotalAmount == null)
                     return "Totala summan hittades inte i databasen!";
 
+                getTotalAmount.TotalAmount -= model.DepositMoney;
+                await _db.SaveChangesAsync();
                 return string.Empty;
             }
             catch (Exception ex)
@@ -232,7 +228,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     Note = $"{type} BANKÖVERFÖRING: \r\nDatum: {vm.Date:yyyy-MM-dd} \r\nImport: {importTrue} \r\nBelopp: {vm.DepositMoney} \r\nId: {vm.DepositMoneyId}. "
                 };
             }
-                
+
             try
             {
                 await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);

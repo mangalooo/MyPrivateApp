@@ -8,67 +8,63 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.SharesModels
+@using MyPrivateApp.Components.Shares.Classes.Interface
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
 
 @rendermode InteractiveServer
 
 @inject ApplicationDbContext db;
 @inject NavigationManager Navigation
+@inject ISharesErrorHandlingClass BackEndClass
 
 <PageTitle> Aktier </PageTitle>
 
 @* Header *@
 <div>
 
-    <br />
+    @* Navigation *@
+    <div class="navigation">
+        <div id="desktop" class="text-center">
+            <div class="btn-group">
+                @foreach (var item in NavigationItems)
+                {
+                    <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
+                }
+            </div>
+        </div>
 
-    @* Navigation - Desktop *@
-    <div id="desktop" style="text-align:center">
-        <div class="btn-group">
-            <NavLink href="SharesIndexYearsPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-            <NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink>
-            <NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink>
-            <NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink>
-            <NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink>
-            <NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink>
-            <NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink>
-            <NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink>
-            <NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink>
-            <NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink>
-            <NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink>
-            <NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink>
+        <div id="mobile">
+            <div class="btn-group" role="group">
+                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Alla aktier sidor
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    @foreach (var item in NavigationItems)
+                    {
+                        <li class="dropdown-item">
+                            <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
     </div>
 
-    @* Navigation - Mobile *@
-    <div id="mobile">
-        <div class="btn-group" role="group">
-            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Alla aktier sidor
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li class="dropdown-item"><NavLink href="SharesIndexYearsPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Importera </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesPurchasedPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta aktier </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesSoldPage" type="button" class="btn btn-outline-dark btn-sm">Sålda aktier</NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesPurchasedFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta fonder </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesSoldFundsPage" type="button" class="btn btn-outline-dark btn-sm"> Sålda fonder </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesDividendPage" type="button" class="btn btn-outline-dark btn-sm">Utdelningar</NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesFeePage" type="button" class="btn btn-outline-dark btn-sm">Avgifter</NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesDepositMoneyPage" type="button" class="btn btn-outline-dark btn-sm"> Banköverföringar </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesInterestRatesPage" type="button" class="btn btn-outline-dark btn-sm"> Räntor </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesOtherImportsPage" type="button" class="btn btn-outline-dark btn-sm"> Manuell hantering </NavLink></li>
-                <li class="dropdown-item"><NavLink href="SharesErrorHandlingPage" type="button" class="btn btn-outline-dark btn-sm">Felhantering</NavLink></li>
-            </ul>
-        </div>
-    </div>
-
-    <br />
-    <br />
+    <br /> <br />
 
     <h1 style="text-align:center"> Felhantering </h1>
 
-    <br />
-    <br />
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
+
+    <br /> <br />
 
 </div>
 
@@ -79,7 +75,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageModel" OnSubmit="Update" FormName="CreateOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="Edit" FormName="Edit" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -91,25 +87,25 @@
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputDate @bind-Value="pageModel.Date" class="form-control" disabled="@DisabledForm" />
+                                <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
                                 <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => pageModel.Date" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Date" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
                                 <label for="CompanyOrInformation"> Aktie / fond </label>
-                                <ValidationMessage For="() => pageModel.CompanyOrInformation" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.CompanyOrInformation" class="text-danger" />
                             </div>
                         </div>
 
                         <div class="col-4">
                             <div class="form-floating">
-                                <InputText @bind-Value="pageModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                <InputText @bind-Value="pageViewModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                 <label for="TypeOfTransaction"> Transaktion </label>
-                                <ValidationMessage For="() => pageModel.TypeOfTransaction" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.TypeOfTransaction" class="text-danger" />
                             </div>
                         </div>
 
@@ -121,9 +117,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.Note" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
                                 <label for="Note"> Anteckningar </label>
-                                <ValidationMessage For="() => pageModel.Note" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.Note" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -134,9 +130,9 @@
 
                         <div class="col-12">
                             <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageModel.ErrorMessage" class="form-control" disabled="@DisabledForm" />
+                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.ErrorMessage" class="form-control" disabled="@DisabledForm" />
                                 <label for="ErrorMessage"> Felmeddelande </label>
-                                <ValidationMessage For="() => pageModel.ErrorMessage" class="text-danger" />
+                                <ValidationMessage For="() => pageViewModel.ErrorMessage" class="text-danger" />
                             </div>
                         </div>
                     </div>
@@ -189,7 +185,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -239,7 +235,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -266,15 +262,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -282,7 +276,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private SharesErrorHandlingViewModel pageModel { get; set; } = new();
+    private SharesErrorHandlingViewModel pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<SharesErrorHandlingViewModel> queryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
@@ -300,24 +294,57 @@
     private bool HideNewOrChangesFields { get; set; } = false;
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    // Navigation items
+    private List<NavigationItem> NavigationItems = new()
+    {
+        new NavigationItem("SharesIndexYearsPage", "Start"),
+        new NavigationItem("SharesImportsPage", "Importera"),
+        new NavigationItem("SharesPurchasedPage", "Köpta aktier"),
+        new NavigationItem("SharesSoldPage", "Sålda aktier"),
+        new NavigationItem("SharesPurchasedFundsPage", "Köpta fonder"),
+        new NavigationItem("SharesSoldFundsPage", "Sålda fonder"),
+        new NavigationItem("SharesDividendPage", "Utdelningar"),
+        new NavigationItem("SharesFeePage", "Avgifter"),
+        new NavigationItem("SharesDepositMoneyPage", "Banköverföringar"),
+        new NavigationItem("SharesInterestRatesPage", "Räntor"),
+        new NavigationItem("SharesOtherImportsPage", "Manuell hantering"),
+        new NavigationItem("SharesErrorHandlingPage", "Felhantering")
+    };
+
+    private class NavigationItem
+    {
+        public string Href { get; }
+        public string Text { get; }
+
+        public NavigationItem(string href, string text)
+        {
+            Href = href;
+            Text = text;
+        }
+    }
 
     // Load data from database to the Queryable container
-    private void ConvertListToQueryable()
+    private async Task ConvertListToQueryableAsync()
     {
-        if (db.SharesErrorHandlings.Count() == 0) return;
+        List<SharesErrorHandlings> items = await db.SharesErrorHandlings.OrderBy(c => c.ErrorHandlingsId).ToListAsync();
 
-        queryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
+        if (!items.Any()) return;
 
-        foreach (SharesErrorHandlings model in db.SharesErrorHandlings.OrderBy(c => c.ErrorHandlingsId))
-        {
-            SharesErrorHandlingViewModel vm = SharesErrorHandlingClass.ChangeFromModelToViewModel(model);
-            queryable = queryable.Concat(new[] { vm }.AsQueryable());
-        }
+        queryable = items
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
 
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override void OnInitialized() => ConvertListToQueryable();
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
     {
@@ -325,26 +352,38 @@
         ShowOrHideEditButton = true;
     }
 
-    private void RefreshPage() => Navigation.Refresh(true);
-
-    private void Update()
+    private async Task Edit()
     {
         DisabledForm = false;
 
-        if (pageModel.ErrorHandlingsId > 0)
-            SharesErrorHandlingClass.Edit(db, pageModel);
+        try
+        {
+            ErrorMessage = await BackEndClass.Edit(pageViewModel);
 
-        pageModel = new();
-        Navigation.Refresh(true);
-
-        return;
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                HideNewOrChangesForm();
+                ShowOrHideErrorMessage = true;
+                ShowOrHideEditButton = pageViewModel.ErrorHandlingsId > 0;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
+            ShowOrHideErrorMessage = true;
+        }
     }
 
     private void Info(SharesErrorHandlingViewModel vm)
     {
         HideNewOrChangesForm();
         DisabledForm = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private void Edit(SharesErrorHandlingViewModel vm)
@@ -352,41 +391,58 @@
         DisabledForm = false;
         ShowOrHideEditButton = false;
         HideNewOrChangesFields = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
-    private void Delete()
+    private async Task Delete()
     {
-        if (db.SharesErrorHandlings.Count() == 0) return;
-
-        bool findId = db.SharesErrorHandlings.Any(a => a.ErrorHandlingsId == TemporaryId);
-
-        if (findId)
+        if (!db.SharesErrorHandlings.Any())
         {
-            SharesErrorHandlings model = db.SharesErrorHandlings.FirstOrDefault(a => a.ErrorHandlingsId == TemporaryId);
-            SharesErrorHandlingViewModel vm = SharesErrorHandlingClass.ChangeFromModelToViewModel(model);
-
-            SharesErrorHandlingClass.Delete(db, vm);
-
-            pageModel = new();
-            Navigation.Refresh(true);
+            ErrorMessage = "Det finns inga felhanteringar att ta bort!";
+            ShowOrHideErrorMessage = true;
+            return;
         }
+
+        try
+        {
+            SharesErrorHandlings? model = await db.SharesErrorHandlings.FirstOrDefaultAsync(a => a.ErrorHandlingsId == TemporaryId);
+            if (model == null)
+            {
+                ErrorMessage = "Hittade ingen felhantering att ta bort!";
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
+            ShowOrHideErrorMessage = true;
+        }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
     }
 
     private void OpenDeleteWindow(SharesErrorHandlingViewModel vm)
     {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
         TemporaryId = vm.ErrorHandlingsId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 
-    private void CloseWindow()
-    {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
-    }
+    private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 }

@@ -1,5 +1,4 @@
-﻿
-@page "/SharesDividendPage"
+﻿@page "/SharesDividendPage"
 
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Components.Enum
@@ -337,13 +336,13 @@
 @* Footer *@
 <div>
 
-<br /> <br />
+    <br /> <br />
 
-<div class="footer" align="center">
-    <p> Copyright 2023 - @DateTime.Now.Year</p>
-</div>
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
 
-<br /> <br />
+    <br /> <br />
 
 </div>
 
@@ -485,20 +484,37 @@
 
     private async Task Delete()
     {
-        if (!db.SharesDividends.Any()) return;
-
-        SharesDividend? model = await db.SharesDividends.FirstOrDefaultAsync(a => a.DividendId == TemporaryId);
-        if (model == null) return;
-
-        SharesDividendViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
+        if (!db.SharesDividends.Any())
         {
-            pageViewModel = new();
-            await RefreshPage();
+            ErrorMessage = "Det finns inga utdelningar att ta bort!";
+            ShowOrHideErrorMessage = true;
+            return;
+        }
+
+        try
+        {
+            SharesDividend? model = await db.SharesDividends.FirstOrDefaultAsync(a => a.DividendId == TemporaryId);
+            if (model == null)
+            {
+                ErrorMessage = "Hittar ingen utdelning att ta bort!";
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
+            ShowOrHideErrorMessage = true;
         }
     }
 
