@@ -443,7 +443,7 @@
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
+                ShowOrHideErrorMessage = true;
                 ShowOrHideEditButton = pageViewModel.DividendId > 0;
                 ShowOrHideAddNewButton = pageViewModel.DividendId == 0;
             }
@@ -456,7 +456,7 @@
         catch (Exception ex)
         {
             ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
-            ShowOrHideErrorMessage = false;
+            ShowOrHideErrorMessage = true;
         }
     }
 

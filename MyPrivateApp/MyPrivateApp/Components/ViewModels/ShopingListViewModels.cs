@@ -1,17 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
-namespace MyPrivateApp.Client.ViewModels
+namespace MyPrivateApp.Components.ViewModels
 {
     public class ShopingListViewModels
     {
         public ShopingListViewModels() => Date = DateTime.Now;
 
-        [Key]
         public int ShopingListId { get; set; }
 
         [Display(Name = "Name")]
         [DataType(DataType.Text)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]

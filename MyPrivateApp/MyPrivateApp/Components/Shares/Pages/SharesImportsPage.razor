@@ -673,8 +673,8 @@
 
     private void AddFeeImport(SharesImports import)
     {
-        SharesFeeViewModel vm = SharesFeeClass.ChangeFromImportAddToViewModel(import);
-        SharesFeeClass.Add(db, vm, true, vm.Date.ToString());
+        SharesFeeViewModel vm = SharesFeeClass.ChangeFromImportToViewModel(import);
+        SharesFeeClass.Add(vm, true, vm.Date.ToString());
     }
 
     private void AddSharesImport(SharesImports import)

@@ -122,17 +122,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                 totalAmount.TotalAmount -= amount;
         }
 
-        public async Task<string> Delete(SharesDepositMoneyViewModel vm)
+        public async Task<string> Delete(SharesDepositMoney model)
         {
-            if (_db == null || vm == null)
+            if (_db == null || model == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
             try
             {
-                SharesDepositMoney model = ChangeFromViewModelToModel(vm);
-
-                if (model == null)
-                    return "Hittar ingen data från formuläret!";
-
                 _db.ChangeTracker.Clear();
                 _db.Remove(model);
                 await _db.SaveChangesAsync();
@@ -147,7 +143,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                return await HandleError(vm, "Ta bort", false, ex.Message);
+                return $"Gick inte att ta bort överföringen! Felmeddelande: {ex.Message} ";
             }
         }
 

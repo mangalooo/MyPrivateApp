@@ -260,7 +260,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                         // Brokerage must be added to the fee table!
                         SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, shares.Brokerage, $"Courtage för aktien: \r\nBolag: {vm.CompanyName} \r\nISIN: {vm.ISIN}");
-                        sharesFeeClass.Add(db, FeeVM, import, shares.DateOfSold);
+                        sharesFeeClass.Add(FeeVM, import, shares.DateOfSold);
 
                         // Removes the bought shares that is moved to sold shares
                         Delete(db, getDbSharesPurchasedsModel, vm, import);
@@ -311,7 +311,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                         // Brokerage must be added to the fee table! (For the parts that were sold)
                         SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, shares.Brokerage, $"Courtage för sålda delar av aktien: \r\nBolag: {vm.CompanyName} \r\nISIN: {vm.ISIN}");
-                        sharesFeeClass.Add(db, FeeVM, false, shares.DateOfSold);
+                        sharesFeeClass.Add(FeeVM, false, shares.DateOfSold);
 
                         // Removes portions of the purchased shares that are moved to sold shares
                         EditSell(db, getDbSharesPurchasedsModel, vm, import);

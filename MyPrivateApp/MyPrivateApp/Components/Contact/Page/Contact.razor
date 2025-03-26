@@ -668,17 +668,14 @@
 
     private int GetAge(DateTime birthDate)
     {
-        int yearsOld = DateTime.Now.Year - birthDate.Year;
-        DateTime date = DateTime.Now;
+        DateTime today = DateTime.Today;
+        int age = today.Year - birthDate.Year;
 
-        if (date.Month < birthDate.Month)
-            return yearsOld - 1;
+        if (birthDate.Date > today.AddYears(-age)) age--;
 
-        if (date.Month == birthDate.Month && date.Day <= birthDate.Day)
-            return yearsOld - 1;
-
-        return yearsOld;
+        return age;
     }
+
 
     private int GetDaysToNextBirthday(DateTime birthDate)
     {
@@ -724,6 +721,16 @@
             await RefreshPage();
     }
 
+    private static DateTime ParseDate(string date)
+    {
+        if (DateTime.TryParse(date, out DateTime parsedDate))
+            return parsedDate;
+
+        return DateTime.MinValue;
+
+        throw new FormatException($"Ogiltigt datumformat: {date}");
+    }
+
     private async Task SearchAge(ChangeEventArgs e)
     {
         string? searchValue = e.Value?.ToString();
@@ -732,7 +739,15 @@
         {
             var result = await db.Contacts.ToListAsync();
             var filteredResult = result
-                .Where(c => GetAge(DateTime.Parse(c.Birthday)) == age)
+                .Where(c =>
+                {
+                    if (!string.IsNullOrEmpty(c.Birthday))
+                    {
+                        DateTime birthDate = ParseDate(c.Birthday);
+                        return birthDate != DateTime.MinValue && GetAge(birthDate) == age;
+                    }
+                    return 0 == age;
+                })
                 .ToList();
             await SetQuery(filteredResult);
         }

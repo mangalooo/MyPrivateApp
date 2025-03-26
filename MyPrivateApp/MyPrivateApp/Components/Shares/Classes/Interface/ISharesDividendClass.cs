@@ -8,7 +8,7 @@ namespace MyPrivateApp.Components.Shares.Classes.Interface
     {
         Task<string> Add(SharesDividendViewModel vm, bool import);
         Task<string> Edit(SharesDividendViewModel vm);
-        Task<string> Delete(SharesDividend vm);
+        Task<string> Delete(SharesDividend model);
         SharesDividendViewModel ChangeFromModelToViewModel(SharesDividend model);
         SharesDividendViewModel ChangeFromImportToViewModel(SharesImports model);
     }

@@ -1,9 +1,9 @@
 ﻿
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
-using MyPrivateApp.Client.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.ShoppingList.Classes
 {

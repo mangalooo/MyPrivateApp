@@ -1,206 +1,186 @@
 ﻿
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
+using System;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesFeeClass : ISharesFeeClass
+    public class SharesFeeClass(ApplicationDbContext db, ILogger<SharesFeeClass> logger, IMapper mapper) : ISharesFeeClass
     {
-        private static SharesFee? Get(ApplicationDbContext db, int? id) => db.SharesFees.Any(r => r.SharesFeeId == id) ?
-                                                                                db.SharesFees.FirstOrDefault(r => r.SharesFeeId == id) :
-                                                                                    throw new Exception("Avgiften/skatten hittades inte i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<SharesFeeClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, SharesFeeViewModel vm, bool import, string soldDate)
+        private async Task<SharesFee?> Get(int? id)
         {
-            if (vm != null && db != null)
-            {
-                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0 || vm.Fee > 0))
-                {
-                    try
-                    {
-                        SharesFee model = ChangeFromViewModelToModel(vm, soldDate);
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
 
-                        db.SharesFees.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
-                    }
-                }
-                else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
-                    else
-                        return "Ingen datum ifyllt eller någon av avgift, skatt eller courtage måste vara mer än 0!";
-                }
-            }
-            else
-            {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-            }
-
-            return string.Empty;
+            return await _db.SharesFees.FirstOrDefaultAsync(r => r.SharesFeeId == id)
+                ?? throw new Exception("Avgiften/skatten hittades inte i databasen!");
         }
 
-        public string Edit(ApplicationDbContext db, SharesFeeViewModel vm)
+        public async Task<string> Add(SharesFeeViewModel vm, bool import, string soldDate)
         {
-            if (vm != null && vm.SharesFeeId > 0 && db != null)
+            if (vm == null || _db == null)
+                return await HandleError(null, "Lägg till", import, "Hittar ingen data från formuläret eller databasen!");
+
+            if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
+                return await HandleError(null, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
+
+            try
             {
-                if (vm.Date != DateTime.MinValue && (vm.Tax > 0 || vm.Brokerage > 0 || vm.Fee > 0))
-                {
-                    try
-                    {
-                        SharesFee getDbModel = Get(db, vm.SharesFeeId);
-
-                        if (getDbModel != null)
-                        {
-                            getDbModel.SharesFeeId = vm.SharesFeeId;
-                            getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                            getDbModel.CompanyOrInformation = vm.CompanyOrInformation;
-                            getDbModel.Fee = vm.Fee;
-                            getDbModel.Tax = vm.Tax;
-                            getDbModel.Brokerage = vm.Brokerage;
-                            getDbModel.Note = vm.Note;
-
-                            db.SaveChanges();
-                        }
-                        else
-                            return "Hittar inte aktien i databasen!";
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorHandling(db, vm, "Ändra", false, ex.Message);
-                    }
-                }
-                else
-                    return "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!";
+                SharesFee model = ChangeFromViewModelToModel(vm, soldDate);
+                await _db.SharesFees.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                return await HandleError(vm, "Lägg till", import, ex.Message);
+            }
         }
 
-        public string Delete(ApplicationDbContext db, SharesFeeViewModel vm, bool import)
+        public async Task<string> Edit(SharesFeeViewModel vm)
         {
-            if (vm != null && vm.SharesFeeId > 0 && db != null)
+            if (vm == null || _db == null || vm.SharesFeeId <= 0)
+                return "Hittar ingen data från formuläret eller databasen!";
+
+            if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
+                return await HandleError(null, "Ändra", false, "Ingen datum ifyllt eller någon av avgift, skatt eller courtage måste vara mer än 0!");
+
+            try
             {
-                try
-                {
-                    SharesFee model = ChangeFromViewModelToModel(vm, "");
+                SharesFee? model = await Get(vm.SharesFeeId);
 
-                    db.ChangeTracker.Clear();
-                    db.SharesFees.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
-                }
+                if (model == null)
+                    return "Hittar inte avgiften i databasen!";
+
+                _mapper.Map(vm, model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+
             }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                return $"Gick inte att ändra avgiften! Felmeddelande: {ex.Message} ";
+            }
         }
+
+        public async Task<string> Delete(SharesFee model)
+        {
+            if (model == null || _db == null || model.SharesFeeId <= 0)
+                return "Hittar ingen data från formuläret eller databasen!";
+
+            try
+            {
+                _db.ChangeTracker.Clear();
+                _db.SharesFees.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return $"Gick inte att ta bort avgiften! Felmeddelande: {ex.Message}";
+            }
+        }
+
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
 
         public SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
         {
-            SharesFeeViewModel fee = new()
-            {
-                SharesFeeId = model.SharesFeeId,
-                CompanyOrInformation = model.CompanyOrInformation,
-                Fee = model.Fee,
-                Tax = model.Tax,
-                Brokerage = model.Brokerage,
-                Note = model.Note,
-                Account = model.Account,
-                TypeOfTransaction = model.TypeOfTransaction,
-                ISIN = model.ISIN
-            };
+            ArgumentNullException.ThrowIfNull(model);
+
+            SharesFeeViewModel vm = _mapper.Map<SharesFeeViewModel>(model);
 
             if (!string.IsNullOrEmpty(model.Date))
-            {
-                DateTime date = DateTime.Parse(model.Date);
-                fee.Date = date;
-            }
+                vm.Date = ParseDate(model.Date);
 
             if (!string.IsNullOrEmpty(model.DateOfFee))
-            {
-                DateTime dateOfFee = DateTime.Parse(model.DateOfFee);
-                fee.DateOfFee = dateOfFee;
-            }
+                vm.DateOfFee = ParseDate(model.DateOfFee);
 
-            return fee;
+            return vm;
         }
 
-        private static SharesFee ChangeFromViewModelToModel(SharesFeeViewModel vm, string soldDate)
+        public SharesFeeViewModel ChangeFromImportToViewModel(SharesImports model)
         {
-            SharesFee sharesFee = new()
-            {
-                SharesFeeId = vm.SharesFeeId,
-                Date = soldDate,
-                CompanyOrInformation = vm.CompanyOrInformation,
-                Fee = double.Round(vm.Fee, 2, MidpointRounding.AwayFromZero),
-                Tax = double.Round(vm.Tax, 2, MidpointRounding.AwayFromZero),
-                Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero),
-                Note = vm.Note,
-                DateOfFee = vm.DateOfFee.ToString("yyyy-MM-dd"),
-                Account = vm.Account,
-                TypeOfTransaction = vm.TypeOfTransaction,
-                ISIN = vm.ISIN
-            };
+            ArgumentNullException.ThrowIfNull(model);
 
-            return sharesFee;
-        }
+            SharesFeeViewModel vm = _mapper.Map<SharesFeeViewModel>(model);
 
-        public SharesFeeViewModel ChangeFromImportAddToViewModel(SharesImports model)
-        {
-            DateTime date = DateTime.Parse(model.Date);
-
-            SharesFeeViewModel fee = new()
-            {
-                Date = date,
-                Account = model.AccountNumber,
-                CompanyOrInformation = model.CompanyOrInformation,
-                TypeOfTransaction = model.TypeOfTransaction,
-            };
-
-            if (!string.IsNullOrEmpty(model.BrokerageString))
-                fee.Brokerage = double.Parse(model.BrokerageString);
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
 
             switch (model.TypeOfTransaction)
             {
                 case "Skatt":
-                    fee.Tax = double.Parse(model.AmountString); 
+                    vm.Tax = double.Parse(model.AmountString);
                     break;
                 case "Avgift":
-                    fee.Fee = double.Parse(model.AmountString);
+                    vm.Fee = double.Parse(model.AmountString);
+                    break;                
+                case "Courtage":
+                    vm.Brokerage = double.Parse(model.AmountString);
                     break;
             }
 
-            return fee;
+            return vm;
         }
 
-        private static void ErrorHandling(ApplicationDbContext db, SharesFeeViewModel vm, string type, bool import, string errorMessage)
+        private SharesFee ChangeFromViewModelToModel(SharesFeeViewModel vm, string soldDate)
         {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            SharesFee model = _mapper.Map<SharesFee>(vm);
+
+            if (vm.DateOfFee != DateTime.MinValue)
+                model.DateOfFee = vm.DateOfFee.ToString("yyyy-MM-dd");
+
+            model.Date = soldDate;
+            model.Fee = Math.Round(vm.Fee, 2, MidpointRounding.AwayFromZero);
+            model.Tax = Math.Round(vm.Tax, 2, MidpointRounding.AwayFromZero);
+            model.Brokerage = Math.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero);
+
+            return model;
+        }
+
+        private async Task<string> HandleError(SharesFeeViewModel? vm, string type, bool import, string errorMessage)
+        {
+            if (import)
+                await ErrorHandling(vm, type, import, errorMessage);
+
+            return $"{type}: Felmeddelande: {errorMessage}";
+        }
+
+        private async Task ErrorHandling(SharesFeeViewModel? vm, string type, bool import, string errorMessage)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
             DateTime date = DateTime.Now;
             string importTrue = import ? "Ja" : "Nej";
 
-            SharesErrorHandlings sharesErrorHandling = new()
+            try
             {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                CompanyOrInformation = vm.CompanyOrInformation,
-                TypeOfTransaction = vm.TypeOfTransaction,
-                ErrorMessage = $"Felmeddelande: {errorMessage}",
-                Note = $"{type} AVGIFTER: " +
+                SharesErrorHandlings sharesErrorHandling = new()
+                {
+                    Date = $"{date.Year}-{date.Month}-{date.Day}",
+                    CompanyOrInformation = vm.CompanyOrInformation,
+                    TypeOfTransaction = vm.TypeOfTransaction,
+                    ErrorMessage = $"Felmeddelande: {errorMessage}",
+                    Note = $"{type} AVGIFTER: " +
                        $"\r\nAvgiftsdatum: {vm.DateOfFee} " +
                        $"\r\nImport: {importTrue} " +
                        $"\r\nAvgift: {vm.Fee} " +
@@ -208,10 +188,15 @@ namespace MyPrivateApp.Components.Shares.Classes
                        $"\r\nCourtage: {vm.Brokerage} " +
                        $"\r\nKonto: {vm.Account} " +
                        $"\r\nISIN: {vm.ISIN}"
-            };
+                };
 
-            db.SharesErrorHandlings.Add(sharesErrorHandling);
-            db.SaveChanges();
+                await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ett fel uppstod när felhanteringsinformation skulle sparas!");
+            }
         }
     }
 }

@@ -472,8 +472,7 @@
                 return;
             }
 
-            SharesDepositMoneyViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-            ErrorMessage = await BackEndClass.Delete(vm);
+            ErrorMessage = await BackEndClass.Delete(model);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
                 ShowOrHideErrorMessage = true;

@@ -1,6 +1,6 @@
 ﻿
 using AutoMapper;
-using MyPrivateApp.Client.ViewModels;
+using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.Layout.Classes

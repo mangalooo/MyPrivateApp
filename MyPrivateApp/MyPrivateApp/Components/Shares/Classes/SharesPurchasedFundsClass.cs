@@ -246,7 +246,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                         // Tax (fee) must be added to the fee table!
                         SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, fund.Fee, $"Avgiften för fonden: {vm.FundName}");
-                        sharesFeeClass.Add(db, FeeVM, import, fund.DateOfSold);
+                        sharesFeeClass.Add(FeeVM, import, fund.DateOfSold);
 
                         // Removes the bought fund that is moved to sold fund
                         Delete(db, getDbFundsPurchasedsModel, vm, import);
@@ -297,7 +297,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                         // Tax (fee) must be added to the fee table! (For the parts that were sold)
                         SharesFeeViewModel FeeVM = ChangeFromToPurchasedToFeeViewModel(vm, fund.Fee, $"Avgift för sålda delar av fonden: {vm.FundName}");
-                        sharesFeeClass.Add(db, FeeVM, false, fund.DateOfSold);
+                        sharesFeeClass.Add(FeeVM, false, fund.DateOfSold);
 
                         // Removes portions of the purchased funds that are moved to sold funds
                         EditSell(db, getDbFundsPurchasedsModel, vm, import);
