@@ -3,133 +3,120 @@ using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Components.Shares.Classes.Interface;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesImportsFileClass : ISharesImportsFileClass
+    public class SharesImportsFileClass(ApplicationDbContext db, ILogger<SharesImportsFileClass> logger, IMapper mapper) : ISharesImportsFileClass
     {
-        private static SharesImportsFile? Get(ApplicationDbContext db, int? id) => db.SharesImportsFiles.Any(r => r.SharesImportsFileId == id) ?
-                                                                                            db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == id) :
-                                                                                                throw new Exception("Hittar inte importen i databasen!");
+        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly ILogger<SharesImportsFileClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public string Add(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import)
+        private async Task<SharesImportsFile?> Get(int? id)
         {
-            string importTrue = import ? "Ja" : "Nej";
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
 
-            if (vm != null && db != null)
-            {
-                if (vm.Date != DateTime.MinValue)
-                {
-                    SharesImportsFile model = ChangeFromViewModelToModel(vm);
-
-                    try
-                    {
-                        db.SharesImportsFiles.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Lägg till IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
-                    }
-                }
-                else
-                    return "Datum måste vara ifylld!";
-            }
-            else
-                return "Lägg till import: Hittar ingen data från formuläret, datum mini eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            return await _db.SharesImportsFiles.FirstOrDefaultAsync(r => r.SharesImportsFileId == id)
+                ?? throw new Exception("Hittar inte importen i databasen!");
         }
 
-        public string Edit(ApplicationDbContext db, SharesImportsFileViewModel vm)
+        public async Task<string> Add(SharesImportsFileViewModel vm)
         {
-            if (vm != null && db != null)
+            if (vm == null || _db == null)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            if (vm.Date == DateTime.MinValue)
+                return "Ingen datum ifyllt!";
+
+            SharesImportsFile model = ChangeFromViewModelToModel(vm);
+
+            try
             {
-                SharesImportsFile getDbModel = Get(db, vm.SharesImportsFileId);
-
-                try
-                {
-                    if (getDbModel != null)
-                    {
-                        getDbModel.SharesImportsFileId = vm.SharesImportsFileId;
-                        getDbModel.Date = vm.Date.ToString("yyyy-MM-dd");
-                        getDbModel.FileName = vm.FileName;
-                        getDbModel.NumbersOfTransaction = vm.NumbersOfTransaction;
-                        getDbModel.Errors = vm.Errors;
-                        getDbModel.Note = vm.Note;
-
-                        db.SaveChanges();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return $"Ändra IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
-                }
+                await _db.SharesImportsFiles.AddAsync(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Ändra import: Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                return $"Lägg till IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
+            }
         }
 
-        public string Delete(ApplicationDbContext db, SharesImportsFileViewModel vm, bool import)
+        public async Task<string> Edit(SharesImportsFileViewModel vm)
         {
-            if (vm != null)
+            if (vm == null || _db == null || vm.SharesImportsFileId <= 0)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            try
             {
-                string importTrue = import ? "Ja" : "Nej";
+                SharesImportsFile? model = await Get(vm.SharesImportsFileId);
 
-                SharesImportsFile model = ChangeFromViewModelToModel(vm);
+                if (model == null)
+                    return "Hittar inte importen i databasen!";
 
-                if (model != null)
-                {
-                    try
-                    {
-                        db.ChangeTracker.Clear();
-                        db.SharesImportsFiles.Remove(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        return $"Ta bort IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
-                    }
-                }
+                _mapper.Map(vm, model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
             }
-            else
-                return "Ta bort import: Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            catch (Exception ex)
+            {
+                return $"Ändra IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
+            }
+        }
 
-            return string.Empty;
+        public async Task<string> Delete(SharesImportsFile model)
+        {
+            if (model == null || _db == null || model.SharesImportsFileId <= 0)
+                return "Hittar ingen data från formuläret eller databasen!";
+
+            try
+            {
+                _db.ChangeTracker.Clear();
+                _db.SharesImportsFiles.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return $"Ta bort IMPORTERAD FIL: \r\nFelmeddelande: {ex.Message}.";
+            }
+        }
+
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
         }
 
         public SharesImportsFileViewModel ChangeFromModelToViewModel(SharesImportsFile model)
         {
-            DateTime date = DateTime.Parse(model.Date);
+            ArgumentNullException.ThrowIfNull(model);
 
-            SharesImportsFileViewModel fee = new()
-            {
-                SharesImportsFileId = model.SharesImportsFileId,
-                Date = date,
-                FileName = model.FileName,
-                NumbersOfTransaction = model.NumbersOfTransaction,
-                Errors = model.Errors,
-                Note = model.Note
-            };
+            SharesImportsFileViewModel vm = _mapper.Map<SharesImportsFileViewModel>(model);
 
-            return fee;
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.Date = ParseDate(model.Date);
+
+            return vm;
         }
 
-        private static SharesImportsFile ChangeFromViewModelToModel(SharesImportsFileViewModel vm)
+        private SharesImportsFile ChangeFromViewModelToModel(SharesImportsFileViewModel vm)
         {
-            SharesImportsFile model = new()
-            {
-                SharesImportsFileId = vm.SharesImportsFileId,
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                FileName = vm.FileName,
-                NumbersOfTransaction = vm.NumbersOfTransaction,
-                Errors = vm.Errors,
-                Note = vm.Note
-            };
+            ArgumentNullException.ThrowIfNull(vm);
+
+            SharesImportsFile model = _mapper.Map<SharesImportsFile>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
 
             return model;
-        }     
+        }
     }
 }

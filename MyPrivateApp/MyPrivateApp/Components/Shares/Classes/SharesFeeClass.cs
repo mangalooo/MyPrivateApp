@@ -51,7 +51,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 return "Hittar ingen data från formuläret eller databasen!";
 
             if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
-                return await HandleError(null, "Ändra", false, "Ingen datum ifyllt eller någon av avgift, skatt eller courtage måste vara mer än 0!");
+                return "Ingen datum ifyllt eller någon av avgift, skatt eller courtage måste vara mer än 0!";
 
             try
             {
@@ -98,7 +98,6 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             throw new FormatException($"Ogiltigt datumformat: {date}");
         }
-
 
         public SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model)
         {
