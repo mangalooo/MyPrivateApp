@@ -5,6 +5,7 @@ using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
@@ -14,41 +15,39 @@ namespace MyPrivateApp.Components.Shares.Classes
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public SharesTotalProfitsOrLosses GetTotalProfitsOrLosses(int? id)
+        public async Task<SharesTotalProfitsOrLosses> GetTotalProfitsOrLosses(int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
-            return _db.SharesTotalProfitsOrLosses.FirstOrDefault(r => r.SharesTotalProfitOrLossId == id)
+            return await _db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync(r => r.SharesTotalProfitOrLossId == id)
                    ?? throw new Exception("Totala summan hittades inte i databasen!");
         }
 
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
 
-        public string CalculateLastYearsResults(ApplicationDbContext db)
+        public async Task<string> CalculateLastYearsResults()
         {
-            if (db == null) return "Ingen kontakt med databasen";
-            if (!db.SharesProfitOrLossYears.Any()) return "Befintlig databas är tom!";
+            if (_db == null)
+                return "Ingen kontakt med databasen";
+
+            if (!_db.SharesProfitOrLossYears.Any())
+                return "Befintlig databas är tom!";
 
             int thisYear = 2012; //DateTime.Now.Year; // Magnus: Ändra tillbaka
-            double sharesPurchaseds = 0;
-            double sharesSolds = 0;
-            double fundsPurchased = 0; ;
-            double fundsSold = 0; ;
-            double dividends = 0;
-            double interestRates = 0;
-            double fees = 0;
-            double taxes = 0;
-            double brokerage = 0;
+            double sharesPurchaseds, sharesSolds = 0, fundsPurchased, fundsSold = 0;
+            double dividends, interestRates, fees = 0, taxes = 0, brokerage = 0;
             string thisYearsErrorMessage = "Man kan inte beräknad detta året än, man måste vänta tills efter nyår!";
-            int thisCalculationYear = 0;
-            int biggerYear = 0;
+            int thisCalculationYear = 0, biggerYear = 0;
 
-            if (!db.SharesProfitOrLossYears.Any()) return "Finns inget i tabellen: SharesProfitOrLossYears. Måste finns en rad!";
+            if (!_db.SharesProfitOrLossYears.Any())
+                return "Finns inget rad i tabellen: SharesProfitOrLossYears. Måste finns minst en rad!";
 
-            foreach (var item in db.SharesProfitOrLossYears)
+            foreach (var item in _db.SharesProfitOrLossYears)
             {
-                int itemYear = int.Parse(item.Year);
+                if (string.IsNullOrEmpty(item.Year))
+                    return "År saknas i tabellen: SharesProfitOrLossYears. Måste fyllas i!";
 
+                int itemYear = int.Parse(item.Year);
                 if (itemYear > biggerYear)
                 {
                     thisCalculationYear = itemYear + 1;
@@ -56,94 +55,11 @@ namespace MyPrivateApp.Components.Shares.Classes
                 }
             }
 
-            if (db.SharesSolds.Any())
-            {
-                foreach (var item in db.SharesSolds)
-                {
-                    int checkYear = DateTime.Parse(item.DateOfSold).Year;
-
-                    if (checkYear == thisYear) return "Aktier: " + thisYearsErrorMessage;
-
-                    if (checkYear == thisCalculationYear && item.CalculationFlag == false)
-                    {
-                        sharesPurchaseds += item.Amount;
-                        sharesSolds += item.AmountSold;
-                        item.CalculationFlag = true;
-                        db.SaveChanges();
-                    }
-                }
-            }
-
-            if (db.SharesSoldFunds.Any())
-            {
-                foreach (var item in db.SharesSoldFunds)
-                {
-                    int checkYear = DateTime.Parse(item.DateOfSold).Year;
-
-                    if (checkYear == thisYear) return "Fonder: " + thisYearsErrorMessage;
-
-                    if (checkYear == thisCalculationYear && item.CalculationFlag == false)
-                    {
-                        fundsPurchased += item.Amount;
-                        fundsSold += item.AmountSold;
-                        item.CalculationFlag = true;
-                        db.SaveChanges();
-                    }
-                }
-            }
-
-            if (db.SharesDividends.Any())
-            {
-                foreach (var item in db.SharesDividends)
-                {
-                    int checkYear = DateTime.Parse(item.Date).Year;
-
-                    if (checkYear == thisYear) return "Utdelaning: " + thisYearsErrorMessage;
-
-                    if (checkYear == thisCalculationYear && item.CalculationFlag == false)
-                    {
-                        dividends += item.TotalAmount;
-                        item.CalculationFlag = true;
-                        db.SaveChanges();
-                    }
-                }
-            }
-
-            if (db.SharesInterestRates.Any())
-            {
-                foreach (var item in db.SharesInterestRates)
-                {
-                    int checkYear = DateTime.Parse(item.Date).Year;
-
-                    if (checkYear == thisYear) return "Ränta: " + thisYearsErrorMessage;
-
-                    if (checkYear == thisCalculationYear && item.CalculationFlag == false)
-                    {
-                        interestRates += item.TotalAmount;
-                        item.CalculationFlag = true;
-                        db.SaveChanges();
-                    } 
-                }
-            }
-
-            if (db.SharesFees.Any())
-            {
-                foreach (var item in db.SharesFees)
-                {
-                    int checkYear = DateTime.Parse(item.Date).Year;
-
-                    if (checkYear == thisYear) return "Kostnader: " + thisYearsErrorMessage;
-
-                    if (checkYear == thisCalculationYear && item.CalculationFlag == false)
-                    {
-                        fees += item.Fee;
-                        taxes += item.Tax;
-                        brokerage += item.Brokerage;
-                        item.CalculationFlag = true;
-                        db.SaveChanges();
-                    }
-                }
-            }
+            sharesPurchaseds = CalculateShares(_db.SharesSolds, thisYear, thisCalculationYear, thisYearsErrorMessage, ref sharesSolds);
+            fundsPurchased = CalculateFunds(_db.SharesSoldFunds, thisYear, thisCalculationYear, thisYearsErrorMessage, ref fundsSold);
+            dividends = CalculateDividends(_db.SharesDividends, thisYear, thisCalculationYear, thisYearsErrorMessage);
+            interestRates = CalculateInterestRates(_db.SharesInterestRates, thisYear, thisCalculationYear, thisYearsErrorMessage);
+            CalculateFees(_db.SharesFees, thisYear, thisCalculationYear, thisYearsErrorMessage, ref fees, ref taxes, ref brokerage);
 
             try
             {
@@ -172,10 +88,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                            $"\r\nSkatter: {taxes} + Avgifter: {fees} + Courtage: {brokerage} = {double.Round(taxes + fees + brokerage, 2, MidpointRounding.AwayFromZero)}"
                 };
 
-                db.SharesProfitOrLossYears.Add(model);
-                SharesTotalProfitsOrLosses sharesTotalProfitsOrLosses = db.SharesTotalProfitsOrLosses.FirstOrDefault();
-                sharesTotalProfitsOrLosses.TotalProfitOrLoss += double.Round(moneyProfitOrLossYear, 2, MidpointRounding.AwayFromZero);
-                db.SaveChanges();
+                await _db.SharesProfitOrLossYears.AddAsync(model);
+                SharesTotalProfitsOrLosses? sharesTotalProfitsOrLosses = await _db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync();
+
+                if (sharesTotalProfitsOrLosses != null)
+                    sharesTotalProfitsOrLosses.TotalProfitOrLoss += double.Round(moneyProfitOrLossYear, 2, MidpointRounding.AwayFromZero);
+
+                await _db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -183,6 +102,106 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
 
             return string.Empty;
+        }
+
+        private static double CalculateShares(IEnumerable<SharesSolds> sharesSolds, int thisYear, int thisCalculationYear, string thisYearsErrorMessage, ref double sharesSoldsTotal)
+        {
+            double sharesPurchaseds = 0;
+            foreach (var item in sharesSolds)
+            {
+                int checkYear = DateTime.Parse(item.DateOfSold).Year;
+                if (checkYear == thisYear) throw new InvalidOperationException("Aktier: " + thisYearsErrorMessage);
+                if (checkYear == thisCalculationYear && !item.CalculationFlag)
+                {
+                    sharesPurchaseds += item.Amount;
+                    sharesSoldsTotal += item.AmountSold;
+                    item.CalculationFlag = true;
+                }
+            }
+            return sharesPurchaseds;
+        }
+
+        private static double CalculateFunds(IEnumerable<SharesSoldFunds> sharesSoldFunds, int thisYear, int thisCalculationYear, string thisYearsErrorMessage, ref double fundsSoldTotal)
+        {
+            double fundsPurchased = 0;
+            foreach (var item in sharesSoldFunds)
+            {
+                int checkYear = DateTime.Parse(item.DateOfSold).Year;
+                if (checkYear == thisYear) throw new InvalidOperationException("Fonder: " + thisYearsErrorMessage);
+                if (checkYear == thisCalculationYear && !item.CalculationFlag)
+                {
+                    fundsPurchased += item.Amount;
+                    fundsSoldTotal += item.AmountSold;
+                    item.CalculationFlag = true;
+                }
+            }
+            return fundsPurchased;
+        }
+
+        private static double CalculateDividends(IEnumerable<SharesDividend> sharesDividends, int thisYear, int thisCalculationYear, string thisYearsErrorMessage)
+        {
+            double dividends = 0;
+            foreach (var item in sharesDividends)
+            {
+                int checkYear = DateTime.Parse(item.Date).Year;
+                if (checkYear == thisYear) throw new InvalidOperationException("Utdelaning: " + thisYearsErrorMessage);
+                if (checkYear == thisCalculationYear && !item.CalculationFlag)
+                {
+                    dividends += item.TotalAmount;
+                    item.CalculationFlag = true;
+                }
+            }
+            return dividends;
+        }
+
+        private static double CalculateInterestRates(IEnumerable<SharesInterestRates> sharesInterestRates, int thisYear, int thisCalculationYear, string thisYearsErrorMessage)
+        {
+            double interestRates = 0;
+            foreach (var item in sharesInterestRates)
+            {
+                int checkYear = DateTime.Parse(item.Date).Year;
+                if (checkYear == thisYear) throw new InvalidOperationException("Ränta: " + thisYearsErrorMessage);
+                if (checkYear == thisCalculationYear && !item.CalculationFlag)
+                {
+                    interestRates += item.TotalAmount;
+                    item.CalculationFlag = true;
+                }
+            }
+            return interestRates;
+        }
+
+        private static void CalculateFees(IEnumerable<SharesFee> sharesFees, int thisYear, int thisCalculationYear, string thisYearsErrorMessage, ref double fees, ref double taxes, ref double brokerage)
+        {
+            foreach (var item in sharesFees)
+            {
+                int checkYear = DateTime.Parse(item.Date).Year;
+                if (checkYear == thisYear) throw new InvalidOperationException("Kostnader: " + thisYearsErrorMessage);
+                if (checkYear == thisCalculationYear && !item.CalculationFlag)
+                {
+                    fees += item.Fee;
+                    taxes += item.Tax;
+                    brokerage += item.Brokerage;
+                    item.CalculationFlag = true;
+                }
+            }
+        }
+
+        public async Task<string> Delete(SharesProfitOrLossYears model)
+        {
+            if (model == null || _db == null || model.SharesProfitOrLossYearsId <= 0)
+                return "Hittar ingen data från formuläret eller databasen!";
+
+            try
+            {
+                _db.ChangeTracker.Clear();
+                _db.SharesProfitOrLossYears.Remove(model);
+                await _db.SaveChangesAsync();
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return $"Ta bort. Felmeddelande: {ex.Message}";
+            }
         }
 
         public SharesProfitOrLossYearViewModel ChangeFromModelToViewModel(SharesProfitOrLossYears model)
@@ -206,50 +225,25 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
-        private static SharesProfitOrLossYears ChangeFromViewModelToModel(SharesProfitOrLossYearViewModel vm)
-        {
-            SharesProfitOrLossYears model = new()
-            {
-                SharesProfitOrLossYearsId = vm.SharesProfitOrLossYearsId,
-                Year = vm.Year,
-                SharesYear = double.Parse(vm.SharesYear),
-                FundsYear = double.Parse(vm.FundsYear),
-                DividendYear = double.Parse(vm.DividendYear),
-                InterestRatesYear = double.Parse(vm.InterestRatesYear),
-                FeeYear = double.Parse(vm.FeeYear),
-                TaxYear = double.Parse(vm.TaxYear),
-                BrokerageYear = double.Parse(vm.BrokerageYear),
-                MoneyProfitOrLossYear = double.Parse(vm.MoneyProfitOrLossYear),
-                PercentProfitOrLossYear = vm.PercentProfitOrLossYear,
-                Note = vm.Note
-            };
+        //private static SharesProfitOrLossYears ChangeFromViewModelToModel(SharesProfitOrLossYearViewModel vm)
+        //{
+        //    SharesProfitOrLossYears model = new()
+        //    {
+        //        SharesProfitOrLossYearsId = vm.SharesProfitOrLossYearsId,
+        //        Year = vm.Year,
+        //        SharesYear = double.Parse(vm.SharesYear),
+        //        FundsYear = double.Parse(vm.FundsYear),
+        //        DividendYear = double.Parse(vm.DividendYear),
+        //        InterestRatesYear = double.Parse(vm.InterestRatesYear),
+        //        FeeYear = double.Parse(vm.FeeYear),
+        //        TaxYear = double.Parse(vm.TaxYear),
+        //        BrokerageYear = double.Parse(vm.BrokerageYear),
+        //        MoneyProfitOrLossYear = double.Parse(vm.MoneyProfitOrLossYear),
+        //        PercentProfitOrLossYear = vm.PercentProfitOrLossYear,
+        //        Note = vm.Note
+        //    };
 
-            return model;
-        }
-
-        public string Delete(ApplicationDbContext db, SharesProfitOrLossYearViewModel vm)
-        {
-            SharesProfitOrLossYears model = ChangeFromViewModelToModel(vm);
-
-            if (db != null && model != null)
-            {
-                try
-                {
-                    db.ChangeTracker.Clear();
-                    db.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    return $"Ta bort. Felmeddelande: {ex.Message}";
-                }
-
-                db.SaveChanges();
-            }
-            else
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            return string.Empty;
-        }
+        //    return model;
+        //}
     }
 }

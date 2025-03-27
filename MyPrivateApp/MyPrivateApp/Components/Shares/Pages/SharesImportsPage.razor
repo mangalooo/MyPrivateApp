@@ -695,10 +695,7 @@
         await db.SaveChangesAsync();
     }
 
-    private async Task<bool> SharesExistAsync(string isin)
-    {
-        return await db.SharesPurchaseds.AnyAsync(r => r.ISIN == isin);
-    }
+    private async Task<bool> SharesExistAsync(string isin) => await db.SharesPurchaseds.AnyAsync(r => r.ISIN == isin);
 
     private async Task AddOrUpdateShares(SharesPurchasedViewModel vm, bool sharesExist)
     {
