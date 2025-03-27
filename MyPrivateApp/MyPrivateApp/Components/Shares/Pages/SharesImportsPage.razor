@@ -769,8 +769,8 @@
 
     private async Task InterestRatesImport(SharesImports import)
     {
-        var vm = SharesInterestRatesClass.ChangeFromImportToViewModel(import);
-        SharesInterestRatesClass.Add(db, vm, true);
+        SharesInterestRatesViewModel vm = SharesInterestRatesClass.ChangeFromImportToViewModel(import);
+        await SharesInterestRatesClass.Add(vm, true);
     }
 
     private async Task AddFeeImport(SharesImports import)

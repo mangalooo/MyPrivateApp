@@ -224,26 +224,5 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             return vm;
         }
-
-        //private static SharesProfitOrLossYears ChangeFromViewModelToModel(SharesProfitOrLossYearViewModel vm)
-        //{
-        //    SharesProfitOrLossYears model = new()
-        //    {
-        //        SharesProfitOrLossYearsId = vm.SharesProfitOrLossYearsId,
-        //        Year = vm.Year,
-        //        SharesYear = double.Parse(vm.SharesYear),
-        //        FundsYear = double.Parse(vm.FundsYear),
-        //        DividendYear = double.Parse(vm.DividendYear),
-        //        InterestRatesYear = double.Parse(vm.InterestRatesYear),
-        //        FeeYear = double.Parse(vm.FeeYear),
-        //        TaxYear = double.Parse(vm.TaxYear),
-        //        BrokerageYear = double.Parse(vm.BrokerageYear),
-        //        MoneyProfitOrLossYear = double.Parse(vm.MoneyProfitOrLossYear),
-        //        PercentProfitOrLossYear = vm.PercentProfitOrLossYear,
-        //        Note = vm.Note
-        //    };
-
-        //    return model;
-        //}
     }
 }

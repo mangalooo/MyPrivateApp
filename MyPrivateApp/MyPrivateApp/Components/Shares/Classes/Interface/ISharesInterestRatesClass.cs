@@ -1,14 +1,14 @@
-﻿using MyPrivateApp.Components.ViewModels.SharesViewModels;
+﻿
+using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models.SharesModels;
-using MyPrivateApp.Data;
 
 namespace MyPrivateApp.Components.Shares.Classes.Interface
 {
     public interface ISharesInterestRatesClass
     {
-        string Add(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import);
-        string Edit(ApplicationDbContext db, SharesInterestRatesViewModel vm);
-        string Delete(ApplicationDbContext db, SharesInterestRatesViewModel vm, bool import);
+        Task<string> Add(SharesInterestRatesViewModel vm, bool import);
+        Task<string> Edit(SharesInterestRatesViewModel vm);
+        Task<string> Delete(SharesInterestRates vm);
         SharesInterestRatesViewModel ChangeFromModelToViewModel(SharesInterestRates model);
         SharesInterestRatesViewModel ChangeFromImportToViewModel(SharesImports model);
     }
