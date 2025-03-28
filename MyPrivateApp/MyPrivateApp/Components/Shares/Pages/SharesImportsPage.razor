@@ -781,8 +781,8 @@
 
     private async Task OtherImports(SharesImports import)
     {
-        var vm = SharesOtherImports.ChangeFromImportToViewModel(import);
-        SharesOtherImports.Add(db, vm, true);
+        SharesOtherShareImportViewModel vm = SharesOtherImports.ChangeFromImportToViewModel(import);
+        await SharesOtherImports.Add(vm, true);
     }
 
     // Kolla om importen funkar innan ta bort denna kod!! // Magnus

@@ -26,10 +26,10 @@ namespace MyPrivateApp.Components.Shares.Classes
         public async Task<string> Add(SharesFeeViewModel vm, bool import, string soldDate)
         {
             if (vm == null || _db == null)
-                return await HandleError(null, "Lägg till", import, "Hittar ingen data från formuläret eller databasen!");
+                return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret eller databasen!");
 
             if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
-                return await HandleError(null, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
+                return await HandleError(vm, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
 
             try
             {
