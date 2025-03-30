@@ -700,9 +700,9 @@
     private async Task AddOrUpdateShares(SharesPurchasedViewModel vm, bool sharesExist)
     {
         if (sharesExist)
-            SharesPurchasedClass.AddMore(db, vm, true);
+            await SharesPurchasedClass.AddMore(vm, true);
         else
-            SharesPurchasedClass.Add(db, vm, true);
+            await SharesPurchasedClass.Add(vm, true);
     }
 
     private async Task AddSharesImport(SharesImports import)
@@ -718,7 +718,7 @@
         bool sharesExist = await SharesExistAsync(import.ISIN);
 
         if (sharesExist)
-            SharesPurchasedClass.Sell(db, vm, true, SharesFeeClass);
+            await SharesPurchasedClass.Sell(vm, true, SharesFeeClass);
         else
         {
             await HandleErrorAsync(
