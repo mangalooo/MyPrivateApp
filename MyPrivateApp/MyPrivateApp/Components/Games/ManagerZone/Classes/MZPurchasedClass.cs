@@ -4,7 +4,6 @@ using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Client.ViewModels;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
@@ -54,13 +53,16 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
             try
             {
-                MZPurchasedPlayers? getDbModel = await Get(vm.ManagerZonePurchasedPlayersId);
+                MZPurchasedPlayers? model = await Get(vm.ManagerZonePurchasedPlayersId);
 
-                
-                if (getDbModel == null)
+                if (model == null)
                     return "Hittar inte spelaren i databasen!";
 
-                _mapper.Map(vm, getDbModel);
+                _mapper.Map(vm, model);
+
+                if (vm.TrainingModeCost != 0)
+                    model.TrainingModeTotalCost += vm.TrainingModeCost;
+
                 await _db.SaveChangesAsync();
                 return string.Empty;
             }
@@ -211,6 +213,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
             if (vm.PurchasedDate != DateTime.MinValue)
                 model.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
+
+            if (vm.TrainingModeCost != 0)
+                model.TrainingModeTotalCost += vm.TrainingModeCost;
 
             return model;
         }
