@@ -56,6 +56,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             {
                 MZPurchasedPlayers? getDbModel = await Get(vm.ManagerZonePurchasedPlayersId);
 
+                
                 if (getDbModel == null)
                     return "Hittar inte spelaren i databasen!";
 
