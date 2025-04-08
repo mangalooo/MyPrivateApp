@@ -1,11 +1,12 @@
 ﻿using MyPrivateApp.Components.Enum;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyPrivateApp.Client.ViewModels
+namespace MyPrivateApp.Components.ViewModels
 {
     public class FrozenFoodViewModel
     {
-        public int FrozenFoodId { get; set; }
+        [Key]
+        public int FrozenFoodsId { get; set; }
 
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]

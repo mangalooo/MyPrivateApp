@@ -1,13 +1,14 @@
 ﻿@page "/FrozenFood"
 
+@using AutoMapper;
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.FrozenFood.Classes
+@using MyPrivateApp.Components.ViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
-@using AutoMapper;
 
 @rendermode InteractiveServer
 
@@ -26,15 +27,16 @@
 
     <br />
 
-    <h3 style="text-align:center">Total vikt: @totalWeight kg</h3>
+    <h3 style="text-align:center">Total vikt: @TotalWeight kg</h3>
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
-        <br />
-        <br />
+        <br /> <br />
 
         <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Ny frysvara </button>
     </div>
+
+    <br />
 
     @if (ShowOrHideErrorMessage)
     {
@@ -46,8 +48,7 @@
         </div>
     }
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -58,7 +59,7 @@
 
             @* Form *@
             <div class="card-header">
-                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdateFrozenFood" Enhance hidden="@(!HideNewOrChangesFields)">
+                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance hidden="@(!HideNewOrChangesFields)">
 
                     <DataAnnotationsValidator />
 
@@ -428,7 +429,7 @@
     [SupplyParameterFromForm]
     private FrozenFoodViewModel pageViewModel { get; set; } = new();
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<FrozenFoodViewModel> queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -447,7 +448,7 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = false;
-    private string totalWeight = string.Empty;
+    private string TotalWeight = string.Empty;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
@@ -468,7 +469,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        totalWeight = await GetTotalWeight();
+        TotalWeight = await GetTotalWeight();
         await ConvertListToQueryable();
     }
     
@@ -487,7 +488,7 @@
 
         try
         {
-            if (pageViewModel.FrozenFoodId > 0)
+            if (pageViewModel.FrozenFoodsId > 0)
                 ErrorMessage = await BackEndClass.Edit(pageViewModel);
             else
                 ErrorMessage = await BackEndClass.Add(pageViewModel);
@@ -523,6 +524,13 @@
 
     private void Edit(FrozenFoodViewModel vm)
     {
+        if (vm.FrozenFoodsId == 0)
+        {
+            ErrorMessage = "Kan inte hitta frysvaran i databasen. ID = 0!";
+            ShowOrHideErrorMessage = true;
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -560,7 +568,7 @@
 
     private void OpenDeleteWindow(FrozenFoodViewModel vm)
     {
-        TemporaryId = vm.FrozenFoodId;
+        TemporaryId = vm.FrozenFoodsId;
         ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
 

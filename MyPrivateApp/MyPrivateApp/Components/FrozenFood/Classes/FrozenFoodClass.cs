@@ -1,11 +1,11 @@
 ﻿
 using MyPrivateApp.Data;
-using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
 using Hangfire;
 using MyPrivateApp.Components.Email.Classes;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.FrozenFood.Classes
 {
@@ -47,7 +47,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
         public async Task<string> Edit(FrozenFoodViewModel vm)
         {
-            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) 
+            if (vm == null || vm.FrozenFoodsId <= 0 && _db == null) 
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) 
@@ -55,12 +55,12 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
             try
             {
-                FrozenFoods? getDbModel = await Get(vm.FrozenFoodId);
+                FrozenFoods? model = await Get(vm.FrozenFoodsId);
 
-                if (getDbModel != null) 
-                    return "Hittar inte frysvra i databasen!";
+                if (model == null) 
+                    return "Hittar inte frysvaran i databasen!";
 
-                _mapper.Map(vm, getDbModel);
+                _mapper.Map(vm, model);
                 await _db.SaveChangesAsync();
                 return string.Empty;
             }
@@ -73,7 +73,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
         public async Task<string> Delete(FrozenFoodViewModel vm)
         {
-            if (vm == null || vm.FrozenFoodId <= 0 && _db == null) 
+            if (vm == null || vm.FrozenFoodsId <= 0 && _db == null) 
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             try
