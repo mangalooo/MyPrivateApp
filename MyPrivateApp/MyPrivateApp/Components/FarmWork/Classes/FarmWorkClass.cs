@@ -4,7 +4,6 @@ using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Client.ViewModels;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
@@ -18,13 +17,15 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             if (id == null) throw new ArgumentNullException(nameof(id));
 
             return await _db.FarmWorks.FirstOrDefaultAsync(r => r.FarmWorksId == id)
-                   ?? throw new Exception("Objektet gårdsarbete hittades inte i databasen!");
+                   ?? throw new Exception("Gårdsarbetet hittades inte i databasen!");
         }
         public async Task<string> Add(FarmWorksViewModels vm)
         {
-            if (vm == null || _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || _db == null) 
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.Date == DateTime.MinValue && vm.Hours > 0) return "Inget datum eller timmar ifyllt!";
+            if (vm.Date == DateTime.MinValue && vm.Hours > 0) 
+                return "Inget datum eller timmar ifyllt!";
 
             try
             {
@@ -42,17 +43,19 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public async Task<string> Edit(FarmWorksViewModels vm)
         {
-            if (vm == null || vm.FarmWorksId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.FarmWorksId <= 0 && _db == null) 
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.Date == DateTime.MinValue && vm.Hours > 0) return "Inget datum eller timmar ifyllt!";
+            if (vm.Date == DateTime.MinValue && vm.Hours > 0) 
+                return "Inget datum eller timmar ifyllt!";
 
             try
             {
-                FarmWorks? getDbModel = await Get(vm.FarmWorksId);
+                FarmWorks? model = await Get(vm.FarmWorksId);
 
-                if (getDbModel == null) return "Hittar inte gårdsarbetet i databasen!";
+                if (model == null) return "Hittar inte gårdsarbetet i databasen!";
 
-                _mapper.Map(vm, getDbModel);
+                _mapper.Map(vm, model);
                 await _db.SaveChangesAsync();
                 return string.Empty;
             }
@@ -65,7 +68,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public async Task<string> Delete(FarmWorksViewModels vm)
         {
-            if (vm == null || vm.FarmWorksId <= 0 && _db == null) return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.FarmWorksId <= 0 && _db == null) 
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             try
             {

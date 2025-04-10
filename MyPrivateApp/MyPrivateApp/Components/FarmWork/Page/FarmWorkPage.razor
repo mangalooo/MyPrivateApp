@@ -46,7 +46,7 @@
         </div>
     }
 
-    <br /> <br />
+    <br />
 
 </div>
 
@@ -372,7 +372,7 @@
     [SupplyParameterFromForm]
     private FarmWorksViewModels pageViewModel { get; set; } = new();
 
-    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<FarmWorksViewModels> queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -475,6 +475,13 @@
 
     private void Edit(FarmWorksViewModels vm)
     {
+        if (vm.FarmWorksId == 0)
+        {
+            ErrorMessage = $"Går inte att ändra gårdsarbetet. ID = {vm.FarmWorksId}!";
+            ShowOrHideErrorMessage = true;
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -488,7 +495,13 @@
         if (!db.FarmWorks.Any()) return;
 
         FarmWorks? model = await db.FarmWorks.FirstOrDefaultAsync(a => a.FarmWorksId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ErrorMessage = $"Går inte att ta bort gårdsarbetet. (TemporaryId = {TemporaryId})!";
+            ShowOrHideErrorMessage = true;
+            return;
+        }
 
         FarmWorksViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);

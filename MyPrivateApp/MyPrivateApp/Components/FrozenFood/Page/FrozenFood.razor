@@ -2,6 +2,7 @@
 
 @using AutoMapper;
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.FrozenFood.Classes
@@ -472,7 +473,7 @@
         TotalWeight = await GetTotalWeight();
         await ConvertListToQueryable();
     }
-    
+
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void HideNewOrChangesForm()
@@ -480,6 +481,12 @@
         HideNewOrChangesFields = !HideNewOrChangesFields;
         ShowOrHideCreateButton = true;
         ShowOrHideEditButton = true;
+    }
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
     }
 
     private async Task AddOrEdit()
@@ -509,8 +516,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage(ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}");
         }
     }
 
@@ -526,8 +532,7 @@
     {
         if (vm.FrozenFoodsId == 0)
         {
-            ErrorMessage = "Kan inte hitta frysvaran i databasen. ID = 0!";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Går inte att ändra frysvaran. ID = {vm.FrozenFoodsId}!");
             return;
         }
 
@@ -541,10 +546,19 @@
 
     private async Task Delete()
     {
-        if (!db.FrozenFoods.Any()) return;
+        if (!db.FrozenFoods.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort frysvaran, databasen är tom!");
+            return;
+        }
 
         FrozenFoods? model = await db.FrozenFoods.FirstOrDefaultAsync(a => a.FrozenFoodsId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Går inte att ta bort frysvaran. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);
@@ -580,18 +594,25 @@
 
         if (!string.IsNullOrEmpty(searchValue))
         {
-            var result = await db.FrozenFoods
-                .AsNoTracking()
-                .Where(c => c.Name != null && c.Name.Contains(searchValue, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(c => c.FrozenFoodsId)
-                .ToListAsync();
+            try
+            {
+                var result = await db.FrozenFoods
+                   .AsNoTracking()
+                   .Where(c => c.Name != null && EF.Functions.Like(c.Name, $"%{searchValue}%"))
+                   .OrderBy(c => c.FrozenFoodsId)
+                   .ToListAsync();
 
-            queryable = result
-                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                .AsQueryable();
+                queryable = result
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .AsQueryable();
 
-            if (!queryable.Any())
-                queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+                if (!queryable.Any())
+                    queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage($"Gick inte att söka efter namnet. Felmeddelande: {ex.Message}");
+            }
         }
         else
             await RefreshPage();
@@ -599,35 +620,40 @@
 
     private async Task SearchWildMeat(ChangeEventArgs e)
     {
-        queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
-
-        if (string.IsNullOrEmpty(e.Value?.ToString()))
+        if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
         {
             await RefreshPage();
             return;
         }
 
-        string? searchValue = e.Value?.ToString()?.ToLower() ?? string.Empty;
-        var frozenGoodsMapping = new Dictionary<string, FreezerFrozenGoods>
+        try
         {
-            { "hare", FreezerFrozenGoods.Hare },
-            { "ko", FreezerFrozenGoods.Ko },
-            { "rådjur", FreezerFrozenGoods.Rådjur },
-            { "vildsvin", FreezerFrozenGoods.Vildsvin },
-            { "älg", FreezerFrozenGoods.Älg },
-            { "övrigt", FreezerFrozenGoods.Övrigt }
-        };
+            string? searchValue = e.Value?.ToString()?.Trim().ToLower();
 
-        if (frozenGoodsMapping.TryGetValue(searchValue, out var frozenGoods))
+            // Attempt to parse the input string to the FreezerFrozenGoods enum
+            if (Enum.TryParse(typeof(FreezerFrozenGoods), searchValue, true, out var parsedEnum) && parsedEnum is FreezerFrozenGoods frozenGoods)
+            {
+                ShowOrHideErrorMessage = false;
+
+                // Query the database for matching frozen goods
+                var result = await db.FrozenFoods
+                    .AsNoTracking()
+                    .Where(c => c.FrozenGoods == frozenGoods)
+                    .OrderBy(c => c.FrozenFoodsId)
+                    .ToListAsync();
+
+                queryable = result.Any()
+                    ? result.Select(model => BackEndClass.ChangeFromModelToViewModel(model)).AsQueryable()
+                    : Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            }
+            else
+            {
+                ShowErrorMessage("Måste skriva fullständigt namn! Kontrollera stavningen och försök igen.");
+            }
+        }
+        catch (Exception ex)
         {
-            var result = db.FrozenFoods
-                .AsNoTracking()
-                .Where(c => c.FrozenGoods == frozenGoods)
-                .OrderBy(c => c.FrozenFoodsId)
-                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                .AsQueryable();
-
-            queryable = result.Any() ? result : Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            ShowErrorMessage($"Ett fel uppstod vid sökning. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -646,14 +672,7 @@
 
     private void SetQuery(IEnumerable<FrozenFoods> result)
     {
-        if (!result.Any())
-        {
-            queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
-            return;
-        }
-
         queryable = result
-            .OrderBy(c => c.FrozenFoodsId)
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
             .AsQueryable();
     }
@@ -666,9 +685,7 @@
                 .Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur)
                 .ToListAsync();
 
-            queryable = result
-                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                .AsQueryable();
+            SetQuery(result);
         }
         else
             await RefreshPage();
@@ -682,9 +699,7 @@
                 .Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin)
                 .ToListAsync();
 
-            queryable = result
-                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                .AsQueryable();
+            SetQuery(result);
         }
         else
             await RefreshPage();
@@ -698,9 +713,7 @@
                 .Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg)
                 .ToListAsync();
 
-            queryable = result
-                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                .AsQueryable();
+            SetQuery(result);
         }
         else
             await RefreshPage();
@@ -714,11 +727,9 @@
                 .Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt)
                 .ToListAsync();
 
-            queryable = result
-                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                .AsQueryable();
+            SetQuery(result);
         }
         else
             await RefreshPage();
-    }    
+    }
 }
