@@ -1,4 +1,5 @@
-﻿@page "/FrozenFood"
+﻿
+@page "/FrozenFood"
 
 @using AutoMapper;
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -556,7 +557,7 @@
 
         if (model == null)
         {
-            ShowErrorMessage($"Går inte att ta bort frysvaran. Model = null! (TemporaryId = {TemporaryId})");
+            ShowErrorMessage($"Gick inte att ta bort frysvaran. Model = null! (TemporaryId = {TemporaryId})");
             return;
         }
 

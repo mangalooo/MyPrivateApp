@@ -410,8 +410,7 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -502,8 +501,7 @@
 
                     </QuickGrid>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -515,15 +513,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -534,7 +530,7 @@
     private ContactsViewModels pageViewModel { get; set; } = new();
 
     // Show items from db
-    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<ContactsViewModels> queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -560,7 +556,9 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<Contacts> contacts = await db.Contacts.OrderBy(c => c.ContactsId).ToListAsync();
+        List<Contacts> contacts = (await db.Contacts.ToListAsync())
+                                  .OrderBy(c => GetDaysToNextBirthday(ParseDate(c.Birthday!)))
+                                  .ToList();
 
         if (!contacts.Any()) return;
 
@@ -574,6 +572,19 @@
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
 
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
+
+    private void HideNewOrChangesForm()
+    {
+        HideNewOrChangesFields = !HideNewOrChangesFields;
+        ShowOrHideCreateButton = true;
+        ShowOrHideEditButton = true;
+    }
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
 
     private async Task AddOrEdit()
     {
@@ -601,16 +612,8 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
-            ShowOrHideErrorMessage = false;
+            ShowErrorMessage(ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}");
         }
-    }
-
-    private void HideNewOrChangesForm()
-    {
-        HideNewOrChangesFields = !HideNewOrChangesFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
     }
 
     private void Info(ContactsViewModels vm)
@@ -623,6 +626,12 @@
 
     private void Edit(ContactsViewModels vm)
     {
+        if (vm.ContactsId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra kontakten. ID = {vm.ContactsId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -633,10 +642,19 @@
 
     private async Task Delete()
     {
-        if (!db.Contacts.Any()) return;
+        if (!db.Contacts.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort kontakten, databasen är tom!");
+            return;
+        }
 
         Contacts? model = await db.Contacts.FirstOrDefaultAsync(a => a.ContactsId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort kontakten. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         ContactsViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);
@@ -676,7 +694,6 @@
         return age;
     }
 
-
     private int GetDaysToNextBirthday(DateTime birthDate)
     {
         DateTime today = DateTime.Today;
@@ -686,6 +703,16 @@
             nextBirthday = nextBirthday.AddYears(1);
 
         return (nextBirthday - today).Days;
+    }
+
+    private static DateTime ParseDate(string date)
+    {
+        if (DateTime.TryParse(date, out DateTime parsedDate))
+            return parsedDate;
+
+        return DateTime.MinValue;
+
+        throw new FormatException($"Ogiltigt datumformat: {date}");
     }
 
     private Task SetQuery(IEnumerable<Contacts> result)
@@ -721,16 +748,6 @@
             await RefreshPage();
     }
 
-    private static DateTime ParseDate(string date)
-    {
-        if (DateTime.TryParse(date, out DateTime parsedDate))
-            return parsedDate;
-
-        return DateTime.MinValue;
-
-        throw new FormatException($"Ogiltigt datumformat: {date}");
-    }
-
     private async Task SearchAge(ChangeEventArgs e)
     {
         string? searchValue = e.Value?.ToString();
@@ -755,7 +772,7 @@
             await RefreshPage();
     }
 
-    private async Task SearchFriends(ChangeEventArgs e)
+    private async Task GetSearchValue(ChangeEventArgs e, IEnumerable<Contacts> result)
     {
         if (e.Value == null) return;
 
@@ -763,66 +780,18 @@
 
         if (trueOrFalse == "True")
         {
-            IEnumerable<Contacts> result = await db.Contacts.AsNoTracking().Where(c => c.Friends).ToListAsync();
-
-            await SetQuery(result);
-
-            return;
-        }
-
-        await RefreshPage();
-    }
-
-    private async Task SearchChristmasCard(ChangeEventArgs e)
-    {
-        if (e.Value == null) return;
-
-        string trueOrFalse = e.Value.ToString() ?? string.Empty;
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<Contacts> result = await db.Contacts.Where(c => c.ChristmasCard).ToListAsync();
-
-            await SetQuery(result);
-
-            return;
-        }
-
-        await RefreshPage();
-    }
-
-    private async Task SearchRelatives(ChangeEventArgs e)
-    {
-        if (e.Value == null) return;
-
-        string trueOrFalse = e.Value.ToString() ?? string.Empty;
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<Contacts> result = await db.Contacts.Where(c => c.Relatives).ToListAsync();
-
-            await SetQuery(result);
-
-            return;
-        }
-
-        await RefreshPage();
-    }
-
-    private async Task SearchColleagues(ChangeEventArgs e)
-    {
-        if (e.Value == null) return;
-
-        string trueOrFalse = e.Value.ToString() ?? string.Empty;
-
-        if (trueOrFalse == "True")
-        {
-            IEnumerable<Contacts> result = await db.Contacts.Where(c => c.Colleagues).ToListAsync();
-
             await SetQuery(result);
             return;
         }
 
         await RefreshPage();
     }
+
+    private async Task SearchFriends(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.Friends).ToListAsync());
+
+    private async Task SearchChristmasCard(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.ChristmasCard).ToListAsync());
+
+    private async Task SearchRelatives(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.Relatives).ToListAsync());
+
+    private async Task SearchColleagues(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.Colleagues).ToListAsync());
 }

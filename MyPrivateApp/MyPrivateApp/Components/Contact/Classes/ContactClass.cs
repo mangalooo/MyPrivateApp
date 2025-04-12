@@ -50,20 +50,20 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Edit(ContactsViewModels vm)
         {
-            if (vm == null || vm.ContactsId <= 0) 
-                return "Hittar ingen data från formuläret!";
+            if (vm == null || vm.ContactsId <= 0 && _db == null)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
                 return "Ingen namn eller födelsedag ifyllt!";
 
             try
             {
-                Contacts? getDbModel = await Get(vm.ContactsId);
+                Contacts? model = await Get(vm.ContactsId);
 
-                if (getDbModel == null) 
+                if (model == null) 
                     return "Hittar inte kontakten i databasen!";
 
-                _mapper.Map(vm, getDbModel);
+                _mapper.Map(vm, model);
                 await _db.SaveChangesAsync();
                 return string.Empty;
             }
@@ -76,8 +76,8 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Delete(ContactsViewModels vm)
         {
-            if (vm == null || vm.ContactsId <= 0) 
-                return "Hittar ingen data från formuläret!";
+            if (vm == null || vm.ContactsId <= 0 && _db == null)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             try
             {
@@ -166,17 +166,3 @@ namespace MyPrivateApp.Components.Contact.Classes
         }
     }
 }
-
-
-// public async Task<FarmWorksViewModels> ChangeFromModelToViewModelAsync(FarmWorks model)
-// {
-//     ArgumentNullException.ThrowIfNull(model);
-
-//     // Ensure asynchronous mapping if needed
-//     FarmWorksViewModels farmWorks = await Task.Run(() => _mapper.Map<FarmWorksViewModels>(model));
-
-//     if (!string.IsNullOrEmpty(model.Date))
-//         farmWorks.Date = ParseDate(model.Date);
-
-//     return farmWorks;
-// }
