@@ -61,11 +61,12 @@ namespace MyPrivateApp.Components.Farming.Classes
 
             try
             {
-                FarmingsActive? getDbModel = await GetActive(vm.FarmingId);
+                FarmingsActive? model = await GetActive(vm.FarmingId);
 
-                if (getDbModel == null) return "Hittar inte aktiv odling i databasen!";
+                if (model == null) 
+                    return "Hittar inte aktiv odling i databasen!";
 
-                _mapper.Map(vm, getDbModel);
+                _mapper.Map(vm, model);
                 await _db.SaveChangesAsync();
                 return string.Empty;
             }
@@ -88,7 +89,8 @@ namespace MyPrivateApp.Components.Farming.Classes
             {
                 FarmingsInactive? getDbModel = await GetInactive(vm.FarmingId);
 
-                if (getDbModel == null) return "Hittar inte odlingen i databasen!";
+                if (getDbModel == null) 
+                    return "Hittar inte odlingen i databasen!";
 
                 _mapper.Map(vm, getDbModel);
                 await _db.SaveChangesAsync();
@@ -128,7 +130,7 @@ namespace MyPrivateApp.Components.Farming.Classes
 
         public async Task<string> DeleteActive(FarmingViewModels vm)
         {
-            if (vm == null || vm.FarmingId <= 0)
+            if (vm == null || vm.FarmingId <= 0 && _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             try
@@ -150,7 +152,7 @@ namespace MyPrivateApp.Components.Farming.Classes
 
         public async Task<string> DeleteInactive(FarmingViewModels vm)
         {
-            if (vm == null || vm.FarmingId <= 0)
+            if (vm == null || vm.FarmingId <= 0 && _db == null)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             try

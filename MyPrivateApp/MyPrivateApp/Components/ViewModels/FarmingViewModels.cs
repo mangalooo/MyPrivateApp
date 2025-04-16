@@ -43,7 +43,7 @@ namespace MyPrivateApp.Components.ViewModels
         [DataType(DataType.MultilineText)]
         public string? Note { get; set; }
 
-        [Display(Name = "Frö datum")]
+        [Display(Name = "Inaktiveringsdatum")]
         [DataType(DataType.Date)]
         public DateTime InactiveDate { get; set; }
     }

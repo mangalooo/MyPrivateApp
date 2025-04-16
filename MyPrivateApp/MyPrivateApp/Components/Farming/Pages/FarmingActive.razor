@@ -256,8 +256,7 @@
 
                     <div style="text-align:center" class="card-footer"><Paginator State="@pagination" /></div>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -324,12 +323,10 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -411,6 +408,12 @@
         ShowOrHideEditButton = !HideNewOrChangesFields;
     }
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     private async Task AddOrEdit()
     {
         DisabledForm = false;
@@ -418,15 +421,9 @@
         try
         {
             if (pageViewModel.FarmingId > 0)
-            {
-                // Edit
                 ErrorMessage = await BackEndClass.EditActive(pageViewModel);
-            }
             else
-            {
-                // Add
                 ErrorMessage = await BackEndClass.Add(pageViewModel);
-            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -443,8 +440,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage(ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}");
         }
     }
 
@@ -458,6 +454,12 @@
 
     private void Edit(FarmingViewModels vm)
     {
+        if (vm.FarmingId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra frysvaran. ID = {vm.FarmingId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -468,10 +470,19 @@
 
     private async Task Delete()
     {
-        if (!db.FarmingsActive.Any()) return;
+        if (!db.FarmingsActive.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort odlingen, databasen är tom!");
+            return;
+        }
 
         FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort odlingen. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.DeleteActive(vm);
@@ -493,8 +504,7 @@
 
             if (model == null)
             {
-                ErrorMessage = "Id är 0!";
-                ShowOrHideErrorMessage = true;
+                ShowErrorMessage($"Gick inte att inactivera odlingen. Model = null! (TemporaryId = {TemporaryId})");
                 return;
             }
 
@@ -515,8 +525,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"An error occurred: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Gick inte att inactivera odlingen. Felmeddelande: {ex.Message}");
         }
     }
 
