@@ -84,7 +84,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, x =>
 {
@@ -193,7 +194,8 @@ IEmailSender emailSender = app.Services.GetRequiredService<IEmailSender>();
 
 async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
 {
-    if (id == null) throw new ArgumentNullException(nameof(id));
+    if (id == null) 
+        throw new ArgumentNullException(nameof(id));
 
     return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
            ?? throw new Exception("Datum för mejl-utskick hittades inte i databasen!");
@@ -202,8 +204,8 @@ async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
 // Get ApplicationDbContext from the request services
 app.Use(async (context, next) =>
 {
-    ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>() ??
-        throw new InvalidOperationException("Program felmeddelande: Gick inte att koppla till databasen!");
+    ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>() 
+        ?? throw new InvalidOperationException("Program felmeddelande: Gick inte att koppla till databasen!");
 
     LastEmailSent? lastEmailSentBirthday = await Get(db, 1);
 
