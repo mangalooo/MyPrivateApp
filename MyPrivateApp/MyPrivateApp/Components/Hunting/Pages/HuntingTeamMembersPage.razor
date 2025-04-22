@@ -1,4 +1,5 @@
-﻿@page "/HuntingTeamMembersPage"
+﻿
+@page "/HuntingTeamMembersPage"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -307,15 +308,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -345,9 +344,6 @@
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = false;
 
-    // Text messeges
-    private string ErrorMessage { get; set; } = string.Empty;
-
     // Navigation list
     private readonly (string Href, string Text)[] navList = new[]
     {
@@ -358,12 +354,25 @@
         ("HuntingTowerInspectionPage", "Torn besiktningar")
     };
 
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
         List<HuntingTeamMembers> huntingTeamMembers = await db.HuntingTeamMembers.OrderByDescending(c => c.Name).ToListAsync();
 
-        if (!huntingTeamMembers.Any()) return;
+        if (!huntingTeamMembers.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = huntingTeamMembers
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -410,8 +419,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
         }
     }
 
@@ -425,6 +433,12 @@
 
     private void Edit(HuntingTeamMembersViewModels vm)
     {
+        if (vm.HuntingTeamMembersId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra jaktmedlemmen. ID = {vm.HuntingTeamMembersId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -435,10 +449,19 @@
 
     private async Task Delete()
     {
-        if (!db.HuntingTeamMembers.Any()) return;
+        if (!db.HuntingTeamMembers.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort jaktmedlemmen, databasen är tom!");
+            return;
+        }
 
         HuntingTeamMembers? model = await db.HuntingTeamMembers.FirstOrDefaultAsync(a => a.HuntingTeamMembersId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort jaktmedlemmen. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         HuntingTeamMembersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);

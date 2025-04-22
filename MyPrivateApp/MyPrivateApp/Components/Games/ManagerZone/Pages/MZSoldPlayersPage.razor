@@ -347,15 +347,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -388,12 +386,22 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
         List<MZSoldPlayers> mZSoldPlayers = await db.MZSoldPlayers.OrderByDescending(c => c.SoldDate).ToListAsync();
 
-        if (!mZSoldPlayers.Any()) return;
+        if (!mZSoldPlayers.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = mZSoldPlayers
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))

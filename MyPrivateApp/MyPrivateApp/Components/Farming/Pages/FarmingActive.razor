@@ -334,15 +334,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -380,12 +378,22 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
         List<FarmingsActive> farmingsActive = await db.FarmingsActive.OrderBy(c => c.FarmingId).ToListAsync();
 
-        if (!farmingsActive.Any()) return;
+        if (!farmingsActive.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = farmingsActive
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -406,12 +414,6 @@
         // Set the visibility of the buttons based on the form fields' visibility
         ShowOrHideCreateButton = !HideNewOrChangesFields;
         ShowOrHideEditButton = !HideNewOrChangesFields;
-    }
-
-    private void ShowErrorMessage(string errorMessage)
-    {
-        ErrorMessage = errorMessage;
-        ShowOrHideErrorMessage = true;
     }
 
     private async Task AddOrEdit()

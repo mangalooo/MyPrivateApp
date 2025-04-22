@@ -1,4 +1,5 @@
-﻿@page "/HuntingPreyPage"
+﻿
+@page "/HuntingPreyPage"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -54,7 +55,6 @@
     <br /> <br />
 
     <h1 style="text-align:center"> Jaktbyten på våra marker </h1>
-
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
@@ -352,15 +352,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -390,9 +388,6 @@
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = false;
 
-    // Text messeges
-    private string ErrorMessage { get; set; } = string.Empty;
-
     // Navigation list
     private readonly (string Href, string Text)[] navList = new[]
     {
@@ -403,12 +398,25 @@
         ("HuntingTowerInspectionPage", "Torn besiktningar")
     };
 
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
         List<HuntingPrey> funtingMyList = await db.HuntingPrey.OrderByDescending(c => c.Date).ToListAsync();
 
-        if (!funtingMyList.Any()) return;
+        if (!funtingMyList.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = funtingMyList
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -455,8 +463,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
         }
     }
 
@@ -470,6 +477,12 @@
 
     private void Edit(HuntingPreyViewModels vm)
     {
+        if (vm.HuntingPreyId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra jakt bytet. ID = {vm.HuntingPreyId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -480,10 +493,19 @@
 
     private async Task Delete()
     {
-        if (!db.HuntingPrey.Any()) return;
+        if (!db.HuntingPrey.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort jakt bytet, databasen är tom!");
+            return;
+        }
 
         HuntingPrey? model = await db.HuntingPrey.FirstOrDefaultAsync(a => a.HuntingPreyId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort jakt bytet. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         HuntingPreyViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);

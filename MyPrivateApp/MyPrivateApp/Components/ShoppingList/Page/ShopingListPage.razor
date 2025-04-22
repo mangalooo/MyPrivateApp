@@ -1,4 +1,5 @@
-﻿@page "/ShopingList"
+﻿
+@page "/ShopingList"
 
 @using AutoMapper;
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -235,15 +236,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -275,12 +274,22 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
         List<ShopingList> shopingList = await db.ShopingLists.OrderBy(c => c.Date).ToListAsync();
 
-        if (!shopingList.Any()) return;
+        if (!shopingList.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = shopingList
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -326,8 +335,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"An error occurred: {ex.Message}";
-            ShowOrHideErrorMessage = false;
+            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
         }
     }
 
@@ -341,6 +349,12 @@
 
     private void Edit(ShopingListViewModels vm)
     {
+        if (vm.ShopingListId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra frysvaran. ID = {vm.ShopingListId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -351,10 +365,19 @@
 
     private async Task Delete()
     {
-        if (!db.ShopingLists.Any()) return;
+        if (!db.ShopingLists.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort inköpslistan, databasen är tom!");
+            return;
+        }
 
         ShopingList? model = await db.ShopingLists.FirstOrDefaultAsync(a => a.ShopingListId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort inköpslistan. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         ShopingListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);

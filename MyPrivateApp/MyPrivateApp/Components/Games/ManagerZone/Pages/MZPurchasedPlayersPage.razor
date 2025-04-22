@@ -1,4 +1,5 @@
-﻿@page "/MZPurchasedPlayersPage"
+﻿
+@page "/MZPurchasedPlayersPage"
 
 @using MyPrivateApp.Components.Games.ManagerZone.Classes
 @using MyPrivateApp.Components.ViewModels
@@ -408,15 +409,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -480,6 +479,12 @@
         ShowOrHideEditButton = true;
     }
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     private async Task AddOrEdit()
     {
         DisabledForm = false;
@@ -522,6 +527,12 @@
 
     private void Edit(MZPurchasedPlayersViewModels vm)
     {
+        if (vm.ManagerZonePurchasedPlayersId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra frysvaran. ID = {vm.ManagerZonePurchasedPlayersId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -532,7 +543,11 @@
 
     private void Sell(MZPurchasedPlayersViewModels vm)
     {
-        if (vm == null) return;
+        if (vm == null)
+        {
+            ShowErrorMessage("Går inte att sälja frysvaran. VM = null!");
+            return;
+        }
 
         HideNewOrChangesForm();
         Sale = false;
@@ -562,8 +577,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Ett fel uppstod när spelaren skulle säljas: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Ett fel uppstod när spelaren skulle säljas: {ex.Message}");
         }
     }
 
@@ -585,10 +599,19 @@
 
     private async Task Delete()
     {
-        if (!db.MZPurchasedPlayers.Any()) return;
+        if (!db.MZPurchasedPlayers.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort spelaren, databasen är tom!");
+            return;
+        }
 
         MZPurchasedPlayers? model = await db.MZPurchasedPlayers.FirstOrDefaultAsync(a => a.ManagerZonePurchasedPlayersId == TemporaryId);
-        if (model == null) return;
+        
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort spelaren. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         MZPurchasedPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);

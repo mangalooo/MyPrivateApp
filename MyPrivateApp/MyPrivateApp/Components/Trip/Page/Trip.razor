@@ -1,4 +1,5 @@
-﻿@page "/Trips"
+﻿
+@page "/Trips"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Trip.Classes
@@ -269,15 +270,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -286,7 +285,7 @@
 {
     [SupplyParameterFromForm]
     private TripsViewModel pageViewModel { get; set; } = new();
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<TripsViewModel> queryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -309,12 +308,22 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
         List<Trips> trips = await db.Trips.OrderBy(c => c.Date).ToListAsync();
 
-        if (!trips.Any()) return;
+        if (!trips.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = trips
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -360,8 +369,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"An error occurred: {ex.Message}";
-            ShowOrHideErrorMessage = false;
+            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
         }
     }
 
@@ -375,6 +383,12 @@
 
     private void Edit(TripsViewModel vm)
     {
+        if (vm.TripsId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra resan. ID = {vm.TripsId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -385,10 +399,19 @@
 
     private async Task Delete()
     {
-        if (!db.Trips.Any()) return;
+        if (!db.Trips.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort resan, databasen är tom!");
+            return;
+        }
 
         Trips? model = await db.Trips.FirstOrDefaultAsync(a => a.TripsId  == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort resan. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);
@@ -432,7 +455,7 @@
             }
     }
 
-    private void SearchCountry(ChangeEventArgs e)
+    private async Task SearchCountry(ChangeEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -441,10 +464,10 @@
             return;
         }
 
-        Navigation.Refresh(true);
+        await RefreshPage();
     }
 
-    private void SearchPlace(ChangeEventArgs e)
+    private async Task SearchPlace(ChangeEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Value!.ToString()))
         {
@@ -453,6 +476,6 @@
             return;
         }
 
-        Navigation.Refresh(true);
+        await RefreshPage();
     }
 }

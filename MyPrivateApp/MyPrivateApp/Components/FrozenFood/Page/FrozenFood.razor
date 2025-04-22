@@ -455,13 +455,23 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
         List<FrozenFoods> frozenFoods = await db.FrozenFoods.OrderByDescending(c => c.Date).ToListAsync();
 
-        if (!frozenFoods.Any()) return;
-
+        if (!frozenFoods.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
+        
         queryable = frozenFoods
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
             .AsQueryable();
@@ -482,12 +492,6 @@
         HideNewOrChangesFields = !HideNewOrChangesFields;
         ShowOrHideCreateButton = true;
         ShowOrHideEditButton = true;
-    }
-
-    private void ShowErrorMessage(string errorMessage)
-    {
-        ErrorMessage = errorMessage;
-        ShowOrHideErrorMessage = true;
     }
 
     private async Task AddOrEdit()
@@ -517,7 +521,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage(ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
         }
     }
 

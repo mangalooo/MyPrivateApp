@@ -1,4 +1,5 @@
-﻿@page "/HuntingMyListPage"
+﻿
+@page "/HuntingMyListPage"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -54,7 +55,6 @@
     <br /> <br />
 
     <h1 style="text-align:center"> Min jakt lista </h1>
-
 
     <div style="text-align:center" hidden="@ShowOrHideCreateButton">
 
@@ -333,15 +333,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /><br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -371,9 +369,6 @@
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideErrorMessage { get; set; } = false;
 
-    // Text messeges
-    private string ErrorMessage { get; set; } = string.Empty;
-
     // Navigation list
     private readonly (string Href, string Text)[] navList = new[]
     {
@@ -384,12 +379,25 @@
         ("HuntingTowerInspectionPage", "Torn besiktningar"),
     };
 
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
         List<HuntingMyList> huntingMyList = await db.HuntingMyList.OrderByDescending(c => c.Date).ToListAsync();
 
-        if (!huntingMyList.Any()) return;
+        if (!huntingMyList.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = huntingMyList
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -436,8 +444,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"\r\n\r\nEtt fel uppstod: {ex.Message}");
         }
     }
 
@@ -451,6 +458,12 @@
 
     private void Edit(HuntingMyListViewModels vm)
     {
+        if (vm.HuntingMyListId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra min jakt. ID = {vm.HuntingMyListId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -461,10 +474,19 @@
 
     private async Task Delete()
     {
-        if (!db.HuntingMyList.Any()) return;
+        if (!db.HuntingMyList.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort min jakt, databasen är tom!");
+            return;
+        }
 
         HuntingMyList? model = await db.HuntingMyList.FirstOrDefaultAsync(a => a.HuntingMyListId == TemporaryId);
-        if (model == null) return;
+        
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort min jakt. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         HuntingMyListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);

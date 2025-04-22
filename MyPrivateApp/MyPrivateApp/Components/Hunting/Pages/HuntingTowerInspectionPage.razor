@@ -1,4 +1,5 @@
-﻿@page "/HuntingTowerInspectionPage"
+﻿
+@page "/HuntingTowerInspectionPage"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -463,15 +464,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -509,9 +508,6 @@
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private bool ShowOrHideDeleteInspectionsButton { get; set; } = false;
 
-    // Text messeges
-    private string ErrorMessage { get; set; } = string.Empty;
-
     // Navigation list
     private readonly (string Href, string Text)[] navList = new[]
     {
@@ -521,6 +517,15 @@
         ("HuntingTeamMembersPage", "Medlemmar"),
         ("HuntingTowerInspectionPage", "Torn besiktningar")
     };
+
+    // Text messeges
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
 
     // Checkbox list
     private IEnumerable<CheckboxItem> GetCheckboxes()
@@ -546,11 +551,16 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
-        ShowOrHideDeleteInspectionsButton = await db.HuntingTowerInspections.AnyAsync(y => y.Inspected);
-
         List<HuntingTowerInspection> huntingTowerInspection = await db.HuntingTowerInspections.OrderByDescending(c => c.Number).ToListAsync();
 
-        if (!huntingTowerInspection.Any()) return;
+        if (!huntingTowerInspection.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
+
+        ShowOrHideDeleteInspectionsButton = await db.HuntingTowerInspections.AnyAsync(y => y.Inspected);
+
 
         queryable = huntingTowerInspection
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -597,8 +607,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
         }
     }
 
@@ -612,6 +621,12 @@
 
     private void Edit(HuntingTowerInspectionViewModels vm)
     {
+        if (vm.HuntingTowerInspectionId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra jaktinspektionen. ID = {vm.HuntingTowerInspectionId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
@@ -622,10 +637,19 @@
 
     private async Task Delete()
     {
-        if (!db.HuntingTowerInspections.Any()) return;
+        if (!db.HuntingTowerInspections.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort jaktinspektionen, databasen är tom!");
+            return;
+        }
 
         HuntingTowerInspection? model = await db.HuntingTowerInspections.FirstOrDefaultAsync(a => a.HuntingTowerInspectionId == TemporaryId);
-        if (model == null) return;
+
+        if (model == null)
+        {
+            ShowErrorMessage($"Gick inte att ta bort jaktinspektionen. Model = null! (TemporaryId = {TemporaryId})");
+            return;
+        }
 
         HuntingTowerInspectionViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
         ErrorMessage = await BackEndClass.Delete(vm);
@@ -809,8 +833,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Ett fel uppstod vid sökning efter pass nummer! Felmeddelande: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Ett fel uppstod vid sökning efter pass nummer! Felmeddelande: {ex.Message}");
         }
     }
 

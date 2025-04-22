@@ -560,7 +560,11 @@
                                   .OrderBy(c => GetDaysToNextBirthday(ParseDate(c.Birthday!)))
                                   .ToList();
 
-        if (!contacts.Any()) return;
+        if (!contacts.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = contacts
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))

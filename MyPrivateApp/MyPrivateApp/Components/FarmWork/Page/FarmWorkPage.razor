@@ -354,15 +354,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -433,6 +431,12 @@
         ShowOrHideEditButton = true;
     }
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     private async Task AddOrEdit()
     {
         DisabledForm = false;
@@ -477,8 +481,7 @@
     {
         if (vm.FarmWorksId == 0)
         {
-            ErrorMessage = $"Går inte att ändra gårdsarbetet. ID = {vm.FarmWorksId}!";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Går inte att ändra gårdsarbetet. ID = {vm.FarmWorksId}!");
             return;
         }
 
@@ -492,14 +495,17 @@
 
     private async Task Delete()
     {
-        if (!db.FarmWorks.Any()) return;
+        if (!db.FarmWorks.Any())
+        {
+            ShowErrorMessage("Gick inte att ta bort gårdsarbetet, databasen är tom!");
+            return;
+        }
 
         FarmWorks? model = await db.FarmWorks.FirstOrDefaultAsync(a => a.FarmWorksId == TemporaryId);
 
         if (model == null)
         {
-            ErrorMessage = $"Går inte att ta bort gårdsarbetet. (TemporaryId = {TemporaryId})!";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Går inte att ta bort gårdsarbetet. (TemporaryId = {TemporaryId})!");
             return;
         }
 
