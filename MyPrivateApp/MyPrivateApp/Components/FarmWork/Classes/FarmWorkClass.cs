@@ -24,8 +24,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             if (vm == null || _db == null) 
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.Date == DateTime.MinValue && vm.Hours > 0) 
-                return "Inget datum eller timmar ifyllt!";
+            if (vm.Date == DateTime.MinValue || vm.Place == 0 || vm.Hours == 0)
+                return "Inget datum, plats eller timmar ifyllt!";
 
             try
             {
@@ -46,8 +46,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             if (vm == null || vm.FarmWorksId <= 0 && _db == null) 
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
-            if (vm.Date == DateTime.MinValue && vm.Hours > 0) 
-                return "Inget datum eller timmar ifyllt!";
+            if (vm.Date == DateTime.MinValue && vm.Place != 0 && vm.Hours <= 0)
+                return "Inget datum, plats eller timmar ifyllt!";
 
             try
             {

@@ -1,4 +1,5 @@
-﻿@page "/FarmWorkPage"
+﻿
+@page "/FarmWorkPage"
 
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -29,15 +30,21 @@
 
     <h3 style="text-align:center"> Nästa lön: @NextSalary</h3>
 
-    <div style="text-align:center" hidden="@ShowOrHideCreateButton">
-
+    @if (ShowOrHideCreateButton)
+    {
         <br /> <br />
 
-        <button class="btn btn-outline-success btn-sm" @onclick="@HideNewOrChangesForm"> Nytt gårdsarbete </button>
-    </div>
+        <div style="text-align:center">
+            <button class="btn btn-outline-success btn-sm" @onclick="@ShowOrHideNewOrChangesForm"> Nytt gårdsarbete </button>
+        </div>
+
+        <br />
+    }
 
     @if (ShowOrHideErrorMessage)
     {
+        <br />
+
         <div style="text-align:center">
             <Alert Color="AlertColor.Danger">
                 <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
@@ -56,99 +63,110 @@
         <div class="card">
 
             @* Form *@
-            <div class="card-header">
+            @if (ShowOrHideNewOrChangesFields)
+            {
+                <div class="card-header">
 
-                <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance hidden="@(!HideNewOrChangesFields)">
+                    <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance>
 
-                    <DataAnnotationsValidator />
+                        <DataAnnotationsValidator />
 
-                    <ValidationSummary class="text-danger" role="alert" />
+                        <ValidationSummary class="text-danger" role="alert" />
 
-                    <div class="row">
+                        <div class="row">
 
-                        <div id="mobile" class="col-4" />
+                            <div id="mobile" class="col-4" />
 
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
-                                <label for="Date"> Datum </label>
-                                <ValidationMessage For="() => pageViewModel.Date" class="text-danger" />
+                            <div class="col-4">
+                                <div class="form-floating">
+                                    <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
+                                    <label for="Date"> Datum </label>
+                                    <ValidationMessage For="() => pageViewModel.Date" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="form-floating">
+                                    <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                        @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
+                                        {
+                                            <option value="@place">@place</option>
+                                        }
+                                    </InputSelect>
+                                    <label for="wildAnimal"> Plats </label>
+                                    <ValidationMessage For="() => pageViewModel.Place" class="text-danger" />
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating">
+                                    <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                    <label for="Hours"> Timmar </label>
+                                    <ValidationMessage For="() => pageViewModel.Hours" class="text-danger" />
+                                </div>
                             </div>
                         </div>
 
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
-                                    @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
-                                    {
-                                        <option value="@place">@place</option>
-                                    }
-                                </InputSelect>
-                                <label for="wildAnimal"> Plats </label>
-                                <ValidationMessage For="() => pageViewModel.Place" class="text-danger" />
+                        <br />
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                    <label for="Note"> Beskrivning </label>
+                                    <ValidationMessage For="() => pageViewModel.Note" class="text-danger" />
+                                </div>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="form-floating">
-                                <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                <label for="Hours"> Timmar </label>
-                                <ValidationMessage For="() => pageViewModel.Hours" class="text-danger" />
-                            </div>
-                        </div>
-                    </div>
 
-                    <br />
+                        <br />
 
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-floating">
-                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                <label for="Note"> Beskrivning </label>
-                                <ValidationMessage For="() => pageViewModel.Note" class="text-danger" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <br />
-
-                    @* Desktop screen *@
-                    <div id="desktop" class="form-group" align="center">
-                        <label for="NextSalary"> Nästa lön? </label>
-                        <InputCheckbox @bind-Value="pageViewModel.NextSalary" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                        <ValidationMessage For="() => pageViewModel.NextSalary" class="text-danger" />
-                    </div>
-
-                    @* Mobile screen *@
-                    <div id="mobile">
-                        <div class="form-check">
-                            <InputCheckbox id="NextSalary" @bind-Value="pageViewModel.NextSalary" class="form-check-input" disabled="@DisabledForm" />
-                            <label class="form-check-label" for="NextSalary"> Fått lön? </label>
+                        @* Desktop screen *@
+                        <div id="desktop" class="form-group" align="center">
+                            <label for="NextSalary"> Nästa lön? </label>
+                            <InputCheckbox @bind-Value="pageViewModel.NextSalary" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
                             <ValidationMessage For="() => pageViewModel.NextSalary" class="text-danger" />
                         </div>
-                    </div>
 
-                    <br />
+                        @* Mobile screen *@
+                        <div id="mobile">
+                            <div class="form-check">
+                                <InputCheckbox id="NextSalary" @bind-Value="pageViewModel.NextSalary" class="form-check-input" disabled="@DisabledForm" />
+                                <label class="form-check-label" for="NextSalary"> Fått lön? </label>
+                                <ValidationMessage For="() => pageViewModel.NextSalary" class="text-danger" />
+                            </div>
+                        </div>
 
-                    <div style="text-align:center">
-                        <button hidden="@ShowOrHideAddNewButton" @onclick="HideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
-                    </div>
+                        <br />
 
-                    <div style="text-align:center">
-                        <button @onclick="HideNewOrChangesForm" hidden="@ShowOrHideEditButton" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
-                    </div>
+                        @if (ShowOrHideAddNewButton)
+                        {
+                            <div style="text-align:center">
+                                <button @onclick="ShowOrHideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
+                            </div>
+                        }
 
-                    <br />
+                        @if (ShowOrHideEditButton)
+                        {
+                            <div style="text-align:center">
+                                <button @onclick="ShowOrHideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                            </div>
+                        }
 
-                    <div style="text-align:center">
-                        <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
-                    </div>
+                        <br />
 
-                    <br />
-                    <br />
-                </EditForm>
-            </div>
+                        <div style="text-align:center">
+                            <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                        </div>
+
+                        <br /> <br />
+
+                    </EditForm>
+                </div>
+            }
 
             @* View - Desktop *@
+            
+            
             <div id="desktop">
 
                 <br />
@@ -389,8 +407,8 @@
     public bool ShowBackdropSalary = false;
 
     // Hide button and fields
-    private bool HideNewOrChangesFields { get; set; } = false;
-    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = true;
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
@@ -401,12 +419,22 @@
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
 
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
         List<FarmWorks> farmWorks = await db.FarmWorks.OrderByDescending(c => c.Date).ToListAsync();
 
-        if (!farmWorks.Any()) return;
+        if (!farmWorks.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = farmWorks
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -424,17 +452,12 @@
 
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
-    private void HideNewOrChangesForm()
+    private void ShowOrHideNewOrChangesForm()
     {
-        HideNewOrChangesFields = !HideNewOrChangesFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
-    }
-
-    private void ShowErrorMessage(string errorMessage)
-    {
-        ErrorMessage = errorMessage;
-        ShowOrHideErrorMessage = true;
+        ShowOrHideNewOrChangesFields = !ShowOrHideNewOrChangesFields;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = true;
     }
 
     private async Task AddOrEdit()
@@ -444,16 +467,20 @@
         try
         {
             if (pageViewModel.FarmWorksId > 0)
+            {
                 ErrorMessage = await BackEndClass.Edit(pageViewModel);
+                ShowOrHideEditButton = true;
+            }
             else
+            {
                 ErrorMessage = await BackEndClass.Add(pageViewModel);
-
+                ShowOrHideAddNewButton = true;
+            }
+            
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                HideNewOrChangesForm();
-                ShowOrHideErrorMessage = false;
-                ShowOrHideEditButton = true;
-                ShowOrHideAddNewButton = false;
+                ShowOrHideNewOrChangesForm();
+                ShowOrHideErrorMessage = true;
                 return;
             }
             else
@@ -464,15 +491,14 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage += $"\r\n\r\nEtt fel uppstod: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
         }
     }
 
     private void Info(FarmWorksViewModels vm)
     {
-        HideNewOrChangesForm();
-        ShowOrHideAddNewButton = true;
+        ShowOrHideNewOrChangesForm();
+        ShowOrHideAddNewButton = false;
         DisabledForm = true;
         pageViewModel = vm;
     }
@@ -486,10 +512,10 @@
         }
 
         DisabledForm = false;
-        ShowOrHideEditButton = false;
-        ShowOrHideAddNewButton = true;
-        ShowOrHideCreateButton = true;
-        HideNewOrChangesFields = true;
+        ShowOrHideEditButton = true;
+        ShowOrHideAddNewButton = false;
+        ShowOrHideCreateButton = false;
+        ShowOrHideNewOrChangesFields = true;
         pageViewModel = vm;
     }
 
@@ -573,7 +599,7 @@
             if (result.Any())
             {
                 queryable = result
-                    .OrderBy(c => c.FarmWorksId)
+                    .OrderBy(c => c.Date)
                     .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
                     .AsQueryable();
             }
@@ -627,7 +653,7 @@
                 }
 
                 IEnumerable<FarmWorksViewModels> farmWorksList = result
-                    .OrderBy(c => c.FarmWorksId)
+                    .OrderByDescending(c => c.Date)
                     .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
                     .ToList();
 
