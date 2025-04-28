@@ -35,7 +35,7 @@
         <br /> <br />
 
         <div style="text-align:center">
-            <button class="btn btn-outline-success btn-sm" @onclick="@ShowOrHideNewOrChangesForm"> Nytt gårdsarbete </button>
+            <button class="btn btn-outline-success btn-sm" @onclick="@ShowOrHideAddOrEditForm"> Nytt gårdsarbete </button>
         </div>
 
         <br />
@@ -63,11 +63,11 @@
         <div class="card">
 
             @* Form *@
-            @if (ShowOrHideNewOrChangesFields)
+            @if (ShowOrHideAddOrEditFields)
             {
                 <div class="card-header">
 
-                    <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrUpdate" Enhance>
+                    <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance>
 
                         <DataAnnotationsValidator />
 
@@ -141,14 +141,14 @@
                         @if (ShowOrHideAddNewButton)
                         {
                             <div style="text-align:center">
-                                <button @onclick="ShowOrHideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
+                                <button @onclick="ShowOrHideAddOrEditForm" type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
                             </div>
                         }
 
                         @if (ShowOrHideEditButton)
                         {
                             <div style="text-align:center">
-                                <button @onclick="ShowOrHideNewOrChangesForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                <button @onclick="ShowOrHideAddOrEditForm" type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                             </div>
                         }
 
@@ -165,8 +165,6 @@
             }
 
             @* View - Desktop *@
-            
-            
             <div id="desktop">
 
                 <br />
@@ -407,7 +405,7 @@
     public bool ShowBackdropSalary = false;
 
     // Hide button and fields
-    private bool ShowOrHideNewOrChangesFields { get; set; } = false;
+    private bool ShowOrHideAddOrEditFields { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = true;
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
@@ -415,6 +413,7 @@
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private bool isDeleteSalaryButtonVisible;
     private string NextSalary = string.Empty;
+    private bool isInitialized = false;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
@@ -445,6 +444,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (isInitialized)
+            return;
+
+        isInitialized = true;
+
         isDeleteSalaryButtonVisible = await ShowOrHideDetleteSalaryButton();
         NextSalary = await GetNextSalary();
         await ConvertListToQueryableAsync();
@@ -452,13 +456,7 @@
 
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
-    private void ShowOrHideNewOrChangesForm()
-    {
-        ShowOrHideNewOrChangesFields = !ShowOrHideNewOrChangesFields;
-        ShowOrHideCreateButton = false;
-        ShowOrHideEditButton = false;
-        ShowOrHideAddNewButton = true;
-    }
+    private void ShowOrHideAddOrEditForm() => ShowOrHideAddOrEditFields = true;
 
     private async Task AddOrEdit()
     {
@@ -476,10 +474,10 @@
                 ErrorMessage = await BackEndClass.Add(pageViewModel);
                 ShowOrHideAddNewButton = true;
             }
-            
+
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                ShowOrHideNewOrChangesForm();
+                ShowOrHideAddOrEditForm();
                 ShowOrHideErrorMessage = true;
                 return;
             }
@@ -497,7 +495,9 @@
 
     private void Info(FarmWorksViewModels vm)
     {
-        ShowOrHideNewOrChangesForm();
+        ShowOrHideAddOrEditFields = !ShowOrHideAddOrEditFields;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = false;
         DisabledForm = true;
         pageViewModel = vm;
@@ -515,7 +515,7 @@
         ShowOrHideEditButton = true;
         ShowOrHideAddNewButton = false;
         ShowOrHideCreateButton = false;
-        ShowOrHideNewOrChangesFields = true;
+        ShowOrHideAddOrEditFields = true;
         pageViewModel = vm;
     }
 
