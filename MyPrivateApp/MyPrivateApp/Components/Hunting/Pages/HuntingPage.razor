@@ -7,9 +7,9 @@
 @using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
+@inject ApplicationDbContext db
 @inject NavigationManager Navigation
 
 <PageTitle> Jakt </PageTitle>
@@ -20,35 +20,35 @@
     <br />
 
     @* Navigation - Desktop *@
-    <div id="desktop" style="text-align:center">
-        <div class="btn-group">
-            <NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink>
-            <NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Mina jaktbyten </NavLink>
-            <NavLink href="HuntingPreyPage" type="button" class="btn btn-outline-dark btn-sm"> Jaktbyten </NavLink>
-            <NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink>
-            <NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink>
+    <div id="desktop" align="center">
+        <div class="btn-group" role="group" aria-label="Desktop Navigation">
+            @foreach (var page in navList)
+            {
+                <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+            }
         </div>
     </div>
 
     @* Navigation - Mobile *@
     <div id="mobile">
         <div class="btn-group" role="group">
-            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Alla aktier sidor
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                Alla jakt sidor
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li class="dropdown-item"><NavLink href="HuntingPage" type="button" class="btn btn-outline-dark btn-sm"> Start </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingMyListPage" type="button" class="btn btn-outline-dark btn-sm"> Mina jaktbyten </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingPreyPage" type="button" class="btn btn-outline-dark btn-sm"> Jaktbyten </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingTeamMembersPage" type="button" class="btn btn-outline-dark btn-sm"> Medlemmar </NavLink></li>
-                <li class="dropdown-item"><NavLink href="HuntingTowerInspectionPage" type="button" class="btn btn-outline-dark btn-sm"> Torn besiktningar </NavLink></li>
+                @foreach (var page in navList)
+                {
+                    <li class="dropdown-item">
+                        <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                    </li>
+                }
             </ul>
         </div>
     </div>
 
     <br /> <br />
 
-    <h1 style="text-align:center"> Jakt </h1>
+    <h1 align="center"> Jakt </h1>
 
     <br /> <br />
 
@@ -69,5 +69,15 @@
 
 @* Back-End *@
 @code {
+
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
+    {
+        ("HuntingPage", "Start"),
+        ("HuntingMyListPage", "Mina jaktbyten"),
+        ("HuntingPreyPage", "Jaktbyten"),
+        ("HuntingTeamMembersPage", "Medlemmar"),
+        ("HuntingTowerInspectionPage", "Jakttornsinspektioner"),
+    };
 
 }

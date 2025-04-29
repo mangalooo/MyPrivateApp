@@ -51,7 +51,6 @@ namespace MyPrivateApp.Components.ViewModels.Games.ManagerZone
         [Display(Name = "Total kostnad just nu")]
         public int TotalCostRightNow { get; set; }
 
-
         [Display(Name = "Beskrivning")]
         [DataType(DataType.MultilineText)]
         public string? Note { get; set; }
