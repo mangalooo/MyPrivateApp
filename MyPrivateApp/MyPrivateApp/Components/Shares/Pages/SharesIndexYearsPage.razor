@@ -1,5 +1,4 @@
-﻿
-@page "/SharesIndexYearsPage"
+﻿@page "/SharesIndexYearsPage"
 
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
@@ -12,7 +11,7 @@
 @using MyPrivateApp.Data.Models.SharesModels
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
 
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
@@ -53,20 +52,22 @@
 
     <br /> <br />
 
-    <h1 style="text-align:center"> Resultat </h1>
+    <h1 align="center"> Resultat </h1>
 
     <br />
 
-    <h3 style="text-align:center">Total vinst: @GetTotalProfitsOrLosses()</h3>
+    <h3 align="center">Total vinst: @TotalProfitsOrLosses</h3>
 
-    <br /> <br />
+    <br />
 
-    <div style="text-align:center">
+    <div align="center">
         <button class="btn btn-outline-success btn-sm" @onclick="@CalculateLastYearsResults"> Beräkna förra årets resultat </button>
     </div>
 
     @if (ShowOrHideErrorMessage)
     {
+        <br />
+
         <div style="text-align:center">
             <Alert Color="AlertColor.Danger">
                 <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
@@ -142,8 +143,7 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -196,8 +196,7 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -223,7 +222,7 @@
 {
     [SupplyParameterFromForm]
     private SharesProfitOrLossYearViewModel pageViewModel { get; set; } = new();
-    PaginationState pagination = new PaginationState { ItemsPerPage = 20 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<SharesProfitOrLossYearViewModel> queryable = Enumerable.Empty<SharesProfitOrLossYearViewModel>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -237,14 +236,18 @@
 
     // Hide button and fields
     private bool HideNewOrChangesFields { get; set; } = false;
-    private bool ShowOrHideCreateButton { get; set; } = false;
-    private bool ShowOrHideEditButton { get; set; } = false;
-    private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string TotalProfitsOrLosses = string.Empty;
 
     // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
 
     // Navigation items
     private List<NavigationItem> NavigationItems = new()
@@ -280,7 +283,11 @@
     {
         List<SharesProfitOrLossYears> items = await db.SharesProfitOrLossYears.OrderBy(c => c.SharesProfitOrLossYearsId).ToListAsync();
 
-        if (!items.Any()) return;
+        if (!items.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = items
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
@@ -289,21 +296,18 @@
         pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
     }
 
-    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        TotalProfitsOrLosses = await GetTotalProfitsOrLosses();
+        await ConvertListToQueryableAsync();
+    }
+
 
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
-    private void HideNewOrChangesForm()
-    {
-        HideNewOrChangesFields = !HideNewOrChangesFields;
-        ShowOrHideCreateButton = true;
-        ShowOrHideEditButton = true;
-    }
-
     private void Info(SharesProfitOrLossYearViewModel vm)
     {
-        HideNewOrChangesForm();
-        ShowOrHideAddNewButton = true;
+        HideNewOrChangesFields = !HideNewOrChangesFields;
         DisabledForm = true;
         pageViewModel = vm;
     }
@@ -312,18 +316,17 @@
     {
         if (!db.SharesFees.Any())
         {
-            ErrorMessage = "Det finns inga utdelningar att ta bort!";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage("Det finns inga utdelningar att ta bort!");
             return;
         }
 
         try
         {
             SharesProfitOrLossYears? model = await db.SharesProfitOrLossYears.FirstOrDefaultAsync(a => a.SharesProfitOrLossYearsId == TemporaryId);
+
             if (model == null)
             {
-                ErrorMessage = "Hittar ingen årsredovisning att ta bort!";
-                ShowOrHideErrorMessage = true;
+                ShowErrorMessage("Hittar ingen årsredovisning att ta bort!");
                 return;
             }
 
@@ -339,8 +342,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Ett fel uppstod! Felmeddelande: {ex.Message}";
-            ShowOrHideErrorMessage = true;
+            ShowErrorMessage($"Ett fel uppstod 1: {ex.Message}");
         }
     }
 
@@ -412,6 +414,6 @@
             SetQuery(result);
         }
         else
-           await RefreshPage();
+            await RefreshPage();
     }
 }

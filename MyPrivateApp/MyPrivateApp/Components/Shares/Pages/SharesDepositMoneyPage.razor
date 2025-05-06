@@ -318,15 +318,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -399,7 +397,11 @@
     {
         List<SharesDepositMoney> items = await db.SharesDepositMoney.OrderBy(c => c.DepositMoneyId).ToListAsync();
 
-        if (!items.Any()) return;
+        if (!items.Any())
+        {
+            ShowErrorMessage("Finns ingen data att visa!");
+            return;
+        }
 
         queryable = items
             .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
