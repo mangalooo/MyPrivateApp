@@ -14,7 +14,7 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
+@inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject ISharesDepositMoneyClass BackEndClass
 
@@ -55,7 +55,7 @@
 
     <br /> <br />
 
-    <h1 style="text-align:center"> Banköverföringar </h1>
+    <h1 align="center"> Banköverföringar </h1>
 
     <br />
 
@@ -66,12 +66,12 @@
         <div align="center">
             <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny banköverföring </button>
         </div>
-
-        <br />
     }
 
     @if (ShowOrHideErrorMessage)
     {
+        <br />
+
         <div align="center">
             <Alert Color="AlertColor.Danger">
                 <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
@@ -467,6 +467,12 @@
 
     private void Edit(SharesDepositMoneyViewModel vm)
     {
+        if (vm.DepositMoneyId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra gårdsarbetet. ID = {vm.DepositMoneyId}!");
+            return;
+        }
+
         DisabledForm = false;
         ShowOrHideEditButton = true;
         ShowOrHideAddNewButton = false;

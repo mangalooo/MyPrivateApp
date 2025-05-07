@@ -121,6 +121,9 @@ builder.Services.AddRazorComponents();
 
 WebApplication app = builder.Build();
 
+// Map static assets
+app.MapStaticAssets();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
