@@ -12,7 +12,7 @@
 @using MyPrivateApp.Components.Shares.Classes.Interface
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
 
-@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@rendermode InteractiveServer
 
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
@@ -27,7 +27,7 @@
 
     @* Navigation *@
     <div class="navigation">
-        <div id="desktop" class="text-center">
+        <div id="desktop" align="center">
             <div class="btn-group">
                 @foreach (var item in NavigationItems)
                 {
@@ -69,11 +69,22 @@
         </div>
     }
 
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
     <br />
 
 </div>
 
-@* Form and views *@
+@* @* Form and views *@
 <div class="container">
     <div class="col-md-12">
         <div class="card">
@@ -85,31 +96,27 @@
                     <div class="card-header">
                         <EditForm Model="pageViewModel" OnSubmit="Edit" Enhance>
 
-                            <DataAnnotationsValidator />
-
-                            <ValidationSummary class="text-danger" role="alert" />
-
                             <div class="row">
 
                                 <div id="mobile" class="col-4" />
 
                                 <div class="col-4">
                                     <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
+                                        <InputDate id="Date" @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
                                         <label for="Date"> Datum </label>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
                                     <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
+                                        <InputText id="CompanyOrInformation" @bind-Value="pageViewModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
                                         <label for="CompanyOrInformation"> Aktie / fond </label>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
                                     <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                        <InputText id="TypeOfTransaction" @bind-Value="pageViewModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
                                         <label for="TypeOfTransaction"> Transaktion </label>
                                     </div>
                                 </div>
@@ -122,10 +129,11 @@
 
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                        <InputTextArea id="Note" rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
                                         <label for="Note"> Anteckningar </label>
                                     </div>
                                 </div>
+
                             </div>
 
                             <br />
@@ -134,14 +142,17 @@
 
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.ErrorMessage" class="form-control" disabled="@DisabledForm" />
+                                        <InputTextArea id="ErrorMessage" rows="10" style="height:100%;" @bind-Value="pageViewModel.ErrorMessage" class="form-control" disabled="@DisabledForm" />
                                         <label for="ErrorMessage"> Felmeddelande </label>
                                     </div>
                                 </div>
+
                             </div>
 
                             @if (ShowOrHideEditButton)
                             {
+                                <br />
+
                                 <div align="center">
                                     <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                                 </div>
@@ -263,7 +274,7 @@
 
         </div>
     </div>
-</div>
+</div> 
 
 @* Footer *@
 <div>
@@ -301,9 +312,11 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
 
-    // Error text messeges
+    // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
     private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -347,7 +360,9 @@
 
         if (!items.Any())
         {
-            ShowErrorMessage("Finns ingen data att visa!");
+            InfoMessage = "Finns ingen data att visa!";
+            ShowOrHideInfoMessage = true;
+
             return;
         }
 
@@ -369,10 +384,7 @@
         try
         {
             if (pageViewModel.ErrorHandlingsId > 0)
-            {
                 ErrorMessage = await BackEndClass.Edit(pageViewModel);
-                ShowOrHideEditButton = true;
-            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -408,7 +420,7 @@
         }
 
         DisabledForm = false;
-        ShowOrHideEditButton = false;
+        ShowOrHideEditButton = true;
         ShowOrHideEditForm = true;
         pageViewModel = vm;
     }

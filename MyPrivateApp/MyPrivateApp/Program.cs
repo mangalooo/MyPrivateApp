@@ -65,6 +65,8 @@ builder.Services.AddScoped<ISharesOtherImportsClass, SharesOtherImportsClass>();
 builder.Services.AddScoped<ISharesDepositMoneyClass, SharesDepositMoneyClass>();
 builder.Services.AddScoped<ISharesImportsFileClass, SharesImportsFileClass>();
 builder.Services.AddScoped<ISharesIndexYearsClass, SharesIndexYearsClass>();
+builder.Services.AddScoped<ISharesErrorHandlingClass, SharesErrorHandlingClass>();
+
 
 // Other
 builder.Services.AddCascadingAuthenticationState();
@@ -73,6 +75,17 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddServerSideBlazor().AddCircuitOptions(options =>
+{
+    options.DetailedErrors = true;
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Enforces Secure attribute
+    options.Cookie.SameSite = SameSiteMode.Strict; // Ensures cookies are sent only in same-site requests
+});
 
 builder.Services.AddAuthentication(options =>
     {
