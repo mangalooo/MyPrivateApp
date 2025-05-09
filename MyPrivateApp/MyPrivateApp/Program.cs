@@ -67,7 +67,6 @@ builder.Services.AddScoped<ISharesImportsFileClass, SharesImportsFileClass>();
 builder.Services.AddScoped<ISharesIndexYearsClass, SharesIndexYearsClass>();
 builder.Services.AddScoped<ISharesErrorHandlingClass, SharesErrorHandlingClass>();
 
-
 // Other
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

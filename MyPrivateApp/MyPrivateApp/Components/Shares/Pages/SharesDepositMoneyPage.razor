@@ -80,6 +80,17 @@
         </div>
     }
 
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
     <br />
 
 </div>
@@ -95,10 +106,6 @@
                 {
                     <div class="card-header">
                         <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
-
-                            <DataAnnotationsValidator />
-
-                            <ValidationSummary class="text-danger" role="alert" />
 
                             <div class="row">
 
@@ -353,9 +360,11 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
 
-    // Error text messeges
-    private bool ShowOrHideErrorMessage { get; set; } = false;
+    // Text messeges
     private string ErrorMessage { get; set; } = string.Empty;
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -399,7 +408,8 @@
 
         if (!items.Any())
         {
-            ShowErrorMessage("Finns ingen data att visa!");
+            InfoMessage = "Finns ingen data att visa!";
+            ShowOrHideInfoMessage = true;
             return;
         }
 
