@@ -8,31 +8,25 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         public int SharesPurchasedFundId { get; set; }
 
-        [Required(ErrorMessage = "Skriv in datum")]
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
         public DateTime DateOfPurchase { get; set; }
 
-        [Required(ErrorMessage = "Skriv in ett fond namn")]
         [Display(Name = "Företag")]
         [DataType(DataType.Text)]
         public string? FundName { get; set; }
 
-        [Required(ErrorMessage = "Skriv hur många fond delar")]
         [Display(Name = "Antal")]
         public double HowMany { get; set; }
 
-        [Required(ErrorMessage = "Skriv in pris per fond del")]
         [Display(Name = "Pris per aktie")]
         [DataType(DataType.Text)]
         public string? PricePerFunds { get; set; }
 
-        [Required(ErrorMessage = "Skriv in avgift")]
         [Display(Name = "Courtage")]
         [DataType(DataType.Currency)]
         public double Fee { get; set; }
 
-        [Required(ErrorMessage = "Skriv in vad fonden kostade totalt")]
         [Display(Name = "Inköpsvärdet")]
         [DataType(DataType.Text)]
         public string? Amount { get; set; }
