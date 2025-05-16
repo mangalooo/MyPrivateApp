@@ -1,4 +1,5 @@
-﻿@page "/SharesPurchasedFundsPage"
+﻿
+@page "/SharesPurchasedFundsPage"
 
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Components.Enum
@@ -320,7 +321,7 @@
                             @if (ShowOrHideSaleButton)
                             {
                                 <div align="center">
-                                    <button @onclick="OpenWindowSale" type="button" style="text-align:center" class="btn btn-outline-danger btn-sm"> Sälja </button>
+                                    <button @onclick="() => OpenSaleWindow(pageViewModel)" type="button" align="center" class="btn btn-outline-danger btn-sm"> Sälja </button>
 
                                     <div class="modal @ModalClassSale" tabindex="-1" role="dialog" style="display:@ModalDisplaySale">
                                         <div class="modal-dialog" role="document" style="width:400px">
@@ -331,7 +332,7 @@
 
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-outline-danger" @onclick="@(() => SellButton(pageViewModel))"> Sälja </button>
-                                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSale()"> Ångra </button>
+                                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseSaleWindow()"> Ångra </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -342,8 +343,8 @@
                                         <div class="modal-backdrop fade show"></div>
                                     }
 
-                                    <br />
-                                    <br />
+                                    <br /> <br />
+
                                 </div>
                             }
 
@@ -382,7 +383,7 @@
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-success btn-sm" @onclick="@(() => AddMore(context))"> Köp mera </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => Sell(context))"> Sälj </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -394,7 +395,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort fond </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -433,7 +434,7 @@
                                     <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-success btn-sm" @onclick="@(() => AddMore(context))"> Köp mera </button></li>
                                     <li class="dropdown-item"><button class="btn btn-outline-dark btn-sm" @onclick="@(() => Sell(context))"> Sälj </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenWindowDelete(context))"> Ta bort </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
                                 </ul>
                             </div>
 
@@ -445,7 +446,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort fond </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowDelete()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
@@ -470,15 +471,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -593,12 +592,12 @@
         {
             if (pageViewModel.SharesPurchasedFundId > 0)
             {
-                ErrorMessage = await BackEndClass.Edit(db ,pageViewModel);
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
                 ShowOrHideEditButton = true;
             }
             else
             {
-                ErrorMessage = await BackEndClass.Add(db ,pageViewModel, false);
+                ErrorMessage = await BackEndClass.Add(pageViewModel, false);
                 ShowOrHideAddNewButton = true;
             }
 
@@ -624,41 +623,41 @@
     {
         if (vm == null) return;
 
-        HideNewOrChangesForm();
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm; ();
         BuyMore = false;
         DisabledForm = true;
         ShowOrHideButtonAddMoreShares = false;
         ShowOrHideAddNewButton = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
-    private void AddMoreButton()
+    private async Task AddMoreButton()
     {
-        ErrorMessage = BackEndClass.AddMore(db, pageModel, false);
+        ErrorMessage = await BackEndClass.AddMore(pageViewModel, false);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
             ShowOrHideErrorMessage = false;
-            HideNewOrChangesFields = true;
+            ShowOrHideAddOrEditForm = true;
             ShowOrHideEditButton = false;
             return;
         }
         else
         {
-            pageModel = new();
-            Navigation.Refresh(true);
+            pageViewModel = new();
+            await RefreshPage();
             return;
         }
     }
 
     private void Info(SharesPurchasedFundViewModel vm)
     {
-        if (vm == null) return;
-
-        HideNewOrChangesForm();
-        ShowOrHideAddNewButton = true;
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = false;
         DisabledForm = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
     private void Edit(SharesPurchasedFundViewModel vm)
@@ -668,102 +667,91 @@
         DisabledForm = false;
         ShowOrHideEditButton = false;
         ShowOrHideAddNewButton = true;
-        HideNewOrChangesFields = true;
-        pageModel = vm;
+        ShowOrHideAddOrEditForm = true;
+        pageViewModel = vm;
     }
 
     private void Sell(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
-        HideNewOrChangesForm();
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm; ();
         Sale = false;
         DisabledForm = true;
         ShowOrHideSaleButton = false;
         ShowOrHideAddNewButton = true;
-        pageModel = vm;
+        pageViewModel = vm;
     }
 
-    private void SellButton(SharesPurchasedFundViewModel vm)
+    private async Task SellButton(SharesPurchasedFundViewModel vm)
     {
         if (vm == null) return;
 
-        ErrorMessage = BackEndClass.Sell(db, pageModel, false, ISharesFeeClass);
+        ErrorMessage = await BackEndClass.Sell(pageViewModel, false, ISharesFeeClass);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
             ShowOrHideErrorMessage = false;
-            HideNewOrChangesFields = true;
+            ShowOrHideAddOrEditForm = true;
             ShowOrHideEditButton = false;
+        }
+        else
+        {
+            pageViewModel = new();
+            await RefreshPage();
+        }
+    }
+
+    private async Task Delete()
+    {
+        // Try to find the fund
+        SharesPurchasedFunds? model = await db.SharesPurchasedFunds
+            .FirstOrDefaultAsync(a => a.SharesPurchasedFundId == TemporaryId);
+
+        if (model == null)
+        {
+            ShowErrorMessage("Fonden kunde inte hittas i databasen!");
+            return;
+        }
+
+        ErrorMessage = await BackEndClass.Delete(model);
+
+        if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            ShowOrHideErrorMessage = true;
+            ShowOrHideAddOrEditForm = false;
+            ShowOrHideEditButton = false;
+            StateHasChanged();
             return;
         }
         else
         {
-            pageModel = new();
-            Navigation.Refresh(true);
-            return;
+            pageViewModel = new();
+            await RefreshPage();
         }
     }
 
-    private void OpenWindowSale()
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
     {
-        ModalDisplaySale = "block;";
-        ModalClassSale = "Show";
-        ShowBackdropSale = true;
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
         StateHasChanged();
     }
 
-    private void CloseWindowSale()
+    private void OpenSaleWindow(SharesPurchasedFundViewModel vm)
     {
-        ModalDisplaySale = "none";
-        ModalClassSale = "";
-        ShowBackdropSale = false;
-        StateHasChanged();
-    }
-
-    private void Delete()
-    {
-        if (db.SharesPurchasedFunds.Count() == 0) return;
-
-        bool findId = db.SharesPurchasedFunds.Any(a => a.SharesPurchasedFundId == TemporaryId);
-
-        if (findId)
-        {
-            SharesPurchasedFunds model = db.SharesPurchasedFunds.FirstOrDefault(a => a.SharesPurchasedFundId == TemporaryId);
-            SharesPurchasedFundViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-
-            ErrorMessage = BackEndClass.Delete(db, null, vm, false);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ShowOrHideErrorMessage = false;
-                HideNewOrChangesFields = true;
-                ShowOrHideEditButton = false;
-                return;
-            }
-            else
-            {
-                pageModel = new();
-                Navigation.Refresh(true);
-                return;
-            }
-        }
-    }
-
-    private void OpenWindowDelete(SharesPurchasedFundViewModel vm)
-    {
-        ModalDisplay = "block;";
-        ModalClass = "Show";
-        ShowBackdrop = true;
-        StateHasChanged();
         TemporaryId = vm.SharesPurchasedFundId;
+        ToggleModal(ref ModalDisplaySale, ref ModalClassSale, ref ShowBackdropSale, true);
     }
 
-    private void CloseWindowDelete()
+    private void CloseSaleWindow() => ToggleModal(ref ModalDisplaySale, ref ModalClassSale, ref ShowBackdropSale, false);
+
+    private void OpenDeleteWindow(SharesPurchasedFundViewModel vm)
     {
-        ModalDisplay = "none";
-        ModalClass = "";
-        ShowBackdrop = false;
-        StateHasChanged();
+        TemporaryId = vm.SharesPurchasedFundId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
     }
+
+    private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 }

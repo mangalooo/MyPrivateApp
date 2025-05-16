@@ -528,6 +528,16 @@
         }
     }
 
+    private async Task<double> GetTotalAmount()
+    {
+        SharesTotalAmounts? sharesTotalAmounts = await BackEndClass.GetTotalAmount(2);
+
+        if (sharesTotalAmounts == null)
+            return 0;
+
+        return sharesTotalAmounts.TotalAmount;
+    }
+
     private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
     {
         modalDisplay = isOpen ? "block;" : "none";
@@ -543,14 +553,4 @@
     }
 
     private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
-
-    private async Task<double> GetTotalAmount()
-    {
-        SharesTotalAmounts? sharesTotalAmounts = await BackEndClass.GetTotalAmount(2);
-
-        if (sharesTotalAmounts == null)
-            return 0;
-
-        return sharesTotalAmounts.TotalAmount;
-    }
 }

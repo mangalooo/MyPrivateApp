@@ -172,7 +172,6 @@ namespace MyPrivateApp.Components.Shares.Classes
             return message;
         }
 
-
         // Selling all or part of the fund
         public async Task<string> Sell(SharesPurchasedFundViewModel vm, bool import, ISharesFeeClass sharesFeeClass)
         {
@@ -332,7 +331,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 model.Amount = model.HowMany * model.PricePerFunds;
 
                 // Update the note
-                model.Note = AppendSaleNote(model.Note, vm, importTrue);
+                if (!string.IsNullOrEmpty(model.Note))
+                    model.Note = AppendSaleNote(model.Note, vm, importTrue);
 
                 // Save changes asynchronously
                 await db.SaveChangesAsync();
@@ -356,36 +356,19 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.IsNullOrEmpty(existingNote) ? saleNote : existingNote + saleNote;
         }
 
-
-        public string Delete(ApplicationDbContext db, SharesPurchasedFunds model, SharesPurchasedFundViewModel vm, bool import)
+        public async Task<string> Delete(SharesPurchasedFunds model)
         {
-            if (vm != null && vm.SharesPurchasedFundId != 0 && db != null)
-            {
-                try
-                {
-                    db.ChangeTracker.Clear();
+            if (model == null || model.SharesPurchasedFundId == 0 || _db == null)
+                return await HandleError(null, "Ta bort såld", false, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
 
-                    if (import && model != null && model.SharesPurchasedFundId > 0)
-                        db.SharesPurchasedFunds.Remove(model);
-                    else
-                    {
-                        SharesPurchasedFunds modelDB = ChangesFromViewModelToModel(vm);
-                        db.SharesPurchasedFunds.Remove(modelDB);
-                    }
-                        
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    ErrorHandling(db, vm, "Ta bort såld", import, ex.Message);
-                }
-            }
-            else
+            try
             {
-                if (import)
-                    ErrorHandling(db, vm, "Ta bort såld", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+                _db.SharesPurchasedFunds.Remove(model);
+                await _db.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                return await HandleError(null, "Ta bort såld", false, ex.Message);
             }
 
             return string.Empty;
@@ -498,7 +481,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         private async Task<string> HandleError(SharesPurchasedFundViewModel? vm, string type, bool import, string errorMessage)
         {
-            if (import)
+            if (import && vm != null)
                 await ErrorHandling(vm, type, import, errorMessage);
 
             return $"{type}: Felmeddelande: {errorMessage}";
