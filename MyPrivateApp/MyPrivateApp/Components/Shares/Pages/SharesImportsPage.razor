@@ -581,10 +581,18 @@
                         rowCount = ws.Dimension.End.Row;
                         List<SharesImports> importList = ExtractImportsFromWorksheet(ws, rowCount);
 
+                        string errorMessage = string.Empty; 
+
                         foreach (var import in importList)
                         {
                             transactionCounter++;
-                            await ProcessImport(import);
+                            errorMessage = await ProcessImport(import);
+
+                            if(!string.IsNullOrEmpty(errorMessage))
+                            {
+                                await HandleImportError(errorMessage + $". ISIN: {import.ISIN}", fileName, transactionCounter, rowCount);
+                                break;
+                            }
                         }
                     }
                 }
@@ -594,7 +602,7 @@
         }
         catch (Exception exc)
         {
-            await HandleImportError(exc, fileName, transactionCounter, rowCount);
+            await HandleImportError(exc.Message, fileName, transactionCounter, rowCount);
         }
     }
 
@@ -620,8 +628,10 @@
         return importList;
     }
 
-    private async Task ProcessImport(SharesImports import)
+    private async Task<string> ProcessImport(SharesImports import)
     {
+        string errorMessage = string.Empty;
+
         switch (import.TypeOfTransaction)
         {
             case "Köp":
@@ -631,10 +641,10 @@
                 await SoldShareImport(import);
                 break;
             case "FondKöp":
-                await AddFundImport(import);
+                errorMessage = await AddFundImport(import);
                 break;
             case "FondSälj":
-                await SoldFundImport(import);
+                errorMessage = await SoldFundImport(import);
                 break;
             case "Utdelning":
                 await DividendImport(import);
@@ -655,6 +665,8 @@
                 await OtherImports(import);
                 break;
         }
+
+        return errorMessage;
     }
 
     private async Task UpdateImportModel(string fileName, int rowCount, int transactionCounter)
@@ -678,38 +690,6 @@
         {
             await LogError($"Import felmeddelande: {ex.Message}", "Kan inte ändra importen!");
         }
-    }
-
-    private async Task HandleImportError(Exception exc, string fileName, int transactionCounter, int rowCount)
-    {
-        var importModel = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId);
-
-        if (importModel == null)
-            await LogError($"Övergripande import felmeddelande: {exc.Message}", "Importen hittades inte i databasen!");
-        else
-        {
-            importModel.Errors += $"Spara till databasen: Fel på rad {transactionCounter + 1}. Felmeddelande: {exc.Message}";
-            importModel.FileName = fileName;
-            importModel.NumbersOfTransaction = transactionCounter;
-            importModel.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
-            await db.SaveChangesAsync();
-        }
-
-        await RefreshPage();
-    }
-
-    private async Task LogError(string errorMessage, string note)
-    {
-        DateTime date = DateTime.Now;
-        var sharesErrorHandling = new SharesErrorHandlings
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = errorMessage,
-                Note = note
-            };
-
-        db.SharesErrorHandlings.Add(sharesErrorHandling);
-        await db.SaveChangesAsync();
     }
 
     private async Task<bool> SharesExistAsync(string isin) => await db.SharesPurchaseds.AnyAsync(r => r.ISIN == isin);
@@ -745,32 +725,42 @@
         }
     }
 
-    private async Task AddFundImport(SharesImports import)
+    private async Task<string> AddFundImport(SharesImports import)
     {
-        var vm = SharesPurchasedFundsClass.ChangeFromImportAddToViewModel(import);
+        string errorMessage = string.Empty;
+
+        SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportAddToViewModel(import);
         bool sharesExist = await db.SharesPurchasedFunds.AnyAsync(r => r.ISIN == import.ISIN);
 
         if (sharesExist)
-            SharesPurchasedFundsClass.AddMore(db, vm, true);
+            errorMessage = await SharesPurchasedFundsClass.AddMore(vm, true);
         else
-            SharesPurchasedFundsClass.Add(db, vm, true);
-    }
+            errorMessage = await SharesPurchasedFundsClass.Add(vm, true);
 
-    private async Task SoldFundImport(SharesImports import)
+        return errorMessage;
+    } // Felhantering klar! Testa...!
+
+    private async Task<string> SoldFundImport(SharesImports import)
     {
-        var vm = SharesPurchasedFundsClass.ChangeFromImportSellToViewModel(import);
+        string errorMessage = string.Empty;
+
+        SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportSellToViewModel(import);
         bool sharesExist = await db.SharesPurchasedFunds.AnyAsync(r => r.ISIN == import.ISIN);
 
         if (sharesExist)
-            SharesPurchasedFundsClass.Sell(db, vm, true, SharesFeeClass);
+            errorMessage = await SharesPurchasedFundsClass.Sell(vm, true, SharesFeeClass);
         else
         {
             await LogError(
                 $"Felmeddelande: Fonden jag försöker sälja finns inte i databasen!",
                 $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nISIN: {vm.ISIN}."
             );
+
+            errorMessage = "Felmeddelande: Fonden jag försöker sälja finns inte i databasen!";
         }
-    }
+
+        return errorMessage;
+    } // Felhantering klar! Testa...!
 
     private async Task DividendImport(SharesImports import)
     {
@@ -800,6 +790,38 @@
     {
         SharesOtherShareImportViewModel vm = SharesOtherImports.ChangeFromImportToViewModel(import);
         await SharesOtherImports.Add(vm, true);
+    }
+
+    private async Task HandleImportError(string errorMessage, string fileName, int transactionCounter, int rowCount)
+    {
+        SharesImportsFile? model = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId);
+
+        if (model == null)
+            await LogError($"Övergripande import felmeddelande: {errorMessage}", "Importen hittades inte i databasen!");
+        else
+        {
+            model.Errors += $"Fel vid inmatning av import. Fel på rad {transactionCounter + 1}. Felmeddelande: {errorMessage}";
+            model.FileName = fileName;
+            model.NumbersOfTransaction = transactionCounter;
+            model.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
+            await db.SaveChangesAsync();
+        }
+
+        await RefreshPage();
+    }
+
+    private async Task LogError(string errorMessage, string note)
+    {
+        DateTime date = DateTime.Now;
+        SharesErrorHandlings sharesErrorHandling = new()
+            {
+                Date = $"{date.Year}-{date.Month}-{date.Day}",
+                ErrorMessage = errorMessage,
+                Note = note
+            };
+
+        db.SharesErrorHandlings.Add(sharesErrorHandling);
+        await db.SaveChangesAsync();
     }
 
     // Kolla om importen funkar innan ta bort denna kod!! // Magnus

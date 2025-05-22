@@ -12,6 +12,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
         public async Task<FarmWorks?> Get(int? id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
@@ -100,24 +101,24 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            FarmWorksViewModels farmWorks = _mapper.Map<FarmWorksViewModels>(model);
+            FarmWorksViewModels vm = _mapper.Map<FarmWorksViewModels>(model);
 
             if (!string.IsNullOrEmpty(model.Date))
-                farmWorks.Date = ParseDate(model.Date);
+                vm.Date = ParseDate(model.Date);
 
-            return farmWorks;
+            return vm;
         }
 
         public FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm)
         {
             ArgumentNullException.ThrowIfNull(vm);
 
-            FarmWorks farmWorks = _mapper.Map<FarmWorks>(vm);
+            FarmWorks model = _mapper.Map<FarmWorks>(vm);
 
             if (vm.Date != DateTime.MinValue)
-                farmWorks.Date = vm.Date.ToString("yyyy-MM-dd");
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
 
-            return farmWorks;
+            return model;
         }
     }
 }

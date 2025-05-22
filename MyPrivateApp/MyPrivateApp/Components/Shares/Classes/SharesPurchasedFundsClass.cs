@@ -5,7 +5,6 @@ using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.SharesModels;
-using System.Threading.Tasks;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
@@ -36,7 +35,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             try
             {
                 SharesPurchasedFunds model = ChangesFromViewModelToModel(vm);
+
                 string importTrue = import ? "Ja" : "Nej";
+
                 model.Note += $"Köper:" +
                               $"\r\nBolag: {model.FundName} aktier" +
                               $"\r\nISIN: {vm.ISIN}";
@@ -89,39 +90,33 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> AddMore(SharesPurchasedFundViewModel vm, bool import)
         {
-            if (!ValidateAddMoreInput(vm, import))
-                return "Du måste fylla i fälten: Köp mer: Datum, Köp mer: Antal och Köp mer: Pris per fond del!";
-
             try
             {
+                if (vm == null || _db == null)
+                    return await HandleError(vm, "Köpt mera", import, "Ingen kontakt med VM eller DB för fonden!");
+
+                if (!import && (vm.MoreDateOfPurchase == DateTime.MinValue || vm.MoreHowMany <= 0 || vm.MorePricePerFunds <= 0))
+                    return "Du måste fylla i fälten: Köp mer: Datum, Köp mer: Antal och Köp mer: Pris per fond del!";
+
+
                 if (string.IsNullOrEmpty(vm.ISIN))
-                    return "Finns inget ISIN!";
+                    return await HandleError(vm, "Köpt mera", import, "Finns inget ISIN till fonden!");
 
                 var model = await Get(vm.ISIN);
+
                 if (model == null)
-                    return HandleNotFoundError(import, "Hittar inte fonden i databasen!");
+                    return await HandleError(vm, "Köpt mera", import, "Hittar inte fonden i databasen!");
 
                 UpdateModelWithAdditionalPurchase(model, vm, import);
 
                 await _db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
-                await HandleError(vm, "Köpt mera", import, ex.Message);
-                return $"Ett fel uppstod: {ex.Message}";
+                return await HandleError(vm, "Köpt mera", import, ex.Message);
             }
-        }
-
-        private bool ValidateAddMoreInput(SharesPurchasedFundViewModel vm, bool import)
-        {
-            if (vm == null || string.IsNullOrEmpty(vm.ISIN) || _db == null)
-                return false;
-
-            if (!import && (vm.MoreDateOfPurchase == DateTime.MinValue || vm.MoreHowMany <= 0 || vm.MorePricePerFunds <= 0))
-                return false;
-
-            return true;
         }
 
         private static void UpdateModelWithAdditionalPurchase(SharesPurchasedFunds model, SharesPurchasedFundViewModel vm, bool import)
@@ -130,7 +125,10 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 model.HowMany += vm.HowMany;
                 model.Fee += vm.Fee;
-                model.Amount += vm.HowMany * double.Parse(vm.PricePerFunds);
+
+                if (!string.IsNullOrEmpty(vm.PricePerFunds))
+                    model.Amount += vm.HowMany * double.Parse(vm.PricePerFunds);
+
                 model.Note += GenerateNoteForAdditionalPurchase(vm, import, model.Amount);
             }
             else
@@ -161,32 +159,21 @@ namespace MyPrivateApp.Components.Shares.Classes
                    $"Courtage: {fee}";
         }
 
-        private string HandleNotFoundError(bool import, string message)
-        {
-            if (import)
-            {
-                _logger.LogError(message);
-                return string.Empty;
-            }
-
-            return message;
-        }
-
         // Selling all or part of the fund
         public async Task<string> Sell(SharesPurchasedFundViewModel vm, bool import, ISharesFeeClass sharesFeeClass)
         {
             if (vm == null || string.IsNullOrEmpty(vm.ISIN))
-                return "Formuläret eller ISIN är tomt!";
+                return await HandleError(vm, "Sälj", import, "Formuläret eller ISIN är tomt!");
 
-            SharesPurchasedFunds fundsPurchased = await Get(vm.ISIN);
+            SharesPurchasedFunds? fundsPurchased = await Get(vm.ISIN);
 
             if (fundsPurchased == null)
-                return "Fonden hittades inte i databasen!";
+                return await HandleError(vm, "Sälj", import, "Fonden hittades inte i databasen!");
 
             vm.SharesPurchasedFundId = fundsPurchased.SharesPurchasedFundId;
 
             if (!ValidateSaleInput(vm, import))
-                return "Du måste fylla i alla obligatoriska fält korrekt!";
+                return await HandleError(vm, "Sälj", import, "Du måste fylla i alla obligatoriska fält korrekt!");
 
             string importStatus = import ? "Ja" : "Nej";
 
@@ -194,16 +181,15 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 if (fundsPurchased.HowMany == vm.SaleHowMany)
                     // Handle entire share sale
-                    return await HandleEntireShareSale(fundsPurchased, vm, importStatus, sharesFeeClass);
+                    return await HandleEntireShareSale(fundsPurchased, vm, importStatus, sharesFeeClass, import);
 
                 else
                     // Handle partial share sale
-                    return await HandlePartialShareSale(fundsPurchased, vm, importStatus, sharesFeeClass);
+                    return await HandlePartialShareSale(fundsPurchased, vm, importStatus, sharesFeeClass, import);
             }
             catch (Exception ex)
             {
-                await HandleError(vm, "Sälj", import, ex.Message);
-                return $"Ett fel uppstod: {ex.Message}";
+                return await HandleError(vm, "Sälj", import, ex.Message);
             }
         }
 
@@ -218,7 +204,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                    vm.SaleFee > 0;
         }
 
-        private async Task<string> HandleEntireShareSale(SharesPurchasedFunds fundsPurchased, SharesPurchasedFundViewModel vm, string importStatus, ISharesFeeClass sharesFeeClass)
+        private async Task<string> HandleEntireShareSale(SharesPurchasedFunds fundsPurchased, SharesPurchasedFundViewModel vm, string importStatus, ISharesFeeClass sharesFeeClass, bool import)
         {
             var soldFund = CreateSharesSoldFunds(fundsPurchased, vm, importStatus, true);
 
@@ -228,31 +214,30 @@ namespace MyPrivateApp.Components.Shares.Classes
                 await db.SaveChangesAsync();
 
                 // Add fee to the fee table
-                var feeVm = ChangeFromToPurchasedToFeeViewModel(vm, soldFund.Fee, $"Avgiften för fonden: {vm.FundName}");
+                SharesFeeViewModel feeVm = ChangeFromToPurchasedToFeeViewModel(vm, soldFund.Fee, $"Avgiften för fonden: {vm.FundName}");
 
                 if (string.IsNullOrEmpty(soldFund.DateOfSold))
-                    return "Finns inget sålt datum!";
+                    return await HandleError(vm, "Sälj", import, "Finns inget sålt datum!");
 
                 await sharesFeeClass.Add(feeVm, true, soldFund.DateOfSold);
 
                 // Remove the purchased fund
-                Delete(db, fundsPurchased, vm, true);
+                await Delete(fundsPurchased);
 
                 return string.Empty;
             }
             catch (Exception ex)
             {
-                await HandleError(vm, "Såld lägg till", true, ex.Message);
-                return $"Sälj: Ett fel uppstod vid försäljning av hela fonden: {ex.Message}";
+                return await HandleError(vm, "Sålt hela", import, $"Sälj: Ett fel uppstod vid försäljning av hela fonden. Felmeddelande: {ex.Message}");
             }
         }
 
-        private async Task<string> HandlePartialShareSale(SharesPurchasedFunds fundsPurchased, SharesPurchasedFundViewModel vm, string importStatus, ISharesFeeClass sharesFeeClass)
+        private async Task<string> HandlePartialShareSale(SharesPurchasedFunds fundsPurchased, SharesPurchasedFundViewModel vm, string importStatus, ISharesFeeClass sharesFeeClass, bool import)
         {
-            var soldFund = CreateSharesSoldFunds(fundsPurchased, vm, importStatus, false);
-
             try
             {
+                SharesSoldFunds soldFund = CreateSharesSoldFunds(fundsPurchased, vm, importStatus, false);
+
                 await _db.SharesSoldFunds.AddAsync(soldFund);
                 await db.SaveChangesAsync();
 
@@ -260,18 +245,23 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesFeeViewModel feeVm = ChangeFromToPurchasedToFeeViewModel(vm, soldFund.Fee, $"Avgift för sålda delar av fonden: {vm.FundName}");
 
                 if (string.IsNullOrEmpty(soldFund.DateOfSold))
-                    return "Finns inget sålt datum!";
+                    return await HandleError(vm, "Sälj", import, "Finns inget sålt datum!");
 
-                await sharesFeeClass.Add(feeVm, false, soldFund.DateOfSold);
+                await sharesFeeClass.Add(feeVm, import, soldFund.DateOfSold);
+
+                string errorMessages = string.Empty;
 
                 // Update the purchased fund
-                await EditSell(fundsPurchased, vm, false);
+                errorMessages = await EditSell(fundsPurchased, vm, import);
+
+                if (!string.IsNullOrEmpty(errorMessages))
+                    return await HandleError(vm, "Uppdatera sålda fonden", import, errorMessages);
 
                 return string.Empty;
             }
             catch (Exception ex)
             {
-                return await HandleError(vm, "Sålt delar av", false, ex.Message);
+                return await HandleError(vm, "Sålt delar av", import, ex.Message);
             }
         }
 
@@ -314,13 +304,10 @@ namespace MyPrivateApp.Components.Shares.Classes
         }
 
         // Removes portions of the purchased funds that are moved to sold funds
-        private async Task EditSell(SharesPurchasedFunds model, SharesPurchasedFundViewModel vm, bool import)
+        private async Task<string> EditSell(SharesPurchasedFunds model, SharesPurchasedFundViewModel vm, bool import)
         {
-            if (vm == null || model == null || db == null)
-            {
-                await HandleError(vm, "Radera sålda", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                return;
-            }
+            if (vm == null || model == null || _db == null)
+                return await HandleError(vm, "Radera sålda", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
 
             string importTrue = import ? "Ja" : "Nej";
 
@@ -336,10 +323,12 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 // Save changes asynchronously
                 await db.SaveChangesAsync();
+
+                return string.Empty;
             }
             catch (Exception ex)
             {
-                await HandleError(vm, "Radera sålda", import, $"Ett fel uppstod: {ex.Message}");
+                return await HandleError(vm, "Radera sålda", import, $"Ett fel uppstod: {ex.Message}");
             }
         }
 
@@ -374,88 +363,116 @@ namespace MyPrivateApp.Components.Shares.Classes
             return string.Empty;
         }
 
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
         public SharesPurchasedFundViewModel ChangeFromModelToViewModel(SharesPurchasedFunds model)
         {
-            DateTime date = DateTime.Parse(model.DateOfPurchase);
+            ArgumentNullException.ThrowIfNull(model);
 
-            SharesPurchasedFundViewModel vm = new()
-            {
-                SharesPurchasedFundId = model.SharesPurchasedFundId,
-                DateOfPurchase = date,
-                FundName = model.FundName,
-                HowMany = model.HowMany,
-                PricePerFunds = double.Round(model.PricePerFunds, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                Fee = model.Fee,
-                Currency = model.Currency,
-                ISIN = model.ISIN,
-                Account = model.Account,
-                Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                TypeOfFund = model.TypeOfFund,
-                Note = model.Note
-            };
+            SharesPurchasedFundViewModel vm = _mapper.Map<SharesPurchasedFundViewModel>(model);
+
+            // Format PricePerFunds as string with two decimals
+            if (model.PricePerFunds > 0)
+                vm.PricePerFunds = model.PricePerFunds.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture);
+
+            // Format Amount as string with two decimals
+            vm.Amount = (model.HowMany * model.PricePerFunds).ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture);
+
+            if (!string.IsNullOrEmpty(model.DateOfPurchase))
+                vm.DateOfPurchase = ParseDate(model.DateOfPurchase);
 
             return vm;
         }
 
+        private SharesPurchasedFunds ChangesFromViewModelToModel(SharesPurchasedFundViewModel vm)
+        {
+            ArgumentNullException.ThrowIfNull(vm);
+
+            SharesPurchasedFunds model = _mapper.Map<SharesPurchasedFunds>(vm);
+
+            // Format PricePerFunds as string with two decimals
+            if (!string.IsNullOrEmpty(vm.PricePerFunds))
+                model.PricePerFunds = double.Round(double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero);
+
+            // Format Amount as string with two decimals
+            if (!string.IsNullOrEmpty(vm.PricePerFunds))
+                model.Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero);
+
+            if (vm.DateOfPurchase != DateTime.MinValue)
+                model.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
+
+            return model;
+        }
+
         public SharesPurchasedFundViewModel ChangeFromImportSellToViewModel(SharesImports model)
         {
-            DateTime date = DateTime.Parse(model.Date);
+            ArgumentNullException.ThrowIfNull(model);
+
+            TryParseDouble(model, out double howMany, out double pricePerFunds, out double fee, out double amount);
 
             SharesPurchasedFundViewModel vm = new()
             {
-                SaleDateOfPurchase = date,
                 FundName = model.CompanyOrInformation,
-                SaleHowMany = double.Round(double.Parse(model.NumberOfSharesString), 2, MidpointRounding.AwayFromZero),
-                SalePricePerFunds = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero),
-                SaleFee = double.Parse(model.BrokerageString),
+                SaleHowMany = howMany,
+                SalePricePerFunds = double.Round(pricePerFunds, 2, MidpointRounding.AwayFromZero),
+                SaleFee = fee,
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
+                Amount = amount.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture),
             };
+
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.SaleDateOfPurchase = ParseDate(model.Date);
 
             return vm;
         }
 
         public SharesPurchasedFundViewModel ChangeFromImportAddToViewModel(SharesImports model)
         {
-            DateTime date = DateTime.Parse(model.Date);
+            ArgumentNullException.ThrowIfNull(model);
+
+            TryParseDouble(model, out double howMany, out double pricePerFunds, out double fee, out double amount);
 
             SharesPurchasedFundViewModel vm = new()
             {
-                DateOfPurchase = date,
                 FundName = model.CompanyOrInformation,
-                HowMany = double.Parse(model.NumberOfSharesString),
-                PricePerFunds = double.Round(double.Parse(model.PricePerShareString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                Fee = double.Parse(model.BrokerageString),
+                HowMany = howMany,
+                PricePerFunds = pricePerFunds.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture),
+                Fee = fee,
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
+                Amount = amount.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture),
             };
+
+            if (!string.IsNullOrEmpty(model.Date))
+                vm.DateOfPurchase = ParseDate(model.Date);
 
             return vm;
         }
 
-        private static SharesPurchasedFunds ChangesFromViewModelToModel(SharesPurchasedFundViewModel vm)
+        private static void TryParseDouble(SharesImports model, out double howMany, out double pricePerFunds, out double fee, out double amount)
         {
-            SharesPurchasedFunds sharesPurchasedFunds = new()
-            {
-                SharesPurchasedFundId = vm.SharesPurchasedFundId,
-                DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
-                FundName = vm.FundName,
-                HowMany = vm.HowMany,
-                PricePerFunds = double.Round(double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero),
-                Fee = vm.Fee,
-                Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero),
-                ISIN = vm.ISIN,
-                Currency = vm.Currency,
-                Account = vm.Account,
-                TypeOfFund = vm.TypeOfFund,
-                Note = vm.Note
-            };
+            howMany = ParseDoubleOrThrow(model.NumberOfSharesString, nameof(model.NumberOfSharesString));
+            pricePerFunds = ParseDoubleOrThrow(model.PricePerShareString, nameof(model.PricePerShareString));
+            fee = ParseDoubleOrThrow(model.BrokerageString, nameof(model.BrokerageString));
+            amount = ParseDoubleOrThrow(model.AmountString, nameof(model.AmountString));
+        }
 
-            return sharesPurchasedFunds;
+        private static double ParseDoubleOrThrow(string value, string propertyName)
+        {
+            if (!double.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double result))
+                throw new FormatException($"Invalid value for {propertyName}: '{value}'");
+            return result;
         }
 
         private static SharesFeeViewModel ChangeFromToPurchasedToFeeViewModel(SharesPurchasedFundViewModel vm, double tax, string note)
@@ -500,7 +517,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
                     CompanyOrInformation = vm.FundName,
-                    TypeOfTransaction = type + " aktie",
+                    TypeOfTransaction = type + " fond",
                     ErrorMessage = $"Felmeddelande: {errorMessage}",
                     Note = $"{type} fond: " +
                        $"\r\nKöp datum: {vm.DateOfPurchase} " +

@@ -705,8 +705,7 @@
     private async Task Delete()
     {
         // Try to find the fund
-        SharesPurchasedFunds? model = await db.SharesPurchasedFunds
-            .FirstOrDefaultAsync(a => a.SharesPurchasedFundId == TemporaryId);
+        SharesPurchasedFunds? model = await db.SharesPurchasedFunds.FirstOrDefaultAsync(a => a.SharesPurchasedFundId == TemporaryId);
 
         if (model == null)
         {
