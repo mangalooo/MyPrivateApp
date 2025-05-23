@@ -168,7 +168,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <InputTextArea @bind-Value="pageViewModel.Errors" class="form-control" disabled="@true" />
+                                        <InputTextArea rows="4" style="height:100%;" @bind-Value="pageViewModel.Errors" class="form-control" disabled="@true" />
                                         <label for="Errors"> Felmedelanden </label>
                                     </div>
                                 </div>
@@ -402,7 +402,7 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<SharesImportsFile> items = await db.SharesImportsFiles.OrderBy(c => c.SharesImportsFileId).ToListAsync();
+        List<SharesImportsFile> items = await db.SharesImportsFiles.OrderByDescending(c => c.Date).ToListAsync();
 
         if (!items.Any())
         {
@@ -585,7 +585,6 @@
 
                         foreach (var import in importList)
                         {
-                            transactionCounter++;
                             errorMessage = await ProcessImport(import);
 
                             if(!string.IsNullOrEmpty(errorMessage))
@@ -593,6 +592,8 @@
                                 await HandleImportError(errorMessage + $". ISIN: {import.ISIN}", fileName, transactionCounter, rowCount);
                                 break;
                             }
+
+                            transactionCounter++;
                         }
                     }
                 }
@@ -673,7 +674,7 @@
     {
         try
         {
-            var importModel = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId)
+            SharesImportsFile importModel = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId)
                               ?? throw new Exception("Importen hittades inte i databasen!");
 
             string? notesBefore = importModel.Note;
@@ -725,7 +726,7 @@
         }
     }
 
-    private async Task<string> AddFundImport(SharesImports import)
+    private async Task<string> AddFundImport(SharesImports import) // Felhantering klar! Testa...!
     {
         string errorMessage = string.Empty;
 
@@ -738,7 +739,7 @@
             errorMessage = await SharesPurchasedFundsClass.Add(vm, true);
 
         return errorMessage;
-    } // Felhantering klar! Testa...!
+    } 
 
     private async Task<string> SoldFundImport(SharesImports import)
     {
@@ -803,7 +804,7 @@
             model.Errors += $"Fel vid inmatning av import. Fel på rad {transactionCounter + 1}. Felmeddelande: {errorMessage}";
             model.FileName = fileName;
             model.NumbersOfTransaction = transactionCounter;
-            model.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
+            //model.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
             await db.SaveChangesAsync();
         }
 

@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
@@ -28,8 +29,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (vm == null || _db == null)
                 return await HandleError(vm, "Köpt", import, "Hittar ingen data från formuläret eller databasen!");
 
-            if (vm.DateOfPurchase == DateTime.MinValue && string.IsNullOrEmpty(vm.FundName) &&
-                string.IsNullOrEmpty(vm.ISIN) && vm.HowMany <= 0 && string.IsNullOrEmpty(vm.PricePerFunds) && vm.Fee <= 0)
+            if (vm.DateOfPurchase == DateTime.MinValue || string.IsNullOrEmpty(vm.FundName) ||
+                string.IsNullOrEmpty(vm.ISIN) || vm.HowMany <= 0 || vm.PricePerFunds <= 0 || vm.Fee <= 0)
                 return await HandleError(vm, "Köpt", import, "Du måste fylla i fälten: Fond namn, ISIN, Inköpsdatum, Antal, Pris per fond del och Avgift!");
 
             try
@@ -67,7 +68,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 return "Hittar ingen data från formuläret eller databasen!";
 
             if (vm.DateOfPurchase == DateTime.MinValue || string.IsNullOrEmpty(vm.FundName) || string.IsNullOrEmpty(vm.ISIN)
-                 || vm.HowMany <= 0 || string.IsNullOrEmpty(vm.PricePerFunds) || vm.Fee <= 0)
+                 || vm.HowMany <= 0 || vm.PricePerFunds <= 0 || vm.Fee <= 0)
                 return "Du måste fylla i fälten: Fond namn, ISIN, Inköpsdatum, Antal, Pris per fond del och Avgift!";
 
             try
@@ -125,10 +126,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 model.HowMany += vm.HowMany;
                 model.Fee += vm.Fee;
-
-                if (!string.IsNullOrEmpty(vm.PricePerFunds))
-                    model.Amount += vm.HowMany * double.Parse(vm.PricePerFunds);
-
+                model.Amount += vm.HowMany * vm.PricePerFunds;
                 model.Note += GenerateNoteForAdditionalPurchase(vm, import, model.Amount);
             }
             else
@@ -147,7 +145,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             string importTrue = import ? "Ja" : "Nej";
             string date = import ? vm.DateOfPurchase.ToString("yyyy-MM-dd") : vm.MoreDateOfPurchase.ToString("yyyy-MM-dd");
             double howMany = import ? vm.HowMany : vm.MoreHowMany;
-            double pricePerFunds = import ? double.Parse(vm.PricePerFunds) : vm.MorePricePerFunds;
+            double pricePerFunds = import ? vm.PricePerFunds : vm.MorePricePerFunds;
             double fee = import ? vm.Fee : vm.MoreFee;
 
             return $"\r\n\r\nKöper mer fond delar för {vm.FundName}: \r\n" +
@@ -379,12 +377,8 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             SharesPurchasedFundViewModel vm = _mapper.Map<SharesPurchasedFundViewModel>(model);
 
-            // Format PricePerFunds as string with two decimals
-            if (model.PricePerFunds > 0)
-                vm.PricePerFunds = model.PricePerFunds.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture);
-
-            // Format Amount as string with two decimals
-            vm.Amount = (model.HowMany * model.PricePerFunds).ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture);
+            vm.PricePerFunds = double.Round(model.PricePerFunds, 2, MidpointRounding.AwayFromZero);
+            vm.Amount = double.Round(model.HowMany * model.PricePerFunds, 2, MidpointRounding.AwayFromZero);
 
             if (!string.IsNullOrEmpty(model.DateOfPurchase))
                 vm.DateOfPurchase = ParseDate(model.DateOfPurchase);
@@ -398,13 +392,8 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             SharesPurchasedFunds model = _mapper.Map<SharesPurchasedFunds>(vm);
 
-            // Format PricePerFunds as string with two decimals
-            if (!string.IsNullOrEmpty(vm.PricePerFunds))
-                model.PricePerFunds = double.Round(double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero);
-
-            // Format Amount as string with two decimals
-            if (!string.IsNullOrEmpty(vm.PricePerFunds))
-                model.Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerFunds), 2, MidpointRounding.AwayFromZero);
+            model.PricePerFunds = double.Round(vm.PricePerFunds, 2, MidpointRounding.AwayFromZero);
+            model.Amount = double.Round(vm.HowMany * vm.PricePerFunds, 2, MidpointRounding.AwayFromZero);
 
             if (vm.DateOfPurchase != DateTime.MinValue)
                 model.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
@@ -416,7 +405,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            TryParseDouble(model, out double howMany, out double pricePerFunds, out double fee, out double amount);
+            TryParseDouble(model, out double howMany, out double pricePerFunds, out double fee);
 
             SharesPurchasedFundViewModel vm = new()
             {
@@ -427,7 +416,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = amount.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture),
+                Amount = double.Round(howMany * pricePerFunds, 2, MidpointRounding.AwayFromZero)
             };
 
             if (!string.IsNullOrEmpty(model.Date))
@@ -440,18 +429,18 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            TryParseDouble(model, out double howMany, out double pricePerFunds, out double fee, out double amount);
+            TryParseDouble(model, out double howMany, out double pricePerFunds, out double fee);
 
             SharesPurchasedFundViewModel vm = new()
             {
                 FundName = model.CompanyOrInformation,
                 HowMany = howMany,
-                PricePerFunds = pricePerFunds.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture),
+                PricePerFunds = double.Round(pricePerFunds, 2, MidpointRounding.AwayFromZero),
                 Fee = fee,
                 Currency = model.Currency,
                 ISIN = model.ISIN,
                 Account = model.AccountNumber,
-                Amount = amount.ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture),
+                Amount = double.Round(howMany * pricePerFunds, 2, MidpointRounding.AwayFromZero)
             };
 
             if (!string.IsNullOrEmpty(model.Date))
@@ -460,12 +449,11 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
-        private static void TryParseDouble(SharesImports model, out double howMany, out double pricePerFunds, out double fee, out double amount)
+        private static void TryParseDouble(SharesImports model, out double howMany, out double pricePerFunds, out double fee)
         {
             howMany = ParseDoubleOrThrow(model.NumberOfSharesString, nameof(model.NumberOfSharesString));
             pricePerFunds = ParseDoubleOrThrow(model.PricePerShareString, nameof(model.PricePerShareString));
             fee = ParseDoubleOrThrow(model.BrokerageString, nameof(model.BrokerageString));
-            amount = ParseDoubleOrThrow(model.AmountString, nameof(model.AmountString));
         }
 
         private static double ParseDoubleOrThrow(string value, string propertyName)

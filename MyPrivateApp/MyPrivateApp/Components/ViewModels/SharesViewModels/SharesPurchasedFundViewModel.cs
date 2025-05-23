@@ -20,16 +20,16 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         public double HowMany { get; set; }
 
         [Display(Name = "Pris per aktie")]
-        [DataType(DataType.Text)]
-        public string? PricePerFunds { get; set; }
+        [DataType(DataType.Currency)]
+        public double PricePerFunds { get; set; }
 
         [Display(Name = "Courtage")]
         [DataType(DataType.Currency)]
         public double Fee { get; set; }
 
         [Display(Name = "Inköpsvärdet")]
-        [DataType(DataType.Text)]
-        public string? Amount { get; set; }
+        [DataType(DataType.Currency)]
+        public double Amount { get; set; }
 
         [Display(Name = "Typ av fond")]
         [DataType(DataType.Text)]

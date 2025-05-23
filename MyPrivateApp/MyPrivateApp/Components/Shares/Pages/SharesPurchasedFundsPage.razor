@@ -179,14 +179,14 @@
 
                                 <div class="col-3">
                                     <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.PricePerFunds" class="form-control" disabled="@DisabledForm" />
+                                        <InputNumber @bind-Value="pageViewModel.PricePerFunds" class="form-control" disabled="@DisabledForm" />
                                         <label for="PricePerShares"> Pris per fond (snitt vid köp av fler) </label>
                                     </div>
                                 </div>
 
                                 <div class="col-3">
                                     <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Amount" class="form-control" disabled="true" />
+                                        <InputNumber @bind-Value="pageViewModel.Amount" class="form-control" disabled="true" />
                                         <label for="Amount"> Inköpsvärdet </label>
                                     </div>
                                 </div>
@@ -623,7 +623,7 @@
     {
         if (vm == null) return;
 
-        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm; ();
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
         BuyMore = false;
         DisabledForm = true;
         ShowOrHideButtonAddMoreShares = false;
@@ -675,7 +675,7 @@
     {
         if (vm == null) return;
 
-        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm; ();
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
         Sale = false;
         DisabledForm = true;
         ShowOrHideSaleButton = false;

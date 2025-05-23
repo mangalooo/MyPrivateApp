@@ -54,13 +54,16 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
 
             try
             {
-                ShopingList? getDbModel = await Get(vm.ShopingListId);
+                ShopingList? model = await Get(vm.ShopingListId);
 
-                if (getDbModel == null)
+                if (model == null)
                     return "Hittar inte inköpslistan i databasen!";
 
-                _mapper.Map(vm, getDbModel);
+                ShopingList mapper = _mapper.Map(vm, model);
+                mapper.Date = vm.Date.ToString("yyyy-MM-dd");
+
                 await _db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)

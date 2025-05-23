@@ -58,7 +58,8 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 if (model == null)
                     return "Hittar inte spelaren i databasen!";
 
-                _mapper.Map(vm, model);
+                MZPurchasedPlayers mapper = _mapper.Map(vm, model);
+                mapper.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
 
                 if (vm.TrainingModeCost != 0)
                     model.TrainingModeTotalCost += vm.TrainingModeCost;
