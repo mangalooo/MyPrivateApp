@@ -1,6 +1,7 @@
 ﻿@page "/SharesImportsPage"
 
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Shares.Classes
@@ -14,7 +15,7 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 @inject NavigationManager Navigation
 @inject ISharesImportsFileClass BackEndClass
 @inject ISharesPurchasedClass SharesPurchasedClass
@@ -402,6 +403,8 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
         List<SharesImportsFile> items = await db.SharesImportsFiles.OrderByDescending(c => c.Date).ToListAsync();
 
         if (!items.Any())
@@ -491,6 +494,8 @@
 
     private async Task Delete()
     {
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
         if (!db.SharesImportsFiles.Any())
         {
             ShowErrorMessage("Det finns inga importer att ta bort!");
@@ -552,6 +557,7 @@
         int rowCount = 0;
         int transactionCounter = 0;
         string fileName = string.Empty;
+        string errorMessage = string.Empty; 
 
         try
         {
@@ -581,29 +587,31 @@
                         rowCount = ws.Dimension.End.Row;
                         List<SharesImports> importList = ExtractImportsFromWorksheet(ws, rowCount);
 
-                        string errorMessage = string.Empty; 
-
-                        foreach (var import in importList)
+                        foreach (SharesImports import in importList)
                         {
                             errorMessage = await ProcessImport(import);
 
                             if(!string.IsNullOrEmpty(errorMessage))
                             {
                                 await HandleImportError(errorMessage + $". ISIN: {import.ISIN}", fileName, transactionCounter, rowCount);
-                                break;
+                                ShowErrorMessage(errorMessage + $". \n\nISIN: {import.ISIN}. Fel på rad {transactionCounter + 1}.");
+                                return;
                             }
 
                             transactionCounter++;
                         }
                     }
                 }
-                await UpdateImportModel(fileName, rowCount, transactionCounter);
             }
+            await UpdateImportModel(fileName, rowCount, transactionCounter);
             await RefreshPage();
         }
         catch (Exception exc)
         {
-            await HandleImportError(exc.Message, fileName, transactionCounter, rowCount);
+            ShowErrorMessage(errorMessage + $". \n\n Fel på rad {transactionCounter + 1}. \n\nFelmeddelande: {exc.Message}");
+            await RefreshPage();
+            return;
+            //await HandleImportError(exc.Message, fileName, transactionCounter, rowCount);
         }
     }
 
@@ -674,6 +682,8 @@
     {
         try
         {
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("UpdateImportModel: db == null!"); 
+
             SharesImportsFile importModel = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId)
                               ?? throw new Exception("Importen hittades inte i databasen!");
 
@@ -693,7 +703,11 @@
         }
     }
 
-    private async Task<bool> SharesExistAsync(string isin) => await db.SharesPurchaseds.AnyAsync(r => r.ISIN == isin);
+    private async Task<bool> SharesExistAsync(string isin)
+    {
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SharesExistAsync: db == null!");  
+        return await db.SharesPurchaseds.AnyAsync(r => r.ISIN == isin);
+    }
 
     private async Task AddOrUpdateShares(SharesPurchasedViewModel vm, bool sharesExist)
     {
@@ -705,7 +719,7 @@
 
     private async Task AddSharesImport(SharesImports import)
     {
-        var vm = SharesPurchasedClass.ChangeFromImportAddToViewModel(import);
+        SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportAddToViewModel(import);
         bool sharesExist = await SharesExistAsync(import.ISIN);
         await AddOrUpdateShares(vm, sharesExist);
     }
@@ -728,9 +742,12 @@
 
     private async Task<string> AddFundImport(SharesImports import) // Felhantering klar! Testa...!
     {
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("AddFundImport: db == null!");
+
         string errorMessage = string.Empty;
 
-        SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportAddToViewModel(import);
+        SharesPurchasedFundViewModel? vm = SharesPurchasedFundsClass.ChangeFromImportAddToViewModel(import);
+
         bool sharesExist = await db.SharesPurchasedFunds.AnyAsync(r => r.ISIN == import.ISIN);
 
         if (sharesExist)
@@ -743,6 +760,8 @@
 
     private async Task<string> SoldFundImport(SharesImports import)
     {
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SoldFundImport: db == null!");
+
         string errorMessage = string.Empty;
 
         SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportSellToViewModel(import);
@@ -795,6 +814,8 @@
 
     private async Task HandleImportError(string errorMessage, string fileName, int transactionCounter, int rowCount)
     {
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("HandleImportError: db == null!");
+
         SharesImportsFile? model = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId);
 
         if (model == null)
@@ -804,7 +825,7 @@
             model.Errors += $"Fel vid inmatning av import. Fel på rad {transactionCounter + 1}. Felmeddelande: {errorMessage}";
             model.FileName = fileName;
             model.NumbersOfTransaction = transactionCounter;
-            //model.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
+            model.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
             await db.SaveChangesAsync();
         }
 
@@ -813,6 +834,8 @@
 
     private async Task LogError(string errorMessage, string note)
     {
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("LogError: db == null!");
+
         DateTime date = DateTime.Now;
         SharesErrorHandlings sharesErrorHandling = new()
             {

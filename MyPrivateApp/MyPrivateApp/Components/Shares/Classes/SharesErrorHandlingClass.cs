@@ -42,7 +42,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                string message = $"Ändra felhandtering: \r\nDatum: {vm.Date} \r\nAnteckningar: {vm.Note} \r\nFel hantering: {vm.ErrorMessage}!";
+                string message = $"Ändra felhandtering: \r\nDatum: {vm.Date.ToString()[..10]} \r\nAnteckningar: {vm.Note} \r\nFel hantering: {vm.ErrorMessage}!";
                 _logger.LogError(ex, message);
                 return $"Felmeddelande: {ex.Message}";
             }
@@ -62,7 +62,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
             catch (Exception ex)
             {
-                string message = $"Ta bort felhandtering: \r\nDatum: {model.Date} \r\nAnteckningar: {model.Note} \r\nFel hantering: {model.ErrorMessage}!";
+                string message = $"Ta bort felhandtering: \r\nDatum: {model?.Date?.ToString()[..10]} \r\nAnteckningar: {model.Note} \r\nFel hantering: {model.ErrorMessage}!";
                 _logger.LogError(ex, message);
                 return $"Felmeddelande: {ex.Message}";
             }
@@ -75,7 +75,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             return DateTime.MinValue;
 
-            throw new FormatException($"Ogiltigt datumformat: {date}");
+            throw new FormatException($"Ogiltigt datumformat: {date.ToString()[..10]}");
         }
 
         public SharesErrorHandlings ChangeFromViewModelToModel(SharesErrorHandlingViewModel vm)

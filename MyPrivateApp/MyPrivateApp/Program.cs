@@ -96,13 +96,16 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, x =>
-{
-    x.CommandTimeout(180);
-}), ServiceLifetime.Transient);
+//string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+//    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+//builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, x =>
+//{
+//    x.CommandTimeout(180);
+//}), ServiceLifetime.Transient);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
