@@ -403,22 +403,29 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
-
-        List<SharesImportsFile> items = await db.SharesImportsFiles.OrderByDescending(c => c.Date).ToListAsync();
-
-        if (!items.Any())
+        try
         {
-            InfoMessage = "Finns ingen data att visa!";
-            ShowOrHideInfoMessage = true;
-            return;
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<SharesImportsFile> items = await db.SharesImportsFiles.OrderByDescending(c => c.Date).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
-
-        queryable = items
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
@@ -462,7 +469,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod 1: {ex.Message}");
+            ShowErrorMessage($"AddOrEdit. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -494,16 +501,16 @@
 
     private async Task Delete()
     {
-        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
-
-        if (!db.SharesImportsFiles.Any())
-        {
-            ShowErrorMessage("Det finns inga importer att ta bort!");
-            return;
-        }
-
         try
         {
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.SharesImportsFiles.Any())
+            {
+                ShowErrorMessage("Det finns inga importer att ta bort!");
+                return;
+            }
+
             SharesImportsFile? model = await db.SharesImportsFiles.FirstOrDefaultAsync(a => a.SharesImportsFileId == TemporaryId);
             if (model == null)
             {
@@ -523,7 +530,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod 2: {ex.Message}");
+            ShowErrorMessage($"Delete. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -594,7 +601,7 @@
                             if(!string.IsNullOrEmpty(errorMessage))
                             {
                                 await HandleImportError(errorMessage + $". ISIN: {import.ISIN}", fileName, transactionCounter, rowCount);
-                                ShowErrorMessage(errorMessage + $". \n\nISIN: {import.ISIN}. Fel på rad {transactionCounter + 1}.");
+                                //ShowErrorMessage(errorMessage + $". \n\nISIN: {import.ISIN}. Fel på rad {transactionCounter + 1}.");
                                 return;
                             }
 
@@ -603,15 +610,14 @@
                     }
                 }
             }
-            await UpdateImportModel(fileName, rowCount, transactionCounter);
+            await UpdateImportInfo(fileName, rowCount, transactionCounter);
             await RefreshPage();
         }
-        catch (Exception exc)
+        catch (Exception ex)
         {
-            ShowErrorMessage(errorMessage + $". \n\n Fel på rad {transactionCounter + 1}. \n\nFelmeddelande: {exc.Message}");
-            await RefreshPage();
+            ShowErrorMessage(errorMessage + $". \n\n Fel på rad {transactionCounter + 1}. \n\nFelmeddelande: {ex.Message}");
+            await HandleImportError(ex.Message, fileName, transactionCounter, rowCount);
             return;
-            //await HandleImportError(exc.Message, fileName, transactionCounter, rowCount);
         }
     }
 
@@ -678,7 +684,7 @@
         return errorMessage;
     }
 
-    private async Task UpdateImportModel(string fileName, int rowCount, int transactionCounter)
+    private async Task UpdateImportInfo(string fileName, int rowCount, int transactionCounter)
     {
         try
         {
@@ -703,149 +709,242 @@
         }
     }
 
-    private async Task<bool> SharesExistAsync(string isin)
+    private async Task<bool> PurchasedSharesExist(string ISIN)
     {
-        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SharesExistAsync: db == null!");  
-        return await db.SharesPurchaseds.AnyAsync(r => r.ISIN == isin);
+        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("PurchasedSharesExist: db == null!");  
+        return await db.SharesPurchaseds.AnyAsync(r => r.ISIN == ISIN);
     }
 
-    private async Task AddOrUpdateShares(SharesPurchasedViewModel vm, bool sharesExist)
+    private async Task<string> AddSharesImport(SharesImports import)
     {
-        if (sharesExist)
-            await SharesPurchasedClass.AddMore(vm, true);
-        else
-            await SharesPurchasedClass.Add(vm, true);
-    }
-
-    private async Task AddSharesImport(SharesImports import)
-    {
-        SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportAddToViewModel(import);
-        bool sharesExist = await SharesExistAsync(import.ISIN);
-        await AddOrUpdateShares(vm, sharesExist);
-    }
-
-    private async Task SoldShareImport(SharesImports import)
-    {
-        var vm = SharesPurchasedClass.ChangeFromImportSellToViewModel(import);
-        bool sharesExist = await SharesExistAsync(import.ISIN);
-
-        if (sharesExist)
-            await SharesPurchasedClass.Sell(vm, true, SharesFeeClass);
-        else
-        {
-            await LogError(
-                $"Felmeddelande: Aktien jag försöker sälja finns inte i databasen!",
-                $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nAktien: {vm.CompanyName} \r\nISIN: {vm.ISIN}."
-            );
-        }
-    }
-
-    private async Task<string> AddFundImport(SharesImports import) // Felhantering klar! Testa...!
-    {
-        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("AddFundImport: db == null!");
-
         string errorMessage = string.Empty;
 
-        SharesPurchasedFundViewModel? vm = SharesPurchasedFundsClass.ChangeFromImportAddToViewModel(import);
+        try
+        {
+            SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportAddToViewModel(import);
+            bool sharesExist = await PurchasedSharesExist(import.ISIN);
+                  
+            if (sharesExist)
+                errorMessage = await SharesPurchasedClass.AddMore(vm, true);
+            else
+                errorMessage = await SharesPurchasedClass.Add(vm, true);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"AddSharesImport. Felmeddelande: {ex.Message}");
+        }
 
-        bool sharesExist = await db.SharesPurchasedFunds.AnyAsync(r => r.ISIN == import.ISIN);
+        return errorMessage;
+    }
 
-        if (sharesExist)
-            errorMessage = await SharesPurchasedFundsClass.AddMore(vm, true);
-        else
-            errorMessage = await SharesPurchasedFundsClass.Add(vm, true);
+    private async Task<string> SoldShareImport(SharesImports import)
+    {
+        string errorMessage = string.Empty;
+
+        try
+        {
+            SharesPurchasedViewModel vm = SharesPurchasedClass.ChangeFromImportSellToViewModel(import);
+            bool sharesExist = await PurchasedSharesExist(import.ISIN);
+
+            if (sharesExist)
+                errorMessage = await SharesPurchasedClass.Sell(vm, true, SharesFeeClass);
+            else
+                errorMessage = "Felmeddelande: Aktien som jag försöker sälja finns inte i databasen!";
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"SoldShareImport. Felmeddelande: {ex.Message}");
+        }
+
+        return errorMessage;
+    }
+
+    private async Task<string> AddFundImport(SharesImports import)
+    {
+        string errorMessage = string.Empty;
+
+        try
+        {
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("AddFundImport: db == null!");
+            SharesPurchasedFundViewModel? vm = SharesPurchasedFundsClass.ChangeFromImportAddToViewModel(import);
+            bool sharesExist = await db.SharesPurchasedFunds.AnyAsync(r => r.ISIN == import.ISIN);
+
+            if (sharesExist)
+                errorMessage = await SharesPurchasedFundsClass.AddMore(vm, true);
+            else
+                errorMessage = await SharesPurchasedFundsClass.Add(vm, true);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"AddFundImport. Felmeddelande: {ex.Message}");
+            errorMessage = $"AddFundImport. Felmeddelande: {ex.Message}";
+        }
 
         return errorMessage;
     } 
 
     private async Task<string> SoldFundImport(SharesImports import)
     {
-        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SoldFundImport: db == null!");
-
         string errorMessage = string.Empty;
-
-        SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportSellToViewModel(import);
-        bool sharesExist = await db.SharesPurchasedFunds.AnyAsync(r => r.ISIN == import.ISIN);
-
-        if (sharesExist)
-            errorMessage = await SharesPurchasedFundsClass.Sell(vm, true, SharesFeeClass);
-        else
+        
+        try
         {
-            await LogError(
-                $"Felmeddelande: Fonden jag försöker sälja finns inte i databasen!",
-                $"Säljdatum: {vm.DateOfPurchase} \r\nImport: Ja \r\nISIN: {vm.ISIN}."
-            );
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SoldFundImport: db == null!");
+            SharesPurchasedFundViewModel vm = SharesPurchasedFundsClass.ChangeFromImportSellToViewModel(import);
+            bool sharesExist = await db.SharesPurchasedFunds.AnyAsync(r => r.ISIN == import.ISIN);
 
-            errorMessage = "Felmeddelande: Fonden jag försöker sälja finns inte i databasen!";
+            if (sharesExist)
+                errorMessage = await SharesPurchasedFundsClass.Sell(vm, true, SharesFeeClass);
+            else
+                errorMessage = "Felmeddelande: Fonden jag försöker sälja finns inte i databasen!";
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"SoldFundImport. Felmeddelande: {ex.Message}");
+            errorMessage = $"SoldFundImport. Felmeddelande: {ex.Message}";
         }
 
         return errorMessage;
-    } // Felhantering klar! Testa...!
+    } 
 
-    private async Task DividendImport(SharesImports import)
+    private async Task<string> DividendImport(SharesImports import)
     {
-        var vm = SharesDividendClass.ChangeFromImportToViewModel(import);
-        await SharesDividendClass.Add(vm, true);
+        string errorMessage = string.Empty;
+        
+        try
+        {
+            SharesDividendViewModel vm = SharesDividendClass.ChangeFromImportToViewModel(import);
+            await SharesDividendClass.Add(vm, true);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"DividendImport. Felmeddelande: {ex.Message}");
+            errorMessage = $"DividendImport. Felmeddelande: {ex.Message}";
+        }
+
+        return errorMessage;
     }
 
-    private async Task DepositMoneyImport(SharesImports import)
+    private async Task<string> DepositMoneyImport(SharesImports import)
     {
-        var vm = SharesDepositMoneyClass.ChangeFromImportToViewModel(import);
-        await SharesDepositMoneyClass.Add(vm, true);
+        string errorMessage = string.Empty;
+        
+        try
+        {
+            SharesDepositMoneyViewModel vm = SharesDepositMoneyClass.ChangeFromImportToViewModel(import);
+            await SharesDepositMoneyClass.Add(vm, true);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"DepositMoneyImport. Felmeddelande: {ex.Message}");
+            errorMessage = $"DepositMoneyImport. Felmeddelande: {ex.Message}";
+        }
+
+        return errorMessage;
     }
 
-    private async Task InterestRatesImport(SharesImports import)
+    private async Task<string> InterestRatesImport(SharesImports import)
     {
-        SharesInterestRatesViewModel vm = SharesInterestRatesClass.ChangeFromImportToViewModel(import);
-        await SharesInterestRatesClass.Add(vm, true);
+        string errorMessage = string.Empty;
+        
+        try
+        {
+            SharesInterestRatesViewModel vm = SharesInterestRatesClass.ChangeFromImportToViewModel(import);
+            await SharesInterestRatesClass.Add(vm, true);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"InterestRatesImport. Felmeddelande: {ex.Message}");
+            errorMessage = $"InterestRatesImport. Felmeddelande: {ex.Message}";
+        }
+
+        return errorMessage;
     }
 
-    private async Task AddFeeImport(SharesImports import)
+    private async Task<string> AddFeeImport(SharesImports import)
     {
-        SharesFeeViewModel vm = SharesFeeClass.ChangeFromImportToViewModel(import);
-        await SharesFeeClass.Add(vm, true, string.Empty);
+        string errorMessage = string.Empty;
+        
+        try
+        {
+            SharesFeeViewModel vm = SharesFeeClass.ChangeFromImportToViewModel(import);
+            await SharesFeeClass.Add(vm, true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"AddFeeImport. Felmeddelande: {ex.Message}");
+            errorMessage = $"AddFeeImport. Felmeddelande: {ex.Message}";
+        }
+
+        return errorMessage;
     }
 
-    private async Task OtherImports(SharesImports import)
+    private async Task<string> OtherImports(SharesImports import)
     {
-        SharesOtherShareImportViewModel vm = SharesOtherImports.ChangeFromImportToViewModel(import);
-        await SharesOtherImports.Add(vm, true);
+        string errorMessage = string.Empty;
+        
+        try
+        {
+            SharesOtherShareImportViewModel vm = SharesOtherImports.ChangeFromImportToViewModel(import);
+            await SharesOtherImports.Add(vm, true);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"OtherImports. Felmeddelande: {ex.Message}");
+            errorMessage = $"OtherImports. Felmeddelande: {ex.Message}";
+        }
+
+        return errorMessage;
     }
 
     private async Task HandleImportError(string errorMessage, string fileName, int transactionCounter, int rowCount)
     {
-        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("HandleImportError: db == null!");
-
-        SharesImportsFile? model = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId);
-
-        if (model == null)
-            await LogError($"Övergripande import felmeddelande: {errorMessage}", "Importen hittades inte i databasen!");
-        else
+        try
         {
-            model.Errors += $"Fel vid inmatning av import. Fel på rad {transactionCounter + 1}. Felmeddelande: {errorMessage}";
-            model.FileName = fileName;
-            model.NumbersOfTransaction = transactionCounter;
-            model.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
-            await db.SaveChangesAsync();
-        }
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("HandleImportError: db == null!");
 
-        await RefreshPage();
+            SharesImportsFile? model = db.SharesImportsFiles.FirstOrDefault(r => r.SharesImportsFileId == pageViewModel.SharesImportsFileId);
+
+            if (model == null)
+                await LogError($"Övergripande import felmeddelande: {errorMessage}", "Importen hittades inte i databasen!");
+            else
+            {
+                model.Errors += $"Fel vid inmatning av import. Fel på rad {transactionCounter + 1}. Felmeddelande: {errorMessage}";
+                model.FileName = fileName;
+                model.NumbersOfTransaction = transactionCounter;
+                model.Note = $"Färdiga transaktion: {transactionCounter} av {rowCount - 1}.";
+                await db.SaveChangesAsync();
+            }
+
+            await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"HandleImportError. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task LogError(string errorMessage, string note)
     {
-        using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("LogError: db == null!");
+        try
+        {
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("LogError: db == null!");
 
-        DateTime date = DateTime.Now;
-        SharesErrorHandlings sharesErrorHandling = new()
-            {
-                Date = $"{date.Year}-{date.Month}-{date.Day}",
-                ErrorMessage = errorMessage,
-                Note = note
-            };
+            DateTime date = DateTime.Now;
+            SharesErrorHandlings sharesErrorHandling = new()
+                {
+                    Date = $"{date.Year}-{date.Month}-{date.Day}",
+                    ErrorMessage = errorMessage,
+                    Note = note
+                };
 
-        db.SharesErrorHandlings.Add(sharesErrorHandling);
-        await db.SaveChangesAsync();
+            db.SharesErrorHandlings.Add(sharesErrorHandling);
+            await db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"LogError. Felmeddelande: {ex.Message}");
+        }
     }
 
     // Kolla om importen funkar innan ta bort denna kod!! // Magnus

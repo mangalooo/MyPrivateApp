@@ -9,21 +9,11 @@ using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesPurchasedFundsClass : ISharesPurchasedFundsClass
+    public class SharesPurchasedFundsClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<SharesPurchasedFundsClass> logger, IMapper mapper) : ISharesPurchasedFundsClass
     {
-        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory;
-        private readonly ILogger<SharesPurchasedFundsClass> _logger;
-        private readonly IMapper _mapper;
-
-        public SharesPurchasedFundsClass(
-            IDbContextFactory<ApplicationDbContext> dbFactory,
-            ILogger<SharesPurchasedFundsClass> logger,
-            IMapper mapper)
-        {
-            _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        }
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
+        private readonly ILogger<SharesPurchasedFundsClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         private async Task<SharesPurchasedFunds?> Get(string ISIN)
         {

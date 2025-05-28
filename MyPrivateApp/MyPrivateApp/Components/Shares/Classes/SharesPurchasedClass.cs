@@ -9,32 +9,34 @@ using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesPurchasedClass(ApplicationDbContext db, ILogger<SharesPurchasedClass> logger, IMapper mapper) : ISharesPurchasedClass
+    public class SharesPurchasedClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<SharesPurchasedClass> logger, IMapper mapper) : ISharesPurchasedClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesPurchasedClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         private async Task<SharesPurchaseds?> Get(string ISIN)
         {
-            if (string.IsNullOrEmpty(ISIN))
-                throw new ArgumentNullException(nameof(ISIN));
+            if (string.IsNullOrEmpty(ISIN)) throw new Exception("Get: ISIN saknas!");
 
-            return await _db.SharesPurchaseds.FirstOrDefaultAsync(r => r.ISIN == ISIN)
-                ?? throw new Exception("Den köpte aktien hittades inte i databasen!");
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
+
+            return await db.SharesPurchaseds.FirstOrDefaultAsync(r => r.ISIN == ISIN) ?? throw new Exception("Den köpte aktien hittades inte i databasen!");
         }
 
         public async Task<string> Add(SharesPurchasedViewModel vm, bool import)
         {
-            if (vm == null || _db == null)
-                return await HandleError(vm, "Köpt", import, "Hittar ingen data från formuläret eller databasen!");
-
-            if (vm.DateOfPurchase == DateTime.MinValue && string.IsNullOrEmpty(vm.CompanyName) &&
-                string.IsNullOrEmpty(vm.ISIN) && vm.HowMany <= 0 && string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage <= 0)
-                return await HandleError(vm, "Köpt", import, "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!");
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
+                if (vm == null)
+                    return await HandleError(vm, "Köpt", import, "Hittar ingen data från formuläret eller databasen!");
+
+                if (IsImportantFieldsSet(vm))
+                    return await HandleError(vm, "Köpt", import, "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!");
+
+
                 SharesPurchaseds model = ChangesFromViewModelToModel(vm);
                 string importTrue = import ? "Ja" : "Nej";
                 model.Note += $"Köper:" +
@@ -47,8 +49,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                               $"\r\nCourtage: {model.Brokerage}. " +
                               $"\r\nImport: {importTrue} ";
 
-                await _db.SharesPurchaseds.AddAsync(model);
-                await _db.SaveChangesAsync();
+                await db.SharesPurchaseds.AddAsync(model);
+                await db.SaveChangesAsync();
                 return string.Empty;
             }
             catch (Exception ex)
@@ -59,24 +61,30 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Edit(SharesPurchasedViewModel vm)
         {
-            if (vm == null || _db == null || vm.SharesPurchasedId <= 0)
-                return "Hittar ingen data från formuläret eller databasen!";
-
-            if (vm.DateOfPurchase == DateTime.MinValue || string.IsNullOrEmpty(vm.CompanyName) || string.IsNullOrEmpty(vm.ISIN)
-                 || vm.HowMany <= 0 || string.IsNullOrEmpty(vm.PricePerShares) || vm.Brokerage <= 0)
-                return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!";
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+
+                if (vm == null || vm.SharesPurchasedId <= 0 || string.IsNullOrEmpty(vm.ISIN))
+                    return "Hittar ingen data från formuläret eller ISIN!";
+
+                if (IsImportantFieldsSet(vm))
+                    return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie och Courage!";
+
                 SharesPurchaseds? model = await Get(vm.ISIN);
 
                 if (model == null)
                     return "Hittar inte den köpa aktien i databasen!";
 
                 _mapper.Map(vm, model);
-                await _db.SaveChangesAsync();
-                return string.Empty;
+                model.SharesPurchasedId = vm.SharesPurchasedId; // Ensure the ID is set
+                model.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
+                model.PricePerShares = Math.Round(double.Parse(vm.PricePerShares!), 2, MidpointRounding.AwayFromZero);
+                model.Brokerage = Math.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero);
+                model.Amount = Math.Round(vm.HowMany * double.Parse(vm.PricePerShares!), 2, MidpointRounding.AwayFromZero);
 
+                await db.SaveChangesAsync();
+                return string.Empty;
             }
             catch (Exception ex)
             {
@@ -88,19 +96,22 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                if (vm == null || string.IsNullOrEmpty(vm.ISIN) || _db == null)
-                    return await HandleError(vm, "Köpt mera", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("AddMore: db == null!");
+
+                if (vm == null || string.IsNullOrEmpty(vm.ISIN))
+                    return await HandleError(vm, "Köpt mera", import, "Hittar ingen data från formuläret eller inget ISIN");
 
                 if (!import && (vm.MoreDateOfPurchase == DateTime.MinValue || vm.MoreHowMany == 0 || vm.MorePricePerShares == 0 || vm.MoreBrokerage == 0))
                     return "Du måste fylla i fälten: Köp mer: Datum, Köp mer: Antal, Köp mer: Pris per aktie, Köp mer: Courage!";
 
                 SharesPurchaseds? model = await Get(vm.ISIN);
+
                 if (model == null)
                     return await HandleError(vm, "Köpt mera", import, "Hittar inte aktien i databasen!");
 
                 UpdateModelWithAdditionalPurchase(model, vm, import);
 
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
                 return string.Empty;
             }
             catch (Exception ex)
@@ -135,7 +146,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             return $"\r\n\r\nKöper mer:" +
                    $"\r\nBolag: {vm.CompanyName}" +
-                   $"\r\nDatum: {(import ? vm.DateOfPurchase : vm.MoreDateOfPurchase).ToString("yyyy-MM-dd")}" +
+                   $"\r\nDatum: {(import ? vm.DateOfPurchase : vm.MoreDateOfPurchase):yyyy-MM-dd}" +
                    $"\r\nHur många: {(import ? vm.HowMany : vm.MoreHowMany)}" +
                    $"\r\nPris per st: {(import ? vm.PricePerShares : vm.MorePricePerShares)}" +
                    $"\r\nInköpsvärdet: {(import ? vm.HowMany * double.Parse(vm.PricePerShares!) : vm.MoreHowMany * vm.MorePricePerShares)}" +
@@ -147,24 +158,27 @@ namespace MyPrivateApp.Components.Shares.Classes
         // Selling all or part of the share
         public async Task<string> Sell(SharesPurchasedViewModel vm, bool import, ISharesFeeClass sharesFeeClass)
         {
-            if (vm == null || string.IsNullOrEmpty(vm.ISIN))
-                return await HandleError(vm, "Sälj", import, "Hittar ingen data från formuläret eller ISIN är tomt!");
-
-            SharesPurchaseds? model = await Get(vm.ISIN);
-            if (model == null || model.SharesPurchasedId != 0)
-                return await HandleError(vm, "Sälj", import, "Aktien hittades inte i databasen!");
-
-            if (!import && (vm.SaleDateOfPurchase == DateTime.MinValue || vm.SaleHowMany <= 0 || vm.SalePricePerShares <= 0 || vm.SaleBrokerage <= 0))
-                return "Du måste fylla i fälten: Sälj datum, Sälj antal, Sälj pris per aktie, Sälj courage!";
-
-            if (import && vm.SaleBrokerage == 0)
-                return "Du får inte sälja aktien utan courage avgift!";
-
-            string importTrue = import ? "Ja" : "Nej";
-            vm.SharesPurchasedId = model.SharesPurchasedId;
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Sell: db == null!");
+
+                if (vm == null || string.IsNullOrEmpty(vm.ISIN))
+                    return await HandleError(vm, "Sälj", import, "Hittar ingen data från formuläret eller ISIN är tomt!");
+
+                SharesPurchaseds? model = await Get(vm.ISIN);
+                if (model == null || model.SharesPurchasedId != 0)
+                    return await HandleError(vm, "Sälj", import, "Aktien hittades inte i databasen!");
+
+                if (!import && (vm.SaleDateOfPurchase == DateTime.MinValue || vm.SaleHowMany <= 0 || vm.SalePricePerShares <= 0 || vm.SaleBrokerage <= 0))
+                    return "Du måste fylla i fälten: Sälj datum, Sälj antal, Sälj pris per aktie, Sälj courage!";
+
+                if (import && vm.SaleBrokerage == 0)
+                    return "Du får inte sälja aktien utan courage avgift!";
+
+                string importTrue = import ? "Ja" : "Nej";
+                vm.SharesPurchasedId = model.SharesPurchasedId;
+
+
                 if (model.HowMany == vm.SaleHowMany)
                     await SellEntireShare(vm, model, importTrue, sharesFeeClass);
                 else
@@ -180,13 +194,15 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         private async Task SellEntireShare(SharesPurchasedViewModel vm, SharesPurchaseds purchasedsModel, string importTrue, ISharesFeeClass sharesFeeClass)
         {
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("SellEntireShare: db == null!");
+
             SharesSolds soldModel = CreateSharesSolds(vm, purchasedsModel, importTrue, true);
 
             soldModel.MoneyProfitOrLoss = soldModel.AmountSold - soldModel.Amount;
             soldModel.PercentProfitOrLoss = ConvertToPercentage((soldModel.AmountSold / soldModel.Amount) - 1);
 
-            await _db.SharesSolds.AddAsync(soldModel);
-            await _db.SaveChangesAsync();
+            await db.SharesSolds.AddAsync(soldModel);
+            await db.SaveChangesAsync();
 
             var feeVM = ChangeFromToPurchasedToFeeViewModel(vm, soldModel.Brokerage, $"Courtage för aktien: \r\nBolag: {vm.CompanyName} \r\nISIN: {vm.ISIN}");
             await sharesFeeClass.Add(feeVM, true, soldModel.DateOfSold);
@@ -196,13 +212,15 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         private async Task SellPartialShare(SharesPurchasedViewModel vm, SharesPurchaseds sharesPurchaseds, string importTrue, ISharesFeeClass sharesFeeClass)
         {
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("SellPartialShare: db == null!");
+
             SharesSolds shares = CreateSharesSolds(vm, sharesPurchaseds, importTrue, false);
 
             shares.MoneyProfitOrLoss = shares.AmountSold - shares.Amount;
             shares.PercentProfitOrLoss = ConvertToPercentage((shares.AmountSold / shares.Amount) - 1);
 
-            await _db.SharesSolds.AddAsync(shares);
-            await _db.SaveChangesAsync();
+            await db.SharesSolds.AddAsync(shares);
+            await db.SaveChangesAsync();
 
             SharesFeeViewModel feeVM = ChangeFromToPurchasedToFeeViewModel
                 (vm, shares.Brokerage, $"Courtage för sålda delar av aktien: \r\nBolag: {vm.CompanyName} \r\nISIN: {vm.ISIN}");
@@ -246,6 +264,8 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("CreateSharesSolds: db == null!");
+
                 if (vm is null || model is null)
                     return await HandleError(vm, "Radera sålda", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
 
@@ -282,26 +302,36 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                if (vm == null || vm.SharesPurchasedId == 0 || _db == null)
-                    return await HandleError(vm, "Ta bort", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
-                _db.ChangeTracker.Clear();
+                if (vm == null || vm.SharesPurchasedId == 0)
+                    return await HandleError(vm, "Ta bort", import, "Hittar ingen data från formuläret!");
+
+                db.ChangeTracker.Clear();
 
                 if (import && incomingModel != null && incomingModel.SharesPurchasedId > 0)
-                    _db.SharesPurchaseds.Remove(incomingModel);
+                    db.SharesPurchaseds.Remove(incomingModel);
                 else
                 {
                     SharesPurchaseds model = ChangesFromViewModelToModel(vm);
-                    _db.SharesPurchaseds.Remove(model);
+                    db.SharesPurchaseds.Remove(model);
                 }
 
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
                 return string.Empty;
             }
             catch (Exception ex)
             {
                 return await HandleError(vm, "Ta bort såld", import, ex.Message);
             }
+        }
+
+        private static bool IsImportantFieldsSet(SharesPurchasedViewModel vm)
+        {
+            return vm == null
+                ? throw new ArgumentNullException(nameof(vm))
+                : vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) &&
+                   !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0;
         }
 
         private static DateTime ParseDate(string date)
@@ -440,6 +470,8 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
@@ -453,8 +485,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                        $"\r\nISIN: {vm.ISIN}."
                 };
 
-                await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
-                await _db.SaveChangesAsync();
+                await db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
+                await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
