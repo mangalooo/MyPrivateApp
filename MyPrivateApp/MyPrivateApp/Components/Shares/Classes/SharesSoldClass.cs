@@ -59,7 +59,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0 && vm.DateOfSold != DateTime.MinValue && !string.IsNullOrEmpty(vm.PricePerSharesSold);
         }
 
-        public async Task<string> Edit(SharesSoldViewModel vm, bool import)
+        public async Task<string> Edit(SharesSoldViewModel vm)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 SharesSolds? model = await Get(vm.ISIN);
 
-                if (model != null)
+                if (model == null)
                     return "Hittar inte den sålda aktien i databasen!";
 
                 _mapper.Map<SharesSolds>(model);
@@ -98,27 +98,25 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public async Task<string> Delete(ApplicationDbContext db, SharesSoldViewModel vm, bool import)
+        public async Task<string> Delete(SharesSolds model)
         {
-            if (vm != null && vm.SharesSoldId > 0 && db != null)
+            if (model == null || model.SharesSoldId <= 0)
+                return "Aktien saknar data i formuläret!";
+
+            try
             {
-                SharesSolds model = ChangeFromViewModelToModel(vm);
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
-                try
-                {
-                    db.ChangeTracker.Clear();
-                    db.SharesSolds.Remove(model);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    ErrorHandling(db, vm, "Ta bort", import, ex.Message);
-                }
+                db.ChangeTracker.Clear();
+                db.SharesSolds.Remove(model);
+                await db.SaveChangesAsync();
+
+                return string.Empty;
             }
-            else
-                return "Aktien hittades inte i databasen eller saknas data i formuläret!";
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                return $"Gick inte att ta bort den sålda aktien! Felmeddelande: {ex.Message} ";
+            }
         }
 
         public SharesSoldViewModel ChangeFromModelToViewModel(SharesSolds model)
@@ -180,8 +178,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         }
 
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
-
-
 
         private async Task<string> HandleError(SharesSoldViewModel? vm, string type, bool import, string errorMessage)
         {

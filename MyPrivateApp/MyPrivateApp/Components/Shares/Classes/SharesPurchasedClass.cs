@@ -178,7 +178,6 @@ namespace MyPrivateApp.Components.Shares.Classes
                 string importTrue = import ? "Ja" : "Nej";
                 vm.SharesPurchasedId = model.SharesPurchasedId;
 
-
                 if (model.HowMany == vm.SaleHowMany)
                     await SellEntireShare(vm, model, importTrue, sharesFeeClass);
                 else

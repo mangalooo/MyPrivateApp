@@ -27,8 +27,9 @@
 
     @* Navigation *@
 
-    @* Desktop *@
     <div class="navigation">
+
+        @* Desktop *@
         <div id="desktop" class="text-center">
             <div class="btn-group">
                 @foreach (var item in NavigationItems)
@@ -482,7 +483,7 @@
     {
         if (vm.DepositMoneyId == 0)
         {
-            ShowErrorMessage($"Går inte att ändra gårdsarbetet. ID = {vm.DepositMoneyId}!");
+            ShowErrorMessage($"Går inte att ändra banköverföringen. ID = {vm.DepositMoneyId}!");
             return;
         }
 
