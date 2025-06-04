@@ -462,7 +462,8 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         private async Task ErrorHandling(SharesPurchasedViewModel? vm, string type, bool import, string errorMessage)
         {
-            ArgumentNullException.ThrowIfNull(vm);
+            if (vm == null)
+                throw new ArgumentNullException(nameof(vm), "ErrorHandling: vm är null!");
 
             DateTime date = DateTime.Now;
             string importTrue = import ? "Ja" : "Nej";

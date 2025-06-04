@@ -50,7 +50,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                SharesDepositMoney model = CreateModel(vm, amount);
+                SharesDepositMoney model = ChangeFromViewModelToModel(vm, amount);
                 UpdateTotalAmount(getTotalAmount, vm.TypeOfTransaction, amount);
 
                 await _db.SharesDepositMoney.AddAsync(model);
@@ -64,21 +64,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         }
 
         private static double ParseAmount(string amountString) => amountString.Contains('-') ? double.Parse(amountString[1..]) : double.Parse(amountString);
-
-        private static SharesDepositMoney CreateModel(SharesDepositMoneyViewModel vm, double amount)
-        {
-            return new SharesDepositMoney
-            {
-                Date = vm.Date.ToString("yyyy-MM-dd"),
-                DepositMoney = vm.TypeOfTransaction == "Insättning" ? amount : -amount,
-                SubmitOrWithdraw = vm.TypeOfTransaction == "Insättning" ? SubmitOrWithdraw.Inbetalning : SubmitOrWithdraw.Utbetalning,
-                TypeOfTransaction = vm.TypeOfTransaction,
-                TransferOptions = vm.TransferOptions,
-                Account = vm.Account,
-                Currency = vm.Currency,
-                Note = vm.Note
-            };
-        }
 
         private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, string transactionType, double amount)
         {
@@ -172,6 +157,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
+        private SharesDepositMoney ChangeFromViewModelToModel(SharesDepositMoneyViewModel vm, double amount)
+        {
+            SharesDepositMoney model = _mapper.Map<SharesDepositMoney>(vm);
+
+            if (vm.Date != DateTime.MinValue)
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
+
+            if (string.IsNullOrEmpty(vm.TypeOfTransaction))
+            {
+                model.DepositMoney = vm.TypeOfTransaction == "Insättning" ? amount : -amount;
+                model.SubmitOrWithdraw = vm.TypeOfTransaction == "Insättning" ? SubmitOrWithdraw.Inbetalning : SubmitOrWithdraw.Utbetalning;
+            }
+
+            return model;
+        }
+
         public SharesDepositMoneyViewModel ChangeFromImportToViewModel(SharesImports model)
         {
             ArgumentNullException.ThrowIfNull(model);
@@ -187,17 +188,6 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
-        public SharesDepositMoney ChangeFromViewModelToModel(SharesDepositMoneyViewModel vm)
-        {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            SharesDepositMoney model = _mapper.Map<SharesDepositMoney>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
-
-            return model;
-        }
 
         private async Task ErrorHandling(SharesDepositMoneyViewModel? vm, string type, bool import, string errorMessage)
         {

@@ -119,31 +119,40 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
+        private static DateTime ParseDate(string date)
+        {
+            if (DateTime.TryParse(date, out DateTime parsedDate))
+                return parsedDate;
+
+            return DateTime.MinValue;
+
+            throw new FormatException($"Ogiltigt datumformat: {date}");
+        }
+
         public SharesSoldViewModel ChangeFromModelToViewModel(SharesSolds model)
         {
-            DateTime dateOfPurchase = DateTime.Parse(model.DateOfPurchase);
-            DateTime dateOfSold = DateTime.Parse(model.DateOfSold);
+            SharesSoldViewModel vm = _mapper.Map<SharesSoldViewModel>(model);
 
-            SharesSoldViewModel vm = new()
-            {
-                SharesSoldId = model.SharesSoldId,
-                DateOfPurchase = dateOfPurchase,
-                DateOfSold = dateOfSold,
-                Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                AmountSold = double.Round(model.AmountSold, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                CompanyName = model.CompanyName,
-                HowMany = model.HowMany,
-                PricePerShares = double.Round(model.PricePerShares, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                PricePerSharesSold = double.Round(model.PricePerSharesSold, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                Currency = model.Currency,
-                ISIN = model.ISIN,
-                Account = model.Account,
-                Brokerage = model.Brokerage,
-                TypeOfShares = model.TypeOfShares,
-                MoneyProfitOrLoss = double.Round(model.MoneyProfitOrLoss, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00"),
-                PercentProfitOrLoss = model.PercentProfitOrLoss,
-                Note = model.Note
-            };
+            if (model.Amount <= 0)
+                vm.Amount = double.Round(model.Amount, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+
+            if (model.AmountSold <= 0)
+                vm.AmountSold = double.Round(model.AmountSold, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+
+            if (model.PricePerShares <= 0)
+                vm.PricePerShares = double.Round(model.PricePerShares, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+
+            if (model.PricePerSharesSold <= 0)
+                vm.PricePerSharesSold = double.Round(model.PricePerSharesSold, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+
+            if (model.MoneyProfitOrLoss <= 0)
+                vm.MoneyProfitOrLoss = double.Round(model.MoneyProfitOrLoss, 2, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+
+            if (!string.IsNullOrEmpty(model.DateOfPurchase))
+                vm.DateOfPurchase = ParseDate(model.DateOfPurchase);
+
+            if (!string.IsNullOrEmpty(model.DateOfSold))
+                vm.DateOfSold = ParseDate(model.DateOfSold);
 
             return vm;
         }
