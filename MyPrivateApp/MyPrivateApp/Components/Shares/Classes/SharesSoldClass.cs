@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;
@@ -24,8 +25,6 @@ namespace MyPrivateApp.Components.Shares.Classes
             return await db.SharesSolds.FirstOrDefaultAsync(r => r.ISIN == ISIN)
                 ?? throw new Exception("Den sålda aktien hittades inte i databasen!");
         }
-
-
 
         public async Task<string> Add(SharesSoldViewModel vm, bool import)
         {
@@ -157,33 +156,38 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
-        private static SharesSolds ChangeFromViewModelToModel(SharesSoldViewModel vm)
+        private SharesSolds ChangeFromViewModelToModel(SharesSoldViewModel vm)
         {
-            SharesSolds sharesSolds = new()
-            {
-                DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd"),
-                DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd"),
-                Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
-                AmountSold = double.Round(vm.HowMany * double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero),
-                CompanyName = vm.CompanyName,
-                HowMany = vm.HowMany,
-                PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero),
-                PricePerSharesSold = double.Round(double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero),
-                Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero),
-                Currency = vm.Currency,
-                ISIN = vm.ISIN,
-                Account = vm.Account,
-                TypeOfShares = vm.TypeOfShares,
-                Note = vm.Note
-            };
+            SharesSolds model = _mapper.Map<SharesSolds>(vm);
 
-            sharesSolds.MoneyProfitOrLoss = double.Round(sharesSolds.AmountSold - sharesSolds.Amount, 2, MidpointRounding.AwayFromZero);
+            if (vm.DateOfPurchase != DateTime.MinValue)
+                model.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
 
-            double calculateMoneyProfitOrLoss = (sharesSolds.AmountSold / sharesSolds.Amount) - 1;
+            if (vm.DateOfSold != DateTime.MinValue)
+                model.DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd");
 
-            sharesSolds.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
+            if (vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerShares))
+                model.Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero);
 
-            return sharesSolds;
+            if (vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerSharesSold))
+                model.AmountSold = double.Round(vm.HowMany * double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero);
+
+            if (!string.IsNullOrEmpty(vm.PricePerShares))
+                model.PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero);
+
+            if (!string.IsNullOrEmpty(vm.PricePerSharesSold))
+                model.PricePerSharesSold = double.Round(double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero);
+
+            if (vm.Brokerage > 0)
+                model.Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero);
+
+            model.MoneyProfitOrLoss = double.Round(model.AmountSold - model.Amount, 2, MidpointRounding.AwayFromZero);
+
+            double calculateMoneyProfitOrLoss = (model.AmountSold / model.Amount) - 1;
+
+            model.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
+
+            return model;
         }
 
         private static string ConvertToPercentage(double decimalValue) => $"{decimalValue * 100:F2}%";
