@@ -8,35 +8,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesImportsFileClass(ApplicationDbContext db, ILogger<SharesImportsFileClass> logger, IMapper mapper) : ISharesImportsFileClass
+    public class SharesImportsFileClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<SharesImportsFileClass> logger, IMapper mapper) : ISharesImportsFileClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesImportsFileClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         private async Task<SharesImportsFile?> Get(int? id)
         {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
+            if (id <= 0)
+                throw new Exception("Get: Finns inget ID!");
 
-            return await _db.SharesImportsFiles.FirstOrDefaultAsync(r => r.SharesImportsFileId == id)
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
+
+            return await db.SharesImportsFiles.FirstOrDefaultAsync(r => r.SharesImportsFileId == id)
                 ?? throw new Exception("Hittar inte importen i databasen!");
         }
 
         public async Task<string> Add(SharesImportsFileViewModel vm)
         {
-            if (vm == null || _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            if (vm.Date == DateTime.MinValue)
-                return "Ingen datum ifyllt!";
-
-            SharesImportsFile model = ChangeFromViewModelToModel(vm);
-
             try
             {
-                await _db.SharesImportsFiles.AddAsync(model);
-                await _db.SaveChangesAsync();
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
+                if (vm == null)
+                    return "Hittar ingen data från formuläret!";
+
+                if (vm.Date == DateTime.MinValue)
+                    return "Ingen datum ifyllt!";
+
+                SharesImportsFile model = ChangeFromViewModelToModel(vm);
+
+                await db.SharesImportsFiles.AddAsync(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -47,18 +52,21 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Edit(SharesImportsFileViewModel vm)
         {
-            if (vm == null || _db == null || vm.SharesImportsFileId <= 0)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+
+                if (vm == null || vm.SharesImportsFileId <= 0)
+                    return "Hittar ingen data från formuläret!";
+
                 SharesImportsFile? model = await Get(vm.SharesImportsFileId);
 
                 if (model == null)
                     return "Hittar inte importen i databasen!";
 
                 _mapper.Map(vm, model);
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -69,14 +77,17 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Delete(SharesImportsFile model)
         {
-            if (model == null || _db == null || model.SharesImportsFileId <= 0)
-                return "Hittar ingen data från formuläret eller databasen!";
-
             try
             {
-                _db.ChangeTracker.Clear();
-                _db.SharesImportsFiles.Remove(model);
-                await _db.SaveChangesAsync();
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                if (model == null || model.SharesImportsFileId <= 0)
+                    return "Hittar ingen data från formuläret!";
+
+                db.ChangeTracker.Clear();
+                db.SharesImportsFiles.Remove(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)

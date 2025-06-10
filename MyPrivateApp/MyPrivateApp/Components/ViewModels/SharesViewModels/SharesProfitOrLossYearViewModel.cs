@@ -29,11 +29,11 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Skatt")]
         [DataType(DataType.Text)]
-        public string? FeeYear { get; set; } // Avgifter
+        public string? FeeYear { get; set; }
 
         [Display(Name = "Skatt")]
         [DataType(DataType.Text)]
-        public string? TaxYear { get; set; } // Skatt
+        public string? TaxYear { get; set; }
 
         [Display(Name = "Courtage")]
         [DataType(DataType.Text)]
@@ -41,11 +41,11 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Vinst/förlust")]
         [DataType(DataType.Text)]
-        public string? MoneyProfitOrLossYear { get; set; } // ( Årets alla: (säljvärden: aktiar och fonder + utdelningar + ränta) - (köp värderna + skatt + avgifter) )
+        public string? MoneyProfitOrLossYear { get; set; }
 
         [Display(Name = "Vinst/förlust i %")]
         [DataType(DataType.Text)]
-        public string? PercentProfitOrLossYear { get; set; } // (Årets alla: (säljvärden: aktiar och fonder + utdelningar + ränta) - (köp värderna + skatt + avgifter) )
+        public string? PercentProfitOrLossYear { get; set; }
 
         [Display(Name = "Anteckningar")]
         [DataType(DataType.Text)]

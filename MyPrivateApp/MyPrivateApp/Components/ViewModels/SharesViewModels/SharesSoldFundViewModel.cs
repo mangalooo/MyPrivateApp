@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 {
@@ -13,17 +14,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Date)]
         public DateTime DateOfPurchase { get; set; }
 
-        [Required(ErrorMessage = "Skriv in när aktien såldes")]
         [Display(Name = "Säljsdatum")]
         [DataType(DataType.Date)]
         public DateTime DateOfSold { get; set; }
 
-        [Required(ErrorMessage = "Shares_Error_Amount")]
         [Display(Name = "Inköpsvärdet")]
         [DataType(DataType.Text)]
         public string? Amount { get; set; }
 
-        [Required(ErrorMessage = "Skriv in vad aktien kostade totalt")]
         [Display(Name = "Säljvärdet")]
         [DataType(DataType.Text)]
         public string? AmountSold { get; set; }
@@ -40,12 +38,10 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Text)]
         public double HowMany { get; set; }
 
-        [Required(ErrorMessage = "Skriv in vad fonden kostade per styck")]
         [Display(Name = "Pris per fond")]
         [DataType(DataType.Text)]
         public string? PricePerFunds{ get; set; }
 
-        [Required(ErrorMessage = "Skriv in vad fonden såldes per styck")]
         [Display(Name = "Pris per såld fond")]
         [DataType(DataType.Text)]
         public string? PricePerFundsSold { get; set; }

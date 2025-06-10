@@ -8,35 +8,40 @@ using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesErrorHandlingClass(ApplicationDbContext db, ILogger<SharesErrorHandlingClass> logger, IMapper mapper) : ISharesErrorHandlingClass
+    public class SharesErrorHandlingClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<SharesErrorHandlingClass> logger, IMapper mapper) : ISharesErrorHandlingClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesErrorHandlingClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<SharesErrorHandlings?> Get(int? id)
         {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
+            if (id <= 0)
+                throw new Exception("Get: Finns inget ID!");
 
-            return await _db.SharesErrorHandlings.FirstOrDefaultAsync(r => r.ErrorHandlingsId == id)
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
+
+            return await db.SharesErrorHandlings.FirstOrDefaultAsync(r => r.ErrorHandlingsId == id)
                 ?? throw new Exception("Falhanteringen hittades inte i databasen!");
         }
 
         public async Task<string> Edit(SharesErrorHandlingViewModel vm)
         {
-            if (_db == null || vm == null || vm.ErrorHandlingsId <= 0)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+
+                if (vm == null || vm.ErrorHandlingsId <= 0)
+                    return "Hittar ingen data från formuläret!";
+
                 SharesErrorHandlings? getDbModel = await Get(vm.ErrorHandlingsId);
 
                 if (getDbModel == null)
                     return "Felhanteringen hittades inte i databasen!";
 
                 _mapper.Map(vm, getDbModel);
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+
                 return string.Empty;
 
             }
@@ -44,27 +49,35 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 string message = $"Ändra felhandtering: \r\nDatum: {vm.Date.ToString()[..10]} \r\nAnteckningar: {vm.Note} \r\nFel hantering: {vm.ErrorMessage}!";
                 _logger.LogError(ex, message);
-                return $"Felmeddelande: {ex.Message}";
+                return $"Ändra. Felmeddelande: {ex.Message}";
             }
         }
 
         public async Task<string> Delete(SharesErrorHandlings model)
         {
-            if (_db == null || model == null)
-                return "Hittar ingen data från modellen eller ingen kontakt med databasen!";
+            if (model == null)
+                return "Hittar ingen data från modellen!";
 
             try
             {
-                _db.ChangeTracker.Clear();
-                _db.Remove(model);
-                await _db.SaveChangesAsync();
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.ChangeTracker.Clear();
+                db.Remove(model);
+                await db.SaveChangesAsync();
+
+                string message = $"Ta bort felhandtering: \r\nDatum: {model.Date?.ToString()[..10] ?? DateTime.MinValue.ToString()} " +
+                    $"\r\nAnteckningar: {model.Note ?? string.Empty} \r\nFel hantering: {model.ErrorMessage ?? string.Empty}!";
+                _logger.LogInformation(message);
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
-                string message = $"Ta bort felhandtering: \r\nDatum: {model?.Date?.ToString()[..10]} \r\nAnteckningar: {model.Note} \r\nFel hantering: {model.ErrorMessage}!";
+                string message = $"Ta bort felhandtering: \r\nDatum: {model?.Date?.ToString()[..10] ?? DateTime.MinValue.ToString()} " +
+                    $"\r\nAnteckningar: {model?.Note ?? string.Empty} \r\nFel hantering: {model?.ErrorMessage ?? string.Empty}!";
                 _logger.LogError(ex, message);
-                return $"Felmeddelande: {ex.Message}";
+                return $"Ta bort. Felmeddelande: {ex.Message}";
             }
         }
 

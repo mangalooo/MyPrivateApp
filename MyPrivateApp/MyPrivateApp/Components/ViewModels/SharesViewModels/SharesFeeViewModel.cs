@@ -8,7 +8,6 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         public int SharesFeeId { get; set; }
 
-        [Required(ErrorMessage = "Skriv in ett datum")]
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }

@@ -10,32 +10,26 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         public int SharesPurchasedId { get; set; }
 
-        [Required(ErrorMessage = "Skriv in datum")]
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
-        public DateTime DateOfPurchase { get; set; } //  Köp datum
+        public DateTime DateOfPurchase { get; set; }
 
-        [Required(ErrorMessage = "Skriv in ett företagsnamn")]
         [Display(Name = "Företag")]
         [DataType(DataType.Text)]
         public string? CompanyName { get; set; }
 
-        [Required(ErrorMessage = "Skriv hur många aktier")]
         [Display(Name = "Antal")]
         [DataType(DataType.Text)]
         public double HowMany { get; set; }
 
-        [Required(ErrorMessage = "Skriv in pris per aktie")] 
         [Display(Name = "Pris per aktie")]
         [DataType(DataType.Text)]
         public string? PricePerShares { get; set; }
 
-        [Required(ErrorMessage = "Skriv in courtage")]
         [Display(Name = "Courtage")]
         [DataType(DataType.Text)]
         public double Brokerage { get; set; }
 
-        [Required(ErrorMessage = "Skriv in vad aktien kostade totalt")]
         [Display(Name = "Inköpsvärdet")]
         [DataType(DataType.Text)]
         public string? Amount { get; set; }
