@@ -723,29 +723,37 @@
 
     private async Task Delete()
     {
-        // Try to find the fund
-        SharesPurchasedFunds? model = await db.SharesPurchasedFunds.FirstOrDefaultAsync(a => a.SharesPurchasedFundId == TemporaryId);
-
-        if (model == null)
+        try
         {
-            ShowErrorMessage("Fonden kunde inte hittas i databasen!");
-            return;
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            SharesPurchasedFunds? model = await db.SharesPurchasedFunds.FirstOrDefaultAsync(a => a.SharesPurchasedFundId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage("Fonden kunde inte hittas i databasen!");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = true;
+                ShowOrHideAddOrEditForm = false;
+                ShowOrHideEditButton = false;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        ErrorMessage = await BackEndClass.Delete(model);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        catch (Exception ex)
         {
-            ShowOrHideErrorMessage = true;
-            ShowOrHideAddOrEditForm = false;
-            ShowOrHideEditButton = false;
-            StateHasChanged();
-            return;
-        }
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 

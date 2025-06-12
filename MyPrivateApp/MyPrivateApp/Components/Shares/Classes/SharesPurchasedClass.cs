@@ -479,10 +479,10 @@ namespace MyPrivateApp.Components.Shares.Classes
                     TypeOfTransaction = type + " aktie",
                     ErrorMessage = $"Felmeddelande: {errorMessage}",
                     Note = $"{type} aktie: " +
-                       $"\r\nKöp datum: {vm.DateOfPurchase} " +
-                       $"\r\nImport: {importTrue} " +
-                       $"\r\nId: {vm.SharesPurchasedId} " +
-                       $"\r\nISIN: {vm.ISIN}."
+                           $"\r\nKöp datum: {vm.DateOfPurchase} " +
+                           $"\r\nImport: {importTrue} " +
+                           $"\r\nId: {vm.SharesPurchasedId} " +
+                           $"\r\nISIN: {vm.ISIN}."
                 };
 
                 await db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
