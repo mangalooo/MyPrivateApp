@@ -1,8 +1,8 @@
 ﻿
 @page "/SharesImportsPage"
 
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Shares.Classes
@@ -16,7 +16,6 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 @inject NavigationManager Navigation
 @inject ISharesImportsFileClass BackEndClass
 @inject ISharesPurchasedClass SharesPurchasedClass
@@ -28,6 +27,7 @@
 @inject ISharesInterestRatesClass SharesInterestRatesClass
 @inject ISharesOtherImportsClass SharesOtherImports
 @inject ISharesSoldClass SharesSoldClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Aktier </PageTitle>
 
@@ -470,7 +470,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"AddOrEdit. Felmeddelande: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -486,9 +486,9 @@
 
     private void Edit(SharesImportsFileViewModel vm)
     {
-        if (vm.SharesImportsFileId == 0)
+        if (vm.SharesImportsFileId <= 0)
         {
-            ShowErrorMessage($"Går inte att ändra gårdsarbetet. ID = {vm.SharesImportsFileId}!");
+            ShowErrorMessage($"Går inte att ändra importen. ID = {vm.SharesImportsFileId}!");
             return;
         }
 
@@ -531,7 +531,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Delete. Felmeddelande: {ex.Message}");
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 

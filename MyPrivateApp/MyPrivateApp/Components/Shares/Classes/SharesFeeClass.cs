@@ -8,34 +8,40 @@ using MyPrivateApp.Data.Models.SharesModels;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesFeeClass(ApplicationDbContext db, ILogger<SharesFeeClass> logger, IMapper mapper) : ISharesFeeClass
+    public class SharesFeeClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<SharesFeeClass> logger, IMapper mapper) : ISharesFeeClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesFeeClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         private async Task<SharesFee?> Get(int? id)
         {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
+            if (id <= 0)
+                throw new Exception("Get: Finns inget ID!");
 
-            return await _db.SharesFees.FirstOrDefaultAsync(r => r.SharesFeeId == id)
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
+
+            return await db.SharesFees.FirstOrDefaultAsync(r => r.SharesFeeId == id)
                 ?? throw new Exception("Avgiften/skatten hittades inte i databasen!");
         }
 
         public async Task<string> Add(SharesFeeViewModel vm, bool import, string soldDate)
         {
-            if (vm == null || _db == null)
-                return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret eller databasen!");
-
-            if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
-                return await HandleError(vm, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
+                if (vm == null)
+                    return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret eller databasen!");
+
+                if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
+                    return await HandleError(vm, "Lägg till", import, "Ingen datum ifyllt eller någon av avfigt, skatt eller courtage måste vara mer än 0!");
+
                 SharesFee model = ChangeFromViewModelToModel(vm, soldDate);
-                await _db.SharesFees.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.SharesFees.AddAsync(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -46,21 +52,24 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Edit(SharesFeeViewModel vm)
         {
-            if (vm == null || _db == null || vm.SharesFeeId <= 0)
-                return "Hittar ingen data från formuläret eller databasen!";
-
-            if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
-                return "Ingen datum ifyllt eller någon av avgift, skatt eller courtage måste vara mer än 0!";
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+
+                if (vm == null || vm.SharesFeeId <= 0)
+                    return "Hittar ingen data från formuläret!";
+
+                if (vm.Date == DateTime.MinValue && (vm.Tax <= 0 || vm.Brokerage <= 0 || vm.Fee <= 0))
+                    return "Ingen datum ifyllt eller någon av avgift, skatt eller courtage måste vara mer än 0!";
+
                 SharesFee? model = await Get(vm.SharesFeeId);
 
                 if (model == null)
                     return "Hittar inte avgiften i databasen!";
 
                 _mapper.Map(vm, model);
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+
                 return string.Empty;
 
             }
@@ -72,14 +81,17 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Delete(SharesFee model)
         {
-            if (model == null || _db == null || model.SharesFeeId <= 0)
-                return "Hittar ingen data från formuläret eller databasen!";
+            if (model == null || model.SharesFeeId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                _db.ChangeTracker.Clear();
-                _db.SharesFees.Remove(model);
-                await _db.SaveChangesAsync();
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.ChangeTracker.Clear();
+                db.SharesFees.Remove(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -113,7 +125,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
-        public SharesFeeViewModel ChangeFromImportToViewModel(SharesImports model)
+        public SharesFeeViewModel ChangeFromImportToViewModel(SharesImports model) // Kan smälla då SharesFeeViewModel vm inte är exakt samma som SharesImports model
         {
             ArgumentNullException.ThrowIfNull(model);
 
@@ -129,7 +141,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                     break;
                 case "Avgift":
                     vm.Fee = double.Parse(model.AmountString);
-                    break;                
+                    break;
                 case "Courtage":
                     vm.Brokerage = double.Parse(model.AmountString);
                     break;
@@ -165,13 +177,16 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         private async Task ErrorHandling(SharesFeeViewModel? vm, string type, bool import, string errorMessage)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            DateTime date = DateTime.Now;
-            string importTrue = import ? "Ja" : "Nej";
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
+
+                if (vm == null)
+                    throw new Exception("ErrorHandling: SharesSoldViewModel == null!");
+
+                DateTime date = DateTime.Now;
+                string importTrue = import ? "Ja" : "Nej";
+
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
@@ -188,8 +203,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                        $"\r\nISIN: {vm.ISIN}"
                 };
 
-                await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
-                await _db.SaveChangesAsync();
+                await db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
+                await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {

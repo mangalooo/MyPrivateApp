@@ -8,7 +8,6 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         public int InterestRatesId { get; set; }
 
-        [Required(ErrorMessage = "Skriv in datum")]
         [Display(Name = "Datum")]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
@@ -17,17 +16,14 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Text)]
         public string? Account { get; set; }
 
-        [Required(ErrorMessage = "Skriv in typ av transaktion")]
         [Display(Name = "Transaktion")]
         [DataType(DataType.Text)]
         public string? TypeOfTransaction { get; set; }
 
-        [Required(ErrorMessage = "Skriv in total summa")]
         [Display(Name = "Belopp")]
         [DataType(DataType.Text)]
         public double TotalAmount { get; set; }
 
-        [Required(ErrorMessage = "Skriv in valutan")]
         [Display(Name = "Valuta")]
         [DataType(DataType.Text)]
         public string? Currency { get; set; }

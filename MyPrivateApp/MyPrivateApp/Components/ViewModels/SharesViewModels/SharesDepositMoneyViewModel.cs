@@ -19,7 +19,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "In- eller utbetalningar")]
         [DataType(DataType.Text)]
-        public SubmitOrWithdraw SubmitOrWithdraw { get; set; } // In- och utbetalningar till och från mitt bankkonto. Check på "Välj"
+        public SubmitOrWithdraw SubmitOrWithdraw { get; set; }
 
         [Display(Name = "typ av transaktion")]
         [DataType(DataType.Text)]
@@ -27,7 +27,7 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
 
         [Display(Name = "Vart pengarna kommer ifrån")]
         [DataType(DataType.Text)]
-        public string? TransferOptions { get; set; } // Text information om hur pengar kommer in och ut (Avanza) 
+        public string? TransferOptions { get; set; }
 
         [Display(Name = "Konto")]
         [DataType(DataType.Text)]
