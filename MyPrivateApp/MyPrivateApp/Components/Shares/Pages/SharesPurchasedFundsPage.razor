@@ -690,7 +690,7 @@
     {
         if (vm == null) 
         {
-            ShowErrorMessage($"Går inte att sälja fonden. ID = {vm.SharesPurchasedFundId}!");
+            ShowErrorMessage($"Går inte att sälja fonden. ID = {vm?.SharesPurchasedFundId}!");
             return;
         }
 

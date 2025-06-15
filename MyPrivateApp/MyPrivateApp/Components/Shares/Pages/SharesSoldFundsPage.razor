@@ -501,7 +501,7 @@
     {
         try
         {
-            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
             List<SharesSoldFunds> items = await db.SharesSoldFunds.OrderByDescending(c => c.DateOfSold).ToListAsync();
 
@@ -547,7 +547,7 @@
             }
             else
             {
-                ErrorMessage = await BackEndClass.Add(pageViewModel);
+                ErrorMessage = await BackEndClass.Add(pageViewModel, false);
                 ShowOrHideAddNewButton = true;
             }
 
@@ -664,7 +664,7 @@
     {
         try
         {
-            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchCompany: db == null!");
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchCompany: db == null!");
 
             if (!string.IsNullOrEmpty(e.Value!.ToString()))
             {
@@ -686,7 +686,7 @@
     {
         try
         {
-            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPurchasedDate: db == null!");
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPurchasedDate: db == null!");
 
             if (!string.IsNullOrEmpty(e.Value!.ToString()))
             {
@@ -708,7 +708,7 @@
     {
         try
         {
-            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchSoldDate: db == null!");
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchSoldDate: db == null!");
 
             if (!string.IsNullOrEmpty(e.Value!.ToString()))
             {

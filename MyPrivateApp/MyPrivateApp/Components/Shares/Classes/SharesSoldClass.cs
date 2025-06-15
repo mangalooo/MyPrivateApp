@@ -71,7 +71,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (!IsImportantFieldsSet(vm))
                     return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie, pris per såld aktie, Säljdatum och Courage!";
 
-                var model = await db.SharesSolds.FirstOrDefaultAsync(r => r.SharesSoldId == vm.SharesSoldId && r.ISIN == vm.ISIN);
+                SharesSolds? model = await Get(vm.ISIN);
                 if (model == null)
                     return "Hittar inte den sålda aktien i databasen!";
 
@@ -87,12 +87,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 model.PricePerShares = Math.Round(pricePerShares, 2, MidpointRounding.AwayFromZero);
                 model.PricePerSharesSold = Math.Round(pricePerSharesSold, 2, MidpointRounding.AwayFromZero);
                 model.Brokerage = Math.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero);
-                model.MoneyProfitOrLoss = Math.Round(getModel.AmountSold - getModel.Amount, 2, MidpointRounding.AwayFromZero);
-
-                double calculateMoneyProfitOrLoss = (getModel.Amount != 0)
-                    ? (getModel.AmountSold / getModel.Amount) - 1
-                    : 0;
-                getModel.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
+                model.MoneyProfitOrLoss = Math.Round(model.AmountSold - model.Amount, 2, MidpointRounding.AwayFromZero);
+                double calculateMoneyProfitOrLoss = (model.Amount != 0) ? (model.AmountSold / model.Amount) - 1 : 0;
+                model.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
 
                 await db.SaveChangesAsync();
 

@@ -6,9 +6,9 @@ namespace MyPrivateApp.Components.Shares.Classes.Interface
 {
     public interface ISharesSoldFundsClass
     {
-        string Add(SharesSoldFundViewModel vm, bool import);
-        string Edit(SharesSoldFundViewModel vm);
-        string Delete(SharesSoldFunds model);
+        Task<string> Add(SharesSoldFundViewModel vm, bool import);
+        Task<string> Edit(SharesSoldFundViewModel vm);
+        Task<string> Delete(SharesSoldFunds model);
         SharesSoldFundViewModel ChangeFromModelToViewModel(SharesSoldFunds model);
     }
 }

@@ -9,17 +9,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesIndexYearsClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : ISharesIndexYearsClass
+    public class SharesIndexYearsClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorkClass> logger, IMapper mapper) : ISharesIndexYearsClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<SharesTotalProfitsOrLosses> GetTotalProfitsOrLosses(int? id)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (id <= 0)
+                throw new Exception("Get: Finns inget ID!");
 
-            return await _db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync(r => r.SharesTotalProfitOrLossId == id)
+            await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("GetTotalProfitsOrLosses: db == null!");
+
+            return await db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync(r => r.SharesTotalProfitOrLossId == id)
                    ?? throw new Exception("Totala summan hittades inte i databasen!");
         }
 
@@ -27,42 +30,41 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> CalculateLastYearsResults()
         {
-            if (_db == null)
-                return "Ingen kontakt med databasen";
-
-            if (!_db.SharesProfitOrLossYears.Any())
-                return "Befintlig databas är tom!";
-
-            int thisYear = 2012; //DateTime.Now.Year; // Magnus: Ändra tillbaka
-            double sharesPurchaseds, sharesSolds = 0, fundsPurchased, fundsSold = 0;
-            double dividends, interestRates, fees = 0, taxes = 0, brokerage = 0;
-            string thisYearsErrorMessage = "Man kan inte beräknad detta året än, man måste vänta tills efter nyår!";
-            int thisCalculationYear = 0, biggerYear = 0;
-
-            if (!_db.SharesProfitOrLossYears.Any())
-                return "Finns inget rad i tabellen: SharesProfitOrLossYears. Måste finns minst en rad!";
-
-            foreach (var item in _db.SharesProfitOrLossYears)
-            {
-                if (string.IsNullOrEmpty(item.Year))
-                    return "År saknas i tabellen: SharesProfitOrLossYears. Måste fyllas i!";
-
-                int itemYear = int.Parse(item.Year);
-                if (itemYear > biggerYear)
-                {
-                    thisCalculationYear = itemYear + 1;
-                    biggerYear = itemYear;
-                }
-            }
-
-            sharesPurchaseds = CalculateShares(_db.SharesSolds, thisYear, thisCalculationYear, thisYearsErrorMessage, ref sharesSolds);
-            fundsPurchased = CalculateFunds(_db.SharesSoldFunds, thisYear, thisCalculationYear, thisYearsErrorMessage, ref fundsSold);
-            dividends = CalculateDividends(_db.SharesDividends, thisYear, thisCalculationYear, thisYearsErrorMessage);
-            interestRates = CalculateInterestRates(_db.SharesInterestRates, thisYear, thisCalculationYear, thisYearsErrorMessage);
-            CalculateFees(_db.SharesFees, thisYear, thisCalculationYear, thisYearsErrorMessage, ref fees, ref taxes, ref brokerage);
-
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("CalculateLastYearsResults: db == null!");
+
+                if (!db.SharesProfitOrLossYears.Any())
+                    return "Befintlig databas är tom!";
+
+                int thisYear = 2012; //DateTime.Now.Year; // Magnus: Ändra tillbaka
+                double sharesPurchaseds, sharesSolds = 0, fundsPurchased, fundsSold = 0;
+                double dividends, interestRates, fees = 0, taxes = 0, brokerage = 0;
+                string thisYearsErrorMessage = "Man kan inte beräknad detta året än, man måste vänta tills efter nyår!";
+                int thisCalculationYear = 0, biggerYear = 0;
+
+                if (!db.SharesProfitOrLossYears.Any())
+                    return "Finns inget rad i tabellen: SharesProfitOrLossYears. Måste finns minst en rad!";
+
+                foreach (var item in db.SharesProfitOrLossYears)
+                {
+                    if (string.IsNullOrEmpty(item.Year))
+                        return "År saknas i tabellen: SharesProfitOrLossYears. Måste fyllas i!";
+
+                    int itemYear = int.Parse(item.Year);
+                    if (itemYear > biggerYear)
+                    {
+                        thisCalculationYear = itemYear + 1;
+                        biggerYear = itemYear;
+                    }
+                }
+
+                sharesPurchaseds = CalculateShares(db.SharesSolds, thisYear, thisCalculationYear, thisYearsErrorMessage, ref sharesSolds);
+                fundsPurchased = CalculateFunds(db.SharesSoldFunds, thisYear, thisCalculationYear, thisYearsErrorMessage, ref fundsSold);
+                dividends = CalculateDividends(db.SharesDividends, thisYear, thisCalculationYear, thisYearsErrorMessage);
+                interestRates = CalculateInterestRates(db.SharesInterestRates, thisYear, thisCalculationYear, thisYearsErrorMessage);
+                CalculateFees(db.SharesFees, thisYear, thisCalculationYear, thisYearsErrorMessage, ref fees, ref taxes, ref brokerage);
+
                 double sharesYearResult = sharesSolds - sharesPurchaseds;
                 double fundsYearResult = fundsSold - fundsPurchased;
                 double moneyProfitOrLossYear = (sharesYearResult + fundsYearResult + dividends + interestRates) - (fees + taxes + brokerage);
@@ -88,13 +90,13 @@ namespace MyPrivateApp.Components.Shares.Classes
                            $"\r\nSkatter: {taxes} + Avgifter: {fees} + Courtage: {brokerage} = {double.Round(taxes + fees + brokerage, 2, MidpointRounding.AwayFromZero)}"
                 };
 
-                await _db.SharesProfitOrLossYears.AddAsync(model);
-                SharesTotalProfitsOrLosses? sharesTotalProfitsOrLosses = await _db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync();
+                await db.SharesProfitOrLossYears.AddAsync(model);
+                SharesTotalProfitsOrLosses? sharesTotalProfitsOrLosses = await db.SharesTotalProfitsOrLosses.FirstOrDefaultAsync();
 
                 if (sharesTotalProfitsOrLosses != null)
                     sharesTotalProfitsOrLosses.TotalProfitOrLoss += double.Round(moneyProfitOrLossYear, 2, MidpointRounding.AwayFromZero);
 
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -126,6 +128,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             double fundsPurchased = 0;
             foreach (var item in sharesSoldFunds)
             {
+                if (item.DateOfSold == null)
+                    throw new InvalidOperationException("Datum för sålda fonder saknas i tabellen: SharesSoldFunds.");
+
                 int checkYear = DateTime.Parse(item.DateOfSold).Year;
                 if (checkYear == thisYear) throw new InvalidOperationException("Fonder: " + thisYearsErrorMessage);
                 if (checkYear == thisCalculationYear && !item.CalculationFlag)
@@ -143,6 +148,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             double dividends = 0;
             foreach (var item in sharesDividends)
             {
+                if (item.Date == null)
+                    throw new InvalidOperationException("Datum för utdelning saknas i tabellen: SharesDividend.");
+
                 int checkYear = DateTime.Parse(item.Date).Year;
                 if (checkYear == thisYear) throw new InvalidOperationException("Utdelaning: " + thisYearsErrorMessage);
                 if (checkYear == thisCalculationYear && !item.CalculationFlag)
@@ -159,6 +167,9 @@ namespace MyPrivateApp.Components.Shares.Classes
             double interestRates = 0;
             foreach (var item in sharesInterestRates)
             {
+                if (item.Date == null)
+                    throw new InvalidOperationException("Datum för ränta saknas i tabellen: SharesInterestRates.");
+
                 int checkYear = DateTime.Parse(item.Date).Year;
                 if (checkYear == thisYear) throw new InvalidOperationException("Ränta: " + thisYearsErrorMessage);
                 if (checkYear == thisCalculationYear && !item.CalculationFlag)
@@ -174,6 +185,9 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             foreach (var item in sharesFees)
             {
+                if (item.Date == null)
+                    throw new InvalidOperationException("Datum för ränta saknas i tabellen: SharesFee.");
+
                 int checkYear = DateTime.Parse(item.Date).Year;
                 if (checkYear == thisYear) throw new InvalidOperationException("Kostnader: " + thisYearsErrorMessage);
                 if (checkYear == thisCalculationYear && !item.CalculationFlag)
@@ -188,14 +202,17 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Delete(SharesProfitOrLossYears model)
         {
-            if (model == null || _db == null || model.SharesProfitOrLossYearsId <= 0)
-                return "Hittar ingen data från formuläret eller databasen!";
+            await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+            
+            if (model == null || model.SharesProfitOrLossYearsId <= 0)
+                return "Aktien saknar data i formuläret!";
 
             try
             {
-                _db.ChangeTracker.Clear();
-                _db.SharesProfitOrLossYears.Remove(model);
-                await _db.SaveChangesAsync();
+                db.ChangeTracker.Clear();
+                db.SharesProfitOrLossYears.Remove(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
