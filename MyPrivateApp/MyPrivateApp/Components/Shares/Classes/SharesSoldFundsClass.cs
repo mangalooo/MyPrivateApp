@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
@@ -24,6 +25,14 @@ namespace MyPrivateApp.Components.Shares.Classes
                 ?? throw new Exception("Den sålda fonden hittades inte i databasen!");
         }
 
+        private static bool IsImportantFieldsSet(SharesSoldFundViewModel vm)
+        {
+            return vm == null
+                ? throw new Exception("IsImportantFieldsSet: vm == null!")
+                : vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.CompanyName) && !string.IsNullOrEmpty(vm.ISIN) &&
+                    vm.HowMany > 0 && !string.IsNullOrEmpty(vm.PricePerShares) && vm.Brokerage > 0 && vm.DateOfSold != DateTime.MinValue && !string.IsNullOrEmpty(vm.PricePerSharesSold);
+        }
+
         public async Task<string> Add(SharesSoldFundViewModel vm, bool import)
         {
             try
@@ -35,9 +44,9 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (IsImportantFieldsSet(vm))
                     return await HandleError(vm, "Köpt", import, "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie, pris per såld aktie, Säljdatum och Courage!");
 
-                SharesSolds model = ChangeFromViewModelToModel(vm);
+                SharesSoldFunds model = ChangeFromViewModelToModel(vm);
 
-                db.SharesSolds.Add(model);
+                db.SharesSoldFunds.Add(model);
                 await db.SaveChangesAsync();
 
                 return string.Empty;
@@ -48,41 +57,45 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        public string Add(SharesSoldFundViewModel vm, bool import)
+
+        public async Task<string> Edit(SharesSoldFundViewModel vm)
         {
-            if (vm != null && db != null)
+            try
             {
-                if (vm.DateOfPurchase != DateTime.MinValue && !string.IsNullOrEmpty(vm.FundName) && !string.IsNullOrEmpty(vm.ISIN) && vm.HowMany < 0)
-                {
-                    SharesSoldFunds model = ChangeFromViewModelToModel(vm);
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                    try
-                    {
-                        db.SharesSoldFunds.Add(model);
-                        db.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorHandling(db, vm, "Lägg till", import, ex.Message);
-                    }
-                }
-                else
-                {
-                    if (import)
-                        ErrorHandling(db, vm, "Lägg till", import, "Du måste fylla i fälten: Fond namn, ISIN, Inköpsdatum, Antal och Pris per fond del!");
-                    else
-                        return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal och Pris per fond del!";
-                }
+                if (vm == null || vm.SharesSoldId <= 0 || string.IsNullOrEmpty(vm.ISIN))
+                    return "Hittar ingen data från formuläret eller ISIN!";
+
+                if (IsImportantFieldsSet(vm))
+                    return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie, pris per såld aktie, Säljdatum och Courage!";
+
+                SharesSoldFunds? getModel = await Get(vm.ISIN);
+
+                if (getModel == null)
+                    return "Hittar inte den sålda aktien i databasen!";
+
+                SharesSoldFunds? model = _mapper.Map<SharesSoldFunds>(getModel);
+
+                model.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
+                model.DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd");
+                model.Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero);
+                model.AmountSold = double.Round(vm.HowMany * double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero);
+                model.PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero);
+                model.PricePerSharesSold = double.Round(double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero);
+                model.Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero);
+                model.MoneyProfitOrLoss = double.Round(model.AmountSold - model.Amount, 2, MidpointRounding.AwayFromZero);
+                double calculateMoneyProfitOrLoss = (model.AmountSold / model.Amount) - 1;
+                model.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
+
+                db.SaveChanges();
+
+                return string.Empty;
             }
-            else
+            catch (Exception ex)
             {
-                if (import)
-                    ErrorHandling(db, vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-                else
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+                return $"Ändra. Felmeddelande: {ex.Message}";
             }
-
-            return string.Empty;
         }
 
         public string Edit(SharesSoldFundViewModel vm)

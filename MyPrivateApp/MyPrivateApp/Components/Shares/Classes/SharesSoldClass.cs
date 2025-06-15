@@ -19,7 +19,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (string.IsNullOrEmpty(ISIN))
                 throw new Exception("Get: Finns inget ISIN!");
 
-            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
+            await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
 
             return await db.SharesSolds.FirstOrDefaultAsync(r => r.ISIN == ISIN)
                 ?? throw new Exception("Den sålda aktien hittades inte i databasen!");
@@ -37,11 +37,12 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
 
-                if (vm == null) return await HandleError(vm, "Köpt", import, "Hittar ingen data från formuläret!");
+                if (vm == null) 
+                    return await HandleError(vm, "Köpt", import, "Hittar ingen data från formuläret!");
 
-                if (IsImportantFieldsSet(vm))
+                if (!IsImportantFieldsSet(vm))
                     return await HandleError(vm, "Köpt", import, "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie, pris per såld aktie, Säljdatum och Courage!");
 
                 SharesSolds model = ChangeFromViewModelToModel(vm);
@@ -61,33 +62,40 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+                await using var db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 if (vm == null || vm.SharesSoldId <= 0 || string.IsNullOrEmpty(vm.ISIN))
                     return "Hittar ingen data från formuläret eller ISIN!";
 
-                if (IsImportantFieldsSet(vm))
+                // Invert the check: return error if important fields are NOT set
+                if (!IsImportantFieldsSet(vm))
                     return "Du måste fylla i fälten: Företag, ISIN, Inköpsdatum, Antal, Pris per aktie, pris per såld aktie, Säljdatum och Courage!";
 
-                SharesSolds? getModel = await Get(vm.ISIN);
-
-                if (getModel == null)
+                var model = await db.SharesSolds.FirstOrDefaultAsync(r => r.SharesSoldId == vm.SharesSoldId && r.ISIN == vm.ISIN);
+                if (model == null)
                     return "Hittar inte den sålda aktien i databasen!";
-
-                SharesSolds? model = _mapper.Map<SharesSolds>(getModel);
 
                 model.DateOfPurchase = vm.DateOfPurchase.ToString("yyyy-MM-dd");
                 model.DateOfSold = vm.DateOfSold.ToString("yyyy-MM-dd");
-                model.Amount = double.Round(vm.HowMany * double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero);
-                model.AmountSold = double.Round(vm.HowMany * double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero);
-                model.PricePerShares = double.Round(double.Parse(vm.PricePerShares), 2, MidpointRounding.AwayFromZero);
-                model.PricePerSharesSold = double.Round(double.Parse(vm.PricePerSharesSold), 2, MidpointRounding.AwayFromZero);
-                model.Brokerage = double.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero);
-                model.MoneyProfitOrLoss = double.Round(model.AmountSold - model.Amount, 2, MidpointRounding.AwayFromZero);
-                double calculateMoneyProfitOrLoss = (model.AmountSold / model.Amount) - 1;
-                model.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
 
-                db.SaveChanges();
+                if (!double.TryParse(vm.PricePerShares, out var pricePerShares) ||
+                    !double.TryParse(vm.PricePerSharesSold, out var pricePerSharesSold))
+                        return "Felaktigt prisformat på aktier!";
+
+                model.Amount = Math.Round(vm.HowMany * pricePerShares, 2, MidpointRounding.AwayFromZero);
+                model.AmountSold = Math.Round(vm.HowMany * pricePerSharesSold, 2, MidpointRounding.AwayFromZero);
+                model.PricePerShares = Math.Round(pricePerShares, 2, MidpointRounding.AwayFromZero);
+                model.PricePerSharesSold = Math.Round(pricePerSharesSold, 2, MidpointRounding.AwayFromZero);
+                model.Brokerage = Math.Round(vm.Brokerage, 2, MidpointRounding.AwayFromZero);
+                model.MoneyProfitOrLoss = Math.Round(getModel.AmountSold - getModel.Amount, 2, MidpointRounding.AwayFromZero);
+
+                double calculateMoneyProfitOrLoss = (getModel.Amount != 0)
+                    ? (getModel.AmountSold / getModel.Amount) - 1
+                    : 0;
+                getModel.PercentProfitOrLoss = ConvertToPercentage(calculateMoneyProfitOrLoss);
+
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -103,7 +111,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
                 db.ChangeTracker.Clear();
                 db.SharesSolds.Remove(model);
@@ -203,7 +211,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
 
                 if (vm == null)
                     throw new Exception("ErrorHandling: SharesSoldViewModel == null!");
