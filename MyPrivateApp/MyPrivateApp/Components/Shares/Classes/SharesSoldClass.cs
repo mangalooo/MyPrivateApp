@@ -1,7 +1,6 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data;

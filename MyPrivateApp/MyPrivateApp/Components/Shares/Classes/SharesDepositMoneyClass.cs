@@ -9,52 +9,59 @@ using AutoMapper;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesDepositMoneyClass(ApplicationDbContext db, ILogger<SharesDepositMoneyClass> logger, IMapper mapper) : ISharesDepositMoneyClass
+    public class SharesDepositMoneyClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<SharesDepositMoneyClass> logger, IMapper mapper) : ISharesDepositMoneyClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesDepositMoneyClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<SharesDepositMoney?> Get(int? id)
         {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
+            if (id <= 0)
+                throw new Exception("Get: Finns inget ID!");
 
-            return await _db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == id)
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
+
+            return await db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == id)
                 ?? throw new Exception("Den insatta eller uttagna summan hittades inte i databasen!");
         }
 
         public async Task<SharesTotalAmounts?> GetTotalAmount(int? id)
         {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
+            if (id <= 0)
+                throw new Exception("GetTotalAmount: Finns inget ID!");
 
-            return await _db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("GetTotalAmount: db == null!");
+
+            return await db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
                 ?? throw new Exception("Totala summan hittades inte i databasen!");
         }
 
         public async Task<string> Add(SharesDepositMoneyViewModel vm, bool import)
         {
-            if (_db == null || vm == null)
-                return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret eller ingen kontakt med databasen!");
-
-            SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
-
-            if (getTotalAmount == null)
-                return await HandleError(vm, "Lägg till", import, "Hittar inte de totala beloppet!");
-
-            if (string.IsNullOrEmpty(vm.DepositMoney) || string.IsNullOrEmpty(vm.TypeOfTransaction))
-                return await HandleError(vm, "Lägg till", import, "Inget insatt belopp eller typ av överföring!");
-
-            double amount = ParseAmount(vm.DepositMoney);
-
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
+                if (vm == null)
+                    return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret!");
+
+                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+
+                if (getTotalAmount == null)
+                    return await HandleError(vm, "Lägg till", import, "Hittar inte de totala beloppet!");
+
+                if (string.IsNullOrEmpty(vm.DepositMoney) || string.IsNullOrEmpty(vm.TypeOfTransaction))
+                    return await HandleError(vm, "Lägg till", import, "Inget insatt belopp eller typ av överföring!");
+
+                double amount = ParseAmount(vm.DepositMoney);
+
                 SharesDepositMoney model = ChangeFromViewModelToModel(vm, amount);
                 UpdateTotalAmount(getTotalAmount, vm.TypeOfTransaction, amount);
 
-                await _db.SharesDepositMoney.AddAsync(model);
-                await _db.SaveChangesAsync();
+                await db.SharesDepositMoney.AddAsync(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -75,22 +82,26 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Edit(SharesDepositMoneyViewModel vm)
         {
-            if (_db == null || vm == null || vm.DepositMoneyId <= 0)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
             try
             {
-                SharesDepositMoney? dbModel = await Get(vm.DepositMoneyId);
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+
+                if (vm == null || vm.DepositMoneyId <= 0)
+                    return "Hittar ingen data från formuläret!";
+
+                SharesDepositMoney? model = await Get(vm.DepositMoneyId);
                 SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
 
-                if (dbModel == null || getTotalAmount == null || string.IsNullOrEmpty(vm.DepositMoney))
+                if (model == null || getTotalAmount == null || string.IsNullOrEmpty(vm.DepositMoney))
                     return "Hittar inte data från: Kontot, Total summa eller inget insatt belopp!";
 
-                UpdateTotalAmount(getTotalAmount, dbModel.DepositMoney, false); // Update the total amount with the old amount
+                UpdateTotalAmount(getTotalAmount, model.DepositMoney, false); // Update the total amount with the old amount
                 UpdateTotalAmount(getTotalAmount, double.Parse(vm.DepositMoney), true); // Update the total amount with the new amount
 
-                _mapper.Map(vm, dbModel);
-                await _db.SaveChangesAsync();
+                _mapper.Map(vm, model);
+
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -109,21 +120,26 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Delete(SharesDepositMoney model)
         {
-            if (_db == null || model == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (model == null)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                _db.ChangeTracker.Clear();
-                _db.Remove(model);
-                await _db.SaveChangesAsync();
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.ChangeTracker.Clear();
+                db.Remove(model);
+                await db.SaveChangesAsync();
 
                 SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+
                 if (getTotalAmount == null)
                     return "Totala summan hittades inte i databasen!";
 
                 getTotalAmount.TotalAmount -= model.DepositMoney;
-                await _db.SaveChangesAsync();
+
+                await db.SaveChangesAsync();
+                
                 return string.Empty;
             }
             catch (Exception ex)
@@ -217,8 +233,10 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
-                await _db.SaveChangesAsync();
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
+
+                await db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
+                await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {

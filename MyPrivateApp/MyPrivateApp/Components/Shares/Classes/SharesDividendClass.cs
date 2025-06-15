@@ -84,7 +84,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Delete(SharesDividend model)
         {
-            if (model == null && model.DividendId <= 0)
+            if (model == null || model.DividendId <= 0)
                 return "Hittar ingen data från formuläret!";
 
             try
