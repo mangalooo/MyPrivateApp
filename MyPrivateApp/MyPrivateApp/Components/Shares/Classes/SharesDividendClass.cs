@@ -37,7 +37,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
 
                 if (vm == null)
                     return await HandleError(null, "Lägg till", import, "Hittar ingen data från formuläret!");
@@ -48,6 +48,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 SharesDividend model = ChangeFromViewModelToModel(vm);
                 await db.SharesDividends.AddAsync(model);
                 await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -60,7 +61,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 if (vm == null)
                     return "Hittar ingen data från formuläret!";
@@ -89,7 +90,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
                 db.ChangeTracker.Clear();
                 db.SharesDividends.Remove(model);
@@ -173,7 +174,7 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
 
                 if (vm == null)
                     throw new Exception("ErrorHandling: SharesDividendViewModel == null!");

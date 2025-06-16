@@ -1,17 +1,17 @@
 ﻿
-using MyPrivateApp.Client.ViewModels;
-using MyPrivateApp.Data.Models;
-using MyPrivateApp.Data;
-using Hangfire;
-using MyPrivateApp.Components.Email.Classes;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Hangfire;
+using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Client.ViewModels;
+using MyPrivateApp.Components.Email.Classes;
+using MyPrivateApp.Data;
+using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {
-    public class ContactClass(ApplicationDbContext db, ILogger<ContactClass> logger, IMapper mapper, IConfiguration config, IEmailSender emailSender) : IContactClass
+    public class ContactClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<ContactClass> logger, IMapper mapper, IConfiguration config, IEmailSender emailSender) : IContactClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<ContactClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         private readonly IConfiguration _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -19,26 +19,31 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<Contacts?> Get(int? id)
         {
-            if (id == null) 
-                throw new ArgumentNullException(nameof(id));
+            if (id <= 0)
+                throw new Exception("Get: Finns inget ID!");
 
-            return await _db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == id)
+            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
+
+            return await db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == id)
                    ?? throw new Exception("Kontakten hittades inte i databasen!");
         }
 
         public async Task<string> Add(ContactsViewModels vm)
         {
-            if (vm == null) 
-                return "Hittar ingen data från formuläret!";
-
-            if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
-                return "Ingen namn eller födelsedag ifyllt!";
-
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
+                if (vm == null)
+                    return "Hittar ingen data från formuläret!";
+
+                if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
+                    return "Ingen namn eller födelsedag ifyllt!";
+
                 Contacts model = ChangeFromViewModelToModel(vm);
-                await _db.Contacts.AddAsync(model);
-                await _db.SaveChangesAsync();
+                await db.Contacts.AddAsync(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -50,21 +55,24 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Edit(ContactsViewModels vm)
         {
-            if (vm == null || vm.ContactsId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-            if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
-                return "Ingen namn eller födelsedag ifyllt!";
-
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+
+                if (vm == null || vm.ContactsId <= 0)
+                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+                if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
+                    return "Ingen namn eller födelsedag ifyllt!";
+
                 Contacts? model = await Get(vm.ContactsId);
 
-                if (model == null) 
+                if (model == null)
                     return "Hittar inte kontakten i databasen!";
 
                 _mapper.Map(vm, model);
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -74,23 +82,24 @@ namespace MyPrivateApp.Components.Contact.Classes
             }
         }
 
-        public async Task<string> Delete(ContactsViewModels vm)
+        public async Task<string> Delete(Contacts model)
         {
-            if (vm == null || vm.ContactsId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (model == null || model.ContactsId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                Contacts model = ChangeFromViewModelToModel(vm);
-                _db.ChangeTracker.Clear();
-                _db.Contacts.Remove(model);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.ChangeTracker.Clear();
+                db.Contacts.Remove(model);
+                await db.SaveChangesAsync();
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Gick inte att ta bort kontakten.");
-                return "Gick inte att ta bort kontakten.";
+                return $"Gick inte att ta bort kontakten! Felmeddelande: {ex.Message}";
             }
         }
 
@@ -132,8 +141,10 @@ namespace MyPrivateApp.Components.Contact.Classes
         {
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("GetBirthday: db == null!");
+
                 DateTime today = DateTime.Now;
-                List<Contacts> contactsWithBirthdayToday = await _db.Contacts
+                List<Contacts> contactsWithBirthdayToday = await db.Contacts
                     .Where(c => c.Birthday != null)
                     .ToListAsync();
 

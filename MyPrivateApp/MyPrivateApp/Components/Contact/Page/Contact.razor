@@ -1,6 +1,7 @@
 ﻿
 @page "/Contact"
 
+@using Microsoft.EntityFrameworkCore
 @using Azure.Core
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Contact.Classes
@@ -12,29 +13,31 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject IContactClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Kontakter </PageTitle>
 
-@* Header *@
-<div>
-
-    <br />
-
-    <h1 style="text-align:center"> Kontakter </h1>
-
-    <br />
-
-    @if (ShowOrHideCreateButton)
+@try
+{
+    @* Header *@
+    <div>
+    
+        <br />
+    
+        <h1 style="text-align:center"> Kontakter </h1>
+    
+        <br />
+    
+        @if (ShowOrHideCreateButton)
     {
         <div style="text-align:center">
             <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny kontakt </button>
         </div>
     }
 
-    @if (ShowOrHideErrorMessage)
+        @if (ShowOrHideErrorMessage)
     {
         <br />
 
@@ -46,17 +49,28 @@
         </div>
     }
 
-    <br /> <br />
+        @if (ShowOrHideInfoMessage)
+    {
+        <br />
 
-</div>
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
 
-@* Form and views *@
-<div class="container">
-    <div>
-        <div class="card">
+        <br /> <br />
+    
+    </div>
+    
+    @* Form and views *@
+    <div class="container">
+        <div>
+            <div class="card">
 
-            @* Form *@
-            <div>
+                @* Form *@
+                <div>
                 @if (ShowOrHideAddOrEditForm)
                 {
                     <div class="card-header">
@@ -306,8 +320,8 @@
                 }
             </div>
 
-            @* View - Desktop *@
-            <div id="desktop">
+                @* View - Desktop *@
+                <div id="desktop">
 
                 <br />
 
@@ -404,8 +418,8 @@
                 </div>
             </div>
 
-            @* View - Mobile *@
-            <div id="mobile">
+                @* View - Mobile *@
+                <div id="mobile">
 
                 <br />
 
@@ -495,22 +509,27 @@
                 </div>
             </div>
 
+            </div>
         </div>
     </div>
-</div>
 
-@* Footer *@
-<div>
+    @* Footer *@
+    <div>
 
-    <br /> <br />
+        <br /> <br />
 
-    <div class="footer" align="center">
-        <p> Copyright 2023 - @DateTime.Now.Year</p>
+        <div class="footer" align="center">
+            <p> Copyright 2023 - @DateTime.Now.Year</p>
+        </div>
+
+        <br /> <br />
+
     </div>
-
-    <br /> <br />
-
-</div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
 
 @* Back-End *@
 @code
@@ -541,6 +560,8 @@
     // Error text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -551,21 +572,29 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<Contacts> contacts = (await db.Contacts.ToListAsync())
-                                  .OrderBy(c => GetDaysToNextBirthday(ParseDate(c.Birthday!)))
-                                  .ToList();
-
-        if (!contacts.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<Contacts> items = await db.Contacts.OrderBy(c => c.ContactsId).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
-
-        queryable = contacts
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
@@ -609,7 +638,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -641,29 +670,37 @@
 
     private async Task Delete()
     {
-        if (!db.Contacts.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort kontakten, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.Contacts.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort kontakten, databasen är tom!");
+                return;
+            }
+
+            Contacts? model = await db.Contacts.FirstOrDefaultAsync(a => a.ContactsId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort kontakten. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        Contacts? model = await db.Contacts.FirstOrDefaultAsync(a => a.ContactsId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Gick inte att ta bort kontakten. Model = null! (TemporaryId = {TemporaryId})");
-            return;
-        }
-
-        ContactsViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -733,42 +770,62 @@
 
     private async Task SearchFirstName(ChangeEventArgs e)
     {
-        string? searchValue = e.Value?.ToString();
-
-        if (!string.IsNullOrEmpty(searchValue))
+        try
         {
-            IEnumerable<Contacts> result = await db.Contacts
-                .Where(c => c.Name!.Contains(searchValue))
-                .ToListAsync();
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchFirstName: db == null!");
 
-            await SetQuery(result);
+            string? searchValue = e.Value?.ToString();
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                IEnumerable<Contacts> result = await db.Contacts
+                    .Where(c => c.Name!.Contains(searchValue))
+                    .ToListAsync();
+
+                await SetQuery(result);
+            }
+            else
+                await RefreshPage();
+
         }
-        else
-            await RefreshPage();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök förnamn. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task SearchAge(ChangeEventArgs e)
     {
-        string? searchValue = e.Value?.ToString();
-
-        if (!string.IsNullOrEmpty(searchValue) && int.TryParse(searchValue, out int age))
+        try
         {
-            var result = await db.Contacts.ToListAsync();
-            var filteredResult = result
-                .Where(c =>
-                {
-                    if (!string.IsNullOrEmpty(c.Birthday))
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchAge: db == null!");
+
+            string? searchValue = e.Value?.ToString();
+
+            if (!string.IsNullOrEmpty(searchValue) && int.TryParse(searchValue, out int age))
+            {
+                var result = await db.Contacts.ToListAsync();
+                var filteredResult = result
+                    .Where(c =>
                     {
-                        DateTime birthDate = ParseDate(c.Birthday);
-                        return birthDate != DateTime.MinValue && GetAge(birthDate) == age;
-                    }
-                    return 0 == age;
-                })
-                .ToList();
-            await SetQuery(filteredResult);
+                        if (!string.IsNullOrEmpty(c.Birthday))
+                        {
+                            DateTime birthDate = ParseDate(c.Birthday);
+                            return birthDate != DateTime.MinValue && GetAge(birthDate) == age;
+                        }
+                        return 0 == age;
+                    })
+                    .ToList();
+                await SetQuery(filteredResult);
+            }
+            else
+                await RefreshPage();
+
         }
-        else
-            await RefreshPage();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök ålder. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task GetSearchValue(ChangeEventArgs e, IEnumerable<Contacts> result)
@@ -786,11 +843,27 @@
         await RefreshPage();
     }
 
-    private async Task SearchFriends(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.Friends).ToListAsync());
+    private async Task SearchFriends(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchFriends: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.Friends).ToListAsync());
+    }
 
-    private async Task SearchChristmasCard(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.ChristmasCard).ToListAsync());
+    private async Task SearchChristmasCard(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchChristmasCard: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.ChristmasCard).ToListAsync());
+    }
 
-    private async Task SearchRelatives(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.Relatives).ToListAsync());
+    private async Task SearchRelatives(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchRelatives: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.Relatives).ToListAsync()); 
+    }
 
-    private async Task SearchColleagues(ChangeEventArgs e) => await GetSearchValue(e, await db.Contacts.Where(c => c.Colleagues).ToListAsync());
+    private async Task SearchColleagues(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchColleagues: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.Colleagues).ToListAsync()); 
+    }
 }
