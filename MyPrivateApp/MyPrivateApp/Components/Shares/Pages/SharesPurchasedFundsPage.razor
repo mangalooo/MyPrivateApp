@@ -21,8 +21,10 @@
 
 <PageTitle> Aktier </PageTitle>
 
-@* Header *@
-<div>
+@try
+{
+    @* Header *@
+    <div>
 
     @* Navigation *@
     <div class="navigation">
@@ -57,7 +59,7 @@
 
     <br /> <br />
 
-    <h1 align="center"> Banköverföringar </h1>
+    <h1 align="center"> Köpta fonder </h1>
 
     <br />
 
@@ -96,9 +98,9 @@
     <br />
 
 </div>
-
-@* Form and views *@
-<div class="container">
+    
+    @* Form and views *@
+    <div class="container">
     <div class="col-md-12">
         <div class="card">
 
@@ -468,9 +470,9 @@
         </div>
     </div>
 </div>
-
-@* Footer *@
-<div>
+    
+    @* Footer *@
+    <div>
 
     <br /> <br />
 
@@ -481,6 +483,11 @@
     <br /> <br />
 
 </div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
 
 @* Back-End *@
 @code

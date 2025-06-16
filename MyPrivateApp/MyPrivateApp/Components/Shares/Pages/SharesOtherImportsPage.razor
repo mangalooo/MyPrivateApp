@@ -23,8 +23,10 @@
 
 <br />
 
-@* Header *@
-<div>
+@try
+{
+    @* Header *@
+    <div>
 
     @* Navigation *@
     <div class="navigation">
@@ -86,9 +88,9 @@
     <br />
 
 </div>
-
-@* Form and views *@
-<div class="container">
+    
+    @* Form and views *@
+    <div class="container">
     <div class="col-md-12">
         <div class="card">
 
@@ -323,9 +325,9 @@
         </div>
     </div>
 </div>
-
-@* Footer *@
-<div>
+    
+    @* Footer *@
+    <div>
 
     <br /> <br />
 
@@ -336,6 +338,11 @@
     <br /> <br />
 
 </div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
 
 @* Back-End *@
 @code
