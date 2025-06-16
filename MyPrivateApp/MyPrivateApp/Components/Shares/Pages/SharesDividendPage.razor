@@ -14,9 +14,9 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 @inject NavigationManager Navigation
 @inject ISharesDividendClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Aktier </PageTitle>
 
@@ -437,7 +437,7 @@ catch (Exception ex)
     {
         try
         {
-            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
             List<SharesDividend> items = await db.SharesDividends.OrderBy(c => c.DividendId).ToListAsync();
 
@@ -535,7 +535,7 @@ catch (Exception ex)
     {
         try
         {
-            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
 
             if (!db.SharesDividends.Any())
             {

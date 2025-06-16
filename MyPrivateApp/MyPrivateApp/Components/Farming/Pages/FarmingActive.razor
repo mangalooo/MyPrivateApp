@@ -1,6 +1,7 @@
 ﻿
 @page "/FarmingActive"
 
+@using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Farming.Classes
@@ -16,14 +17,16 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 @inject IFarmingClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Odling </PageTitle>
 
-@* Header *@
-<div>
+@try
+{
+    @* Header *@
+    <div>
 
     <br />
 
@@ -54,12 +57,23 @@
         </div>
     }
 
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
     <br /> <br />
 
 </div>
-
-@* Form and views *@
-<div class="container">
+    
+    @* Form and views *@
+    <div class="container">
     <div class="col-md-12">
         <div class="card">
 
@@ -333,9 +347,9 @@
         </div>
     </div>
 </div>
-
-@* Footer *@
-<div>
+    
+    @* Footer *@
+    <div>
 
     <br /> <br />
 
@@ -346,6 +360,11 @@
     <br /> <br />
 
 </div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
 
 @* Back-End *@
 @code
@@ -380,6 +399,8 @@
     // Error text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -390,19 +411,28 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<FarmingsActive> farmingsActive = await db.FarmingsActive.OrderBy(c => c.FarmingId).ToListAsync();
-
-        if (!farmingsActive.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<FarmingsActive> item = await db.FarmingsActive.OrderBy(c => c.FarmingId).ToListAsync();
+
+            if (!item.Any())
+            {
+                ShowErrorMessage("Finns ingen data att visa!");
+                return;
+            }
+
+            queryable = item
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
-
-        queryable = farmingsActive
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
@@ -446,7 +476,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -478,29 +508,38 @@
 
     private async Task Delete()
     {
-        if (!db.FarmingsActive.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort odlingen, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.FarmingsActive.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort odlingen, databasen är tom!");
+                return;
+            }
+
+            FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort odlingen. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            ErrorMessage = await BackEndClass.DeleteActive(vm);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Gick inte att ta bort odlingen. Model = null! (TemporaryId = {TemporaryId})");
-            return;
-        }
-
-        FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.DeleteActive(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -508,6 +547,8 @@
     {
         try
         {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Inactive: db == null!");
+
             FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
 
             if (model == null)
