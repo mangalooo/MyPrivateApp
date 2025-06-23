@@ -1,10 +1,9 @@
-﻿
-using MyPrivateApp.Components.ViewModels;
-using MyPrivateApp.Data.Models;
+﻿using MyPrivateApp.Components.ViewModels.FarmWork;
+using MyPrivateApp.Data.Models.FarmWork;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public interface IFarmWorkClass
+    public interface IFarmWorksClass
     {
         Task<string> Add(FarmWorksViewModels vm);
         Task<string> Edit(FarmWorksViewModels vm);

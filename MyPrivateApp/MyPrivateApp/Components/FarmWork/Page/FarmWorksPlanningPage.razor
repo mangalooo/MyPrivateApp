@@ -1,6 +1,7 @@
 ﻿
 @page "/FarmWorkPage"
 
+@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -14,9 +15,9 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
 @inject NavigationManager Navigation
-@inject IFarmWorkPlanningClass BackEndClass
+@inject IFarmWorksPlanningClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Gårdsarbete </PageTitle>
 
@@ -25,11 +26,7 @@
 
     <br />
 
-    <h1 align="center"> Gårdsarbete </h1>
-
-    <br />
-
-    <h3 align="center"> Nästa lön: @NextSalary</h3>
+    <h1 align="center"> Skogsplanering </h1>
 
     <br />
 
@@ -38,7 +35,7 @@
         <br />
 
         <div align="center">
-            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Nytt gårdsarbete </button>
+            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny skogsplanering </button>
         </div>
 
         <br />
@@ -52,6 +49,17 @@
             <Alert Color="AlertColor.Danger">
                 <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
                 <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
+
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
             </Alert>
         </div>
     }
@@ -383,10 +391,10 @@
 @code
 {
     [SupplyParameterFromForm]
-    private FarmWorksViewModels pageViewModel { get; set; } = new();
+    private FarmWorksPlanningViewModels pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
-    private IQueryable<FarmWorksViewModels> queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+    private IQueryable<FarmWorksPlanningViewModels> queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
     private int TemporaryId { get; set; } = 0;
@@ -409,12 +417,12 @@
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool isDeleteSalaryButtonVisible;
-    private string NextSalary = string.Empty;
 
     // Error text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -425,27 +433,32 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<FarmWorks> farmWorks = await db.FarmWorks.OrderByDescending(c => c.Date).ToListAsync();
-
-        if (!farmWorks.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<FarmWorksPlanning> items = await db.FarmWorksPlanning.OrderByDescending(c => c.Date).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
-
-        queryable = farmWorks
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        isDeleteSalaryButtonVisible = await ShowOrHideDetleteSalaryButton();
-        NextSalary = await GetNextSalary();
-        await ConvertListToQueryableAsync();
-    }
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
 
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
@@ -486,11 +499,11 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
-    private void Info(FarmWorksViewModels vm)
+    private void Info(FarmWorksPlanningViewModels vm)
     {
         ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
         ShowOrHideCreateButton = false;
@@ -500,11 +513,11 @@
         pageViewModel = vm;
     }
 
-    private void Edit(FarmWorksViewModels vm)
+    private void Edit(FarmWorksPlanningViewModels vm)
     {
         if (vm.FarmWorksId == 0)
         {
-            ShowErrorMessage($"Går inte att ändra gårdsarbetet. ID = {vm.FarmWorksId}!");
+            ShowErrorMessage($"Går inte att ändra skogsplaneringen. ID = {vm.FarmWorksId}!");
             return;
         }
 
@@ -518,29 +531,38 @@
 
     private async Task Delete()
     {
-        if (!db.FarmWorks.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort gårdsarbetet, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.FarmWorks.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort skogsplaneringen, databasen är tom!");
+                return;
+            }
+
+            FarmWorksPlanning? model = await db.FarmWorksPlanning.FirstOrDefaultAsync(a => a.FarmWorksId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Går inte att ta bort skogsplaneringen. (TemporaryId = {TemporaryId})!");
+                return;
+            }
+
+            FarmWorksPlanningViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            ErrorMessage = await BackEndClass.Delete(vm);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        FarmWorks? model = await db.FarmWorks.FirstOrDefaultAsync(a => a.FarmWorksId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Går inte att ta bort gårdsarbetet. (TemporaryId = {TemporaryId})!");
-            return;
-        }
-
-        FarmWorksViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -552,7 +574,7 @@
         StateHasChanged();
     }
 
-    private void OpenDeleteWindow(FarmWorksViewModels vm)
+    private void OpenDeleteWindow(FarmWorksPlanningViewModels vm)
     {
         TemporaryId = vm.FarmWorksId;
         ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
@@ -560,7 +582,7 @@
 
     private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
 
-    private void OpenDeleteWindowSalary(FarmWorksViewModels vm)
+    private void OpenDeleteWindowSalary(FarmWorksPlanningViewModels vm)
     {
         TemporaryId = vm.FarmWorksId;
         ToggleModal(ref ModalDisplaySalary, ref ModalClassSalary, ref ShowBackdropSalary, true);
@@ -570,103 +592,45 @@
 
     private async Task SearchPlace(ChangeEventArgs e)
     {
-        queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
-        string? placeName = e.Value?.ToString()?.ToLowerInvariant();
-
-        if (string.IsNullOrEmpty(placeName))
+        try
         {
-            await RefreshPage();
-            return;
-        }
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
 
-        var placeMapping = new Dictionary<string, FarmWorkPlaces>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "habäck", FarmWorkPlaces.Habäck },
-            { "karlabo", FarmWorkPlaces.Karlabo },
-            { "klev", FarmWorkPlaces.Klev },
-            { "skog", FarmWorkPlaces.Skog },
-            { "smältryd", FarmWorkPlaces.Smältryd },
-            { "övrigt", FarmWorkPlaces.Övrigt }
-        };
+            queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
+            string? placeName = e.Value?.ToString()?.ToLowerInvariant();
 
-        if (placeMapping.TryGetValue(placeName, out var place))
-        {
-            var result = db.FarmWorks.Where(c => c.Place == place);
-
-            if (result.Any())
+            if (string.IsNullOrEmpty(placeName))
             {
-                queryable = result
-                    .OrderBy(c => c.Date)
-                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                    .AsQueryable();
-            }
-        }
-    }
-
-    private async Task<string> GetNextSalary()
-    {
-        double nextSalary = await db.FarmWorks
-            .Where(item => item.NextSalary)
-            .SumAsync(item => item.Hours * 214);
-
-        // Calculate the result after tax
-        double result = nextSalary * 0.7;
-
-        return result.ToString("#,##0.00");
-    }
-
-    private async Task RemoveNextSalary()
-    {
-        // Get all items with NextSalary set to true
-        var itemsToUpdate = db.FarmWorks
-            .Where(item => item.NextSalary)
-            .ToList();
-
-        if (itemsToUpdate.Any())
-        {
-            // Update the NextSalary property for all items
-            foreach (var item in itemsToUpdate)
-                item.NextSalary = false;
-
-            await db.SaveChangesAsync();
-            await RefreshPage();
-        }
-    }
-
-    private async Task SearchNextSalary(ChangeEventArgs e)
-    {
-        if (e.Value is not null && bool.TryParse(e.Value.ToString(), out bool trueOrFalse))
-        {
-            if (trueOrFalse)
-            {
-                IEnumerable<FarmWorks> result = await db.FarmWorks
-                    .Where(c => c.NextSalary)
-                    .ToListAsync();
-
-                if (!result.Any())
-                {
-                    queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
-                    return;
-                }
-
-                IEnumerable<FarmWorksViewModels> farmWorksList = result
-                    .OrderByDescending(c => c.Date)
-                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                    .ToList();
-
-                queryable = farmWorksList.AsQueryable();
-            }
-            else
                 await RefreshPage();
+                return;
+            }
+
+            var placeMapping = new Dictionary<string, FarmWorkPlaces>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "habäck", FarmWorkPlaces.Habäck },
+                { "karlabo", FarmWorkPlaces.Karlabo },
+                { "klev", FarmWorkPlaces.Klev },
+                { "skog", FarmWorkPlaces.Skog },
+                { "smältryd", FarmWorkPlaces.Smältryd },
+                { "övrigt", FarmWorkPlaces.Övrigt }
+            };
+
+            if (placeMapping.TryGetValue(placeName, out var place))
+            {
+                var result = db.FarmWorksPlanning.Where(c => c.Place == place);
+
+                if (result.Any())
+                {
+                    queryable = result
+                        .OrderBy(c => c.Date)
+                        .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                        .AsQueryable();
+                }
+            }
         }
-    }
-
-    private async Task<bool> ShowOrHideDetleteSalaryButton()
-    {
-        if (db.FarmWorks.Any())
-            if (await db.FarmWorks.AnyAsync(y => y.NextSalary == true))
-                return true;
-
-        return false;
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök plsats. Felmeddelande: {ex.Message}");
+        }
     }
 }

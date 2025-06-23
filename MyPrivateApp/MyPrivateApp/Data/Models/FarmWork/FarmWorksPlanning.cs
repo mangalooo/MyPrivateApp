@@ -1,10 +1,9 @@
-﻿
-using MyPrivateApp.Components.Enum;
+﻿using MyPrivateApp.Components.Enum;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyPrivateApp.Data.Models
+namespace MyPrivateApp.Data.Models.FarmWork
 {
-    public class FarmWorks
+    public class FarmWorksPlanning
     {
         [Key]
         public int FarmWorksId { get; set; }

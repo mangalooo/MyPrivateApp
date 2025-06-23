@@ -1,7 +1,7 @@
 ﻿
 using MyPrivateApp.Data;
-using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models.Farming;
+using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.Farming.Classes
 {

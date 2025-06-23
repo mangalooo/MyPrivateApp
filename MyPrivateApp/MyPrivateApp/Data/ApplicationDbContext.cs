@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Farming;
+using MyPrivateApp.Data.Models.FarmWork;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Data.Models.SharesModels;
@@ -18,7 +19,10 @@ namespace MyPrivateApp.Data
         public DbSet<ShopingList> ShopingLists { get; set; }
         public DbSet<FarmingsActive> FarmingsActive { get; set; }
         public DbSet<FarmingsInactive> FarmingsInactive { get; set; }
+
+        // Farm Work
         public DbSet<FarmWorks> FarmWorks { get; set; }
+        public DbSet<FarmWorksPlanning> FarmWorksPlanning { get; set; }
 
         //Hunting
         public DbSet<HuntingMyList> HuntingMyList { get; set; }
@@ -46,7 +50,7 @@ namespace MyPrivateApp.Data
         public DbSet<SharesTotalAmounts> SharesTotalAmounts { get; set; }
         public DbSet<SharesTotalProfitsOrLosses> SharesTotalProfitsOrLosses { get; set; }
 
-        // Email check
+        // E-mail check
         public DbSet<LastEmailSent> LastEmailSent { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

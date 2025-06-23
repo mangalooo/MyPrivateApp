@@ -1,13 +1,13 @@
 ﻿
 using MyPrivateApp.Data;
-using MyPrivateApp.Components.ViewModels;
-using MyPrivateApp.Data.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.ViewModels.FarmWork;
+using MyPrivateApp.Data.Models.FarmWork;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public class FarmWorkClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : IFarmWorkClass
+    public class FarmWorkClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : IFarmWorkPlanningClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

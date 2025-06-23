@@ -1,9 +1,9 @@
 ﻿
 using MyPrivateApp.Data;
-using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data.Models.Farming;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.Farming.Classes
 {

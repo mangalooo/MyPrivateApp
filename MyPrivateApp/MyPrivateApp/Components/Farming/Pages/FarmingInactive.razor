@@ -1,18 +1,19 @@
 ﻿
 @page "/FarmingInactive"
 
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Farming.Classes
+@using MyPrivateApp.Components.Shares.Classes
 @using MyPrivateApp.Components.ViewModels
+@using MyPrivateApp.Components.ViewModels.FarmWork
 @using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
 @using MyPrivateApp.Data.Models
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.Farming
 @using MyPrivateApp.Data.Models.SharesModels
-@using MyPrivateApp.Components.Shares.Classes
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))

@@ -1,27 +1,27 @@
 
+using AutoMapper;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components;
 using MyPrivateApp.Components.Account;
 using MyPrivateApp.Components.Contact.Classes;
+using MyPrivateApp.Components.Email.Classes;
 using MyPrivateApp.Components.Farming.Classes;
+using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.FrozenFood.Classes;
+using MyPrivateApp.Components.Games.ManagerZone.Classes;
 using MyPrivateApp.Components.Hunting.Classes;
+using MyPrivateApp.Components.Layout.Classes;
 using MyPrivateApp.Components.Shares.Classes;
+using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ShoppingList.Classes;
 using MyPrivateApp.Components.Trip.Classes;
 using MyPrivateApp.Data;
-using Hangfire;
-using Hangfire.SqlServer;
-using MyPrivateApp.Components.FarmWork.Classes;
-using MyPrivateApp.Components.Games.ManagerZone.Classes;
-using MyPrivateApp.Components.Email.Classes;
-using AutoMapper;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Hunting;
-using MyPrivateApp.Components.Layout.Classes;
-using MyPrivateApp.Components.Shares.Classes.Interface;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -40,8 +40,11 @@ builder.Services.AddScoped<IShopingListClass, ShopingListClass>();
 builder.Services.AddScoped<IContactClass, ContactClass>();
 builder.Services.AddScoped<IFrozenFoodClass, FrozenFoodClass>();
 builder.Services.AddScoped<ITripClass, TripClass>();
+
+// Farm work
 builder.Services.AddScoped<IFarmingClass, FarmingClass>();
-builder.Services.AddScoped<IFarmWorkClass, FarmWorkClass>();
+builder.Services.AddScoped<IFarmWorksPlanningClass, FarmWorksPlanningClass>();
+
 
 // Hunting
 builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();
@@ -98,14 +101,6 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-//string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-//    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-//builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, x =>
-//{
-//    x.CommandTimeout(180);
-//}), ServiceLifetime.Transient);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -170,6 +165,7 @@ app.UseHangfireDashboard("/hangfire");
 ILogger<ContactClass> loggerContact = app.Services.GetRequiredService<ILogger<ContactClass>>();
 ILogger<FarmingClass> loggerFarmingClass = app.Services.GetRequiredService<ILogger<FarmingClass>>();
 ILogger<FarmWorkClass> loggerFarmWorkClass = app.Services.GetRequiredService<ILogger<FarmWorkClass>>();
+ILogger<FarmWorkPlanningClass> loggerFarmWorkPlanningClass = app.Services.GetRequiredService<ILogger<FarmWorkPlanningClass>>();
 ILogger<MZPurchasedClass> loggerMZPurchasedClass = app.Services.GetRequiredService<ILogger<MZPurchasedClass>>();
 ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger<MZSoldClass>>();
 ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();

@@ -1,11 +1,11 @@
 ﻿using MyPrivateApp.Components.Enum;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyPrivateApp.Components.ViewModels
+namespace MyPrivateApp.Components.ViewModels.FarmWork
 {
-    public class FarmWorksViewModels
+    public class FarmWorksPlanningViewModels
     {
-        public FarmWorksViewModels() => Date = DateTime.Now;
+        public FarmWorksPlanningViewModels() => Date = DateTime.Now;
 
         public int FarmWorksId { get; set; }
 
