@@ -165,7 +165,7 @@ app.UseHangfireDashboard("/hangfire");
 ILogger<ContactClass> loggerContact = app.Services.GetRequiredService<ILogger<ContactClass>>();
 ILogger<FarmingClass> loggerFarmingClass = app.Services.GetRequiredService<ILogger<FarmingClass>>();
 ILogger<FarmWorkClass> loggerFarmWorkClass = app.Services.GetRequiredService<ILogger<FarmWorkClass>>();
-ILogger<FarmWorkPlanningClass> loggerFarmWorkPlanningClass = app.Services.GetRequiredService<ILogger<FarmWorkPlanningClass>>();
+ILogger<FarmWorksPlanningClass> loggerFarmWorkPlanningClass = app.Services.GetRequiredService<ILogger<FarmWorksPlanningClass>>();
 ILogger<MZPurchasedClass> loggerMZPurchasedClass = app.Services.GetRequiredService<ILogger<MZPurchasedClass>>();
 ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger<MZSoldClass>>();
 ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();

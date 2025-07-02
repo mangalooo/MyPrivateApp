@@ -7,7 +7,7 @@ using MyPrivateApp.Data.Models.FarmWork;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public class FarmWorksPlanningClass(IDbContextFactory<ApplicationDbContext> dbFactory,, ILogger<FarmWorksPlanningClass> logger, IMapper mapper) : IFarmWorksPlanningClass
+    public class FarmWorksPlanningClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorksPlanningClass> logger, IMapper mapper) : IFarmWorksPlanningClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FarmWorksPlanningClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

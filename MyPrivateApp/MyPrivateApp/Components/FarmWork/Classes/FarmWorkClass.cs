@@ -7,7 +7,7 @@ using MyPrivateApp.Data.Models.FarmWork;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public class FarmWorkClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : IFarmWorkPlanningClass
+    public class FarmWorkClass(ApplicationDbContext db, ILogger<FarmWorkClass> logger, IMapper mapper) : IFarmWorksClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -20,6 +20,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             return await _db.FarmWorks.FirstOrDefaultAsync(r => r.FarmWorksId == id)
                    ?? throw new Exception("Gårdsarbetet hittades inte i databasen!");
         }
+
         public async Task<string> Add(FarmWorksViewModels vm)
         {
             if (vm == null || _db == null) 

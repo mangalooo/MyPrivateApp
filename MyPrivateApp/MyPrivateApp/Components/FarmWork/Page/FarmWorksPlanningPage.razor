@@ -176,7 +176,7 @@
 
                 <br />
 
-                <div align="center">
+@*                 <div align="center">
                     <div class="form-check-inline">
                         <label class="form-check-label">
                             Nästa lön <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNextSalary">
@@ -184,7 +184,7 @@
                     </div>
                 </div>
 
-                <br />
+                <br /> *@
 
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
@@ -240,7 +240,7 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    @if (isDeleteSalaryButtonVisible)
+                   @*  @if (isDeleteSalaryButtonVisible)
                     {
                         <br />
 
@@ -264,7 +264,7 @@
                         {
                             <div class="modal-backdrop fade show"></div>
                         }
-                    }
+                    } *@
 
                     <br />
                     <br />
@@ -277,7 +277,7 @@
 
                 <br />
 
-                <div class="row" align="center">
+@*                 <div class="row" align="center">
                     <div class="form-check-inline">
 
                         <label class="form-check-label">
@@ -287,7 +287,7 @@
                     </div>
                 </div>
 
-                <br />
+                <br /> *@
 
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
@@ -337,7 +337,7 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    @if (isDeleteSalaryButtonVisible)
+           @*          @if (isDeleteSalaryButtonVisible)
                     {
                         <br />
                         <br />
@@ -362,7 +362,7 @@
                         {
                             <div class="modal-backdrop fade show"></div>
                         }
-                    }
+                    } *@
 
                     <br />
                     <br />
