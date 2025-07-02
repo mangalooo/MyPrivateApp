@@ -55,7 +55,8 @@ namespace MyPrivateApp.Components.Hunting.Classes
             {
                 HuntingTowerInspection? getDbModel = await Get(vm.HuntingTowerInspectionId);
 
-                if (getDbModel != null) return "Hittar inte bytet i databasen!";
+                if (getDbModel == null) 
+                    return "Hittar inte bytet i databasen!";
 
                 _mapper.Map(vm, getDbModel);
                 await _db.SaveChangesAsync();
