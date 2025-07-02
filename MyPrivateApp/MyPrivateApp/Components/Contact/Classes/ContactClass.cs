@@ -43,13 +43,12 @@ namespace MyPrivateApp.Components.Contact.Classes
                 Contacts model = ChangeFromViewModelToModel(vm);
                 await db.Contacts.AddAsync(model);
                 await db.SaveChangesAsync();
-
                 return string.Empty;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Gick inte att lägg till ny kontakt.");
-                return "Gick inte att lägg till ny kontakt.";
+                return $"Gick inte att lägg till ny kontakt. Felmeddelande: {ex.Message}";
             }
         }
 
@@ -72,13 +71,12 @@ namespace MyPrivateApp.Components.Contact.Classes
 
                 _mapper.Map(vm, model);
                 await db.SaveChangesAsync();
-
                 return string.Empty;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Gick inte att ändra kontakten!");
-                return "Gick inte att ändra kontakten!";
+                return $"Gick inte att ändra kontakten! Felmeddelande: {ex.Message}";
             }
         }
 
@@ -94,7 +92,6 @@ namespace MyPrivateApp.Components.Contact.Classes
                 db.ChangeTracker.Clear();
                 db.Contacts.Remove(model);
                 await db.SaveChangesAsync();
-
                 return string.Empty;
             }
             catch (Exception ex)
