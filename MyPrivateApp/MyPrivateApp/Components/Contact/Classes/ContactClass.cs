@@ -17,17 +17,6 @@ namespace MyPrivateApp.Components.Contact.Classes
         private readonly IConfiguration _config = config ?? throw new ArgumentNullException(nameof(config));
         private readonly IEmailSender _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
 
-        public async Task<Contacts?> Get(int? id)
-        {
-            if (id <= 0)
-                throw new Exception("Get: Finns inget ID!");
-
-            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
-
-            return await db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == id)
-                   ?? throw new Exception("Kontakten hittades inte i databasen!");
-        }
-
         public async Task<string> Add(ContactsViewModels vm)
         {
             try
@@ -41,8 +30,10 @@ namespace MyPrivateApp.Components.Contact.Classes
                     return "Ingen namn eller födelsedag ifyllt!";
 
                 Contacts model = ChangeFromViewModelToModel(vm);
+
                 await db.Contacts.AddAsync(model);
                 await db.SaveChangesAsync();
+                
                 return string.Empty;
             }
             catch (Exception ex)
@@ -54,22 +45,23 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Edit(ContactsViewModels vm)
         {
+            if (vm == null || vm.ContactsId <= 0)
+                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+
+            if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
+                return "Ingen namn eller födelsedag ifyllt!";
+
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+                await using var db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                if (vm == null || vm.ContactsId <= 0)
-                    return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
-
-                if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
-                    return "Ingen namn eller födelsedag ifyllt!";
-
-                Contacts? model = await Get(vm.ContactsId);
-
+                // Fetch the entity in the same context to ensure tracking
+                var model = await db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == vm.ContactsId);
                 if (model == null)
                     return "Hittar inte kontakten i databasen!";
 
                 _mapper.Map(vm, model);
+
                 await db.SaveChangesAsync();
                 return string.Empty;
             }
