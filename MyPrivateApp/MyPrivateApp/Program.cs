@@ -245,9 +245,9 @@ app.Use(async (context, next) =>
     {
         if ((DateTime.UtcNow - lastEmailSentFrozenFood.Time).Hours >= 6)
         {
-            // Sends automatic email if a the frozen food has past time.
+            // Fix for CS4014: Await the call to GetOutgoingFrosenFood to ensure proper execution order.
             IFrozenFoodClass frozenFoodClass = context.RequestServices.GetRequiredService<IFrozenFoodClass>();
-            frozenFoodClass.GetOutgoingFrosenFood();
+            await frozenFoodClass.GetOutgoingFrosenFood();
             lastEmailSentFrozenFood.Time = DateTime.UtcNow;
             await db.SaveChangesAsync();
         }

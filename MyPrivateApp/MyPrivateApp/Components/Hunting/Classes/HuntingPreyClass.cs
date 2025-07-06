@@ -7,33 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingPreyClass(ApplicationDbContext db, ILogger<HuntingPreyClass> logger, IMapper mapper) : IHuntingPreyClass
+    public class HuntingPreyClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingPreyClass> logger, IMapper mapper) : IHuntingPreyClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<HuntingPreyClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public async Task<HuntingPrey?> Get(int? id)
-        {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-
-            return await _db.HuntingPrey.FirstOrDefaultAsync(r => r.HuntingPreyId == id)
-                   ?? throw new Exception("Objektet i min jaktbytet hittades inte i databasen!");
-        }
-
         public async Task<string> Add(HuntingPreyViewModels vm)
         {
-            if (vm == null || _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Type))
                 return "Ingen datum eller typ av vilt ifyllt!";
 
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 HuntingPrey model = ChangeFromViewModelToModel(vm);
-                await _db.HuntingPrey.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.HuntingPrey.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -45,20 +42,25 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public async Task<string> Edit(HuntingPreyViewModels vm)
         {
-            if (vm == null || vm.HuntingPreyId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.HuntingPreyId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Type))
                 return "Ingen datum eller typ av vilt ifyllt!";
 
             try
             {
-                HuntingPrey? getDbModel = await Get(vm.HuntingPreyId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+                
+                // Fetch the entity in the same context to ensure tracking
+                HuntingPrey? model = await db.HuntingPrey.FirstOrDefaultAsync(r => r.HuntingPreyId == vm.HuntingPreyId);
+                if (model != null) 
+                    return "Hittar inte bytet i databasen!";
 
-                if (getDbModel != null) return "Hittar inte bytet i databasen!";
+                _mapper.Map(vm, model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
-                _mapper.Map(vm, getDbModel);
-                await _db.SaveChangesAsync();
                 return string.Empty;
             }
             catch (Exception ex)
@@ -68,17 +70,19 @@ namespace MyPrivateApp.Components.Hunting.Classes
             }
         }
 
-        public async Task<string> Delete(HuntingPreyViewModels vm)
+        public async Task<string> Delete(HuntingPrey model)
         {
-            if (vm == null || vm.HuntingPreyId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (model == null || model.HuntingPreyId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                HuntingPrey model = ChangeFromViewModelToModel(vm);
-                _db.ChangeTracker.Clear();
-                _db.HuntingPrey.Remove(model);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.HuntingPrey.Remove(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)

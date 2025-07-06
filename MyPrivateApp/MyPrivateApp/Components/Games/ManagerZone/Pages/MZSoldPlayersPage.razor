@@ -1,6 +1,7 @@
 ﻿
 @page "/MZSoldPlayersPage"
 
+@using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Components.Games.ManagerZone.Classes
 @using MyPrivateApp.Components.ViewModels
 @using MyPrivateApp.Components.ViewModels.Games.ManagerZone
@@ -12,332 +13,346 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject IMZSoldClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> ManagerZone </PageTitle>
 
-@* Header *@
-<div>
+@try
+{
+    @* Header *@
+    <div>
 
-    <br />
+        <br />
 
-    @* Navigation*@
-    <div align="center">
-        <div class="btn-group">
-            <NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink>
-        </div>
-    </div>
-
-    <br />
-
-    <h1 align="center"> Sålda spelare </h1>
-
-    @if (ShowOrHideErrorMessage)
-    {
+        @* Navigation*@
         <div align="center">
-            <Alert Color="AlertColor.Danger">
-                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
-                <b>@ErrorMessage</b>
-            </Alert>
+            <div class="btn-group">
+                <NavLink href="MZPurchasedPlayersPage" type="button" class="btn btn-outline-dark btn-sm"> Köpta spelare </NavLink>
+            </div>
         </div>
-    }
 
-    <br /><br />
+        <br />
 
-</div>
+        <h1 align="center"> Sålda spelare </h1>
 
-@* Form and views *@
-<div class="container">
-    <div class="col-md-12">
-        <div class="card">
+        @if (ShowOrHideErrorMessage)
+        {
+            <div align="center">
+                <Alert Color="AlertColor.Danger">
+                    <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                    <b>@ErrorMessage</b>
+                </Alert>
+            </div>
+        }
 
-            @* Form *@
-            <div>
-                @if (ShowOrHideEditForm)
-                {
-                    <div class="card-header">
-                        <EditForm Model="pageViewModel" OnSubmit="OnlyEdit" FormName="OnlyEdit" Enhance>
+        @if (ShowOrHideInfoMessage)
+        {
+            <br />
 
-                            <DataAnnotationsValidator />
+            <div align="center">
+                <Alert Color="AlertColor.Info">
+                    <b>@InfoMessage</b>
+                </Alert>
+            </div>
+        }
 
-                            <ValidationSummary class="text-danger" role="alert" />
+        <br />
 
-                            <br />
+    </div>
 
-                            <div class="row">
+    @* Form and views *@
+    <div class="container">
+        <div class="col-md-12">
+            <div class="card">
 
-                                <div id="mobile" class="col-4" />
+                @* Form *@
+                <div>
+                    @if (ShowOrHideEditForm)
+                    {
+                        <div class="card-header">
+                            <EditForm Model="pageViewModel" OnSubmit="OnlyEdit" Enhance>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Name"> Namn </label>
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Name"> Namn </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="YearsOld"> Ålder </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Number"> Nummer </label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="YearsOld"> Ålder </label>
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.PurchasedDate" class="form-control" disabled="@DisabledForm" />
+                                            <label for="PurchasedDate"> Inköpsdatum </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.SoldDate" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="SoldDate"> Säljdatum </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.DaysInTheClub" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="DaysInTheClub"> Dagar i klubben </label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="Number"> Nummer </label>
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-3" />
+
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.SalaryTotal" class="form-control" disabled="@DisabledForm" />
+                                            <label for="SalaryTotal"> Totalt utbetald lön </label>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <br />
-
-                            <div class="row">
-
-                                <div id="mobile" class="col-4" />
-
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.PurchasedDate" class="form-control" disabled="@DisabledForm" />
-                                        <label for="PurchasedDate"> Inköpsdatum </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.TrainingModeTotalCost" class="form-control" disabled="@DisabledForm" />
+                                            <label for="TrainingModeTotalCost"> Total träningsläger kostnader </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.SoldDate" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="SoldDate"> Säljdatum </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="PurchaseAmount"> Inköpsvärdet </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.DaysInTheClub" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="DaysInTheClub"> Dagar i klubben </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br />
-
-                            <div class="row">
-
-                                <div id="mobile" class="col-3" />
-
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.SalaryTotal" class="form-control" disabled="@DisabledForm" />
-                                        <label for="SalaryTotal"> Totalt utbetald lön </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.TotalCost" class="form-control" disabled="@DisabledForm" />
+                                            <label for="TotalCost"> Total kostand </label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.TrainingModeTotalCost" class="form-control" disabled="@DisabledForm" />
-                                        <label for="TrainingModeTotalCost"> Total träningsläger kostnader </label>
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.SoldAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="SoldAmount"> Säljvärdet </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.MoneyProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="MoneyProfitOrLoss"> Vinst/förslust </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.PercentProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="PercentProfitOrLoss"> Vinst/förslust i % </label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="PurchaseAmount"> Inköpsvärdet </label>
+                                <br />
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputTextArea rows="4" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Note"> Beskrivning </label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.TotalCost" class="form-control" disabled="@DisabledForm" />
-                                        <label for="TotalCost"> Total kostand </label>
+                                <br />
+                                <br />
+
+                                @if (ShowOrHideEditButton)
+                                {
+                                    <div align="center">
+                                        <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                    </div>
+                                }
+
+                                <br />
+
+                                <div style="text-align:center">
+                                    <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                                </div>
+
+                                <br /> <br />
+
+                            </EditForm>
+                        </div>
+                    }
+                </div>
+
+                @* View - Desktop *@
+                <div id="desktop">
+
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
+
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Säljdatum" Property="@(c => c.SoldDate)" Sortable="true" />
+                            <PropertyColumn Title="Dagar i klubben" Property="@(c => c.DaysInTheClub)" Sortable="true" />
+                            <PropertyColumn Title="Vinst/förslust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
+                            <PropertyColumn Title="Vinst/förslust i %" Property="@(c => c.PercentProfitOrLoss)" Sortable="true" />
+
+
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
+
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel.Name? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <br />
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
 
-                            <div class="row">
+                            </TemplateColumn>
+                        </QuickGrid>
 
-                                <div id="mobile" class="col-4" />
+                        <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.SoldAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="SoldAmount"> Säljvärdet </label>
-                                    </div>
-                                </div>
+                        <br />
+                        <br />
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.MoneyProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="MoneyProfitOrLoss"> Vinst/förslust </label>
-                                    </div>
-                                </div>
-
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.PercentProfitOrLoss" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="PercentProfitOrLoss"> Vinst/förslust i % </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br />
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputTextArea rows="4" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Note"> Beskrivning </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br />
-                            <br />
-
-                            @if (ShowOrHideEditButton)
-                            {
-                                <div align="center">
-                                    <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
-                                </div>
-                            }
-
-                            <br />
-
-                            <div style="text-align:center">
-                                <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
-                            </div>
-
-                            <br /> <br />
-
-                        </EditForm>
                     </div>
-                }
-            </div>
+                </div>
 
-            @* View - Desktop *@
-            <div id="desktop">
+                @* View - Mobile *@
+                <div id="mobile">
 
-                <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Format="yyyy-MM-dd" Title="Inköpsdatum" Property="@(c => c.PurchasedDate)" Sortable="true" />
-                        <PropertyColumn Format="yyyy-MM-dd" Title="Säljdatum" Property="@(c => c.SoldDate)" Sortable="true" />
-                        <PropertyColumn Title="Dagar i klubben" Property="@(c => c.DaysInTheClub)" Sortable="true" />
-                        <PropertyColumn Title="Vinst/förslust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
-                        <PropertyColumn Title="Vinst/förslust i %" Property="@(c => c.PercentProfitOrLoss)" Sortable="true" />
+                            <PropertyColumn Title="Vinst/förslust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
 
+                            <TemplateColumn Title="Info">
 
-                        <TemplateColumn Title="Info">
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
 
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
-
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel.Name? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel.Name? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            @if (ShowBackdrop)
-                            {
-                                <div class="modal-backdrop fade show"></div>
-                            }
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
 
-                        </TemplateColumn>
-                    </QuickGrid>
+                            </TemplateColumn>
+                        </QuickGrid>
 
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
+                        <br />
+                        <br />
 
-                    <br />
-                    <br />
-
+                    </div>
                 </div>
+
             </div>
-
-            @* View - Mobile *@
-            <div id="mobile">
-
-                <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
-
-                        <PropertyColumn Title="Vinst/förslust" Property="@(c => c.MoneyProfitOrLoss)" Sortable="true" />
-
-                        <TemplateColumn Title="Info">
-
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
-
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel.Name? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            @if (ShowBackdrop)
-                            {
-                                <div class="modal-backdrop fade show"></div>
-                            }
-
-                        </TemplateColumn>
-                    </QuickGrid>
-
-                    <br />
-                    <br />
-
-                </div>
-            </div>
-
         </div>
     </div>
-</div>
 
-@* Footer *@
-<div>
+    @* Footer *@
+    <div>
 
-    <br /> <br />
+        <br /> <br />
 
-    <div class="footer" align="center">
-        <p> Copyright 2023 - @DateTime.Now.Year</p>
+        <div class="footer" align="center">
+            <p> Copyright 2023 - @DateTime.Now.Year</p>
+        </div>
+
+        <br /> <br />
+
     </div>
-
-    <br /> <br />
-
-</div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
 
 @* Back-End *@
 @code
@@ -365,6 +380,8 @@
     // Text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -375,19 +392,29 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
-        List<MZSoldPlayers> mZSoldPlayers = await db.MZSoldPlayers.OrderByDescending(c => c.SoldDate).ToListAsync();
-
-        if (!mZSoldPlayers.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<MZSoldPlayers> items = await db.MZSoldPlayers.OrderByDescending(c => c.SoldDate).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
-
-        queryable = mZSoldPlayers
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryable();
@@ -425,7 +452,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -453,29 +480,37 @@
 
     private async Task Delete()
     {
-        if (!db.MZSoldPlayers.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort spelaren, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.MZSoldPlayers.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort spelaren, databasen är tom!");
+                return;
+            }
+
+            MZSoldPlayers? model = await db.MZSoldPlayers.FirstOrDefaultAsync(a => a.ManagerZoneSoldPlayerId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Går inte att ta bort spelaren. (TemporaryId = {TemporaryId})!");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        MZSoldPlayers? model = await db.MZSoldPlayers.FirstOrDefaultAsync(a => a.ManagerZoneSoldPlayerId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Går inte att ta bort spelaren. (TemporaryId = {TemporaryId})!");
-            return;
-        }
-
-        MZSoldPlayersViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 

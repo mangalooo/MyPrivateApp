@@ -13,44 +13,23 @@ namespace MyPrivateApp.Components.Farming.Classes
         private readonly ILogger<FarmingClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public async Task<FarmingsActive?> GetActive(int? id)
-        {
-            if (id <= 0)
-                throw new Exception("GetActive: Finns inget ID!");
-
-            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("GetActive: db == null!");
-
-            return await db.FarmingsActive.FirstOrDefaultAsync(r => r.FarmingId == id)
-                   ?? throw new Exception("Aktiv odlingen hittades inte i databasen!");
-        }
-
-        public async Task<FarmingsInactive?> GetInactive(int? id)
-        {
-            if (id <= 0)
-                throw new Exception("GetInactive: Finns inget ID!");
-
-            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("GetInactive: db == null!");
-
-            return await db.FarmingsInactive.FirstOrDefaultAsync(r => r.FarmingId == id)
-                   ?? throw new Exception("Inaktiv odlingen hittades inte i databasen!");
-        }
-
         public async Task<string> Add(FarmingViewModels vm)
         {
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
+
+            if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
+                return "Du måste fylle i namn och typ!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
-
-                if (vm == null)
-                    return "Hittar ingen data från formuläret!";
-
-                if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
-                    return "Du måste fylle i namn och typ!";
 
                 FarmingsActive model = _mapper.Map<FarmingsActive>(vm);
 
                 await db.FarmingsActive.AddAsync(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }
@@ -63,24 +42,25 @@ namespace MyPrivateApp.Components.Farming.Classes
 
         public async Task<string> EditActive(FarmingViewModels vm)
         {
+            if (vm == null || vm.FarmingId <= 0)
+                return "Hittar ingen data från formuläret!";
+
+            if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
+                return "Du måste fylle i namn och typ!";
+            
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("EditActive: db == null!");
 
-                if (vm == null || vm.FarmingId <= 0)
-                    return "Hittar ingen data från formuläret!";
-
-                if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
-                    return "Du måste fylle i namn och typ!";
-
-                FarmingsActive? model = await GetActive(vm.FarmingId);
-
+                // Fetch the entity in the same context to ensure tracking
+                FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(r => r.FarmingId == vm.FarmingId);
                 if (model == null)
                     return "Hittar inte aktiv odling i databasen!";
 
                 _mapper.Map(vm, model);
 
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }
@@ -93,17 +73,18 @@ namespace MyPrivateApp.Components.Farming.Classes
 
         public async Task<string> EditInactive(FarmingViewModels vm)
         {
+            if (vm == null || vm.FarmingId <= 0)
+                return "Ändra: Hittar ingen data från formuläret!";
+
+            if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
+                return "Du måste fylle i namn och typ!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("EditInactive: db == null!");
 
-                if (vm == null || vm.FarmingId <= 0)
-                    return "Ändra: Hittar ingen data från formuläret!";
-
-                if (string.IsNullOrEmpty(vm.Name) || string.IsNullOrEmpty(vm.Type))
-                    return "Du måste fylle i namn och typ!";
-
-                FarmingsInactive? getDbModel = await GetInactive(vm.FarmingId);
+                // Fetch the entity in the same context to ensure tracking
+                FarmingsInactive? getDbModel = await db.FarmingsInactive.FirstOrDefaultAsync(r => r.FarmingId == vm.FarmingId);
 
                 if (getDbModel == null)
                     return "Hittar inte odlingen i databasen!";
@@ -111,6 +92,7 @@ namespace MyPrivateApp.Components.Farming.Classes
                 _mapper.Map(vm, getDbModel);
 
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }
@@ -123,45 +105,45 @@ namespace MyPrivateApp.Components.Farming.Classes
 
         public async Task<string> Inactive(FarmingViewModels vm)
         {
+            if (vm == null)
+                return "Får ingen kontakt med formuläret!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Inactive: db == null!");
 
-                if (vm == null)
-                    return "Får ingen kontakt med formuläret!";
+                FarmingsInactive model = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsInactive>(vm);
+                model.InactiveDate = DateTime.Now.ToString("yyyy-MM-dd");
 
-                FarmingsInactive farmings = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsInactive>(vm);
-                farmings.InactiveDate = DateTime.Now.ToString("yyyy-MM-dd");
-
-                await db.FarmingsInactive.AddAsync(farmings);
+                await db.FarmingsInactive.AddAsync(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
+                // Removes active farming
+                FarmingsActive ActiveModel = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsActive>(vm);
+                await DeleteActive(ActiveModel);
+
+                return string.Empty;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Gick inte att inaktivera odlingen!");
                 return $"Gick inte att inaktivera odlingen! Felmeddelande: {ex.Message}";
             }
-
-            // Removes active farming
-            await DeleteActive(vm);
-
-            return string.Empty;
         }
 
-        public async Task<string> DeleteActive(FarmingViewModels vm)
+        public async Task<string> DeleteActive(FarmingsActive model)
         {
+            if (model == null || model.FarmingId <= 0)
+                return "Hittar ingen data från formuläret!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("DeleteActive: db == null!");
 
-                if (vm == null || vm.FarmingId <= 0)
-                    return "Hittar ingen data från formuläret!";
-
-                FarmingsActive model = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsActive>(vm);
-
-                db.ChangeTracker.Clear();
                 db.FarmingsActive.Remove(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }
@@ -172,20 +154,18 @@ namespace MyPrivateApp.Components.Farming.Classes
             }
         }
 
-        public async Task<string> DeleteInactive(FarmingViewModels vm)
+        public async Task<string> DeleteInactive(FarmingsInactive model)
         {
+            if (model == null || model.FarmingId <= 0)
+                return "Hittar ingen data från formuläret!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("DeleteInactive: db == null!");
 
-                if (vm == null || vm.FarmingId <= 0)
-                return "Hittar ingen data från formuläret!";
-
-                FarmingsInactive model = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsInactive>(vm);
-
-                db.ChangeTracker.Clear();
                 db.FarmingsInactive.Remove(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }

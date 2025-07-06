@@ -9,7 +9,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
         Task<string> Add(MZPurchasedPlayersViewModels vm);
         Task<string> Edit(MZPurchasedPlayersViewModels vm);
         Task<string> Sell(MZPurchasedPlayersViewModels vm);
-        Task<string> Delete(MZPurchasedPlayersViewModels vm);
+        Task<string> Delete(MZPurchasedPlayers model);
         int DaysInTheClub(DateTime PurchasedDate);
         int TotalSalary(DateTime PurchasedDate, int salary);
         double TotalCost(DateTime PurchasedDate, int salary, int PurchaseAmount, int TrainingModeTotalCost, double SaleCharge);

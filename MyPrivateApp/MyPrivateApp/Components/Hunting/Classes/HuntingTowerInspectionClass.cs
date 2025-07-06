@@ -7,33 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingTowerInspectionClass(ApplicationDbContext db, ILogger<HuntingTowerInspectionClass> logger, IMapper mapper) : IHuntingTowerInspectionClass
+    public class HuntingTowerInspectionClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingTowerInspectionClass> logger, IMapper mapper) : IHuntingTowerInspectionClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<HuntingTowerInspectionClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public async Task<HuntingTowerInspection?> Get(int? id)
-        {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-
-            return await _db.HuntingTowerInspections.FirstOrDefaultAsync(r => r.HuntingTowerInspectionId == id)
-                   ?? throw new Exception("Objektet i min jaktlista hittades inte i databasen!");
-        }
-
         public async Task<string> Add(HuntingTowerInspectionViewModels vm)
         {
-            if (vm == null || _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
 
             if (string.IsNullOrEmpty(vm.Number))
                 return "Du måste fylla i ett pass nummer!";
 
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 HuntingTowerInspection model = ChangeFromViewModelToModel(vm);
-                await _db.HuntingTowerInspections.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.HuntingTowerInspections.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -45,21 +42,27 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public async Task<string> Edit(HuntingTowerInspectionViewModels vm)
         {
-            if (vm == null || vm.HuntingTowerInspectionId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.HuntingTowerInspectionId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             if (string.IsNullOrEmpty(vm.Number))
                 return "Du måste fylla i ett pass nummer!";
 
             try
             {
-                HuntingTowerInspection? getDbModel = await Get(vm.HuntingTowerInspectionId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                if (getDbModel == null) 
+                // Fetch the entity in the same context to ensure tracking
+                HuntingTowerInspection? model = await db.HuntingTowerInspections.FirstOrDefaultAsync(r => r.HuntingTowerInspectionId == vm.HuntingTowerInspectionId);
+
+                if (model == null) 
                     return "Hittar inte bytet i databasen!";
 
-                _mapper.Map(vm, getDbModel);
-                await _db.SaveChangesAsync();
+                _mapper.Map(vm, model);
+
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -69,17 +72,19 @@ namespace MyPrivateApp.Components.Hunting.Classes
             }
         }
 
-        public async Task<string> Delete(HuntingTowerInspectionViewModels vm)
+        public async Task<string> Delete(HuntingTowerInspection model)
         {
-            if (vm == null || vm.HuntingTowerInspectionId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen besikningen med databasen!";
+            if (model == null || model.HuntingTowerInspectionId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                HuntingTowerInspection model = ChangeFromViewModelToModel(vm);
-                _db.ChangeTracker.Clear();
-                _db.HuntingTowerInspections.Remove(model);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.HuntingTowerInspections.Remove(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)

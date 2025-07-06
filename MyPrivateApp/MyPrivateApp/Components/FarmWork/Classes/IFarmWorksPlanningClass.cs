@@ -8,7 +8,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
     {
         Task<string> Add(FarmWorksPlanningViewModels vm);
         Task<string> Edit(FarmWorksPlanningViewModels vm);
-        Task<string> Delete(FarmWorksPlanningViewModels vm);
+        Task<string> Delete(FarmWorksPlanning FarmWorks);
         FarmWorksPlanningViewModels ChangeFromModelToViewModel(FarmWorksPlanning model);
     }
 }

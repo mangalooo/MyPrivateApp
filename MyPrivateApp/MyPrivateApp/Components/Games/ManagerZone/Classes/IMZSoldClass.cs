@@ -8,7 +8,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
     {
         Task<string> Add(MZSoldPlayersViewModels vm);
         Task<string> Edit(MZSoldPlayersViewModels vm);
-        Task<string> Delete(MZSoldPlayersViewModels vm);
+        Task<string> Delete(MZSoldPlayers model);
         MZSoldPlayersViewModels ChangeFromModelToViewModel(MZSoldPlayers model);
     }
 }

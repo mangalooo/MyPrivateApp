@@ -4,37 +4,33 @@ using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using MyPrivateApp.Client.ViewModels;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingTeamMemberClass(ApplicationDbContext db, ILogger<HuntingTeamMemberClass> logger, IMapper mapper) : IHuntingTeamMemberClass
+    public class HuntingTeamMemberClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingTeamMemberClass> logger, IMapper mapper) : IHuntingTeamMemberClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<HuntingTeamMemberClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public async Task<HuntingTeamMembers?> Get(int? id)
-        {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-
-            return await _db.HuntingTeamMembers.FirstOrDefaultAsync(r => r.HuntingTeamMembersId == id)
-                   ?? throw new Exception("Medlemmen hittades inte i databasen!");
-        }
-
         public async Task<string> Add(HuntingTeamMembersViewModels vm)
         {
-            if (vm == null || _db == null)
-                return "Hittar ingen data från formuläret eller ingen medlem i databasen!";
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
 
             if (string.IsNullOrEmpty(vm.Name) && string.IsNullOrEmpty(vm.Mail) && string.IsNullOrEmpty(vm.MobilePhone))
                     return "Ingen name, e-post och mobil nummer ifylld!";
 
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 HuntingTeamMembers model = ChangeFromViewModelToModel(vm);
-                await _db.HuntingTeamMembers.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.HuntingTeamMembers.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -46,7 +42,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public async Task<string> Edit(HuntingTeamMembersViewModels vm)
         {
-            if (vm == null || vm.HuntingTeamMembersId <= 0 && _db == null)
+            if (vm == null || vm.HuntingTeamMembersId <= 0)
                 return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
 
             if (string.IsNullOrEmpty(vm.Name) && string.IsNullOrEmpty(vm.Mail) && string.IsNullOrEmpty(vm.MobilePhone))
@@ -54,12 +50,17 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
             try
             {
-                HuntingTeamMembers? getDbModel = await Get(vm.HuntingTeamMembersId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                if (getDbModel != null) return "Hittar inte medlemmen i databasen!";
+                // Fetch the entity in the same context to ensure tracking
+                HuntingTeamMembers? model = await db.HuntingTeamMembers.FirstOrDefaultAsync(r => r.HuntingTeamMembersId == vm.HuntingTeamMembersId);
+                if (model != null) 
+                    return "Hittar inte medlemmen i databasen!";
 
-                _mapper.Map(vm, getDbModel);
-                await _db.SaveChangesAsync();
+                _mapper.Map(vm, model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -69,17 +70,19 @@ namespace MyPrivateApp.Components.Hunting.Classes
             }
         }
 
-        public async Task<string> Delete(HuntingTeamMembersViewModels vm)
+        public async Task<string> Delete(HuntingTeamMembers model)
         {
-            if (vm == null || vm.HuntingTeamMembersId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (model == null || model.HuntingTeamMembersId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                HuntingTeamMembers model = ChangeFromViewModelToModel(vm);
-                _db.ChangeTracker.Clear();
-                _db.HuntingTeamMembers.Remove(model);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.HuntingTeamMembers.Remove(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)

@@ -13,16 +13,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         private readonly ILogger<FarmWorksPlanningClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public async Task<FarmWorksPlanning?> Get(int? id)
-        {
-            if (id <= 0)
-                throw new Exception("Get: Finns inget ID!");
-
-            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Get: db == null!");
-
-            return await db.FarmWorksPlanning.FirstOrDefaultAsync(r => r.FarmWorksId == id)
-                   ?? throw new Exception("Skogspanneringen hittades inte i databasen!");
-        }
         public async Task<string> Add(FarmWorksPlanningViewModels vm)
         {
             try
@@ -36,8 +26,11 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                     return "Inget datum, plats eller timmar ifyllt!";
 
                 FarmWorksPlanning model = ChangeFromViewModelToModel(vm);
+
                 await db.FarmWorksPlanning.AddAsync(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -49,23 +42,25 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public async Task<string> Edit(FarmWorksPlanningViewModels vm)
         {
+            if (vm == null || vm.FarmWorksId <= 0)
+                return "Hittar ingen data från formuläret!";
+
+            if (vm.Date == DateTime.MinValue && vm.Place != 0 && vm.Hours <= 0)
+                return "Inget datum, plats eller timmar ifyllt!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                if (vm == null || vm.FarmWorksId <= 0)
-                    return "Hittar ingen data från formuläret!";
-
-                if (vm.Date == DateTime.MinValue && vm.Place != 0 && vm.Hours <= 0)
-                    return "Inget datum, plats eller timmar ifyllt!";
-
-                FarmWorksPlanning? model = await Get(vm.FarmWorksId);
-
+                // Fetch the entity in the same context to ensure tracking
+                FarmWorksPlanning? model = await db.FarmWorksPlanning.FirstOrDefaultAsync(r => r.FarmWorksId == vm.FarmWorksId);
                 if (model == null)
                     return "Hittar inte skogspanneringen i databasen!";
 
                 _mapper.Map(vm, model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -75,19 +70,19 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             }
         }
 
-        public async Task<string> Delete(FarmWorksPlanningViewModels vm)
+        public async Task<string> Delete(FarmWorksPlanning model)
         {
+            if (model == null || model.FarmWorksId <= 0)
+                return "Hittar ingen data från formuläret!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
-                if (vm == null || vm.FarmWorksId <= 0)
-                    return "Hittar ingen data från formuläret!";
-
-                FarmWorksPlanning model = ChangeFromViewModelToModel(vm);
-                db.ChangeTracker.Clear();
                 db.FarmWorksPlanning.Remove(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)

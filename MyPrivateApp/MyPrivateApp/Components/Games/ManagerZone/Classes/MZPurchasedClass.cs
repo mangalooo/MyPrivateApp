@@ -7,33 +7,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class MZPurchasedClass(ApplicationDbContext db, ILogger<MZPurchasedClass> logger, IMapper mapper) : IMZPurchasedClass
+    public class MZPurchasedClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<MZPurchasedClass> logger, IMapper mapper) : IMZPurchasedClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<MZPurchasedClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public async Task<MZPurchasedPlayers?> Get(int? id)
-        {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-
-            return await _db.MZPurchasedPlayers.FirstOrDefaultAsync(r => r.ManagerZonePurchasedPlayersId == id)
-                   ?? throw new Exception("Den köpta spelare hittades inte i databasen!");
-        }
         public async Task<string> Add(MZPurchasedPlayersViewModels vm)
         {
-            if (vm == null || _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null )
+                return "Hittar ingen data från formuläret!";
 
             if (vm.PurchasedDate == DateTime.MinValue && vm.PurchaseAmount <= 0 && vm.Salary <= 0)
                 return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
 
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
+
                 model.TrainingModeTotalCost = vm.TrainingModeCost;
-                await _db.MZPurchasedPlayers.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.MZPurchasedPlayers.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -45,16 +44,18 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
         public async Task<string> Edit(MZPurchasedPlayersViewModels vm)
         {
-            if (vm == null || vm.ManagerZonePurchasedPlayersId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.ManagerZonePurchasedPlayersId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             if (vm.PurchasedDate == DateTime.MinValue && vm.PurchaseAmount <= 0 && vm.Salary <= 0)
                 return "Du måste fylla i: Köp datum, Köp värdet och Lön!";
 
             try
             {
-                MZPurchasedPlayers? model = await Get(vm.ManagerZonePurchasedPlayersId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
+                // Fetch the entity in the same context to ensure tracking
+                MZPurchasedPlayers? model = await db.MZPurchasedPlayers.FirstOrDefaultAsync(r => r.ManagerZonePurchasedPlayersId == vm.ManagerZonePurchasedPlayersId);
                 if (model == null)
                     return "Hittar inte spelaren i databasen!";
 
@@ -64,7 +65,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 if (vm.TrainingModeCost != 0)
                     model.TrainingModeTotalCost += vm.TrainingModeCost;
 
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -76,11 +79,11 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
         public async Task<string> Sell(MZPurchasedPlayersViewModels vm)
         {
-            if (vm == null || _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
 
             if (vm.ManagerZonePurchasedPlayersId == 0)
-                return "Ogiltigt spelare ID!";
+                return "ID == nulll!";
 
             int daysInTheClub = DaysInTheClub(vm.PurchasedDate);
             if (daysInTheClub < 70)
@@ -91,9 +94,9 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
             try
             {
-                MZPurchasedPlayers? purchasedPlayer = await _db.MZPurchasedPlayers
-                    .FirstOrDefaultAsync(r => r.ManagerZonePurchasedPlayersId == vm.ManagerZonePurchasedPlayersId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Sell: db == null!");
 
+                MZPurchasedPlayers? purchasedPlayer = await db.MZPurchasedPlayers.FirstOrDefaultAsync(r => r.ManagerZonePurchasedPlayersId == vm.ManagerZonePurchasedPlayersId);
                 if (purchasedPlayer == null)
                     return "Spelaren hittades inte i databasen!";
 
@@ -130,9 +133,11 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
                 await db.MZSoldPlayers.AddAsync(soldPlayer);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 // Removes the bought player that is moved to sold player
-                await Delete(vm);
+                MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
+                await Delete(model);
 
                 return string.Empty;
             }
@@ -164,17 +169,19 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
             return totalSalary + purchaseAmount + trainingModeTotalCost + saleCharge;
         }
 
-        public async Task<string> Delete(MZPurchasedPlayersViewModels vm)
+        public async Task<string> Delete(MZPurchasedPlayers model)
         {
-            if (vm == null || vm.ManagerZonePurchasedPlayersId <= 0 && _db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (model == null || model.ManagerZonePurchasedPlayersId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
-                _db.ChangeTracker.Clear();
-                _db.MZPurchasedPlayers.Remove(model);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.MZPurchasedPlayers.Remove(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)

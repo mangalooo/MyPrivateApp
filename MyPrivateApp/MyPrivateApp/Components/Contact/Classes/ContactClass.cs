@@ -19,21 +19,22 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public async Task<string> Add(ContactsViewModels vm)
         {
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
+
+            if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
+                return "Ingen namn eller födelsedag ifyllt!";
+
             try
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
-
-                if (vm == null)
-                    return "Hittar ingen data från formuläret!";
-
-                if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
-                    return "Ingen namn eller födelsedag ifyllt!";
 
                 Contacts model = ChangeFromViewModelToModel(vm);
 
                 await db.Contacts.AddAsync(model);
                 await db.SaveChangesAsync();
-                
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -46,23 +47,25 @@ namespace MyPrivateApp.Components.Contact.Classes
         public async Task<string> Edit(ContactsViewModels vm)
         {
             if (vm == null || vm.ContactsId <= 0)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Birthday == DateTime.MinValue || string.IsNullOrEmpty(vm.Name))
                 return "Ingen namn eller födelsedag ifyllt!";
 
             try
             {
-                await using var db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 // Fetch the entity in the same context to ensure tracking
-                var model = await db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == vm.ContactsId);
+                Contacts? model = await db.Contacts.FirstOrDefaultAsync(r => r.ContactsId == vm.ContactsId);
                 if (model == null)
                     return "Hittar inte kontakten i databasen!";
 
                 _mapper.Map(vm, model);
 
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -81,13 +84,15 @@ namespace MyPrivateApp.Components.Contact.Classes
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
-                db.ChangeTracker.Clear();
                 db.Contacts.Remove(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Gick inte att ta bort kontakten!");
                 return $"Gick inte att ta bort kontakten! Felmeddelande: {ex.Message}";
             }
         }

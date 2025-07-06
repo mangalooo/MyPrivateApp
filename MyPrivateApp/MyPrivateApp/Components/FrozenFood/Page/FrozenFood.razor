@@ -1,9 +1,9 @@
 ﻿
 @page "/FrozenFood"
 
+@using Microsoft.EntityFrameworkCore
 @using AutoMapper;
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.FrozenFood.Classes
@@ -14,9 +14,9 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 @inject IFrozenFoodClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Frysvaror </PageTitle>
 
@@ -31,20 +31,20 @@
 
     <h3 align="center">Total vikt: @TotalWeight kg</h3>
 
+    <br />
+
     @if (ShowOrHideCreateButton)
     {
-        <br /> <br />
-
-        <div align="center">
-            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny frysvara </button>
+        <div style="text-align:center">
+            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny kontakt </button>
         </div>
-
-        <br />
     }
 
     @if (ShowOrHideErrorMessage)
     {
-        <div align="center">
+        <br />
+
+        <div style="text-align:center">
             <Alert Color="AlertColor.Danger">
                 <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
                 <b>@ErrorMessage</b>
@@ -52,7 +52,18 @@
         </div>
     }
 
-    <br /> <br />
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
+    <br />
 
 </div>
 
@@ -66,11 +77,7 @@
                 @if (ShowOrHideAddOrEditForm)
                 {
                     <div class="card-header">
-                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance>
-
-                            <DataAnnotationsValidator />
-
-                            <ValidationSummary class="text-danger" role="alert" />
+                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                             <br />
 
@@ -416,15 +423,13 @@
 @* Footer *@
 <div>
 
-    <br />
-    <br />
+    <br /> <br />
 
     <div class="footer" align="center">
         <p> Copyright 2023 - @DateTime.Now.Year</p>
     </div>
 
-    <br />
-    <br />
+    <br /> <br />
 
 </div>
 
@@ -457,6 +462,8 @@
     // Text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -467,19 +474,29 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryable()
     {
-        List<FrozenFoods> frozenFoods = await db.FrozenFoods.OrderByDescending(c => c.Date).ToListAsync();
-
-        if (!frozenFoods.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
-        }
-        
-        queryable = frozenFoods
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+            List<FrozenFoods> items = await db.FrozenFoods.OrderByDescending(c => c.Date).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -527,7 +544,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -559,29 +576,37 @@
 
     private async Task Delete()
     {
-        if (!db.FrozenFoods.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort frysvaran, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.FrozenFoods.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort frysvaran, databasen är tom!");
+                return;
+            }
+
+            FrozenFoods? model = await db.FrozenFoods.FirstOrDefaultAsync(a => a.FrozenFoodsId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort frysvaran. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        FrozenFoods? model = await db.FrozenFoods.FirstOrDefaultAsync(a => a.FrozenFoodsId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Gick inte att ta bort frysvaran. Model = null! (TemporaryId = {TemporaryId})");
-            return;
-        }
-
-        FrozenFoodViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -603,11 +628,12 @@
 
     private async Task SearchName(ChangeEventArgs e)
     {
-        string? searchValue = e.Value?.ToString();
-
-        if (!string.IsNullOrEmpty(searchValue))
+        try
         {
-            try
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchName: db == null!");
+            string? searchValue = e.Value?.ToString();
+
+            if (!string.IsNullOrEmpty(searchValue))
             {
                 var result = await db.FrozenFoods
                    .AsNoTracking()
@@ -622,25 +648,27 @@
                 if (!queryable.Any())
                     queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
             }
-            catch (Exception ex)
-            {
-                ShowErrorMessage($"Gick inte att söka efter namnet. Felmeddelande: {ex.Message}");
-            }
+            else
+                await RefreshPage();
         }
-        else
-            await RefreshPage();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök namn. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task SearchWildMeat(ChangeEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
-        {
-            await RefreshPage();
-            return;
-        }
-
         try
         {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchWildMeat: db == null!");
+
+            if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
+            {
+                await RefreshPage();
+                return;
+            }
+
             string? searchValue = e.Value?.ToString()?.Trim().ToLower();
 
             // Attempt to parse the input string to the FreezerFrozenGoods enum
@@ -666,18 +694,27 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod vid sökning. Felmeddelande: {ex.Message}");
+            ShowErrorMessage($"Sök vilt. Felmeddelande: {ex.Message}");
         }
     }
 
     private async Task<string> GetTotalWeight()
     {
-        if (await db.FrozenFoods.AnyAsync())
+        try
         {
-            double totalWeight = await db.FrozenFoods
-                .SumAsync(item => item.Number > 0 ? item.Weight * item.Number : item.Weight);
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("GetTotalWeight: db == null!");
 
-            return Math.Round(totalWeight / 1000, 1, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+            if (await db.FrozenFoods.AnyAsync())
+            {
+                double totalWeight = await db.FrozenFoods
+                    .SumAsync(item => item.Number > 0 ? item.Weight * item.Number : item.Weight);
+
+                return Math.Round(totalWeight / 1000, 1, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sett total vikt. Felmeddelande: {ex.Message}");
         }
 
         return string.Empty;
@@ -692,57 +729,93 @@
 
     private async Task SearchDeer(ChangeEventArgs e)
     {
-        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+        try
         {
-            var result = await db.FrozenFoods
-                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur)
-                .ToListAsync();
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchDeer: db == null!");
 
-            SetQuery(result);
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
         }
-        else
-            await RefreshPage();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök rådjur. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task SearchWildboar(ChangeEventArgs e)
     {
-        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+        try
         {
-            var result = await db.FrozenFoods
-                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin)
-                .ToListAsync();
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchWildboar: db == null!");
 
-            SetQuery(result);
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
         }
-        else
-            await RefreshPage();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök vildsvin. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task SearchMoose(ChangeEventArgs e)
     {
-        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+        try
         {
-            var result = await db.FrozenFoods
-                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg)
-                .ToListAsync();
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchMoose: db == null!");
 
-            SetQuery(result);
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
         }
-        else
-            await RefreshPage();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök älg. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task SearchOther(ChangeEventArgs e)
     {
-        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+        try
         {
-            var result = await db.FrozenFoods
-                .Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt)
-                .ToListAsync();
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchOther: db == null!");
 
-            SetQuery(result);
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
         }
-        else
-            await RefreshPage();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök andra. Felmeddelande: {ex.Message}");
+        }
     }
 }

@@ -7,9 +7,9 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
     {
         Task<string> Add(FrozenFoodViewModel vm);
         Task<string> Edit(FrozenFoodViewModel vm);
-        Task<string> Delete(FrozenFoodViewModel vm);
+        Task<string> Delete(FrozenFoods model);
         FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model);
         double HowLongTimeInFreezer(DateTime date);
-        void GetOutgoingFrosenFood();
+        Task GetOutgoingFrosenFood();
     }
 }

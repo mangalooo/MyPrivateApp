@@ -1,4 +1,5 @@
-﻿@page "/Contact"
+﻿
+@page "/Contact"
 
 @using Microsoft.EntityFrameworkCore
 @using Azure.Core
@@ -789,7 +790,7 @@ catch (Exception ex)
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Sök förnamn. Felmeddelande: {ex.Message}");
+            ShowErrorMessage($"Sök namn. Felmeddelande: {ex.Message}");
         }
     }
 

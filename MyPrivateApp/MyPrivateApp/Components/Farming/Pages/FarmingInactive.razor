@@ -1,8 +1,8 @@
 ﻿
 @page "/FarmingInactive"
 
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Farming.Classes
@@ -76,11 +76,7 @@
                 @if (ShowOrHideAddOrEditForm)
                 {
                     <div class="card-header">
-                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance>
-
-                            <DataAnnotationsValidator />
-
-                            <ValidationSummary class="text-danger" role="alert" />
+                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                             <div class="row">
 
@@ -473,8 +469,7 @@ catch (Exception ex)
                 return;
             }
 
-            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-            ErrorMessage = await BackEndClass.DeleteInactive(vm);
+            ErrorMessage = await BackEndClass.DeleteInactive(model);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
                 ShowOrHideErrorMessage = true;

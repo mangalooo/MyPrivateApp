@@ -9,33 +9,30 @@ using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.FrozenFood.Classes
 {
-    public class FrozenFoodClass(ApplicationDbContext db, ILogger<FrozenFoodClass> logger, IMapper mapper) : IFrozenFoodClass
+    public class FrozenFoodClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FrozenFoodClass> logger, IMapper mapper) : IFrozenFoodClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FrozenFoodClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        public async Task<FrozenFoods?> Get(int? id)
-        {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-
-            return await _db.FrozenFoods.FirstOrDefaultAsync(r => r.FrozenFoodsId == id)
-                   ?? throw new Exception("Frysvaran hittades inte i databasen!");
-        }
-
         public async Task<string> Add(FrozenFoodViewModel vm)
         {
-            if (vm == null || _db == null) 
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
 
-            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) 
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name))
                 return "Ingen datum eller namn ifyllt!";
 
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 FrozenFoods model = ChangeFromViewModelToModel(vm);
-                await _db.FrozenFoods.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.FrozenFoods.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -47,21 +44,26 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
         public async Task<string> Edit(FrozenFoodViewModel vm)
         {
-            if (vm == null || vm.FrozenFoodsId <= 0 && _db == null) 
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null || vm.FrozenFoodsId <= 0)
+                return "Hittar ingen data från formuläret!";
 
-            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name)) 
+            if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.Name))
                 return "Ingen datum eller namn ifyllt!";
 
             try
             {
-                FrozenFoods? model = await Get(vm.FrozenFoodsId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                if (model == null) 
+                // Fetch the entity in the same context to ensure tracking
+                FrozenFoods? model = await db.FrozenFoods.FirstOrDefaultAsync(r => r.FrozenFoodsId == vm.FrozenFoodsId);
+                if (model == null)
                     return "Hittar inte frysvaran i databasen!";
 
                 _mapper.Map(vm, model);
-                await _db.SaveChangesAsync();
+
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -71,17 +73,19 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             }
         }
 
-        public async Task<string> Delete(FrozenFoodViewModel vm)
+        public async Task<string> Delete(FrozenFoods model)
         {
-            if (vm == null || vm.FrozenFoodsId <= 0 && _db == null) 
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (model == null || model.FrozenFoodsId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                FrozenFoods model = ChangeFromViewModelToModel(vm);
-                _db.ChangeTracker.Clear();
-                _db.FrozenFoods.Remove(model);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.FrozenFoods.Remove(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -147,36 +151,47 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
             BackgroundJob.Schedule(() => emailSender.SendEmailFreezer(title, from, subject, body, to), DateTime.Now);
         }
 
-        public void GetOutgoingFrosenFood()
+        public async Task GetOutgoingFrosenFood()
         {
-            if (!_db.FrozenFoods.Any()) return;
-
-            IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
-            EmailSender emailSender = new(config);
-
-            string? mailFreezer = config.GetSection("AppSettings")["mailFreezer"];
-
-            if (string.IsNullOrEmpty(mailFreezer)) return;
-
-            var freezerTimes = new Dictionary<string, double>
+            try
             {
-                { "hare", 6 },
-                { "ko", 6 },
-                { "rådjur", 6 },
-                { "vildsvin", 4 },
-                { "älg", 6 },
-                { "övrigt", 2 }
-            };
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("GetOutgoingFrosenFood: db == null!");
 
-            foreach (var item in _db.FrozenFoods)
-            {
-                if (DateTime.TryParse(item.Date, out DateTime date))
+                if (!db.FrozenFoods.Any()) 
+                    return;
+
+                IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
+                EmailSender emailSender = new(config);
+
+                string? mailFreezer = config.GetSection("AppSettings")["mailFreezer"];
+
+                if (string.IsNullOrEmpty(mailFreezer)) 
+                    return;
+
+                Dictionary<string, double> freezerTimes = new()
                 {
-                    string getName = System.Enum.GetName(item.FrozenGoods)?.ToLower() ?? string.Empty;
+                    { "hare", 6 },
+                    { "ko", 6 },
+                    { "rådjur", 6 },
+                    { "vildsvin", 4 },
+                    { "älg", 6 },
+                    { "övrigt", 2 }
+                };
 
-                    if (freezerTimes.TryGetValue(getName, out double requiredTimeInFreezer) && HowLongTimeInFreezer(date) == requiredTimeInFreezer)
-                        SendEmailTo(emailSender, getName, item, mailFreezer);
+                foreach (FrozenFoods item in db.FrozenFoods)
+                {
+                    if (DateTime.TryParse(item.Date, out DateTime date))
+                    {
+                        string getName = System.Enum.GetName(item.FrozenGoods)?.ToLower() ?? string.Empty;
+
+                        if (freezerTimes.TryGetValue(getName, out double requiredTimeInFreezer) && HowLongTimeInFreezer(date) == requiredTimeInFreezer)
+                            SendEmailTo(emailSender, getName, item, mailFreezer);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Frysvara: GetOutgoingFrosenFood felmeddelande!");
             }
         }
     }

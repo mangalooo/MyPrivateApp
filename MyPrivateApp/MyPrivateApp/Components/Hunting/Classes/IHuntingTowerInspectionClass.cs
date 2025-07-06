@@ -8,7 +8,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
     {
         Task<string> Add(HuntingTowerInspectionViewModels vm);
         Task<string> Edit(HuntingTowerInspectionViewModels vm);
-        Task<string> Delete(HuntingTowerInspectionViewModels vm);
+        Task<string> Delete(HuntingTowerInspection model);
         HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model);
     }
 }

@@ -1,6 +1,7 @@
 ﻿
 @page "/FarmWorkPage"
 
+@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -14,370 +15,381 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 @inject IFarmWorksClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Gårdsarbete </PageTitle>
 
-@* Header *@
-<div>
-
-    <br />
-
-    <h1 align="center"> Gårdsarbete </h1>
-
-    <br />
-
-    <h3 align="center"> Nästa lön: @NextSalary</h3>
-
-    <br />
-
-    @if (ShowOrHideCreateButton)
-    {
-        <br />
-
-        <div align="center">
-            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Nytt gårdsarbete </button>
-        </div>
+@try
+{
+    @* Header *@
+    <div>
 
         <br />
-    }
 
-    @if (ShowOrHideErrorMessage)
-    {
+        <h1 align="center"> Gårdsarbete </h1>
+
         <br />
 
-        <div align="center">
-            <Alert Color="AlertColor.Danger">
-                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
-                <b>@ErrorMessage</b>
-            </Alert>
-        </div>
-    }
+        <h3 align="center"> Nästa lön: @NextSalary</h3>
 
-    <br />
+        <br />
 
-</div>
-
-@* Form and views *@
-<div class="container">
-    <div class="col-md-12">
-        <div class="card">
-
-            @* Form *@
-            <div>
-                @if (ShowOrHideAddOrEditForm)
-                {
-                    <div class="card-header">
-
-                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
-
-                            <DataAnnotationsValidator />
-
-                            <ValidationSummary class="text-danger" role="alert" />
-
-                            <div class="row">
-
-                                <div id="mobile" class="col-4" />
-
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Date"> Datum </label>
-                                    </div>
-                                </div>
-
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
-                                            @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
-                                            {
-                                                <option value="@place">@place</option>
-                                            }
-                                        </InputSelect>
-                                        <label for="wildAnimal"> Plats </label>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="Hours"> Timmar </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br />
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Note"> Beskrivning </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br />
-
-                            @* Desktop screen *@
-                            <div id="desktop" class="form-group" align="center">
-                                <label for="NextSalary"> Nästa lön? </label>
-                                <InputCheckbox @bind-Value="pageViewModel.NextSalary" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                            </div>
-
-                            @* Mobile screen *@
-                            <div id="mobile">
-                                <div class="form-check">
-                                    <InputCheckbox id="NextSalary" @bind-Value="pageViewModel.NextSalary" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="NextSalary"> Fått lön? </label>
-                                </div>
-                            </div>
-
-                            <br />
-
-                            @if (ShowOrHideAddNewButton)
-                            {
-                                <div align="center">
-                                    <button type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
-                                </div>
-                            }
-
-                            @if (ShowOrHideEditButton)
-                            {
-                                <div align="center">
-                                    <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
-                                </div>
-                            }
-
-                            <br />
-
-                            <div align="center">
-                                <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
-                            </div>
-
-                            <br /> <br />
-
-                        </EditForm>
-                    </div>
-                }
+        @if (ShowOrHideCreateButton)
+        {
+            <div style="text-align:center">
+                <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny kontakt </button>
             </div>
+        }
 
-            @* View - Desktop *@
-            <div id="desktop">
+        @if (ShowOrHideErrorMessage)
+        {
+            <br />
 
-                <br />
+            <div style="text-align:center">
+                <Alert Color="AlertColor.Danger">
+                    <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                    <b>@ErrorMessage</b>
+                </Alert>
+            </div>
+        }
 
-                <div align="center">
-                    <div class="form-check-inline">
-                        <label class="form-check-label">
-                            Nästa lön <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNextSalary">
-                        </label>
+        @if (ShowOrHideInfoMessage)
+        {
+            <br />
+
+            <div align="center">
+                <Alert Color="AlertColor.Info">
+                    <b>@InfoMessage</b>
+                </Alert>
+            </div>
+        }
+
+        <br />
+
+    </div>
+
+    @* Form and views *@
+    <div class="container">
+        <div class="col-md-12">
+            <div class="card">
+
+                @* Form *@
+                <div>
+                    @if (ShowOrHideAddOrEditForm)
+                    {
+                        <div class="card-header">
+
+                            <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Date"> Datum </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
+                                                {
+                                                    <option value="@place">@place</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="wildAnimal"> Plats </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Hours"> Timmar </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Note"> Beskrivning </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br />
+
+                                @* Desktop screen *@
+                                <div id="desktop" class="form-group" align="center">
+                                    <label for="NextSalary"> Nästa lön? </label>
+                                    <InputCheckbox @bind-Value="pageViewModel.NextSalary" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                </div>
+
+                                @* Mobile screen *@
+                                <div id="mobile">
+                                    <div class="form-check">
+                                        <InputCheckbox id="NextSalary" @bind-Value="pageViewModel.NextSalary" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="NextSalary"> Fått lön? </label>
+                                    </div>
+                                </div>
+
+                                <br />
+
+                                @if (ShowOrHideAddNewButton)
+                                {
+                                    <div align="center">
+                                        <button type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
+                                    </div>
+                                }
+
+                                @if (ShowOrHideEditButton)
+                                {
+                                    <div align="center">
+                                        <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                    </div>
+                                }
+
+                                <br />
+
+                                <div align="center">
+                                    <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                                </div>
+
+                                <br /> <br />
+
+                            </EditForm>
+                        </div>
+                    }
+                </div>
+
+                @* View - Desktop *@
+                <div id="desktop">
+
+                    <br />
+
+                    <div align="center">
+                        <div class="form-check-inline">
+                            <label class="form-check-label">
+                                Nästa lön <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNextSalary">
+                            </label>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
+
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
+
+                            <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchPlace" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
+
+                            <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
+
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
+
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                            </TemplateColumn>
+                        </QuickGrid>
+
+                        <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                        @if (isDeleteSalaryButtonVisible)
+                        {
+                            <br />
+
+                            <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageViewModel))"> Ta bort nästa lön </button>
+
+                            <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdropSalary)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+                        }
+
+                        <br />
+                        <br />
+
                     </div>
                 </div>
 
-                <br />
+                @* View - Mobile *@
+                <div id="mobile">
 
-                <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
+                    <br />
 
-                        <PropertyColumn Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
+                    <div class="row" align="center">
+                        <div class="form-check-inline">
 
-                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
-                            <ColumnOptions>
-                                <div class="search-box">
-                                    <input type="search" autofocus @onchange="SearchPlace" />
+                            <label class="form-check-label">
+                                Nästa lön <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNextSalary">
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
+
+                            <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchPlace" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
+
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
                                 </div>
-                            </ColumnOptions>
-                        </PropertyColumn>
 
-                        <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
 
-                        <TemplateColumn Title="Info">
+                            </TemplateColumn>
+                        </QuickGrid>
 
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
+                        @if (isDeleteSalaryButtonVisible)
+                        {
+                            <br />
+                            <br />
+
+                            <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageViewModel))"> Ta bort nästa lön </button>
 
                             <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
+                                            <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            @if (ShowBackdrop)
+                            @if (ShowBackdropSalary)
                             {
                                 <div class="modal-backdrop fade show"></div>
                             }
-
-                        </TemplateColumn>
-                    </QuickGrid>
-
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
-
-                    @if (isDeleteSalaryButtonVisible)
-                    {
-                        <br />
-
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageViewModel))"> Ta bort nästa lön </button>
-
-                        <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if (ShowBackdropSalary)
-                        {
-                            <div class="modal-backdrop fade show"></div>
                         }
-                    }
 
-                    <br />
-                    <br />
-
-                </div>
-            </div>
-
-            @* View - Mobile *@
-            <div id="mobile">
-
-                <br />
-
-                <div class="row" align="center">
-                    <div class="form-check-inline">
-
-                        <label class="form-check-label">
-                            Nästa lön <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNextSalary">
-                        </label>
+                        <br />
+                        <br />
 
                     </div>
                 </div>
 
-                <br />
-
-                <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
-
-                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
-                            <ColumnOptions>
-                                <div class="search-box">
-                                    <input type="search" autofocus @onchange="SearchPlace" />
-                                </div>
-                            </ColumnOptions>
-                        </PropertyColumn>
-
-                        <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
-
-                        <TemplateColumn Title="Info">
-
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
-
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            @if (ShowBackdrop)
-                            {
-                                <div class="modal-backdrop fade show"></div>
-                            }
-
-                        </TemplateColumn>
-                    </QuickGrid>
-
-                    @if (isDeleteSalaryButtonVisible)
-                    {
-                        <br />
-                        <br />
-
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageViewModel))"> Ta bort nästa lön </button>
-
-                        <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if (ShowBackdropSalary)
-                        {
-                            <div class="modal-backdrop fade show"></div>
-                        }
-                    }
-
-                    <br />
-                    <br />
-
-                </div>
             </div>
-
         </div>
     </div>
-</div>
 
-@* Footer *@
-<div>
+    @* Footer *@
+    <div>
 
-    <br /> <br />
+        <br /> <br />
 
-    <div class="footer" align="center">
-        <p> Copyright 2023 - @DateTime.Now.Year</p>
+        <div class="footer" align="center">
+            <p> Copyright 2023 - @DateTime.Now.Year</p>
+        </div>
+
+        <br /> <br />
+
     </div>
 
-    <br /> <br />
-
-</div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
 
 @* Back-End *@
 @code
@@ -415,6 +427,8 @@
     // Error text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -425,19 +439,29 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<FarmWorks> farmWorks = await db.FarmWorks.OrderByDescending(c => c.Date).ToListAsync();
-
-        if (!farmWorks.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<FarmWorks> items = await db.FarmWorks.OrderByDescending(c => c.Date).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
-
-        queryable = farmWorks
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -486,7 +510,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -518,29 +542,37 @@
 
     private async Task Delete()
     {
-        if (!db.FarmWorks.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort gårdsarbetet, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.FarmWorks.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort gårdsarbetet, databasen är tom!");
+                return;
+            }
+
+            FarmWorks? model = await db.FarmWorks.FirstOrDefaultAsync(a => a.FarmWorksId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Går inte att ta bort gårdsarbetet. (TemporaryId = {TemporaryId})!");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        FarmWorks? model = await db.FarmWorks.FirstOrDefaultAsync(a => a.FarmWorksId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Går inte att ta bort gårdsarbetet. (TemporaryId = {TemporaryId})!");
-            return;
-        }
-
-        FarmWorksViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -570,102 +602,149 @@
 
     private async Task SearchPlace(ChangeEventArgs e)
     {
-        queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
-        string? placeName = e.Value?.ToString()?.ToLowerInvariant();
-
-        if (string.IsNullOrEmpty(placeName))
+        try
         {
-            await RefreshPage();
-            return;
-        }
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
 
-        var placeMapping = new Dictionary<string, FarmWorkPlaces>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "habäck", FarmWorkPlaces.Habäck },
-            { "karlabo", FarmWorkPlaces.Karlabo },
-            { "klev", FarmWorkPlaces.Klev },
-            { "skog", FarmWorkPlaces.Skog },
-            { "smältryd", FarmWorkPlaces.Smältryd },
-            { "övrigt", FarmWorkPlaces.Övrigt }
-        };
+            queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+            string? placeName = e.Value?.ToString()?.ToLowerInvariant();
 
-        if (placeMapping.TryGetValue(placeName, out var place))
-        {
-            var result = db.FarmWorks.Where(c => c.Place == place);
-
-            if (result.Any())
+            if (string.IsNullOrEmpty(placeName))
             {
-                queryable = result
-                    .OrderBy(c => c.Date)
-                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                    .AsQueryable();
+                await RefreshPage();
+                return;
             }
+
+            Dictionary<string, FarmWorkPlaces> placeMapping = new()
+            {
+                { "habäck", FarmWorkPlaces.Habäck },
+                { "karlabo", FarmWorkPlaces.Karlabo },
+                { "klev", FarmWorkPlaces.Klev },
+                { "skog", FarmWorkPlaces.Skog },
+                { "smältryd", FarmWorkPlaces.Smältryd },
+                { "övrigt", FarmWorkPlaces.Övrigt }
+            };
+
+            if (placeMapping.TryGetValue(placeName, out var place))
+            {
+                var result = db.FarmWorks.Where(c => c.Place == place);
+
+                if (result.Any())
+                {
+                    queryable = result
+                        .OrderBy(c => c.Date)
+                        .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                        .AsQueryable();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök plats. Felmeddelande: {ex.Message}");
         }
     }
 
     private async Task<string> GetNextSalary()
     {
-        double nextSalary = await db.FarmWorks
-            .Where(item => item.NextSalary)
-            .SumAsync(item => item.Hours * 214);
+        double result = 0.0;
 
-        // Calculate the result after tax
-        double result = nextSalary * 0.7;
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("GetNextSalary: db == null!");
+
+            double nextSalary = await db.FarmWorks
+                .Where(item => item.NextSalary)
+                .SumAsync(item => item.Hours * 214);
+
+            // Calculate the result after tax
+            result = nextSalary * 0.7;
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Nästa lön. Felmeddelande: {ex.Message}");
+        }
 
         return result.ToString("#,##0.00");
     }
 
     private async Task RemoveNextSalary()
     {
-        // Get all items with NextSalary set to true
-        var itemsToUpdate = db.FarmWorks
-            .Where(item => item.NextSalary)
-            .ToList();
-
-        if (itemsToUpdate.Any())
+        try
         {
-            // Update the NextSalary property for all items
-            foreach (var item in itemsToUpdate)
-                item.NextSalary = false;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("RemoveNextSalary: db == null!");
 
-            await db.SaveChangesAsync();
-            await RefreshPage();
+            // Get all items with NextSalary set to true
+            var itemsToUpdate = db.FarmWorks
+                .Where(item => item.NextSalary)
+                .ToList();
+
+            if (itemsToUpdate.Any())
+            {
+                // Update the NextSalary property for all items
+                foreach (var item in itemsToUpdate)
+                    item.NextSalary = false;
+
+                await db.SaveChangesAsync();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ta bort nästa lön. Felmeddelande: {ex.Message}");
         }
     }
 
     private async Task SearchNextSalary(ChangeEventArgs e)
     {
-        if (e.Value is not null && bool.TryParse(e.Value.ToString(), out bool trueOrFalse))
+        try
         {
-            if (trueOrFalse)
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchNextSalary: db == null!");
+
+            if (e.Value is not null && bool.TryParse(e.Value.ToString(), out bool trueOrFalse))
             {
-                IEnumerable<FarmWorks> result = await db.FarmWorks
-                    .Where(c => c.NextSalary)
-                    .ToListAsync();
-
-                if (!result.Any())
+                if (trueOrFalse)
                 {
-                    queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
-                    return;
+                    IEnumerable<FarmWorks> result = await db.FarmWorks
+                        .Where(c => c.NextSalary)
+                        .ToListAsync();
+
+                    if (!result.Any())
+                    {
+                        queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+                        return;
+                    }
+
+                    IEnumerable<FarmWorksViewModels> farmWorksList = result
+                        .OrderByDescending(c => c.Date)
+                        .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                        .ToList();
+
+                    queryable = farmWorksList.AsQueryable();
                 }
-
-                IEnumerable<FarmWorksViewModels> farmWorksList = result
-                    .OrderByDescending(c => c.Date)
-                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                    .ToList();
-
-                queryable = farmWorksList.AsQueryable();
+                else
+                    await RefreshPage();
             }
-            else
-                await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Visa nästa lön. Felmeddelande: {ex.Message}");
         }
     }
 
     private async Task<bool> ShowOrHideDetleteSalaryButton()
     {
-        if (db.FarmWorks.Any())
-            if (await db.FarmWorks.AnyAsync(y => y.NextSalary == true))
-                return true;
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ShowOrHideDetleteSalaryButton: db == null!");
+
+            if (db.FarmWorks.Any())
+                if (await db.FarmWorks.AnyAsync(y => y.NextSalary == true))
+                    return true;
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Visa eller göm lön ta bort knapp. Felmeddelande: {ex.Message}");
+        }
 
         return false;
     }
