@@ -3,6 +3,7 @@ using AutoMapper;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components;
@@ -24,6 +25,19 @@ using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Hunting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+// Example for ASP.NET Core (Startup.cs or Program.cs)
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+});
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.Strict; // Or Lax/None as needed
+    options.Secure = CookieSecurePolicy.Always;
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -128,6 +142,9 @@ builder.Services.AddHangfire(x => x
 
 builder.Services.AddHangfireServer();
 builder.Services.AddRazorComponents();
+
+builder.WebHost.UseWebRoot("wwwroot");
+builder.WebHost.UseStaticWebAssets();
 
 WebApplication app = builder.Build();
 
@@ -254,6 +271,20 @@ app.Use(async (context, next) =>
     }
 
     await next();
+});
+
+app.UseHsts();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(exceptionHandlerPathFeature?.Error, "Unhandled exception");
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("An error occurred.");
+    });
 });
 
 app.Run();
