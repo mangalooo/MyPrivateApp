@@ -57,6 +57,7 @@ builder.Services.AddScoped<ITripClass, TripClass>();
 
 // Farm work
 builder.Services.AddScoped<IFarmingClass, FarmingClass>();
+builder.Services.AddScoped<IFarmWorksClass, FarmWorkClass>();
 builder.Services.AddScoped<IFarmWorksPlanningClass, FarmWorksPlanningClass>();
 
 

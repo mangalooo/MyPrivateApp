@@ -1,9 +1,10 @@
 ﻿
-using MyPrivateApp.Data;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components.ViewModels.FarmWork;
+using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.FarmWork;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
@@ -56,7 +57,12 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 if (model == null) 
                     return "Hittar inte gårdsarbetet i databasen!";
 
-                _mapper.Map(vm, model);
+                model.FarmWorksId = vm.FarmWorksId;
+                model.Date = vm.Date.ToString("yyyy-MM-dd");
+                model.Place = vm.Place;
+                model.Hours = vm.Hours;
+                model.NextSalary = vm.NextSalary;
+                model.Note = vm.Note;
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -92,31 +98,28 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             }
         }
 
-        private static DateTime ParseDate(string date)
-        {
-            if (DateTime.TryParse(date, out DateTime parsedDate))
-                return parsedDate;
-
-            return DateTime.MinValue;
-
-            throw new FormatException($"Ogiltigt datumformat: {date}");
-        }
-
         public FarmWorksViewModels ChangeFromModelToViewModel(FarmWorks model)
         {
-            ArgumentNullException.ThrowIfNull(model);
+            if (model == null)
+                throw new Exception("ChangeFromModelToViewModel: model == null!");
 
-            FarmWorksViewModels vm = _mapper.Map<FarmWorksViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
+            FarmWorksViewModels vm = new()
+            {
+                FarmWorksId = model.FarmWorksId,
+                Date = DateTime.Parse(model.Date ?? throw new Exception("ChangeFromModelToViewModel: Date == null!")),
+                Place = model.Place,
+                Hours = model.Hours,
+                NextSalary = model.NextSalary,
+                Note = model.Note
+            };
 
             return vm;
         }
 
-        public FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm)
+        private FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
+            if (vm == null)
+                throw new Exception("ChangeFromModelToViewModel: vm == null!");
 
             FarmWorks model = _mapper.Map<FarmWorks>(vm);
 

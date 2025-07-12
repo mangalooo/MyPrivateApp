@@ -13,7 +13,7 @@
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
 @inject NavigationManager Navigation
-@* @inject IFarmWorksClass BackEndClass *@
+@inject IFarmWorksClass BackEndClass
 @inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Gårdsarbete </PageTitle>
@@ -430,9 +430,9 @@
                 return;
             }
 
-            // queryable = items
-            //     .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            //     .AsQueryable();
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
 
             pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
@@ -463,16 +463,16 @@
 
         try
         {
-            // if (pageViewModel.FarmWorksId > 0)
-            // {
-            //     ErrorMessage = await BackEndClass.Edit(pageViewModel);
-            //     ShowOrHideEditButton = true;
-            // }
-            // else
-            // {
-            //     ErrorMessage = await BackEndClass.Add(pageViewModel);
-            //     ShowOrHideAddNewButton = true;
-            // }
+            if (pageViewModel.FarmWorksId > 0)
+            {
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
+                ShowOrHideEditButton = true;
+            }
+            else
+            {
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
+                ShowOrHideAddNewButton = true;
+            }
 
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -538,7 +538,7 @@
                 return;
             }
 
-            // ErrorMessage = await BackEndClass.Delete(model);
+            ErrorMessage = await BackEndClass.Delete(model);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
                 ShowOrHideErrorMessage = true;
@@ -607,13 +607,13 @@
             {
                 var result = db.FarmWorks.Where(c => c.Place == place);
 
-                // if (result.Any())
-                // {
-                //     queryable = result
-                //         .OrderBy(c => c.Date)
-                //         .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                //         .AsQueryable();
-                // }
+                if (result.Any())
+                {
+                    queryable = result
+                        .OrderBy(c => c.Date)
+                        .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                        .AsQueryable();
+                }
             }
         }
         catch (Exception ex)
@@ -684,15 +684,15 @@
 
             if (trueOrFalse)
             {
-                // var farmWorksList = await db.FarmWorks
-                //     .Where(c => c.NextSalary)
-                //     .OrderByDescending(c => c.Date)
-                //     .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                //     .ToListAsync();
+                var farmWorksList = await db.FarmWorks
+                    .Where(c => c.NextSalary)
+                    .OrderByDescending(c => c.Date)
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .ToListAsync();
 
-                // queryable = farmWorksList.Any()
-                //     ? farmWorksList.AsQueryable()
-                //     : Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+                queryable = farmWorksList.Any()
+                    ? farmWorksList.AsQueryable()
+                    : Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
             }
             else
             {
@@ -721,4 +721,3 @@
         }
     }
 }
-
