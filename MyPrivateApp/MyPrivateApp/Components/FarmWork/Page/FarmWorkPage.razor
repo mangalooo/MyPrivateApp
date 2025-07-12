@@ -15,6 +15,7 @@
 @inject NavigationManager Navigation
 @inject IFarmWorksClass BackEndClass
 @inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
+@inject ApplicationDbContext _db
 
 <PageTitle> Gårdsarbete </PageTitle>
 
@@ -522,7 +523,7 @@
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
 
             if (!db.FarmWorks.Any())
             {
@@ -582,10 +583,14 @@
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            if (e.Value == null)
+            {
+                ShowErrorMessage("Fel vid sökning av plats!");
+                return;
+            }
 
             queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
-            string? placeName = e.Value?.ToString()?.ToLowerInvariant();
+            string? placeName = e.Value?.ToString()?.ToLower();
 
             if (string.IsNullOrEmpty(placeName))
             {
@@ -605,16 +610,33 @@
 
             if (placeMapping.TryGetValue(placeName, out var place))
             {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
+
                 var result = db.FarmWorks.Where(c => c.Place == place);
 
                 if (result.Any())
                 {
-                    queryable = result
+                    ShowOrHideInfoMessage = false;
+
+                    var farmWorksList = await result
                         .OrderBy(c => c.Date)
                         .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                        .AsQueryable();
+                        .ToListAsync();
+
+                    queryable = farmWorksList.Any()
+                    ? farmWorksList.AsQueryable()
+                    : Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
                 }
             }
+            else
+            {
+                InfoMessage = $"Hittade ingen plats för: {placeName}!";
+                ShowOrHideInfoMessage = true;
+                queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
+                return;
+            }
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -626,7 +648,7 @@
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("GetNextSalary: db == null!");
 
             // Calculate total salary for items marked as NextSalary
             decimal nextSalary = await db.FarmWorks
@@ -680,10 +702,10 @@
             if (e.Value is null || !bool.TryParse(e.Value.ToString(), out bool trueOrFalse))
                 return;
 
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchNextSalary: db == null!");
-
             if (trueOrFalse)
             {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchNextSalary: db == null!");
+
                 var farmWorksList = await db.FarmWorks
                     .Where(c => c.NextSalary)
                     .OrderByDescending(c => c.Date)
@@ -695,9 +717,7 @@
                     : Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
             }
             else
-            {
                 await RefreshPage();
-            }
 
             StateHasChanged();
         }

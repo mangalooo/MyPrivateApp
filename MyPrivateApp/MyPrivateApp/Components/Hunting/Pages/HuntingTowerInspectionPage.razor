@@ -17,6 +17,7 @@
 @inject NavigationManager Navigation
 @inject IHuntingTowerInspectionClass BackEndClass
 @inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
+@inject ApplicationDbContext _db
 
 <PageTitle> Jakt </PageTitle>
 
@@ -729,15 +730,25 @@
 
     private void CloseWindowInspection() => ToggleModal(ref ModalDisplayInspection, ref ModalClassInspection, ref ShowBackdropInspection, false);
 
+    private void ShowInfoMessage(string message)
+    {
+        InfoMessage = message;
+        ShowOrHideInfoMessage = true;
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+    }
+
     private async Task SearchPlace(ChangeEventArgs e)
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
+            if (e.Value == null)
+            {
+                ShowErrorMessage("Fel vid sökning av plats!");
+                return;
+            }
 
             queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
 
-            queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
             string? placeName = e.Value?.ToString()?.ToLowerInvariant();
 
             if (string.IsNullOrEmpty(placeName))
@@ -758,15 +769,28 @@
 
             if (placeMapping.TryGetValue(placeName, out var place))
             {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
+
                 var result = db.HuntingTowerInspections.Where(c => c.Place == place);
 
                 if (result.Any())
                 {
-                    queryable = result
+                    ShowOrHideInfoMessage = false;
+
+                    var inspections = await result
                         .OrderBy(c => c.HuntingTowerInspectionId)
                         .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                        .AsQueryable();
+                        .ToListAsync();
+
+                    queryable = inspections.Any()
+                    ? inspections.AsQueryable()
+                    : Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
                 }
+            }
+            else
+            {
+                ShowInfoMessage($"Hittade ingen plats för sökningen: {placeName}!");
+                return;
             }
         }
         catch (Exception ex)
@@ -779,7 +803,11 @@
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchTodo: db == null!");
+            if (e.Value == null)
+            {
+                ShowErrorMessage("Fel vid sökning av to do!");
+                return;
+            }
 
             queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
             string? target = e.Value?.ToString()?.ToLower();
@@ -803,15 +831,28 @@
 
             if (todoMapping.TryGetValue(target, out var todo))
             {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchTodo: db == null!");
+
                 var result = db.HuntingTowerInspections.Where(c => c.Todo == todo);
 
                 if (result.Any())
                 {
-                    queryable = result
+                    ShowOrHideInfoMessage = false;
+
+                    var inspections = await result
                         .OrderBy(c => c.HuntingTowerInspectionId)
                         .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                        .AsQueryable();
+                        .ToListAsync();
+
+                    queryable = inspections.Any()
+                    ? inspections.AsQueryable()
+                    : Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
                 }
+            }
+            else
+            {
+                ShowInfoMessage($"Hittade ingen att göra för sökningen: {target}!");
+                return;
             }
         }
         catch (Exception ex)
@@ -822,10 +863,20 @@
 
     private void SetQuery(IEnumerable<HuntingTowerInspection> result)
     {
-        queryable = result
-            .OrderBy(c => c.HuntingTowerInspectionId)
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
+        // Materialize the input to avoid multiple enumerations
+        var inspectionsList = result.OrderBy(c => c.HuntingTowerInspectionId).ToList();
+
+        // Convert models to view models asynchronously
+        var viewModels = new List<HuntingTowerInspectionViewModels>();
+        foreach (var model in inspectionsList)
+        {
+            viewModels.Add(BackEndClass.ChangeFromModelToViewModel(model));
+        }
+
+        // Assign to queryable, ensuring correct type
+        queryable = viewModels.Any()
+            ? viewModels.AsQueryable()
+            : Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
     }
 
     private async Task SearchInspectionsByCriteria(Func<HuntingTowerInspection, bool> criteria)
@@ -835,6 +886,7 @@
             await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchInspectionsByCriteria: db == null!");
 
             var result = db.HuntingTowerInspections.Where(criteria);
+
             SetQuery(result);
         }
         catch (Exception ex)
