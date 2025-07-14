@@ -1,5 +1,4 @@
 ﻿
-using AutoMapper;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Client.ViewModels;
@@ -9,11 +8,10 @@ using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.Contact.Classes
 {
-    public class ContactClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<ContactClass> logger, IMapper mapper, IConfiguration config, IEmailSender emailSender) : IContactClass
+    public class ContactClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<ContactClass> logger, IConfiguration config, IEmailSender emailSender) : IContactClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<ContactClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         private readonly IConfiguration _config = config ?? throw new ArgumentNullException(nameof(config));
         private readonly IEmailSender _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
 
@@ -61,7 +59,7 @@ namespace MyPrivateApp.Components.Contact.Classes
                 if (model == null)
                     return "Hittar inte kontakten i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -109,26 +107,96 @@ namespace MyPrivateApp.Components.Contact.Classes
 
         public ContactsViewModels ChangeFromModelToViewModel(Contacts model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            ContactsViewModels vm = _mapper.Map<ContactsViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.Birthday))
-                vm.Birthday = ParseDate(model.Birthday);
+            ContactsViewModels vm = new()
+            {
+                ContactsId = model.ContactsId,
+                Name = model.Name,
+                Birthday = ParseDate(model.Birthday ?? string.Empty),
+                Address = model.Address,
+                PostCode = model.PostCode,
+                City = model.City,
+                MarriedPartner = model.MarriedPartner,
+                ChildOne = model.ChildOne,
+                ChildTwo = model.ChildTwo,
+                ChildThree = model.ChildThree,
+                ChildFour = model.ChildFour,
+                PrivateMail = model.PrivateMail,
+                WorkEMail = model.WorkEMail,
+                ExtraMail = model.ExtraMail,
+                PhoneNumber = model.PhoneNumber,
+                HomePhoneNumber = model.HomePhoneNumber,
+                WorkPhoneNumber = model.WorkPhoneNumber,
+                ExtraPhoneNumber = model.ExtraPhoneNumber,
+                HomePage = model.HomePage,
+                Notes = model.Notes,
+                ChristmasCard = model.ChristmasCard,
+                Relatives = model.Relatives,
+                Friends = model.Friends,
+                Colleagues = model.Colleagues
+            };
 
             return vm;
         }
 
         public Contacts ChangeFromViewModelToModel(ContactsViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            Contacts model = _mapper.Map<Contacts>(vm);
-
-            if (vm.Birthday != DateTime.MinValue)
-                model.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
+            Contacts model = new()
+            {
+                ContactsId = vm.ContactsId,
+                Name = vm.Name,
+                Birthday = vm.Birthday != DateTime.MinValue ? vm.Birthday.ToString("yyyy-MM-dd") : string.Empty,
+                Address = vm.Address,
+                PostCode = vm.PostCode,
+                City = vm.City,
+                MarriedPartner = vm.MarriedPartner,
+                ChildOne = vm.ChildOne,
+                ChildTwo = vm.ChildTwo,
+                ChildThree = vm.ChildThree,
+                ChildFour = vm.ChildFour,
+                PrivateMail = vm.PrivateMail,
+                WorkEMail = vm.WorkEMail,
+                ExtraMail = vm.ExtraMail,
+                PhoneNumber = vm.PhoneNumber,
+                HomePhoneNumber = vm.HomePhoneNumber,
+                WorkPhoneNumber = vm.WorkPhoneNumber,
+                ExtraPhoneNumber = vm.ExtraPhoneNumber,
+                HomePage = vm.HomePage,
+                Notes = vm.Notes,
+                ChristmasCard = vm.ChristmasCard,
+                Relatives = vm.Relatives,
+                Friends = vm.Friends,
+                Colleagues = vm.Colleagues
+            };
 
             return model;
+        }
+
+        private static void EditModel(Contacts model, ContactsViewModels vm)
+        {
+            model.ContactsId = vm.ContactsId;
+            model.Name = vm.Name;
+            model.Birthday = vm.Birthday != DateTime.MinValue ? vm.Birthday.ToString("yyyy-MM-dd") : null;
+            model.Address = vm.Address;
+            model.PostCode = vm.PostCode;
+            model.City = vm.City;
+            model.MarriedPartner = vm.MarriedPartner;
+            model.ChildOne = vm.ChildOne;
+            model.ChildTwo = vm.ChildTwo;
+            model.ChildThree = vm.ChildThree;
+            model.ChildFour = vm.ChildFour;
+            model.PrivateMail = vm.PrivateMail;
+            model.WorkEMail = vm.WorkEMail;
+            model.ExtraMail = vm.ExtraMail;
+            model.PhoneNumber = vm.PhoneNumber;
+            model.HomePhoneNumber = vm.HomePhoneNumber;
+            model.WorkPhoneNumber = vm.WorkPhoneNumber;
+            model.ExtraPhoneNumber = vm.ExtraPhoneNumber;
+            model.HomePage = vm.HomePage;
+            model.Notes = vm.Notes;
+            model.ChristmasCard = vm.ChristmasCard;
+            model.Relatives = vm.Relatives;
+            model.Friends = vm.Friends;
+            model.Colleagues = vm.Colleagues;
         }
 
         public async Task GetBirthday()

@@ -208,9 +208,6 @@ ILogger<SharesIndexYearsClass> loggerIndexYears = app.Services.GetRequiredServic
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
 MapperConfiguration config = new(cfg =>
 {
-    cfg.AddProfile<ContactMappingProfileClass>();
-    cfg.AddProfile<FarmingMappingProfileClass>();
-    cfg.AddProfile<FarmWorkMappingProfileClass>();
     cfg.AddProfile<MZMappingProfileClass>();
     cfg.AddProfile<FrozenMappingProfileClass>();
     cfg.AddProfile<HuntingMappingProfileClass>();

@@ -1,17 +1,15 @@
 ﻿
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Farming;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.Farming.Classes
 {
-    public class FarmingClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmingClass> logger, IMapper mapper) : IFarmingClass
+    public class FarmingClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmingClass> logger) : IFarmingClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FarmingClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(FarmingViewModels vm)
         {
@@ -25,7 +23,7 @@ namespace MyPrivateApp.Components.Farming.Classes
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
 
-                FarmingsActive model = _mapper.Map<FarmingsActive>(vm);
+                FarmingsActive model = ChangeFromViewModelToModelActive(vm);
 
                 await db.FarmingsActive.AddAsync(model);
                 await db.SaveChangesAsync();
@@ -57,7 +55,7 @@ namespace MyPrivateApp.Components.Farming.Classes
                 if (model == null)
                     return "Hittar inte aktiv odling i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModelActive(model, vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -84,12 +82,12 @@ namespace MyPrivateApp.Components.Farming.Classes
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("EditInactive: db == null!");
 
                 // Fetch the entity in the same context to ensure tracking
-                FarmingsInactive? getDbModel = await db.FarmingsInactive.FirstOrDefaultAsync(r => r.FarmingId == vm.FarmingId);
+                FarmingsInactive? model = await db.FarmingsInactive.FirstOrDefaultAsync(r => r.FarmingId == vm.FarmingId);
 
-                if (getDbModel == null)
+                if (model == null)
                     return "Hittar inte odlingen i databasen!";
 
-                _mapper.Map(vm, getDbModel);
+                EditModelInactive(model,  vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -112,7 +110,7 @@ namespace MyPrivateApp.Components.Farming.Classes
             {
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Inactive: db == null!");
 
-                FarmingsInactive model = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsInactive>(vm);
+                FarmingsInactive model = ChangeFromViewModelToModelInactive(vm);
                 model.InactiveDate = DateTime.Now.ToString("yyyy-MM-dd");
 
                 await db.FarmingsInactive.AddAsync(model);
@@ -120,7 +118,7 @@ namespace MyPrivateApp.Components.Farming.Classes
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 // Removes active farming
-                FarmingsActive ActiveModel = ((IFarmingClass)this).ChangeFromViewModelToModel<FarmingsActive>(vm);
+                FarmingsActive ActiveModel = ChangeFromViewModelToModelActive(vm);
                 await DeleteActive(ActiveModel);
 
                 return string.Empty;
@@ -188,62 +186,106 @@ namespace MyPrivateApp.Components.Farming.Classes
 
         public FarmingViewModels ChangeFromModelToViewModel(FarmingsActive model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            FarmingViewModels vm = _mapper.Map<FarmingViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.PutSeedDate))
-                vm.PutSeedDate = ParseDate(model.PutSeedDate);
-
-            if (!string.IsNullOrEmpty(model.SetDate))
-                vm.SetDate = ParseDate(model.SetDate);
-
-            if (!string.IsNullOrEmpty(model.TakeUpDate))
-                vm.TakeUpDate = ParseDate(model.TakeUpDate);
+            FarmingViewModels vm = new()
+            {
+                FarmingId = model.FarmingId,
+                Name = model.Name,
+                Type = model.Type,
+                Place = model.Place,
+                PutSeedDate = ParseDate(model.PutSeedDate ?? string.Empty),
+                SetDate = ParseDate(model.SetDate ?? string.Empty),
+                TakeUpDate = ParseDate(model.TakeUpDate ?? string.Empty),
+                HowMany = model.HowMany,
+                HowManySave = model.HowManySave,
+                Note = model.Note,
+            };
 
             return vm;
         }
 
         public FarmingViewModels ChangeFromModelToViewModel(FarmingsInactive model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            FarmingViewModels vm = _mapper.Map<FarmingViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.PutSeedDate))
-                vm.PutSeedDate = ParseDate(model.PutSeedDate);
-
-            if (!string.IsNullOrEmpty(model.SetDate))
-                vm.SetDate = ParseDate(model.SetDate);
-
-            if (!string.IsNullOrEmpty(model.TakeUpDate))
-                vm.TakeUpDate = ParseDate(model.TakeUpDate);
+            FarmingViewModels vm = new()
+            {
+                FarmingId = model.FarmingId,
+                Name = model.Name,
+                Type = model.Type,
+                Place = model.Place,
+                InactiveDate = ParseDate(model.InactiveDate ?? string.Empty),
+                PutSeedDate = ParseDate(model.PutSeedDate ?? string.Empty),
+                SetDate = ParseDate(model.SetDate ?? string.Empty),
+                TakeUpDate = ParseDate(model.TakeUpDate ?? string.Empty),
+                HowMany = model.HowMany,
+                HowManySave = model.HowManySave,
+                Note = model.Note
+            };
 
             return vm;
         }
 
-        T IFarmingClass.ChangeFromViewModelToModel<T>(FarmingViewModels vm)
+        public FarmingsActive ChangeFromViewModelToModelActive(FarmingViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            // Use AutoMapper to map the ViewModel to the Model
-            T model = _mapper.Map<T>(vm);
-
-            // Additional custom mapping if needed
-            if (model is FarmingsActive activeModel)
+            FarmingsActive model = new()
             {
-                activeModel.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
-                activeModel.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
-                activeModel.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
-            }
-            else if (model is FarmingsInactive inactiveModel)
-            {
-                inactiveModel.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
-                inactiveModel.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
-                inactiveModel.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
-            }
+                FarmingId = vm.FarmingId,
+                Name = vm.Name,
+                Type = vm.Type,
+                Place = vm.Place,
+                PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd"),
+                SetDate = vm.SetDate.ToString("yyyy-MM-dd"),
+                TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd"),
+                HowMany = vm.HowMany,
+                HowManySave = vm.HowManySave,
+                Note = vm.Note
+            };
 
             return model;
+        }
+
+        public FarmingsInactive ChangeFromViewModelToModelInactive(FarmingViewModels vm)
+        {
+            FarmingsInactive model = new()
+            {
+                Name = vm.Name,
+                Type = vm.Type,
+                Place = vm.Place,
+                PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd"),
+                SetDate = vm.SetDate.ToString("yyyy-MM-dd"),
+                TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd"),
+                HowMany = vm.HowMany,
+                HowManySave = vm.HowManySave,
+                Note = vm.Note,
+                InactiveDate = vm.InactiveDate.ToString("yyyy-MM-dd"),
+            };
+
+            return model;
+        }
+
+        private static void EditModelActive(FarmingsActive model, FarmingViewModels vm)
+        {
+            model.Name = vm.Name;
+            model.Type = vm.Type;
+            model.Place = vm.Place;
+            model.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
+            model.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
+            model.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
+            model.HowMany = vm.HowMany;
+            model.HowManySave = vm.HowManySave;
+            model.Note = vm.Note;
+        }
+
+        private static void EditModelInactive(FarmingsInactive model, FarmingViewModels vm)
+        {
+            model.Name = vm.Name;
+            model.Type = vm.Type;
+            model.Place = vm.Place;
+            model.PutSeedDate = vm.PutSeedDate.ToString("yyyy-MM-dd");
+            model.SetDate = vm.SetDate.ToString("yyyy-MM-dd");
+            model.TakeUpDate = vm.TakeUpDate.ToString("yyyy-MM-dd");
+            model.HowMany = vm.HowMany;
+            model.HowManySave = vm.HowManySave;
+            model.Note = vm.Note;
+            model.InactiveDate = vm.InactiveDate.ToString("yyyy-MM-dd");
         }
     }
 }

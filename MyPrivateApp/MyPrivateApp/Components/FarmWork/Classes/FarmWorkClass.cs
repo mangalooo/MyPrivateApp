@@ -7,15 +7,14 @@ using MyPrivateApp.Data.Models.FarmWork;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public class FarmWorkClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorkClass> logger, IMapper mapper) : IFarmWorksClass
+    public class FarmWorkClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorkClass> logger) : IFarmWorksClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(FarmWorksViewModels vm)
         {
-            if (vm == null) 
+            if (vm == null)
                 return "Hittar ingen data från formuläret!";
 
             if (vm.Date == DateTime.MinValue || vm.Place == 0 || vm.Hours == 0)
@@ -42,7 +41,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public async Task<string> Edit(FarmWorksViewModels vm)
         {
-            if (vm == null || vm.FarmWorksId <= 0) 
+            if (vm == null || vm.FarmWorksId <= 0)
                 return "Hittar ingen data från formuläret!";
 
             if (vm.Date == DateTime.MinValue && vm.Place != 0 && vm.Hours <= 0)
@@ -53,15 +52,10 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 FarmWorks? model = await db.FarmWorks.FirstOrDefaultAsync(r => r.FarmWorksId == vm.FarmWorksId);
-                if (model == null) 
+                if (model == null)
                     return "Hittar inte gårdsarbetet i databasen!";
 
-                model.FarmWorksId = vm.FarmWorksId;
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
-                model.Place = vm.Place;
-                model.Hours = vm.Hours;
-                model.NextSalary = vm.NextSalary;
-                model.Note = vm.Note;
+                EditModel(model, vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -77,7 +71,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public async Task<string> Delete(FarmWorks model)
         {
-            if (model == null || model.FarmWorksId <= 0) 
+            if (model == null || model.FarmWorksId <= 0)
                 return "Hittar ingen data från formuläret!";
 
             try
@@ -99,13 +93,10 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public FarmWorksViewModels ChangeFromModelToViewModel(FarmWorks model)
         {
-            if (model == null)
-                throw new Exception("ChangeFromModelToViewModel: model == null!");
-
             FarmWorksViewModels vm = new()
             {
                 FarmWorksId = model.FarmWorksId,
-                Date = DateTime.Parse(model.Date ?? throw new Exception("ChangeFromModelToViewModel: Date == null!")),
+                Date = DateTime.Parse(model.Date ?? string.Empty),
                 Place = model.Place,
                 Hours = model.Hours,
                 NextSalary = model.NextSalary,
@@ -115,17 +106,29 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             return vm;
         }
 
-        private FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm)
+        private static FarmWorks ChangeFromViewModelToModel(FarmWorksViewModels vm)
         {
-            if (vm == null)
-                throw new Exception("ChangeFromModelToViewModel: vm == null!");
-
-            FarmWorks model = _mapper.Map<FarmWorks>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
+            FarmWorks model = new()
+            {
+                FarmWorksId = vm.FarmWorksId,
+                Date = vm.Date.ToString("yyyy-MM-dd"),
+                Place = vm.Place,
+                Hours = vm.Hours,
+                NextSalary = vm.NextSalary,
+                Note = vm.Note
+            };
 
             return model;
+        }
+
+        private static void EditModel(FarmWorks model, FarmWorksViewModels vm)
+        {
+            model.FarmWorksId = vm.FarmWorksId;
+            model.Date = vm.Date.ToString("yyyy-MM-dd");
+            model.Place = vm.Place;
+            model.Hours = vm.Hours;
+            model.NextSalary = vm.NextSalary;
+            model.Note = vm.Note;
         }
     }
 }

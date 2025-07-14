@@ -9,11 +9,12 @@ namespace MyPrivateApp.Components.Farming.Classes
         Task<string> Add(FarmingViewModels vm);
         Task<string> EditActive(FarmingViewModels vm);
         Task<string> EditInactive(FarmingViewModels vm);
-        Task<string> Inactive(FarmingViewModels vm);
+        Task<string> Inactive(FarmingViewModels model);
         Task<string> DeleteActive(FarmingsActive model);
         Task<string> DeleteInactive(FarmingsInactive model);
         FarmingViewModels ChangeFromModelToViewModel(FarmingsActive model);
         FarmingViewModels ChangeFromModelToViewModel(FarmingsInactive model);
-        T ChangeFromViewModelToModel<T>(FarmingViewModels vm);
+        FarmingsActive ChangeFromViewModelToModelActive(FarmingViewModels vm);
+        FarmingsInactive ChangeFromViewModelToModelInactive(FarmingViewModels vm);
     }
 }
