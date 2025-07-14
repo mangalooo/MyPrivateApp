@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components.ViewModels.FarmWork;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.FarmWork;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {

@@ -1,6 +1,6 @@
-﻿
-@page "/ShopingList"
+﻿@page "/ShopingList"
 
+@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
@@ -15,9 +15,9 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 @inject IShopingListClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Inköpslistor </PageTitle>
 
@@ -53,6 +53,17 @@
         </div>
     }
 
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
     <br />
 
 </div>
@@ -68,10 +79,6 @@
                 {
                     <div class="card-header">
                         <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
-
-                            <DataAnnotationsValidator />
-
-                            <ValidationSummary class="text-danger" role="alert" />
 
                             <div class="row">
 
@@ -188,8 +195,7 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -237,8 +243,7 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -265,7 +270,7 @@
 {
     [SupplyParameterFromForm]
     private ShopingListViewModels pageViewModel { get; set; } = new();
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<ShopingListViewModels> queryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
 
     // Holds temporary id to delete items
@@ -287,6 +292,8 @@
     // Error text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -297,19 +304,29 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<ShopingList> shopingList = await db.ShopingLists.OrderBy(c => c.Date).ToListAsync();
-
-        if (!shopingList.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+
+            List<ShopingList> items = await db.ShopingLists.OrderBy(c => c.Date).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
         }
-
-        queryable = shopingList
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
@@ -353,7 +370,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -385,29 +402,37 @@
 
     private async Task Delete()
     {
-        if (!db.ShopingLists.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort inköpslistan, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.ShopingLists.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort inköpslistan, databasen är tom!");
+                return;
+            }
+
+            ShopingList? model = await db.ShopingLists.FirstOrDefaultAsync(a => a.ShopingListId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort inköpslistan. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        ShopingList? model = await db.ShopingLists.FirstOrDefaultAsync(a => a.ShopingListId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Gick inte att ta bort inköpslistan. Model = null! (TemporaryId = {TemporaryId})");
-            return;
-        }
-
-        ShopingListViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 

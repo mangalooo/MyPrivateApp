@@ -15,7 +15,6 @@ using MyPrivateApp.Components.FarmWork.Classes;
 using MyPrivateApp.Components.FrozenFood.Classes;
 using MyPrivateApp.Components.Games.ManagerZone.Classes;
 using MyPrivateApp.Components.Hunting.Classes;
-using MyPrivateApp.Components.Layout.Classes;
 using MyPrivateApp.Components.Shares.Classes;
 using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ShoppingList.Classes;
@@ -214,7 +213,6 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<MZMappingProfileClass>();
     cfg.AddProfile<FrozenMappingProfileClass>();
     cfg.AddProfile<HuntingMappingProfileClass>();
-    cfg.AddProfile<ShopingListProfileClass>();
     cfg.AddProfile<TripMappingProfileClass>();
     cfg.AddProfile<SharesMappingProfileClass>();
 });

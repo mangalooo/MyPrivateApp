@@ -8,7 +8,7 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
     {
         Task<string> Add(ShopingListViewModels vm);
         Task<string> Edit(ShopingListViewModels vm);
-        Task<string> Delete(ShopingListViewModels vm);
+        Task<string> Delete(ShopingList model);
         ShopingListViewModels ChangeFromModelToViewModel(ShopingList model);
     }
 }

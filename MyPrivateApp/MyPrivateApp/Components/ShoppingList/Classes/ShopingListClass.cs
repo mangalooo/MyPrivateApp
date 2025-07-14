@@ -1,40 +1,34 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.ShoppingList.Classes
 {
-    public class ShopingListClass(ApplicationDbContext db, ILogger<ShopingListClass> logger, IMapper mapper) : IShopingListClass
+    public class ShopingListClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<ShopingListClass> logger) : IShopingListClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<ShopingListClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-
-        public async Task<ShopingList?> Get(int? id)
-        {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
-
-            return await _db.ShopingLists.FirstOrDefaultAsync(r => r.ShopingListId == id)
-                   ?? throw new Exception("Inköpslistan hittades inte i databasen!");
-        }
 
         public async Task<string> Add(ShopingListViewModels vm)
         {
-            if (vm == null || db == null)
-                return "Hittar ingen data från formuläret eller ingen kontakt med databasen!";
+            if (vm == null)
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Date == DateTime.MinValue && string.IsNullOrEmpty(vm.List))
                 return "Ingen datum eller plats ifylld!";
 
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 ShopingList model = ChangeFromViewModelToModel(vm);
-                await _db.ShopingLists.AddAsync(model);
-                await _db.SaveChangesAsync();
+                
+                await db.ShopingLists.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -54,15 +48,16 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
 
             try
             {
-                ShopingList? model = await Get(vm.ShopingListId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+
+                ShopingList? model = await db.ShopingLists.FirstOrDefaultAsync(r => r.ShopingListId == vm.ShopingListId);
 
                 if (model == null)
                     return "Hittar inte inköpslistan i databasen!";
 
-                ShopingList mapper = _mapper.Map(vm, model);
-                mapper.Date = vm.Date.ToString("yyyy-MM-dd");
+                EditModel(vm, model);
 
-                await _db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
                 return string.Empty;
             }
@@ -73,17 +68,19 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
             }
         }
 
-        public async Task<string> Delete(ShopingListViewModels vm)
+        public async Task<string> Delete(ShopingList model)
         {
-            if (vm == null || vm.ShopingListId <= 0)
+            if (model == null || model.ShopingListId <= 0)
                 return "Hittar ingen data från formuläret!";
 
             try
             {
-                ShopingList model = ChangeFromViewModelToModel(vm);
-                db.ChangeTracker.Clear();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
                 db.ShopingLists.Remove(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+                
                 return string.Empty;
             }
             catch (Exception ex)
@@ -105,26 +102,39 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
 
         public ShopingListViewModels ChangeFromModelToViewModel(ShopingList model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            ShopingListViewModels vm = _mapper.Map<ShopingListViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
+            ShopingListViewModels vm = new()
+            {
+                ShopingListId = model.ShopingListId,
+                Name = model.Name,
+                Date = ParseDate(model.Date ?? throw new Exception("ChangeFromModelToViewModel: Date == null!")),
+                Place = model.Place,
+                List = model.List
+            };
 
             return vm;
         }
-
-        private ShopingList ChangeFromViewModelToModel(ShopingListViewModels vm)
+        
+        private static ShopingList ChangeFromViewModelToModel(ShopingListViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            ShopingList model = _mapper.Map<ShopingList>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
+            ShopingList model = new()
+            {
+                ShopingListId = vm.ShopingListId,
+                Name = vm.Name,
+                Date = vm.Date.ToString("yyyy-MM-dd"),
+                Place = vm.Place,
+                List = vm.List
+            };
 
             return model;
+        }
+
+        private static void EditModel(ShopingListViewModels vm, ShopingList model)
+        {
+            model.ShopingListId = vm.ShopingListId;
+            model.Name = vm.Name;
+            model.Date = vm.Date.ToString("yyyy-MM-dd");
+            model.Place = vm.Place;
+            model.List = vm.List;
         }
     }
 }
