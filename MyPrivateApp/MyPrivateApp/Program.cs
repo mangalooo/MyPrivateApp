@@ -25,7 +25,7 @@ using MyPrivateApp.Data.Models.Hunting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Example for ASP.NET Core (Startup.cs or Program.cs)
+// Cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -54,11 +54,12 @@ builder.Services.AddScoped<IContactClass, ContactClass>();
 builder.Services.AddScoped<IFrozenFoodClass, FrozenFoodClass>();
 builder.Services.AddScoped<ITripClass, TripClass>();
 
-// Farm work
+// Farming
 builder.Services.AddScoped<IFarmingClass, FarmingClass>();
+
+// Farm worK
 builder.Services.AddScoped<IFarmWorksClass, FarmWorkClass>();
 builder.Services.AddScoped<IFarmWorksPlanningClass, FarmWorksPlanningClass>();
-
 
 // Hunting
 builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();
@@ -213,7 +214,6 @@ MapperConfiguration config = new(cfg =>
     cfg.AddProfile<MZMappingProfileClass>();
     cfg.AddProfile<FrozenMappingProfileClass>();
     cfg.AddProfile<HuntingMappingProfileClass>();
-    cfg.AddProfile<TripMappingProfileClass>();
     cfg.AddProfile<SharesMappingProfileClass>();
 });
 mapper = config.CreateMapper();

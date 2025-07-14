@@ -1,6 +1,6 @@
-﻿
-@page "/Trips"
+﻿@page "/Trips"
 
+@using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Trip.Classes
 @using MyPrivateApp.Data
@@ -10,9 +10,9 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@inject ApplicationDbContext db;
 @inject NavigationManager Navigation
 @inject ITripClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
 <PageTitle> Resor </PageTitle>
 
@@ -46,6 +46,17 @@
         </div>
     }
 
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
     <br />
 
 </div>
@@ -60,7 +71,7 @@
                 @if (ShowOrHideAddOrEditForm)
                 {
                     <div class="card-header">
-                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance >
+                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                             <DataAnnotationsValidator />
 
@@ -73,13 +84,13 @@
                                 <div class="col-6">
                                     <div class="form-floating">
                                         <InputDate @bind-Value="pageViewModel.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="Date"> Datum </label>
+                                        <label for="Date"> Reser bort </label>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="form-floating">
                                         <InputDate @bind-Value="pageViewModel.HomeDate" class="form-control" disabled="@DisabledForm" />
-                                        <label for="HomeDate"> Hem </label>
+                                        <label for="HomeDate"> Reser hem </label>
                                     </div>
                                 </div>
                             </div>
@@ -160,7 +171,8 @@
                 <div id="desktop" class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Reser bort" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Reser hem" Property="@(c => c.HomeDate)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Dagar" Property="@(c => c.HowManyDays)" Sortable="true" />
                         <PropertyColumn Title="Land" Property="@(c => c.Country)" Sortable="true">
                             <ColumnOptions>
@@ -214,8 +226,7 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    <br />
-                    <br />
+                    <br /> <br />
 
                 </div>
             </div>
@@ -225,7 +236,7 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                        <PropertyColumn Title="Reser bort" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                             <ColumnOptions>
                                 <div class="search-box">
@@ -268,8 +279,7 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    <br />
-                    <br />
+                    <br /><br />
 
                 </div>
             </div>
@@ -317,6 +327,8 @@
     // Text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
     private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
 
     private void ShowErrorMessage(string errorMessage)
     {
@@ -327,19 +339,31 @@
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
     {
-        List<Trips> trips = await db.Trips.OrderBy(c => c.Date).ToListAsync();
-
-        if (!trips.Any())
+        try
         {
-            ShowErrorMessage("Finns ingen data att visa!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+                ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<Trips> items = await db.Trips.OrderBy(c => c.Date).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+
         }
-
-        queryable = trips
-            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-            .AsQueryable();
-
-        pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
     }
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
@@ -383,7 +407,7 @@
         }
         catch (Exception ex)
         {
-            ShowErrorMessage($"Ett fel uppstod: {ex.Message}");
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -415,29 +439,37 @@
 
     private async Task Delete()
     {
-        if (!db.Trips.Any())
+        try
         {
-            ShowErrorMessage("Gick inte att ta bort resan, databasen är tom!");
-            return;
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.Trips.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort resan, databasen är tom!");
+                return;
+            }
+
+            Trips? model = await db.Trips.FirstOrDefaultAsync(a => a.TripsId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort resan. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
-
-        Trips? model = await db.Trips.FirstOrDefaultAsync(a => a.TripsId == TemporaryId);
-
-        if (model == null)
+        catch (Exception ex)
         {
-            ShowErrorMessage($"Gick inte att ta bort resan. Model = null! (TemporaryId = {TemporaryId})");
-            return;
-        }
-
-        TripsViewModel vm = BackEndClass.ChangeFromModelToViewModel(model);
-        ErrorMessage = await BackEndClass.Delete(vm);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
-            ShowOrHideErrorMessage = true;
-        else
-        {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
     }
 
@@ -473,25 +505,45 @@
 
     private async Task SearchCountry(ChangeEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        try
         {
-            IEnumerable<Trips> result = db.Trips.Where(c => c.Country == e.Value!.ToString());
-            GetGuery(result);
-            return;
-        }
+            if (!string.IsNullOrEmpty(e.Value!.ToString()))
+            {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchCountry: db == null!");
 
-        await RefreshPage();
+                IEnumerable<Trips> result = db.Trips.Where(c => c.Country == e.Value!.ToString());
+                GetGuery(result);
+                return;
+            }
+
+            await RefreshPage();
+
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök land. Felmeddelande: {ex.Message}");
+        }
     }
 
     private async Task SearchPlace(ChangeEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        try
         {
-            IEnumerable<Trips> result = db.Trips.Where(c => c.Place == e.Value!.ToString());
-            GetGuery(result);
-            return;
-        }
+            if (!string.IsNullOrEmpty(e.Value!.ToString()))
+            {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
 
-        await RefreshPage();
+                IEnumerable<Trips> result = db.Trips.Where(c => c.Place == e.Value!.ToString());
+                GetGuery(result);
+                return;
+            }
+
+            await RefreshPage();
+
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök plats. Felmeddelande: {ex.Message}");
+        }
     }
 }

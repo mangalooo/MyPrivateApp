@@ -2,25 +2,14 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Client.ViewModels;
 using MyPrivateApp.Data.Models;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Trip.Classes
 {
-    public class TripClass(ApplicationDbContext db, ILogger<TripClass> logger, IMapper mapper) : ITripClass
+    public class TripClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<TripClass> logger) : ITripClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<TripClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-
-        public async Task<Trips?> Get(int? id)
-        {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
-
-            return await _db.Trips.FirstOrDefaultAsync(r => r.TripsId == id)
-                   ?? throw new Exception("Resan hittades inte i databasen!");
-        }
 
         public async Task<string> Add(TripsViewModel vm)
         {
@@ -32,15 +21,20 @@ namespace MyPrivateApp.Components.Trip.Classes
 
             try
             {
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 Trips model = ChangeFromViewModelToModel(vm);
-                await _db.Trips.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.Trips.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Gick inte att lägg till ny resa!");
-                return "Gick inte att lägg till ny resa!";
+                return $"Gick inte att lägg till ny resa. Felmeddelande: {ex.Message}";
             }
         }
 
@@ -54,39 +48,46 @@ namespace MyPrivateApp.Components.Trip.Classes
 
             try
             {
-                Trips? getDbModel = await Get(vm.TripsId);
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                if (getDbModel == null)
+                Trips? model = await db.Trips.FirstOrDefaultAsync(r => r.TripsId == vm.TripsId);
+
+                if (model == null)
                     return "Hittar inte resan i databasen!";
 
-                _mapper.Map(vm, getDbModel);
-                await _db.SaveChangesAsync();
+                EditModel(model, vm);
+
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Gick inte att ändra resan!");
-                return "Gick inte att ändra resan!";
+                return $"Gick inte att ändra resan! Felmeddelande: {ex.Message}";
             }
         }
 
-        public async Task<string> Delete(TripsViewModel vm)
+        public async Task<string> Delete(Trips model)
         {
-            if (vm == null || vm.TripsId <= 0)
+            if (model == null || model.TripsId <= 0)
                 return "Hittar ingen data från formuläret!";
 
             try
             {
-                Trips model = ChangeFromViewModelToModel(vm);
-                _db.ChangeTracker.Clear();
-                _db.Trips.Remove(model);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.Trips.Remove(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Gick inte att ta bort resan!");
-                return "Gick inte att ta bort resan!";
+                return $"Gick inte att ta bort resan! Felmeddelande: {ex.Message}";
             }
         }
 
@@ -102,32 +103,51 @@ namespace MyPrivateApp.Components.Trip.Classes
 
         public TripsViewModel ChangeFromModelToViewModel(Trips model)
         {
-            ArgumentNullException.ThrowIfNull(model);
+            DateTime date = ParseDate(model.Date ?? throw new Exception("ChangeFromModelToViewModel: Date == null!"));
+            DateTime homeDate = ParseDate(model.HomeDate ?? throw new Exception("ChangeFromModelToViewModel: Date == null!"));
 
-            TripsViewModel vm = _mapper.Map<TripsViewModel>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
-
-            if (!string.IsNullOrEmpty(model.HomeDate))
-                vm.HomeDate = ParseDate(model.HomeDate);
+            TripsViewModel vm = new()
+            {
+                TripsId = model.TripsId,
+                Country = model.Country,
+                Place = model.Place,
+                Date = date,
+                HomeDate = homeDate,
+                HowManyDays = HowLongTravel(date, homeDate),
+                TravelBuddies = model.TravelBuddies,
+                Description = model.Description
+            };
 
             return vm;
         }
 
-        public Trips ChangeFromViewModelToModel(TripsViewModel vm)
+        private static Trips ChangeFromViewModelToModel(TripsViewModel vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            Trips model = _mapper.Map<Trips>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
-
-            if (vm.HomeDate != DateTime.MinValue)
-                model.HomeDate = vm.HomeDate.ToString("yyyy-MM-dd");
+            Trips model = new()
+            {
+                TripsId = vm.TripsId,
+                Country = vm.Country,
+                Place = vm.Place,
+                Date = vm.Date.ToString("yyyy-MM-dd"),
+                HomeDate = vm.HomeDate.ToString("yyyy-MM-dd"),
+                HowManyDays = HowLongTravel(vm.Date, vm.HomeDate),
+                TravelBuddies = vm.TravelBuddies,
+                Description = vm.Description
+            };
 
             return model;
+        }
+
+        private static void EditModel(Trips model, TripsViewModel vm)
+        {
+            model.TripsId = vm.TripsId;
+            model.Country = vm.Country;
+            model.Place = vm.Place;
+            model.Date = vm.Date.ToString("yyyy-MM-dd");
+            model.HomeDate = vm.HomeDate.ToString("yyyy-MM-dd");
+            model.HowManyDays = HowLongTravel(vm.Date, vm.HomeDate);
+            model.TravelBuddies = vm.TravelBuddies;
+            model.Description = vm.Description;
         }
 
         private static double HowLongTravel(DateTime outDate, DateTime homeDate) => (homeDate - outDate).TotalDays;

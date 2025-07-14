@@ -8,7 +8,7 @@ namespace MyPrivateApp.Components.Trip.Classes
     {
         Task<string> Add(TripsViewModel vm);
         Task<string> Edit(TripsViewModel vm);
-        Task<string> Delete(TripsViewModel vm);
+        Task<string> Delete(Trips model);
         TripsViewModel ChangeFromModelToViewModel(Trips model);
     }
 }

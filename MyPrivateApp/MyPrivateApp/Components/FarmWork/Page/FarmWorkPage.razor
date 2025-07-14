@@ -419,7 +419,8 @@
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() 
+                ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
             List<FarmWorks> items = await db.FarmWorks.OrderByDescending(c => c.Date).ToListAsync();
 
@@ -609,7 +610,8 @@
 
             if (placeMapping.TryGetValue(placeName, out var place))
             {
-                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() 
+                    ?? throw new Exception("SearchPlace: db == null!");
 
                 var result = db.FarmWorks.Where(c => c.Place == place);
 
