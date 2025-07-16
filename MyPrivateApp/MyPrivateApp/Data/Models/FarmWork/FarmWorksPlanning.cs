@@ -9,8 +9,9 @@ namespace MyPrivateApp.Data.Models.FarmWork
         public int FarmWorksId { get; set; }
         public string? Date { get; set; }
         public FarmWorkPlaces Place { get; set; }
-        public double Hours { get; set; }
-        public bool NextSalary { get; set; }
-        public string? Note { get; set; }
+        public string? Area { get; set; }
+        public Prioritize Prioritize { get; set; }
+        public FormWorkTodo FormWorkTodo { get; set; }
+        public string? Notes { get; set; }
     }
 }

@@ -17,15 +17,19 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [DataType(DataType.Text)]
         public FarmWorkPlaces Place { get; set; }
 
-        [Display(Name = "Timmar")]
-        [DataType(DataType.Text)]
-        public double Hours { get; set; }
+        [Display(Name = "Område")]
+        public string? Area { get; set; }
 
-        [Display(Name = "Nästa lön")]
-        public bool NextSalary { get; set; }
-
-        [Display(Name = "Beskrivning")]
+        [Display(Name = "Att göra")]
         [DataType(DataType.MultilineText)]
-        public string? Note { get; set; }
+        public FormWorkTodo FormWorkTodo { get; set; }
+
+        [Display(Name = "Prioritera")]
+        [DataType(DataType.Text)]
+        public Prioritize Prioritize { get; set; }
+
+        [Display(Name = "Anteckningar")]
+        [DataType(DataType.MultilineText)]
+        public string? Notes { get; set; }
     }
 }

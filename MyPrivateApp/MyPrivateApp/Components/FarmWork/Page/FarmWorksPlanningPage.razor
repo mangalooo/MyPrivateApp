@@ -1,5 +1,4 @@
-﻿
-@page "/FarmWorksPlanningPage"
+﻿@page "/FarmWorksPlanningPage"
 
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -19,7 +18,7 @@
 @inject IFarmWorksPlanningClass BackEndClass
 @inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
-<PageTitle> Gårdsarbete </PageTitle>
+<PageTitle> Gårdsarbeten </PageTitle>
 
 @try
 {
@@ -28,7 +27,36 @@
 
         <br />
 
-        <h1 align="center"> Skogsplanering </h1>
+        @* Navigation - Desktop *@
+        <div id="desktop" align="center">
+            <div class="btn-group" role="group" aria-label="Desktop Navigation">
+                @foreach (var page in navList)
+                {
+                    <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+                }
+            </div>
+        </div>
+
+        @* Navigation - Mobile *@
+        <div id="mobile">
+            <div class="btn-group" role="group">
+                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                    Alla jakt sidor
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    @foreach (var page in navList)
+                    {
+                        <li class="dropdown-item">
+                            <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <br /> <br />
+
+        <h1 align="center"> Skogsplaneringen </h1>
 
         <br />
 
@@ -105,12 +133,44 @@
                                             <label for="wildAnimal"> Plats </label>
                                         </div>
                                     </div>
+
                                     <div class="col-4">
                                         <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="Hours"> Timmar </label>
+                                            <InputText @bind-Value="pageViewModel.Area" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Date"> Område </label>
                                         </div>
                                     </div>
+
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+
+                                    <div class="col-5">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object formWorkTodo in Enum.GetValues(typeof(FormWorkTodo)))
+                                                {
+                                                    <option value="@formWorkTodo">@formWorkTodo</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="formWorkTodo"> Att göra </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-5">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object prioritize in Enum.GetValues(typeof(Prioritize)))
+                                                {
+                                                    <option value="@prioritize">@prioritize</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="prioritize"> Prioritera </label>
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <br />
@@ -118,25 +178,9 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="form-floating">
-                                            <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Note"> Beskrivning </label>
+                                            <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Notes"> Anteckningar </label>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <br />
-
-                                @* Desktop screen *@
-                                <div id="desktop" class="form-group" align="center">
-                                    <label for="NextSalary"> Nästa lön? </label>
-                                    <InputCheckbox @bind-Value="pageViewModel.NextSalary" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
-                                </div>
-
-                                @* Mobile screen *@
-                                <div id="mobile">
-                                    <div class="form-check">
-                                        <InputCheckbox id="NextSalary" @bind-Value="pageViewModel.NextSalary" class="form-check-input" disabled="@DisabledForm" />
-                                        <label class="form-check-label" for="NextSalary"> Fått lön? </label>
                                     </div>
                                 </div>
 
@@ -145,7 +189,7 @@
                                 @if (ShowOrHideAddNewButton)
                                 {
                                     <div align="center">
-                                        <button type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till nytt gårdsarbete </button>
+                                        <button type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny planering </button>
                                     </div>
                                 }
 
@@ -174,15 +218,6 @@
 
                     <br />
 
-                    @*                 <div align="center">
-                    <div class="form-check-inline">
-                        <label class="form-check-label">
-                            Nästa lön <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNextSalary">
-                        </label>
-                    </div>
-                </div>
-
-                <br /> *@
 
                     <div class="card-body">
                         <QuickGrid Items="@queryable" Pagination="pagination">
@@ -197,9 +232,10 @@
                                 </ColumnOptions>
                             </PropertyColumn>
 
-                            <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
-
-                            <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
+                            <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
+                            <PropertyColumn Title="Att göra" Property="@(c => c.FormWorkTodo)" Sortable="true" />
+                            <PropertyColumn Title="Prioritera" Property="@(c => c.Prioritize)" Sortable="true" />
+                            <PropertyColumn Title="Anteckningar" Property="@(c => c.Notes)" Sortable="true" />
 
                             <TemplateColumn Title="Info">
 
@@ -218,10 +254,10 @@
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
+                                                <h5 class="modal-title"> Vill du ta bort skogsplaneringen? </h5>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort skogsplaneringen </button>
                                                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                             </div>
                                         </div>
@@ -238,34 +274,7 @@
 
                         <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                        @*  @if (isDeleteSalaryButtonVisible)
-                    {
-                        <br />
-
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageViewModel))"> Ta bort nästa lön </button>
-
-                        <div class="modal @ModalClassSalary" tabindex="-1" role="dialog" style="display:@ModalDisplaySalary">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if (ShowBackdropSalary)
-                        {
-                            <div class="modal-backdrop fade show"></div>
-                        }
-                    } *@
-
-                        <br />
-                        <br />
+                        <br /> <br />
 
                     </div>
                 </div>
@@ -274,18 +283,6 @@
                 <div id="mobile">
 
                     <br />
-
-                    @*                 <div class="row" align="center">
-                    <div class="form-check-inline">
-
-                        <label class="form-check-label">
-                            Nästa lön <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNextSalary">
-                        </label>
-
-                    </div>
-                </div>
-
-                <br /> *@
 
                     <div class="card-body">
                         <QuickGrid Items="@queryable" Pagination="pagination">
@@ -298,7 +295,7 @@
                                 </ColumnOptions>
                             </PropertyColumn>
 
-                            <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
+                            <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
 
                             <TemplateColumn Title="Info">
 
@@ -317,10 +314,10 @@
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title"> Vill du ta bort gårdsarbetet? </h5>
+                                                <h5 class="modal-title"> Vill du ta bort skogsplaneringen? </h5>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort gårdsarbetet </button>
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort skogsplaneringen </button>
                                                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
                                             </div>
                                         </div>
@@ -335,35 +332,7 @@
                             </TemplateColumn>
                         </QuickGrid>
 
-                        @*          @if (isDeleteSalaryButtonVisible)
-                    {
-                        <br />
-                        <br />
-
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageViewModel))"> Ta bort nästa lön </button>
-
-                        <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort nästa lön? </h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveNextSalary())"> Ta bort nästa lön </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowSalary()"> Ångra </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if (ShowBackdropSalary)
-                        {
-                            <div class="modal-backdrop fade show"></div>
-                        }
-                    } *@
-
-                        <br />
-                        <br />
+                        <br /> <br />
 
                     </div>
                 </div>
@@ -433,6 +402,14 @@ catch (Exception ex)
         ErrorMessage = errorMessage;
         ShowOrHideErrorMessage = true;
     }
+
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
+    {
+        ("FarmWorksStartPage", "Start"),
+        ("FarmWorkPage", "Arbetsrapporten"),
+        ("FarmWorksPlanningPage", "Skogsplanneringen")
+    };
 
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()

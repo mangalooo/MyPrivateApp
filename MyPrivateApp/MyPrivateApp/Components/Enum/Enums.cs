@@ -123,4 +123,23 @@ namespace MyPrivateApp.Components.Enum
         Övrigt,
         Ny
     }
+
+    public enum Prioritize
+    {
+        Välj,
+        Ett,
+        Två,
+        Tre,
+        Fyra,
+        Fem
+    }
+
+    public enum FormWorkTodo
+    {
+        Välj,
+        Röja,
+        Förröja,
+        Gallra,
+        Skota
+    }
 }

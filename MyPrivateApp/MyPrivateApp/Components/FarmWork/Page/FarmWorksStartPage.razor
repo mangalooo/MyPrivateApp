@@ -1,0 +1,79 @@
+﻿@page "/FarmWorksStartPage"
+
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject ApplicationDbContext db
+@inject NavigationManager Navigation
+
+<PageTitle> Gårdsarbeten </PageTitle>
+
+@* Header *@
+<div>
+
+    <br />
+
+    @* Navigation - Desktop *@
+    <div id="desktop" align="center">
+        <div class="btn-group" role="group" aria-label="Desktop Navigation">
+            @foreach (var page in navList)
+            {
+                <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+            }
+        </div>
+    </div>
+
+    @* Navigation - Mobile *@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                Alla jakt sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                @foreach (var page in navList)
+                {
+                    <li class="dropdown-item">
+                        <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <br /> <br />
+
+    <h1 align="center"> Gårdsarbeten </h1>
+
+    <br /> <br />
+
+</div>
+
+@* Footer *@
+<div>
+
+    <br /> <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br /> <br />
+
+</div>
+
+@* Back-End *@
+@code {
+
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
+    {
+        ("FarmWorksStartPage", "Start"),
+        ("FarmWorkPage", "Arbetsrapporten"),
+        ("FarmWorksPlanningPage", "Skogsplanneringen")
+    };
+}

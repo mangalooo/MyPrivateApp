@@ -16,14 +16,43 @@
 @inject IFarmWorksClass BackEndClass
 @inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 
-<PageTitle> Gårdsarbete </PageTitle>
+<PageTitle> Gårdsarbeten </PageTitle>
 
 @* Header *@
 <div>
 
     <br />
 
-    <h1 align="center"> Gårdsarbete </h1>
+    @* Navigation - Desktop *@
+    <div id="desktop" align="center">
+        <div class="btn-group" role="group" aria-label="Desktop Navigation">
+            @foreach (var page in navList)
+            {
+                <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+            }
+        </div>
+    </div>
+
+    @* Navigation - Mobile *@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                Alla jakt sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                @foreach (var page in navList)
+                {
+                    <li class="dropdown-item">
+                        <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <br /> <br />
+
+    <h1 align="center"> Arbetsrapporten </h1>
 
     <br />
 
@@ -413,6 +442,14 @@
         ErrorMessage = errorMessage;
         ShowOrHideErrorMessage = true;
     }
+
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
+    {
+        ("FarmWorksStartPage", "Start"),
+        ("FarmWorkPage", "Arbetsrapporten"),
+        ("FarmWorksPlanningPage", "Skogsplanneringen")
+    };
 
     // Load data from database to the Queryable container
     private async Task ConvertListToQueryableAsync()
