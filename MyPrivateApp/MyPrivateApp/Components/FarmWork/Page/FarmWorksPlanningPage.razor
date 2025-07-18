@@ -113,16 +113,23 @@
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-4" />
+                                    <div id="mobile" class="col-3" />
 
-                                    <div class="col-4">
+                                    <div class="col-3">
                                         <div class="form-floating">
-                                            <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Date"> Datum </label>
+                                            <InputDate @bind-Value="pageViewModel.PlanningDate" class="form-control" disabled="@DisabledForm" />
+                                            <label for="PlanningDate"> Planeringsdatum </label>
                                         </div>
                                     </div>
 
-                                    <div class="col-4">
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.StartDate" class="form-control" disabled="@DisabledForm" />
+                                            <label for="StartDate"> Startdatum </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-3">
                                         <div class="form-floating">
                                             <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                                 @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
@@ -134,7 +141,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-4">
+                                    <div class="col-3">
                                         <div class="form-floating">
                                             <InputText @bind-Value="pageViewModel.Area" class="form-control" disabled="@DisabledForm" />
                                             <label for="Date"> Område </label>
@@ -147,7 +154,7 @@
 
                                 <div class="row">
 
-                                    <div class="col-5">
+                                    <div class="col-3">
                                         <div class="form-floating">
                                             <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
                                                 @foreach (object formWorkTodo in Enum.GetValues(typeof(FormWorkTodo)))
@@ -159,7 +166,14 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-5">
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Hectare" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Hectare"> Hektar </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-3">
                                         <div class="form-floating">
                                             <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
                                                 @foreach (object prioritize in Enum.GetValues(typeof(Prioritize)))
@@ -168,6 +182,13 @@
                                                 }
                                             </InputSelect>
                                             <label for="prioritize"> Prioritera </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Hours"> Timmar </label>
                                         </div>
                                     </div>
 
@@ -222,7 +243,8 @@
                     <div class="card-body">
                         <QuickGrid Items="@queryable" Pagination="pagination">
 
-                            <PropertyColumn Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Planeringsdatum" Property="@(c => c.PlanningDate)" Sortable="true" />
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Startdatum" Property="@(c => c.StartDate)" Sortable="true" />
 
                             <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                                 <ColumnOptions>
@@ -234,7 +256,7 @@
 
                             <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
                             <PropertyColumn Title="Att göra" Property="@(c => c.FormWorkTodo)" Sortable="true" />
-                            <PropertyColumn Title="Prioritera" Property="@(c => c.Prioritize)" Sortable="true" />
+                            <PropertyColumn Title="Prioritering" Property="@(c => c.Prioritize)" Sortable="true" />
                             <PropertyColumn Title="Anteckningar" Property="@(c => c.Notes)" Sortable="true" />
 
                             <TemplateColumn Title="Info">
@@ -418,7 +440,7 @@ catch (Exception ex)
         {
             await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
-            List<FarmWorksPlanning> items = await db.FarmWorksPlanning.OrderByDescending(c => c.Date).ToListAsync();
+            List<FarmWorksPlanning> items = await db.FarmWorksPlanning.OrderByDescending(c => c.PlanningDate).ToListAsync();
 
             if (!items.Any())
             {
@@ -602,7 +624,7 @@ catch (Exception ex)
                 if (result.Any())
                 {
                     queryable = result
-                        .OrderBy(c => c.Date)
+                        .OrderBy(c => c.PlanningDate)
                         .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
                         .AsQueryable();
                 }

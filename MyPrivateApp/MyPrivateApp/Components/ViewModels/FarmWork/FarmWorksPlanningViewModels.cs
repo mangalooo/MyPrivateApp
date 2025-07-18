@@ -5,13 +5,17 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
 {
     public class FarmWorksPlanningViewModels
     {
-        public FarmWorksPlanningViewModels() => Date = DateTime.Now;
+        public FarmWorksPlanningViewModels() => PlanningDate = DateTime.Now;
 
         public int FarmWorksId { get; set; }
 
-        [Display(Name = "Datum")]
+        [Display(Name = "Planeringsdatum")]
         [DataType(DataType.Text)]
-        public DateTime Date { get; set; }
+        public DateTime PlanningDate { get; set; }
+
+        [Display(Name = "Startdatum")]
+        [DataType(DataType.Text)]
+        public DateTime StartDate { get; set; }
 
         [Display(Name = "Plats")]
         [DataType(DataType.Text)]
@@ -27,6 +31,11 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [Display(Name = "Prioritera")]
         [DataType(DataType.Text)]
         public Prioritize Prioritize { get; set; }
+
+        public double Hectare { get; set; }
+
+        [Display(Name = "Timmar")]
+        public int Hours { get; set; }
 
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]

@@ -22,7 +22,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 if (vm == null)
                     return "Hittar ingen data från formuläret!";
 
-                if (vm.Date == DateTime.MinValue || vm.Place == 0 || vm.Area != string.Empty)
+                if (vm.PlanningDate == DateTime.MinValue || vm.Place == 0 || vm.Area != string.Empty)
                     return "Inget datum, plats eller timmar ifyllt!";
 
                 FarmWorksPlanning model = ChangeFromViewModelToModel(vm);
@@ -45,7 +45,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             if (vm == null || vm.FarmWorksId <= 0)
                 return "Hittar ingen data från formuläret!";
 
-            if (vm.Date == DateTime.MinValue && vm.Place != 0 && vm.Area != string.Empty)
+            if (vm.PlanningDate == DateTime.MinValue && vm.Place != 0 && vm.Area != string.Empty)
                 return "Inget datum, plats eller timmar ifyllt!";
 
             try
@@ -108,8 +108,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
             FarmWorksPlanningViewModels vm = _mapper.Map<FarmWorksPlanningViewModels>(model);
 
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
+            if (!string.IsNullOrEmpty(model.PlanningDate))
+                vm.PlanningDate = ParseDate(model.PlanningDate);
 
             return vm;
         }
@@ -120,8 +120,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
             FarmWorksPlanning model = _mapper.Map<FarmWorksPlanning>(vm);
 
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
+            if (vm.PlanningDate != DateTime.MinValue)
+                model.PlanningDate = vm.PlanningDate.ToString("yyyy-MM-dd");
 
             return model;
         }
