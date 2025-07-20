@@ -26,11 +26,11 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
 
         [Display(Name = "Att göra")]
         [DataType(DataType.MultilineText)]
-        public FormWorkTodo FormWorkTodo { get; set; }
+        public FarmWorkTodo Todo { get; set; }
 
         [Display(Name = "Prioritera")]
         [DataType(DataType.Text)]
-        public Prioritize Prioritize { get; set; }
+        public FarmWorkPrioritize Prioritize { get; set; }
 
         public double Hectare { get; set; }
 
@@ -40,5 +40,9 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]
         public string? Notes { get; set; }
+
+        [Display(Name = "Slutdatum")]
+        [DataType(DataType.Text)]
+        public DateTime EndDate { get; set; }
     }
 }

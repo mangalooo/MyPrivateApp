@@ -13,17 +13,6 @@ namespace MyPrivateApp.Components.Enum
         Övrigt
     }
 
-    public enum FarmWorkPlaces
-    {
-        Välj,
-        Habäck,
-        Karlabo,
-        Klev,
-        Skog,
-        Smältryd,
-        Övrigt
-    }
-
     public enum FreezerPlaces
     {
         Välj,
@@ -124,7 +113,18 @@ namespace MyPrivateApp.Components.Enum
         Ny
     }
 
-    public enum Prioritize
+    public enum FarmWorkPlaces
+    {
+        Välj,
+        Habäck,
+        Karlabo,
+        Klev,
+        Skog,
+        Smältryd,
+        Övrigt
+    }
+
+    public enum FarmWorkPrioritize
     {
         Välj,
         Ett,
@@ -134,7 +134,7 @@ namespace MyPrivateApp.Components.Enum
         Fem
     }
 
-    public enum FormWorkTodo
+    public enum FarmWorkTodo
     {
         Välj,
         Röja,

@@ -156,13 +156,13 @@
 
                                     <div class="col-3">
                                         <div class="form-floating">
-                                            <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
-                                                @foreach (object formWorkTodo in Enum.GetValues(typeof(FormWorkTodo)))
+                                            <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object todo in Enum.GetValues(typeof(FarmWorkTodo)))
                                                 {
-                                                    <option value="@formWorkTodo">@formWorkTodo</option>
+                                                    <option value="@todo">@todo</option>
                                                 }
                                             </InputSelect>
-                                            <label for="formWorkTodo"> Att göra </label>
+                                            <label for="Todo"> Att göra </label>
                                         </div>
                                     </div>
 
@@ -176,7 +176,7 @@
                                     <div class="col-3">
                                         <div class="form-floating">
                                             <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
-                                                @foreach (object prioritize in Enum.GetValues(typeof(Prioritize)))
+                                                @foreach (object prioritize in Enum.GetValues(typeof(FarmWorkPrioritize)))
                                                 {
                                                     <option value="@prioritize">@prioritize</option>
                                                 }
@@ -565,6 +565,41 @@ catch (Exception ex)
         catch (Exception ex)
         {
             ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task Completed()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Completed: db == null!");
+
+            FarmWorksPlanning? model = await db.FarmWorksPlanning.FirstOrDefaultAsync(a => a.FarmWorksId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att färdigställa skogsområdet. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            FarmWorksPlanningViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            ErrorMessage = await BackEndClass.Completed(vm);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = true;
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideEditButton = pageViewModel.FarmWorksId > 0;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Gick inte att färdigställa skogsområdet. Felmeddelande: {ex.Message}");
         }
     }
 

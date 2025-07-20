@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPrivateApp.Data.Models.FarmWork
 {
-    public class FarmWorksPlanning
+    public class FarmWorksPlanningCompleted
     {
         [Key]
         public int FarmWorksId { get; set; }
@@ -16,5 +16,6 @@ namespace MyPrivateApp.Data.Models.FarmWork
         public double Hectare { get; set; }
         public int Hours { get; set; } 
         public string? Notes { get; set; }
+        public string? EndDate { get; set; }
     }
 }
