@@ -23,6 +23,7 @@ namespace MyPrivateApp.Data
         // Farm Work
         public DbSet<FarmWorks> FarmWorks { get; set; }
         public DbSet<FarmWorksPlanning> FarmWorksPlanning { get; set; }
+        public DbSet<FarmWorksPlanningCompleted> FarmWorksPlanningCompleted { get; set; }
 
         //Hunting
         public DbSet<HuntingMyList> HuntingMyList { get; set; }

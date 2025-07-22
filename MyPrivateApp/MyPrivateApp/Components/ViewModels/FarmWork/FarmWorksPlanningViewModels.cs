@@ -7,7 +7,7 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
     {
         public FarmWorksPlanningViewModels() => PlanningDate = DateTime.Now;
 
-        public int FarmWorksId { get; set; }
+        public int FarmWorksPlanningsId { get; set; }
 
         [Display(Name = "Planeringsdatum")]
         [DataType(DataType.Text)]
@@ -40,6 +40,8 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]
         public string? Notes { get; set; }
+
+        //FarmWorksPlanningCompleted
 
         [Display(Name = "Slutdatum")]
         [DataType(DataType.Text)]

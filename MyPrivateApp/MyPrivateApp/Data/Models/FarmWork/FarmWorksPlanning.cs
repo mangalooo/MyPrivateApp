@@ -6,7 +6,7 @@ namespace MyPrivateApp.Data.Models.FarmWork
     public class FarmWorksPlanning
     {
         [Key]
-        public int FarmWorksId { get; set; }
+        public int FarmWorksPlanningsId { get; set; }
         public string? PlanningDate { get; set; }
         public string? StartDate { get; set; }
         public FarmWorkPlaces Place { get; set; }
