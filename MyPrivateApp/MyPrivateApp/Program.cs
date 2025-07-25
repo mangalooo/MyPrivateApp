@@ -21,6 +21,7 @@ using MyPrivateApp.Components.ShoppingList.Classes;
 using MyPrivateApp.Components.Trip.Classes;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
+using MyPrivateApp.Data.Models.FarmWork;
 using MyPrivateApp.Data.Models.Hunting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -60,6 +61,7 @@ builder.Services.AddScoped<IFarmingClass, FarmingClass>();
 // Farm worK
 builder.Services.AddScoped<IFarmWorksClass, FarmWorkClass>();
 builder.Services.AddScoped<IFarmWorksPlanningClass, FarmWorksPlanningClass>();
+builder.Services.AddScoped<IFarmWorksPlanningCompletedClass, FarmWorksPlanningCompletedClass>();
 
 // Hunting
 builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();

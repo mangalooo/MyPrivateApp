@@ -14,7 +14,7 @@ namespace MyPrivateApp.Data.Models.FarmWork
         public FarmWorkPrioritize Prioritize { get; set; }
         public FarmWorkTodo Todo { get; set; }
         public double Hectare { get; set; }
-        public int Hours { get; set; } 
+        public double Hours { get; set; } 
         public string? Notes { get; set; }
     }
 }

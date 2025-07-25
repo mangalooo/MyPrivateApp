@@ -670,40 +670,34 @@ catch (Exception ex)
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
-
-            queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
-            string? placeName = e.Value?.ToString()?.ToLowerInvariant();
-
-            if (string.IsNullOrEmpty(placeName))
+            var input = e.Value?.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(input))
             {
                 await RefreshPage();
                 return;
             }
 
-            var placeMapping = new Dictionary<string, FarmWorkPlaces>(StringComparer.OrdinalIgnoreCase)
+            // Try to parse the input to the enum, allowing partial and case-insensitive matches
+            var matchedPlace = Enum.GetValues(typeof(FarmWorkPlaces))
+                .Cast<FarmWorkPlaces>()
+                .FirstOrDefault(p => p.ToString().StartsWith(input, StringComparison.OrdinalIgnoreCase));
+
+            await using var db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
+
+            if (matchedPlace != FarmWorkPlaces.Välj)
             {
-                { "habäck", FarmWorkPlaces.Habäck },
-                { "karlabo", FarmWorkPlaces.Karlabo },
-                { "klev", FarmWorkPlaces.Klev },
-                { "skog", FarmWorkPlaces.Skog },
-                { "smältryd", FarmWorkPlaces.Smältryd },
-                { "övrigt", FarmWorkPlaces.Övrigt }
-            };
+                var farmWorksList = await db.FarmWorksPlanning
+                    .Where(c => c.Place == matchedPlace)
+                    .OrderBy(c => c.PlanningDate)
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .ToListAsync();
 
-            if (placeMapping.TryGetValue(placeName, out var place))
+                queryable = farmWorksList.AsQueryable();
+            }
+            else
             {
-                var result = db.FarmWorksPlanning.Where(c => c.Place == place);
-
-                if (result.Any())
-                {
-                    var farmWorkslist = result
-                         .OrderBy(c => c.PlanningDate)
-                         .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
-                         .ToList();
-
-                    queryable = farmWorkslist.AsQueryable();
-                }
+                // No match found, clear the grid or show a message if desired
+                queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
             }
         }
         catch (Exception ex)

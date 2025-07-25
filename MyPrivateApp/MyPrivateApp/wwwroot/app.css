@@ -74,6 +74,10 @@ h1:focus {
     border-color: #26b050;
 }
 
+.width {
+    width: 120px;
+}
+
 .col-1 {
     width: 8.33%;
 }

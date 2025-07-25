@@ -1,20 +1,15 @@
 ﻿
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using MyPrivateApp.Components.ViewModels;
 using MyPrivateApp.Components.ViewModels.FarmWork;
 using MyPrivateApp.Data;
-using MyPrivateApp.Data.Models.Farming;
 using MyPrivateApp.Data.Models.FarmWork;
 
 namespace MyPrivateApp.Components.FarmWork.Classes
 {
-    public class FarmWorksPlanningClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorksPlanningClass> logger, IMapper mapper) : IFarmWorksPlanningClass
+    public class FarmWorksPlanningClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorksPlanningClass> logger) : IFarmWorksPlanningClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FarmWorksPlanningClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(FarmWorksPlanningViewModels vm)
         {
@@ -25,8 +20,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 if (vm == null)
                     return "Hittar ingen data från formuläret!";
 
-                if (vm.PlanningDate == DateTime.MinValue || vm.Place == 0 || vm.Area != string.Empty)
-                    return "Inget datum, plats eller timmar ifyllt!";
+                if (vm.PlanningDate == DateTime.MinValue || vm.Place == 0 || vm.Area == string.Empty)
+                    return "Inget datum, plats, område eller timmar ifyllt!";
 
                 FarmWorksPlanning model = ChangeFromViewModelToModel(vm);
 

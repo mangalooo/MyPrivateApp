@@ -35,7 +35,7 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         public double Hectare { get; set; }
 
         [Display(Name = "Timmar")]
-        public int Hours { get; set; }
+        public double Hours { get; set; }
 
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]

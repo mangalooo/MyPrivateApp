@@ -201,7 +201,7 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
+                        <PropertyColumn Class="width" Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
 
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                             <ColumnOptions>
