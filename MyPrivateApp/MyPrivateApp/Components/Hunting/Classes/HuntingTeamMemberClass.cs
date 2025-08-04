@@ -2,16 +2,14 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingTeamMemberClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingTeamMemberClass> logger, IMapper mapper) : IHuntingTeamMemberClass
+    public class HuntingTeamMemberClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingTeamMemberClass> logger) : IHuntingTeamMemberClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<HuntingTeamMemberClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(HuntingTeamMembersViewModels vm)
         {
@@ -54,10 +52,11 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
                 // Fetch the entity in the same context to ensure tracking
                 HuntingTeamMembers? model = await db.HuntingTeamMembers.FirstOrDefaultAsync(r => r.HuntingTeamMembersId == vm.HuntingTeamMembersId);
-                if (model != null) 
+                if (model == null) 
                     return "Hittar inte medlemmen i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
+
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
@@ -104,26 +103,50 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public HuntingTeamMembersViewModels ChangeFromModelToViewModel(HuntingTeamMembers model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            HuntingTeamMembersViewModels vm = _mapper.Map<HuntingTeamMembersViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.Birthday))
-                vm.Birthday = ParseDate(model.Birthday);
+            HuntingTeamMembersViewModels vm = new()
+            {
+                HuntingTeamMembersId = model.HuntingTeamMembersId,
+                Name = model.Name,
+                Birthday = model.Birthday != null ? ParseDate(model.Birthday) : DateTime.MinValue,
+                Address = model.Address,
+                PostCode = model.PostCode,
+                City = model.City,
+                Mail = model.Mail,
+                MobilePhone = model.MobilePhone,
+                Note = model.Note
+            };
 
             return vm;
         }
 
         public HuntingTeamMembers ChangeFromViewModelToModel(HuntingTeamMembersViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            HuntingTeamMembers model = _mapper.Map<HuntingTeamMembers>(vm);
-
-            if (vm.Birthday != DateTime.MinValue)
-                model.Birthday = vm.Birthday.ToString("yyyy-MM-dd");
+            HuntingTeamMembers model = new()
+            {
+                HuntingTeamMembersId = vm.HuntingTeamMembersId,
+                Name = vm.Name,
+                Birthday = vm.Birthday != DateTime.MinValue ? vm.Birthday.ToString("yyyy-MM-dd") : null,
+                Address = vm.Address,
+                PostCode = vm.PostCode,
+                City = vm.City,
+                Mail = vm.Mail,
+                MobilePhone = vm.MobilePhone,
+                Note = vm.Note
+            };
 
             return model;
+        }
+
+        private static void EditModel(HuntingTeamMembers model, HuntingTeamMembersViewModels vm)
+        {
+            model.Name = vm.Name;
+            model.Birthday = vm.Birthday != DateTime.MinValue ? vm.Birthday.ToString("yyyy-MM-dd") : null;
+            model.Address = vm.Address;
+            model.PostCode = vm.PostCode;
+            model.City = vm.City;
+            model.Mail = vm.Mail;
+            model.MobilePhone = vm.MobilePhone;
+            model.Note = vm.Note;
         }
     }
 }

@@ -2,16 +2,14 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingTowerInspectionClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingTowerInspectionClass> logger, IMapper mapper) : IHuntingTowerInspectionClass
+    public class HuntingTowerInspectionClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingTowerInspectionClass> logger) : IHuntingTowerInspectionClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<HuntingTowerInspectionClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(HuntingTowerInspectionViewModels vm)
         {
@@ -58,7 +56,7 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 if (model == null) 
                     return "Hittar inte bytet i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -106,26 +104,56 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public HuntingTowerInspectionViewModels ChangeFromModelToViewModel(HuntingTowerInspection model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            HuntingTowerInspectionViewModels vm = _mapper.Map<HuntingTowerInspectionViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.LastInspected))
-                vm.LastInspected = ParseDate(model.LastInspected);
+            HuntingTowerInspectionViewModels vm = new()
+            {
+                HuntingTowerInspectionId = model.HuntingTowerInspectionId,
+                LastInspected = model.LastInspected != null ? ParseDate(model.LastInspected) : DateTime.MinValue,
+                Inspected = model.Inspected,
+                InspectedTodo = model.InspectedTodo,
+                NotBeUsed = model.NotBeUsed,
+                MooseTower = model.MooseTower,
+                WildBoarTower = model.WildBoarTower,
+                Place = model.Place,
+                Number = model.Number,
+                Todo = model.Todo,
+                Note = model.Note
+            };
 
             return vm;
         }
 
         public HuntingTowerInspection ChangeFromViewModelToModel(HuntingTowerInspectionViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            HuntingTowerInspection model = _mapper.Map<HuntingTowerInspection>(vm);
-
-            if (vm.LastInspected != DateTime.MinValue)
-                model.LastInspected = vm.LastInspected.ToString("yyyy-MM-dd");
+            HuntingTowerInspection model = new()
+            {
+                HuntingTowerInspectionId = vm.HuntingTowerInspectionId,
+                LastInspected = vm.LastInspected != DateTime.MinValue ? vm.LastInspected.ToString("yyyy-MM-dd") : null,
+                Inspected = vm.Inspected,
+                InspectedTodo = vm.InspectedTodo,
+                NotBeUsed = vm.NotBeUsed,
+                MooseTower = vm.MooseTower,
+                WildBoarTower = vm.WildBoarTower,
+                Place = vm.Place,
+                Number = vm.Number,
+                Todo = vm.Todo,
+                Note = vm.Note
+            };
 
             return model;
+        }
+
+        private static void EditModel(HuntingTowerInspection model, HuntingTowerInspectionViewModels vm)
+        {
+            model.LastInspected = vm.LastInspected != DateTime.MinValue ? vm.LastInspected.ToString("yyyy-MM-dd") : null;
+            model.Inspected = vm.Inspected;
+            model.InspectedTodo = vm.InspectedTodo;
+            model.NotBeUsed = vm.NotBeUsed;
+            model.MooseTower = vm.MooseTower;
+            model.WildBoarTower = vm.WildBoarTower;
+            model.Place = vm.Place;
+            model.Number = vm.Number;
+            model.Todo = vm.Todo;
+            model.Note = vm.Note;
         }
     }
 }

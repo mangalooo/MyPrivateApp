@@ -3,17 +3,15 @@ using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
 using Hangfire;
 using MyPrivateApp.Components.Email.Classes;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components.ViewModels;
 
 namespace MyPrivateApp.Components.FrozenFood.Classes
 {
-    public class FrozenFoodClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FrozenFoodClass> logger, IMapper mapper) : IFrozenFoodClass
+    public class FrozenFoodClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FrozenFoodClass> logger) : IFrozenFoodClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FrozenFoodClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(FrozenFoodViewModel vm)
         {
@@ -59,7 +57,7 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
                 if (model == null)
                     return "Hittar inte frysvaran i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -107,26 +105,54 @@ namespace MyPrivateApp.Components.FrozenFood.Classes
 
         public FrozenFoodViewModel ChangeFromModelToViewModel(FrozenFoods model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            FrozenFoodViewModel vm = _mapper.Map<FrozenFoodViewModel>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
+            FrozenFoodViewModel vm = new()
+            {
+                FrozenFoodsId = model.FrozenFoodsId,
+                Date = ParseDate(model.Date ?? string.Empty),
+                Name = model.Name,
+                Type = model.Type,
+                Number = model.Number,
+                Place = model.Place,
+                FreezerCompartment = model.FreezerCompartment,
+                FrozenGoods = model.FrozenGoods,
+                Weight = model.Weight,
+                Notes = model.Notes
+            };
 
             return vm;
         }
 
         public FrozenFoods ChangeFromViewModelToModel(FrozenFoodViewModel vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            FrozenFoods model = _mapper.Map<FrozenFoods>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
+            FrozenFoods model = new()
+            {
+                FrozenFoodsId = vm.FrozenFoodsId,
+                Date = vm.Date != DateTime.MinValue ? vm.Date.ToString("yyyy-MM-dd") : string.Empty,
+                Name = vm.Name,
+                Type = vm.Type,
+                Number = vm.Number,
+                Place = vm.Place,
+                FreezerCompartment = vm.FreezerCompartment,
+                FrozenGoods = vm.FrozenGoods,
+                Weight = vm.Weight,
+                Notes = vm.Notes
+            };
 
             return model;
+        }
+
+        private static void EditModel(FrozenFoods model, FrozenFoodViewModel vm)
+        {
+            model.FrozenFoodsId = vm.FrozenFoodsId;
+            model.Date = vm.Date != DateTime.MinValue ? vm.Date.ToString("yyyy-MM-dd") : string.Empty;
+            model.Name = vm.Name;
+            model.Type = vm.Type;
+            model.Number = vm.Number;
+            model.Place = vm.Place;
+            model.FreezerCompartment = vm.FreezerCompartment;
+            model.FrozenGoods = vm.FrozenGoods;
+            model.Weight = vm.Weight;
+            model.Notes = vm.Notes;
         }
 
         public double HowLongTimeInFreezer(DateTime date)

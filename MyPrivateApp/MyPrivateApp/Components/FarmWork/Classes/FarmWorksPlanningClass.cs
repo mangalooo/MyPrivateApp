@@ -186,7 +186,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         {
             FarmWorksPlanningCompleted model = new()
             {
-                FarmWorksPlanningCompletedId = vm.FarmWorksPlanningsId,
                 PlanningDate = vm.PlanningDate.ToString("yyyy-MM-dd"),
                 StartDate = vm.StartDate.ToString("yyyy-MM-dd"),
                 Place = vm.Place,

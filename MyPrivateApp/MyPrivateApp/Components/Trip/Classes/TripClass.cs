@@ -1,8 +1,8 @@
 ﻿
-using MyPrivateApp.Data;
-using MyPrivateApp.Client.ViewModels;
-using MyPrivateApp.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Client.ViewModels;
+using MyPrivateApp.Data;
+using MyPrivateApp.Data.Models;
 
 namespace MyPrivateApp.Components.Trip.Classes
 {
@@ -103,20 +103,18 @@ namespace MyPrivateApp.Components.Trip.Classes
 
         public TripsViewModel ChangeFromModelToViewModel(Trips model)
         {
-            DateTime date = ParseDate(model.Date ?? throw new Exception("ChangeFromModelToViewModel: Date == null!"));
-            DateTime homeDate = ParseDate(model.HomeDate ?? throw new Exception("ChangeFromModelToViewModel: Date == null!"));
-
             TripsViewModel vm = new()
             {
                 TripsId = model.TripsId,
                 Country = model.Country,
                 Place = model.Place,
-                Date = date,
-                HomeDate = homeDate,
-                HowManyDays = HowLongTravel(date, homeDate),
+                Date = ParseDate(model.Date ?? throw new Exception("ChangeFromModelToViewModel: Date == null!")),
+                HomeDate = ParseDate(model.HomeDate ?? throw new Exception("ChangeFromModelToViewModel: HomeDate == null!")),
                 TravelBuddies = model.TravelBuddies,
                 Description = model.Description
             };
+
+            vm.HowManyDays = HowLongTravel(vm.Date, vm.HomeDate);
 
             return vm;
         }

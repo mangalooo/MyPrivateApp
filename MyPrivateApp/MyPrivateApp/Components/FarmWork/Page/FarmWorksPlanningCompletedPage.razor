@@ -98,7 +98,7 @@
                     {
                         <div class="card-header">
 
-                            <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
+                            <EditForm Model="pageViewModel" OnSubmit="Edit" Enhance>
 
                                 <div class="row">
 
@@ -206,21 +206,21 @@
                                 @if (ShowOrHideAddNewButton)
                                 {
                                     <div align="center">
-                                        <button type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny planering </button>
+                                        <button type="submit" class="btn btn-outline-success btn-sm"> Lägg till ny planering </button>
                                     </div>
                                 }
 
                                 @if (ShowOrHideEditButton)
                                 {
                                     <div align="center">
-                                        <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                        <button type="submit" class="btn btn-outline-warning btn-sm"> Ändra </button>
                                     </div>
                                 }
 
                                 <br />
 
                                 <div align="center">
-                                    <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                                    <button @onclick="RefreshPage" type="button" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
                                 </div>
 
                                 <br /> <br />
@@ -461,7 +461,7 @@ catch (Exception ex)
         ShowOrHideAddNewButton = true;
     }
 
-    private async Task AddOrEdit()
+    private async Task Edit()
     {
         DisabledForm = false;
 

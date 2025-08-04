@@ -2,16 +2,14 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingPreyClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingPreyClass> logger, IMapper mapper) : IHuntingPreyClass
+    public class HuntingPreyClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingPreyClass> logger) : IHuntingPreyClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<HuntingPreyClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(HuntingPreyViewModels vm)
         {
@@ -54,10 +52,11 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 
                 // Fetch the entity in the same context to ensure tracking
                 HuntingPrey? model = await db.HuntingPrey.FirstOrDefaultAsync(r => r.HuntingPreyId == vm.HuntingPreyId);
-                if (model != null) 
+                if (model == null) 
                     return "Hittar inte bytet i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
+
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
@@ -104,12 +103,17 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public HuntingPreyViewModels ChangeFromModelToViewModel(HuntingPrey model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            HuntingPreyViewModels vm = _mapper.Map<HuntingPreyViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
+            HuntingPreyViewModels vm = new()
+            {
+                HuntingPreyId = model.HuntingPreyId,
+                Date = model.Date != null ? ParseDate(model.Date) : DateTime.MinValue,
+                WildAnimal = model.WildAnimal,
+                HuntingForm = model.HuntingForm,
+                Type = model.Type,
+                Dog = model.Dog,
+                HuntingPlaces = model.HuntingPlaces,
+                Note = model.Note
+            };
 
             return vm;
         }
@@ -118,12 +122,30 @@ namespace MyPrivateApp.Components.Hunting.Classes
         {
             ArgumentNullException.ThrowIfNull(vm);
 
-            HuntingPrey model = _mapper.Map<HuntingPrey>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
+            HuntingPrey model = new()
+            {
+                HuntingPreyId = vm.HuntingPreyId,
+                Date = vm.Date != DateTime.MinValue ? vm.Date.ToString("yyyy-MM-dd") : null,
+                WildAnimal = vm.WildAnimal,
+                HuntingForm = vm.HuntingForm,
+                Type = vm.Type,
+                Dog = vm.Dog,
+                HuntingPlaces = vm.HuntingPlaces,
+                Note = vm.Note
+            };
 
             return model;
+        }
+
+        private static void EditModel(HuntingPrey model, HuntingPreyViewModels vm)
+        {
+            model.Date = vm.Date != DateTime.MinValue ? vm.Date.ToString("yyyy-MM-dd") : null;
+            model.WildAnimal = vm.WildAnimal;
+            model.HuntingForm = vm.HuntingForm;
+            model.Type = vm.Type;
+            model.Dog = vm.Dog;
+            model.HuntingPlaces = vm.HuntingPlaces;
+            model.Note = vm.Note;
         }
     }
 }

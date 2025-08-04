@@ -21,7 +21,6 @@ using MyPrivateApp.Components.ShoppingList.Classes;
 using MyPrivateApp.Components.Trip.Classes;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
-using MyPrivateApp.Data.Models.FarmWork;
 using MyPrivateApp.Data.Models.Hunting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -210,9 +209,6 @@ ILogger<SharesIndexYearsClass> loggerIndexYears = app.Services.GetRequiredServic
 IMapper mapper = app.Services.GetRequiredService<IMapper>();
 MapperConfiguration config = new(cfg =>
 {
-    cfg.AddProfile<MZMappingProfileClass>();
-    cfg.AddProfile<FrozenMappingProfileClass>();
-    cfg.AddProfile<HuntingMappingProfileClass>();
     cfg.AddProfile<SharesMappingProfileClass>();
 });
 mapper = config.CreateMapper();

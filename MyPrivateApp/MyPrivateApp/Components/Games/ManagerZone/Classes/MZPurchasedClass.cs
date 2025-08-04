@@ -1,5 +1,4 @@
 ﻿
-using AutoMapper;
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Games.ManagerZone;
@@ -7,11 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class MZPurchasedClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<MZPurchasedClass> logger, IMapper mapper) : IMZPurchasedClass
+    public class MZPurchasedClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<MZPurchasedClass> logger) : IMZPurchasedClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<MZPurchasedClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(MZPurchasedPlayersViewModels vm)
         {
@@ -26,8 +24,6 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
 
                 MZPurchasedPlayers model = ChangeFromViewModelToModel(vm);
-
-                model.TrainingModeTotalCost = vm.TrainingModeCost;
 
                 await db.MZPurchasedPlayers.AddAsync(model);
                 await db.SaveChangesAsync();
@@ -59,11 +55,7 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 if (model == null)
                     return "Hittar inte spelaren i databasen!";
 
-                MZPurchasedPlayers mapper = _mapper.Map(vm, model);
-                mapper.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
-
-                if (vm.TrainingModeCost != 0)
-                    model.TrainingModeTotalCost += vm.TrainingModeCost;
+                EditModel(model, vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -203,29 +195,57 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
         public MZPurchasedPlayersViewModels ChangeFromModelToViewModel(MZPurchasedPlayers model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            MZPurchasedPlayersViewModels vm = _mapper.Map<MZPurchasedPlayersViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.PurchasedDate))
-                vm.PurchasedDate = ParseDate(model.PurchasedDate);
+            MZPurchasedPlayersViewModels vm = new()
+            {
+                ManagerZonePurchasedPlayersId = model.ManagerZonePurchasedPlayersId,
+                PurchasedDate = ParseDate(model.PurchasedDate ?? string.Empty),
+                PurchaseAmount = model.PurchaseAmount,
+                Name = model.Name,
+                YearsOld = model.YearsOld,
+                Number = model.Number,
+                Salary = model.Salary,
+                SalarySaved = model.SalarySaved,
+                Note = model.Note,
+                TrainingModeTotalCost = model.TrainingModeTotalCost
+            };
 
             return vm;
         }
 
         public MZPurchasedPlayers ChangeFromViewModelToModel(MZPurchasedPlayersViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            MZPurchasedPlayers model = _mapper.Map<MZPurchasedPlayers>(vm);
-
-            if (vm.PurchasedDate != DateTime.MinValue)
-                model.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
+            MZPurchasedPlayers model = new()
+            {
+                ManagerZonePurchasedPlayersId = vm.ManagerZonePurchasedPlayersId,
+                PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd"),
+                PurchaseAmount = vm.PurchaseAmount,
+                Name = vm.Name,
+                YearsOld = vm.YearsOld,
+                Number = vm.Number,
+                Salary = vm.Salary,
+                SalarySaved = vm.SalarySaved,
+                Note = vm.Note
+            };
 
             if (vm.TrainingModeCost != 0)
                 model.TrainingModeTotalCost += vm.TrainingModeCost;
 
             return model;
+        }
+
+        private static void EditModel(MZPurchasedPlayers model, MZPurchasedPlayersViewModels vm)
+        {
+            model.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
+            model.PurchaseAmount = vm.PurchaseAmount;
+            model.Name = vm.Name;
+            model.YearsOld = vm.YearsOld;
+            model.Number = vm.Number;
+            model.Salary = vm.Salary;
+            model.SalarySaved = vm.SalarySaved;
+            model.Note = vm.Note;
+
+            if (vm.TrainingModeCost != 0)
+                model.TrainingModeTotalCost += vm.TrainingModeCost;
         }
     }
 }

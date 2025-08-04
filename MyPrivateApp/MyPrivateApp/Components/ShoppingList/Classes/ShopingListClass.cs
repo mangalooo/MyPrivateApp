@@ -130,7 +130,6 @@ namespace MyPrivateApp.Components.ShoppingList.Classes
 
         private static void EditModel(ShopingListViewModels vm, ShopingList model)
         {
-            model.ShopingListId = vm.ShopingListId;
             model.Name = vm.Name;
             model.Date = vm.Date.ToString("yyyy-MM-dd");
             model.Place = vm.Place;

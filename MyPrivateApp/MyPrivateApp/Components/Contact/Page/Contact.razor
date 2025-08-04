@@ -1,5 +1,4 @@
-﻿
-@page "/Contact"
+﻿@page "/Contact"
 
 @using Microsoft.EntityFrameworkCore
 @using Azure.Core
@@ -97,12 +96,17 @@
                                             <label for="Birthday"> Födelsedag </label>
                                         </div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.MarriedPartner" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="MarriedPartner"> Gift/sambo med </label>
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.MarriedPartner))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.MarriedPartner" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="MarriedPartner"> Gift/sambo med </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
+
                                 </div>
 
                                 <br />
@@ -111,30 +115,46 @@
 
                                     <div id="mobile" class="col-3" />
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.ChildOne" class="form-control" disabled="@DisabledForm" />
-                                            <label for="ChildOne"> Barn 1 </label>
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildOne))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.ChildOne" class="form-control" disabled="@DisabledForm" />
+                                                <label for="ChildOne"> Barn 1 </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.ChildTwo" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="ChildTwo"> Barn 2 </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildTwo))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.ChildTwo" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="ChildTwo"> Barn 2 </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.ChildThree" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="ChildThree"> barn 3 </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildThree))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.ChildThree" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="ChildThree"> barn 3 </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.ChildFour" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="ChildFour"> Barn 4 </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildFour))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.ChildFour" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="ChildFour"> Barn 4 </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
+
                                 </div>
 
                                 <br />
@@ -169,24 +189,36 @@
 
                                     <div id="mobile" class="col-4" />
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.PrivateMail" class="form-control" disabled="@DisabledForm" />
-                                            <label for="PrivateMail"> E-post </label>
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.PrivateMail))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.PrivateMail" class="form-control" disabled="@DisabledForm" />
+                                                <label for="PrivateMail"> E-post </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.WorkEMail" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="WorkEMail"> E-post jobb </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.WorkEMail))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.WorkEMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="WorkEMail"> E-post jobb </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.ExtraMail" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="ExtraMail"> E-post extra </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ExtraMail))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.ExtraMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="ExtraMail"> E-post extra </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
+
                                 </div>
 
                                 <br />
@@ -195,55 +227,75 @@
 
                                     <div id="mobile" class="col-3" />
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.PhoneNumber" class="form-control" disabled="@DisabledForm" />
-                                            <label for="PhoneNumber"> Mobil nummer </label>
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.PhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.PhoneNumber" class="form-control" disabled="@DisabledForm" />
+                                                <label for="PhoneNumber"> Mobil nummer </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="HomePhoneNumber"> Hem nummer </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.HomePhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="HomePhoneNumber"> Hem nummer </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.WorkPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="WorkPhoneNumber"> Jobb nummer </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.WorkPhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.WorkPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="WorkPhoneNumber"> Jobb nummer </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.ExtraPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="ExtraPhoneNumber"> Extra nummer </label>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ExtraPhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.ExtraPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="ExtraPhoneNumber"> Extra nummer </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
+
                                 </div>
 
                                 <br />
 
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="HomePage"> Hemsida </label>
+                                @if (!string.IsNullOrWhiteSpace(pageViewModel.HomePage))
+                                {
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="HomePage"> Hemsida </label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <br />
+                                    <br />
+                                }
 
-                                <div class="row-10">
+                                @if (!string.IsNullOrWhiteSpace(pageViewModel.Notes))
+                                {
                                     <div class="col-12">
                                         <div class="form-floating">
                                             <InputTextArea rows="6" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />
                                             <label for="Notes"> Antecklingar </label>
                                         </div>
                                     </div>
-                                </div>
 
-                                <br />
+                                    <br />
+                                }
 
                                 @* View - Desktop *@
                                 <div id="desktop" class="form-group" align="center">

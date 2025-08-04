@@ -470,8 +470,8 @@ catch (Exception ex)
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
-    private bool Sale { get; set; } = true;
-    private bool ShowOrHideSaleButton { get; set; } = true;
+    private bool Sale { get; set; } = false;
+    private bool ShowOrHideSaleButton { get; set; } = false;
 
     // Text messeges
     private bool ShowOrHideErrorMessage { get; set; } = false;
@@ -611,7 +611,7 @@ catch (Exception ex)
             ErrorMessage = await BackEndClass.Sell(pageViewModel);
 
             if (!string.IsNullOrEmpty(ErrorMessage))
-                ShowOrHideErrorMessage = false;
+                ShowOrHideErrorMessage = true;
             else
             {
                 pageViewModel = new();
@@ -622,22 +622,6 @@ catch (Exception ex)
         {
             ShowErrorMessage($"Ett fel uppstod när spelaren skulle säljas: {ex.Message}");
         }
-    }
-
-    private void OpenSaleWindow()
-    {
-        ModalDisplaySale = "block;";
-        ModalClassSale = "Show";
-        ShowBackdropSale = true;
-        StateHasChanged();
-    }
-
-    private void CloseSaleWindow()
-    {
-        ModalDisplaySale = "none";
-        ModalClassSale = "";
-        ShowBackdropSale = false;
-        StateHasChanged();
     }
 
     private async Task Delete()
@@ -674,6 +658,22 @@ catch (Exception ex)
         {
             ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
         }
+    }
+
+    private void OpenSaleWindow()
+    {
+        ModalDisplaySale = "block;";
+        ModalClassSale = "Show";
+        ShowBackdropSale = true;
+        StateHasChanged();
+    }
+
+    private void CloseSaleWindow()
+    {
+        ModalDisplaySale = "none";
+        ModalClassSale = "";
+        ShowBackdropSale = false;
+        StateHasChanged();
     }
 
     private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)

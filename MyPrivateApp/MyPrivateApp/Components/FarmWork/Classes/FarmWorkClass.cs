@@ -124,7 +124,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         {
             model.FarmWorksId = vm.FarmWorksId;
             model.Date = vm.Date.ToString("yyyy-MM-dd");
-
             model.Place = vm.Place;
             model.Hours = vm.Hours;
             model.NextSalary = vm.NextSalary;

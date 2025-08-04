@@ -1,5 +1,4 @@
 ﻿
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyPrivateApp.Components.ViewModels.Games.ManagerZone;
 using MyPrivateApp.Data;
@@ -7,11 +6,10 @@ using MyPrivateApp.Data.Models.Games.ManagerZone;
 
 namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 {
-    public class MZSoldClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<MZSoldClass> logger, IMapper mapper) : IMZSoldClass
+    public class MZSoldClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<MZSoldClass> logger) : IMZSoldClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<MZSoldClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(MZSoldPlayersViewModels vm)
         {
@@ -59,7 +57,8 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
                 if (model == null)
                     return "Hittar inte den sålda spelaren i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
+
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
@@ -106,32 +105,75 @@ namespace MyPrivateApp.Components.Games.ManagerZone.Classes
 
         public MZSoldPlayersViewModels ChangeFromModelToViewModel(MZSoldPlayers model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            MZSoldPlayersViewModels vm = _mapper.Map<MZSoldPlayersViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.PurchasedDate))
-                vm.PurchasedDate = ParseDate(model.PurchasedDate);
-
-            if (!string.IsNullOrEmpty(model.SoldDate))
-                vm.SoldDate = ParseDate(model.SoldDate);
+            MZSoldPlayersViewModels vm = new()
+            {
+                ManagerZoneSoldPlayerId = model.ManagerZoneSoldPlayerId,
+                PurchasedDate = model.PurchasedDate != null ? ParseDate(model.PurchasedDate) : DateTime.MinValue,
+                SoldDate = model.SoldDate != null ? ParseDate(model.SoldDate) : DateTime.MinValue,
+                PurchaseAmount = model.PurchaseAmount,
+                Name = model.Name,
+                YearsOld = model.YearsOld,
+                Number = model.Number,
+                DaysInTheClub = model.DaysInTheClub,
+                SalaryTotal = model.SalaryTotal,
+                TrainingModeTotalCost = model.TrainingModeTotalCost,
+                TotalCost = model.TotalCost,
+                SoldAmount = model.SoldAmount,
+                SaleCharge = model.SaleCharge,
+                MoneyProfitOrLoss = model.MoneyProfitOrLoss,
+                PercentProfitOrLoss = model.PercentProfitOrLoss,
+                Note = model.Note
+            };
 
             return vm;
         }
 
         public MZSoldPlayers ChangeFromViewModelToModel(MZSoldPlayersViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
+            MZSoldPlayers model = new()
+            {
+                ManagerZoneSoldPlayerId = vm.ManagerZoneSoldPlayerId,
+                PurchasedDate = vm.PurchasedDate != DateTime.MinValue ? vm.PurchasedDate.ToString("yyyy-MM-dd") : null,
+                SoldDate = vm.SoldDate != DateTime.MinValue ? vm.SoldDate.ToString("yyyy-MM-dd") : null,
+                PurchaseAmount = vm.PurchaseAmount,
+                Name = vm.Name,
+                YearsOld = vm.YearsOld,
+                Number = vm.Number,
+                DaysInTheClub = vm.DaysInTheClub,
+                SalaryTotal = vm.SalaryTotal,
+                TrainingModeTotalCost = vm.TrainingModeTotalCost,
+                SoldAmount = vm.SoldAmount,
+                SaleCharge = (vm.SoldAmount - vm.PurchaseAmount) * 0.15,
+                Note = vm.Note
+            };
 
-            MZSoldPlayers model = _mapper.Map<MZSoldPlayers>(vm);
-
-            if (vm.PurchasedDate != DateTime.MinValue)
-                model.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
-
-            if (vm.SoldDate != DateTime.MinValue)
-                model.SoldDate = vm.SoldDate.ToString("yyyy-MM-dd");
+            model.TotalCost = vm.PurchaseAmount + vm.SalaryTotal + vm.TrainingModeTotalCost + model.SaleCharge;
+            model.MoneyProfitOrLoss = vm.SoldAmount - model.TotalCost;
+            model.PercentProfitOrLoss = model.TotalCost > 0
+                ? $"{Math.Round((model.MoneyProfitOrLoss / model.TotalCost) * 100, 2)}%"
+                : "0%"; // Avoid division by zero
 
             return model;
+        }
+
+        private static void EditModel(MZSoldPlayers model, MZSoldPlayersViewModels vm)
+        {
+            model.PurchasedDate = vm.PurchasedDate.ToString("yyyy-MM-dd");
+            model.SoldDate = vm.SoldDate.ToString("yyyy-MM-dd");
+            model.PurchaseAmount = vm.PurchaseAmount;
+            model.Name = vm.Name;
+            model.YearsOld = vm.YearsOld;
+            model.Number = vm.Number;
+            model.DaysInTheClub = vm.DaysInTheClub;
+            model.SalaryTotal = vm.SalaryTotal;
+            model.TrainingModeTotalCost = vm.TrainingModeTotalCost;
+            model.SaleCharge = (vm.SoldAmount - vm.PurchaseAmount) * 0.15;
+            model.TotalCost = vm.PurchaseAmount + vm.SalaryTotal + vm.TrainingModeTotalCost + model.SaleCharge;
+            model.SoldAmount = vm.SoldAmount;
+            model.MoneyProfitOrLoss = vm.SoldAmount - model.TotalCost;
+            model.PercentProfitOrLoss = model.TotalCost > 0
+                ? $"{Math.Round((model.MoneyProfitOrLoss / model.TotalCost) * 100, 2)}%"
+                : "0%"; // Avoid division by zero
         }
     }
 }

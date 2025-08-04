@@ -2,16 +2,14 @@
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models.Hunting;
 using MyPrivateApp.Components.ViewModels.HuntingViemModels;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Hunting.Classes
 {
-    public class HuntingMyListClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingMyListClass> logger, IMapper mapper) : IHuntingMyListClass
+    public class HuntingMyListClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<HuntingMyListClass> logger) : IHuntingMyListClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<HuntingMyListClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<string> Add(HuntingMyListViewModels vm)
         {
@@ -54,10 +52,10 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
                 // Fetch the entity in the same context to ensure tracking
                 HuntingMyList? model = await db.HuntingMyList.FirstOrDefaultAsync(r => r.HuntingMyListId == vm.HuntingMyListId);
-                if (model != null) 
+                if (model == null) 
                     return "Hittar inte bytet i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -105,26 +103,47 @@ namespace MyPrivateApp.Components.Hunting.Classes
 
         public HuntingMyListViewModels ChangeFromModelToViewModel(HuntingMyList model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            HuntingMyListViewModels vm = _mapper.Map<HuntingMyListViewModels>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
+            HuntingMyListViewModels vm = new() 
+            {
+                HuntingMyListId = model.HuntingMyListId,
+                Date = model.Date != null ? ParseDate(model.Date) : DateTime.MinValue,
+                WildAnimal = model.WildAnimal,
+                HuntingForm = model.HuntingForm,
+                Type = model.Type,
+                Dog = model.Dog,
+                HuntingPlaces = model.HuntingPlaces,
+                Note = model.Note
+            };
 
             return vm;
         }
 
         public HuntingMyList ChangeFromViewModelToModel(HuntingMyListViewModels vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            HuntingMyList model = _mapper.Map<HuntingMyList>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
+            HuntingMyList model = new()
+            {
+                HuntingMyListId = vm.HuntingMyListId,
+                Date = vm.Date != DateTime.MinValue ? vm.Date.ToString("yyyy-MM-dd") : null,
+                WildAnimal = vm.WildAnimal,
+                HuntingForm = vm.HuntingForm,
+                Type = vm.Type,
+                Dog = vm.Dog,
+                HuntingPlaces = vm.HuntingPlaces,
+                Note = vm.Note
+            };
 
             return model;
+        }
+
+        private static void EditModel(HuntingMyList model, HuntingMyListViewModels vm)
+        {
+            model.Date = vm.Date != DateTime.MinValue ? vm.Date.ToString("yyyy-MM-dd") : null;
+            model.WildAnimal = vm.WildAnimal;
+            model.HuntingForm = vm.HuntingForm;
+            model.Type = vm.Type;
+            model.Dog = vm.Dog;
+            model.HuntingPlaces = vm.HuntingPlaces;
+            model.Note = vm.Note;
         }
     }
 }
