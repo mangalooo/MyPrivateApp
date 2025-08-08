@@ -24,6 +24,9 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [Display(Name = "Område")]
         public string? Area { get; set; }
 
+        [Display(Name = "Fastighetsbeteckning")]
+        public string? PropertyDesignation { get; set; }
+
         [Display(Name = "Att göra")]
         [DataType(DataType.MultilineText)]
         public FarmWorkTodo Todo { get; set; }

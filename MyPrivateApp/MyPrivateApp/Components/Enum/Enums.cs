@@ -137,8 +137,8 @@ namespace MyPrivateApp.Components.Enum
     public enum FarmWorkTodo
     {
         Välj,
-        Röja,
-        Förröja,
+        Röjning,
+        Förröjning,
         Gallra,
         Skota
     }

@@ -140,7 +140,14 @@
                                     <div class="col-2">
                                         <div class="form-floating">
                                             <InputText @bind-Value="pageViewModel.Area" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Date"> Område </label>
+                                            <label for="Area"> Område </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.PropertyDesignation" class="form-control" disabled="@DisabledForm" />
+                                            <label for="PropertyDesignation"> Fastighetsbeteckning </label>
                                         </div>
                                     </div>
 
@@ -251,8 +258,9 @@
                             </PropertyColumn>
 
                             <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
+                            <PropertyColumn Title="Fastighetsbeteckning" Property="@(c => c.PropertyDesignation)" Sortable="true" />
+                            <PropertyColumn Title="Hektar" Property="@(c => c.Hectare)" Sortable="true" />
                             <PropertyColumn Title="Gjort" Property="@(c => c.Todo)" Sortable="true" />
-                            <PropertyColumn Title="Prioritering" Property="@(c => c.Prioritize)" Sortable="true" />
 
                             <TemplateColumn Title="Info">
 

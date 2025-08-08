@@ -97,6 +97,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 FarmWorksId = model.FarmWorksId,
                 Date = DateTime.Parse(model.Date ?? string.Empty),
                 Place = model.Place,
+                PropertyDesignation = model.PropertyDesignation,
                 Hours = model.Hours,
                 NextSalary = model.NextSalary,
                 Note = model.Note
@@ -112,6 +113,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 FarmWorksId = vm.FarmWorksId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
+                PropertyDesignation = vm.PropertyDesignation,
                 Hours = vm.Hours,
                 NextSalary = vm.NextSalary,
                 Note = vm.Note
@@ -125,6 +127,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             model.FarmWorksId = vm.FarmWorksId;
             model.Date = vm.Date.ToString("yyyy-MM-dd");
             model.Place = vm.Place;
+            model.PropertyDesignation = vm.PropertyDesignation;
             model.Hours = vm.Hours;
             model.NextSalary = vm.NextSalary;
             model.Note = vm.Note;

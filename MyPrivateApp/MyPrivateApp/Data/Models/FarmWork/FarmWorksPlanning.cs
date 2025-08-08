@@ -11,6 +11,7 @@ namespace MyPrivateApp.Data.Models.FarmWork
         public string? StartDate { get; set; }
         public FarmWorkPlaces Place { get; set; }
         public string? Area { get; set; }
+        public string? PropertyDesignation { get; set; }
         public FarmWorkPrioritize Prioritize { get; set; }
         public FarmWorkTodo Todo { get; set; }
         public double Hectare { get; set; }

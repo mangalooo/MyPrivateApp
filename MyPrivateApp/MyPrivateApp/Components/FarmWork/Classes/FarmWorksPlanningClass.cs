@@ -139,6 +139,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 StartDate = ParseDate(model.StartDate ?? string.Empty),
                 Place = model.Place,
                 Area = model.Area,
+                PropertyDesignation = model.PropertyDesignation,
                 Prioritize = model.Prioritize,
                 Todo = model.Todo,
                 Hectare = model.Hectare,
@@ -158,6 +159,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 StartDate = vm.StartDate.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
                 Area = vm.Area,
+                PropertyDesignation = vm.PropertyDesignation,
                 Prioritize = vm.Prioritize,
                 Todo = vm.Todo,
                 Hectare = vm.Hectare,
@@ -175,6 +177,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             model.StartDate = vm.StartDate.ToString("yyyy-MM-dd");
             model.Place = vm.Place;
             model.Area = vm.Area;
+            model.PropertyDesignation = vm.PropertyDesignation;
             model.Prioritize = vm.Prioritize;
             model.Todo = vm.Todo;
             model.Hectare = vm.Hectare;
@@ -190,6 +193,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 StartDate = vm.StartDate.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
                 Area = vm.Area,
+                PropertyDesignation = vm.PropertyDesignation,
                 Prioritize = vm.Prioritize,
                 Todo = vm.Todo,
                 Hectare = vm.Hectare,

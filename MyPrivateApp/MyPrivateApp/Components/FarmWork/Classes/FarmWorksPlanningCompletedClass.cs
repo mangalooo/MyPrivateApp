@@ -84,6 +84,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 EndDate = ParseDate(model.EndDate ?? string.Empty),
                 Place = model.Place,
                 Area = model.Area,
+                PropertyDesignation = model.PropertyDesignation,
                 Prioritize = model.Prioritize,
                 Todo = model.Todo,
                 Hectare = model.Hectare,
@@ -94,26 +95,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             return vm;
         }
 
-        //public FarmWorksPlanningCompleted ChangeFromViewModelToModel(FarmWorksPlanningViewModels vm)
-        //{
-        //    FarmWorksPlanningCompleted model = new()
-        //    {
-        //        FarmWorksPlanningCompletedId = vm.FarmWorksPlanningsId,
-        //        PlanningDate = vm.PlanningDate.ToString("yyyy-MM-dd"),
-        //        StartDate = vm.StartDate.ToString("yyyy-MM-dd"),
-        //        EndDate = vm.EndDate.ToString("yyyy-MM-dd"),
-        //        Place = vm.Place,
-        //        Area = vm.Area,
-        //        Prioritize = vm.Prioritize,
-        //        Todo = vm.Todo,
-        //        Hectare = vm.Hectare,
-        //        Hours = vm.Hours,
-        //        Notes = vm.Notes
-        //    };
-
-        //    return model;
-        //}
-
         private static void EditModel(FarmWorksPlanningViewModels vm, FarmWorksPlanningCompleted model)
         {
             model.FarmWorksPlanningCompletedId = vm.FarmWorksPlanningsId;
@@ -122,6 +103,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             model.EndDate = vm.EndDate.ToString("yyyy-MM-dd");
             model.Place = vm.Place;
             model.Area = vm.Area;
+            model.PropertyDesignation = vm.PropertyDesignation;
             model.Prioritize = vm.Prioritize;
             model.Todo = vm.Todo;
             model.Hectare = vm.Hectare;

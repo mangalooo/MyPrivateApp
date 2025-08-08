@@ -18,6 +18,10 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [DataType(DataType.Text)]
         public FarmWorkPlaces Place { get; set; }
 
+        [Display(Name = "Fastighetsbeteckning")]
+        [DataType(DataType.Text)]
+        public string? PropertyDesignation { get; set; }
+
         [Display(Name = "Timmar")]
         [DataType(DataType.Text)]
         public double Hours { get; set; }
