@@ -66,7 +66,7 @@
             <br />
 
             <div align="center">
-                <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny import </button>
+                <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny aktie </button>
             </div>
         }
 
@@ -504,7 +504,7 @@ catch (Exception ex)
 
     // Hide button and fields
     private bool HideNewOrChangesFields { get; set; } = false;
-    private bool ShowOrHideCreateButton { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = true;
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;

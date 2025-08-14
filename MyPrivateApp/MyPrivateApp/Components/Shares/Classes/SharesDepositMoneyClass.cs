@@ -13,12 +13,10 @@ namespace MyPrivateApp.Components.Shares.Classes
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesDepositMoneyClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        public async Task<SharesTotalAmounts?> GetTotalAmount(int? id)
+        public async Task<SharesTotalAmounts?> GetTotalAmount(ApplicationDbContext db, int? id)
         {
             if (id <= 0)
                 throw new Exception("GetTotalAmount: Finns inget ID!");
-
-            using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("GetTotalAmount: db == null!");
 
             return await db.SharesTotalAmounts.FirstOrDefaultAsync(r => r.TotalAmountId == id)
                 ?? throw new Exception("Totala summan hittades inte i databasen!");
@@ -26,33 +24,41 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Add(SharesDepositMoneyViewModel vm, bool import)
         {
+            const int totalAmountId = 2; // Consider moving to config if this can change
+
+            if (vm == null)
+                return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret!");
+
+            if (string.IsNullOrWhiteSpace(vm.DepositMoney) || string.IsNullOrWhiteSpace(vm.TypeOfTransaction))
+                return await HandleError(vm, "Lägg till", import, "Inget insatt belopp eller typ av överföring!");
+
+            HashSet<string> allowedTypes = new(StringComparer.CurrentCultureIgnoreCase) { "insättning", "uttag" };
+            if (!allowedTypes.Contains(vm.TypeOfTransaction ?? string.Empty))
+                return await HandleError(vm, "Lägg till", import, $"Transaktionen måste vara Insättning eller Uttag! (Datum: {vm.Date:yyyy-MM-dd} Belopp: {vm.DepositMoney})");
+            
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+                double amount = ParseAmount(vm.DepositMoney);
 
-                if (vm == null)
-                    return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret!");
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new InvalidOperationException("Add: db == null!");
 
-                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+                SharesDepositMoney model = ChangeFromViewModelToModel(vm, amount);
+                await db.SharesDepositMoney.AddAsync(model);
 
+                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(db, totalAmountId);
                 if (getTotalAmount == null)
                     return await HandleError(vm, "Lägg till", import, "Hittar inte de totala beloppet!");
 
-                if (string.IsNullOrEmpty(vm.DepositMoney) || string.IsNullOrEmpty(vm.TypeOfTransaction))
-                    return await HandleError(vm, "Lägg till", import, "Inget insatt belopp eller typ av överföring!");
-
-                double amount = ParseAmount(vm.DepositMoney);
-
-                SharesDepositMoney model = ChangeFromViewModelToModel(vm, amount);
                 UpdateTotalAmount(getTotalAmount, vm.TypeOfTransaction, amount);
 
-                await db.SharesDepositMoney.AddAsync(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear();
 
                 return string.Empty;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Fel vid insättning");
                 return await HandleError(vm, "Lägg till", import, ex.Message);
             }
         }
@@ -71,13 +77,15 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
+                const int totalAmountId = 2; // Consider moving to config if this can change
+
                 using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 if (vm == null || vm.DepositMoneyId <= 0)
                     return "Hittar ingen data från formuläret!";
 
                 SharesDepositMoney? model = await db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == vm.DepositMoneyId);
-                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(db, totalAmountId); // Should always be just one total amount in the database
 
                 if (model == null || getTotalAmount == null || string.IsNullOrEmpty(vm.DepositMoney))
                     return "Hittar inte data från: Kontot, Total summa eller inget insatt belopp!";
@@ -88,6 +96,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 EditModel(model, vm);
 
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }
@@ -112,13 +121,15 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
+                const int totalAmountId = 2; // Consider moving to config if this can change
+
                 using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
                 db.ChangeTracker.Clear();
                 db.Remove(model);
                 await db.SaveChangesAsync();
 
-                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(2); // Should always be just one total amount in the database
+                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(db, totalAmountId); // Should always be just one total amount in the database
 
                 if (getTotalAmount == null)
                     return "Totala summan hittades inte i databasen!";
@@ -126,7 +137,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 getTotalAmount.TotalAmount -= model.DepositMoney;
 
                 await db.SaveChangesAsync();
-                
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -169,6 +181,8 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 DepositMoneyId = vm.DepositMoneyId,
                 Date = vm.Date.ToString("yyyy-MM-dd"),
+                DepositMoney = amount,
+                SubmitOrWithdraw = vm.TypeOfTransaction == "Insättning" ? SubmitOrWithdraw.Inbetalning : SubmitOrWithdraw.Utbetalning,
                 TypeOfTransaction = vm.TypeOfTransaction,
                 TransferOptions = vm.TransferOptions,
                 Account = vm.Account,
