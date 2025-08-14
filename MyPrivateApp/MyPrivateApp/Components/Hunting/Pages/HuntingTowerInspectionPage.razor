@@ -167,23 +167,48 @@
 
                             @* View - Desktop *@
                             <div id="desktop">
-                                @foreach (var checkbox in GetCheckboxes())
-                                {
-                                    <InputCheckbox id="@checkbox.Id" @bind-Value="@checkbox.Value" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="@checkbox.Id"> @checkbox.Label </label>
-                                    <div>&nbsp; &nbsp;</div>
-                                }
+                                <InputCheckbox id="Inspected-d" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                                <label class="form-check-label" for="Inspected-d"> Besiktad? </label>
+                                <div>&nbsp; &nbsp;</div>
+
+                                <InputCheckbox id="InspectedTodo-d" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                                <label class="form-check-label" for="InspectedTodo-d"> Att göra </label>
+                                <div>&nbsp; &nbsp;</div>
+
+                                <InputCheckbox id="NotBeUsed-d" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                                <label class="form-check-label" for="NotBeUsed-d"> Utdömd </label>
+                                <div>&nbsp; &nbsp;</div>
+
+                                <InputCheckbox id="MooseTower-d" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                                <label class="form-check-label" for="MooseTower-d"> Älgtorn </label>
+                                <div>&nbsp; &nbsp;</div>
+
+                                <InputCheckbox id="WildBoarTower-d" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                                <label class="form-check-label" for="WildBoarTower-d"> Vildsvinstorn </label>
                             </div>
 
                             @* View - Mobile *@
                             <div id="mobile">
-                                @foreach (var checkbox in GetCheckboxes())
-                                {
-                                    <div class="form-check">
-                                        <InputCheckbox id="@checkbox.Id" @bind-Value="@checkbox.Value" class="form-check-input" disabled="@DisabledForm" />
-                                        <label class="form-check-label" for="@checkbox.Id"> @checkbox.Label </label>
-                                    </div>
-                                }
+                                <div class="form-check">
+                                    <InputCheckbox id="Inspected-m" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="Inspected-m"> Besiktad? </label>
+                                </div>
+                                <div class="form-check">
+                                    <InputCheckbox id="InspectedTodo-m" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="InspectedTodo-m"> Att göra </label>
+                                </div>
+                                <div class="form-check">
+                                    <InputCheckbox id="NotBeUsed-m" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="NotBeUsed-m"> Utdömd </label>
+                                </div>
+                                <div class="form-check">
+                                    <InputCheckbox id="MooseTower-m" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="MooseTower-m"> Älgtorn </label>
+                                </div>
+                                <div class="form-check">
+                                    <InputCheckbox id="WildBoarTower-m" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="WildBoarTower-m"> Vildsvinstorn </label>
+                                </div>
                             </div>
 
                             <br />
@@ -223,7 +248,12 @@
                 <div align="center">
                     <div class="form-check-inline">
                         <label class="form-check-label">
-                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                            Besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNotInspections">
                         </label>
                     </div>
                     <div class="form-check-inline">
@@ -248,7 +278,7 @@
                     </div>
                 </div>
 
-                <br />
+                <hr>
 
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
@@ -271,7 +301,7 @@
                             </ColumnOptions>
                         </PropertyColumn>
 
-                        <PropertyColumn Title="Att göra" Property="@(c => c.Todo)" Sortable="true">
+                        <PropertyColumn Title="Att göra" Property="@(c => c.Todo != HuntingTodo.Inget ? c.Todo.ToString() : string.Empty)" Sortable="true">
                             <ColumnOptions>
                                 <div class="search-box">
                                     <input type="search" autofocus @onchange="SearchTodo" />
@@ -314,6 +344,7 @@
                             }
 
                         </TemplateColumn>
+
                     </QuickGrid>
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
@@ -359,7 +390,13 @@
                     <div class="form-check-inline">
 
                         <label class="form-check-label">
-                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                            Besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNotInspections">
                         </label>
 
                         &nbsp;&nbsp;
@@ -389,18 +426,10 @@
                     </div>
                 </div>
 
-                <br />
+                <hr>
 
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
-
-                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
-                            <ColumnOptions>
-                                <div class="search-box">
-                                    <input type="search" autofocus @onchange="SearchPlace" />
-                                </div>
-                            </ColumnOptions>
-                        </PropertyColumn>
 
                         <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true">
                             <ColumnOptions>
@@ -546,27 +575,6 @@
     {
         ErrorMessage = errorMessage;
         ShowOrHideErrorMessage = true;
-    }
-
-    // Checkbox list
-    private IEnumerable<CheckboxItem> GetCheckboxes()
-    {
-        return new List<CheckboxItem>
-        {
-            new CheckboxItem { Id = "Inspected", Value = pageViewModel.Inspected, Label = "Besiktad?", ValidationExpression = () => pageViewModel.Inspected },
-            new CheckboxItem { Id = "InspectedTodo", Value = pageViewModel.InspectedTodo, Label = "Att göra", ValidationExpression = () => pageViewModel.InspectedTodo },
-            new CheckboxItem { Id = "NotBeUsed", Value = pageViewModel.NotBeUsed, Label = "Utdömd", ValidationExpression = () => pageViewModel.NotBeUsed },
-            new CheckboxItem { Id = "MooseTower", Value = pageViewModel.MooseTower, Label = "Älgtorn", ValidationExpression = () => pageViewModel.MooseTower },
-            new CheckboxItem { Id = "WildBoarTower", Value = pageViewModel.WildBoarTower, Label = "Vildsvinstorn", ValidationExpression = () => pageViewModel.WildBoarTower }
-        };
-    }
-
-    private class CheckboxItem
-    {
-        public string Id { get; set; } = string.Empty;
-        public bool Value { get; set; } = false;
-        public string Label { get; set; } = string.Empty;
-        public Expression<Func<bool>> ValidationExpression { get; set; } = () => false;
     }
 
     // Load data from database to the Queryable container
@@ -896,6 +904,14 @@
     }
 
     private async Task SearchInspections(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            await SearchInspectionsByCriteria(c => c.Inspected);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchNotInspections(ChangeEventArgs e)
     {
         if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
             await SearchInspectionsByCriteria(c => !c.Inspected);
