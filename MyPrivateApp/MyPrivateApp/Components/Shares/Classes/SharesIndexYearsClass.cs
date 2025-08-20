@@ -9,11 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesIndexYearsClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorkClass> logger, IMapper mapper) : ISharesIndexYearsClass
+    public class SharesIndexYearsClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<FarmWorkClass> logger) : ISharesIndexYearsClass
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<FarmWorkClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         public async Task<SharesTotalProfitsOrLosses> GetTotalProfitsOrLosses(int? id)
         {
