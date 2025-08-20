@@ -142,4 +142,10 @@ namespace MyPrivateApp.Components.Enum
         Gallra,
         Skota
     }
+
+    public enum TransactionType
+    {
+        Insättning,
+        Uttag
+    }
 }

@@ -12,6 +12,7 @@ namespace MyPrivateApp.Components.Shares.Classes
     {
         private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesDepositMoneyClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private const int totalAmountId = 2;
 
         public async Task<SharesTotalAmounts?> GetTotalAmount(ApplicationDbContext db, int? id)
         {
@@ -24,18 +25,15 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Add(SharesDepositMoneyViewModel vm, bool import)
         {
-            const int totalAmountId = 2; // Consider moving to config if this can change
-
             if (vm == null)
                 return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret!");
 
             if (string.IsNullOrWhiteSpace(vm.DepositMoney) || string.IsNullOrWhiteSpace(vm.TypeOfTransaction))
                 return await HandleError(vm, "Lägg till", import, "Inget insatt belopp eller typ av överföring!");
 
-            HashSet<string> allowedTypes = new(StringComparer.CurrentCultureIgnoreCase) { "insättning", "uttag" };
-            if (!allowedTypes.Contains(vm.TypeOfTransaction ?? string.Empty))
+            if (!System.Enum.TryParse<TransactionType>(vm.TypeOfTransaction, true, out var transactionType))
                 return await HandleError(vm, "Lägg till", import, $"Transaktionen måste vara Insättning eller Uttag! (Datum: {vm.Date:yyyy-MM-dd} Belopp: {vm.DepositMoney})");
-            
+
             try
             {
                 double amount = ParseAmount(vm.DepositMoney);
@@ -49,7 +47,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (getTotalAmount == null)
                     return await HandleError(vm, "Lägg till", import, "Hittar inte de totala beloppet!");
 
-                UpdateTotalAmount(getTotalAmount, vm.TypeOfTransaction, amount);
+                UpdateTotalAmount(getTotalAmount, vm.TypeOfTransaction ?? string.Empty, amount);
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear();
@@ -77,8 +75,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                const int totalAmountId = 2; // Consider moving to config if this can change
-
                 using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 if (vm == null || vm.DepositMoneyId <= 0)
@@ -121,20 +117,21 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                const int totalAmountId = 2; // Consider moving to config if this can change
-
                 using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
                 db.ChangeTracker.Clear();
                 db.Remove(model);
                 await db.SaveChangesAsync();
 
-                SharesTotalAmounts? getTotalAmount = await GetTotalAmount(db, totalAmountId); // Should always be just one total amount in the database
+                SharesTotalAmounts? totalAmount = await GetTotalAmount(db, totalAmountId); // Should always be just one total amount in the database
 
-                if (getTotalAmount == null)
+                if (totalAmount == null)
                     return "Totala summan hittades inte i databasen!";
 
-                getTotalAmount.TotalAmount -= model.DepositMoney;
+                if (model.TypeOfTransaction == "Insättning")
+                    totalAmount.TotalAmount -= model.DepositMoney;
+                else if (model.TypeOfTransaction == "Uttag")
+                    totalAmount.TotalAmount += model.DepositMoney;
 
                 await db.SaveChangesAsync();
                 db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
@@ -271,7 +268,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (import)
                 await ErrorHandling(vm, type, import, errorMessage);
 
-            return $"{type}: Felmeddelande: {errorMessage}";
+            return $"Felmeddelande: {errorMessage}";
         }
     }
 }
