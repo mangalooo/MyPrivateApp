@@ -52,7 +52,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 UpdateTotalAmount(getTotalAmount, vm.TypeOfTransaction ?? string.Empty, amount);
 
                 await db.SaveChangesAsync();
-                db.ChangeTracker.Clear();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }
