@@ -389,7 +389,8 @@ catch (Exception ex)
     {
         try
         {
-            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+            using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() 
+                ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
             List<SharesFee> items = await db.SharesFees.OrderBy(c => c.SharesFeeId).ToListAsync();
 
@@ -418,6 +419,7 @@ catch (Exception ex)
 
     private void ShowAddForm()
     {
+        ShowOrHideCreateButton = false;
         ShowOrHideAddOrEditForm = true;
         ShowOrHideAddNewButton = true;
     }
@@ -435,7 +437,7 @@ catch (Exception ex)
             }
             else
             {
-                ErrorMessage = await BackEndClass.Add(pageViewModel, false, pageViewModel.Date.ToString("yyyy-MM-dd"));
+                ErrorMessage = await BackEndClass.Add(pageViewModel, false);
                 ShowOrHideAddNewButton = true;
             }
 

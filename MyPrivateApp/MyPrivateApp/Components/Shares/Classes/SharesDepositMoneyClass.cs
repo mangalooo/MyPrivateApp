@@ -38,9 +38,11 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 double amount = ParseAmount(vm.DepositMoney);
 
+                SharesDepositMoney model = ChangeFromViewModelToModel(vm, amount);
+
+                // Connect to the database
                 using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new InvalidOperationException("Add: db == null!");
 
-                SharesDepositMoney model = ChangeFromViewModelToModel(vm, amount);
                 await db.SharesDepositMoney.AddAsync(model);
 
                 SharesTotalAmounts? getTotalAmount = await GetTotalAmount(db, totalAmountId);
@@ -61,16 +63,15 @@ namespace MyPrivateApp.Components.Shares.Classes
             }
         }
 
-        private static double ParseAmount(string amountString) => amountString.Contains('-') ? double.Parse(amountString[1..]) : double.Parse(amountString);
-
         public async Task<string> Edit(SharesDepositMoneyViewModel vm)
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
-
                 if (vm == null || vm.DepositMoneyId <= 0)
                     return "Hittar ingen data från formuläret!";
+
+                // Connect to the database
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 SharesDepositMoney? model = await db.SharesDepositMoney.FirstOrDefaultAsync(r => r.DepositMoneyId == vm.DepositMoneyId);
                 SharesTotalAmounts? getTotalAmount = await GetTotalAmount(db, totalAmountId); // Should always be just one total amount in the database
@@ -101,6 +102,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
+                // Connect to the database
                 using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
 
                 db.ChangeTracker.Clear();
@@ -127,6 +129,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                 return $"Gick inte att ta bort överföringen! Felmeddelande: {ex.Message} ";
             }
         }
+
+        private static double ParseAmount(string amountString) => amountString.Contains('-') ? double.Parse(amountString[1..]) : double.Parse(amountString);
 
         private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, string transactionType, double amount)
         {
@@ -252,6 +256,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 await db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
             }
             catch (Exception ex)
             {

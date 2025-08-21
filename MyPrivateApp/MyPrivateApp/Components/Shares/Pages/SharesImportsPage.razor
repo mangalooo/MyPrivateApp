@@ -876,7 +876,7 @@ catch (Exception ex)
         try
         {
             SharesFeeViewModel vm = SharesFeeClass.ChangeFromImportToViewModel(import);
-            await SharesFeeClass.Add(vm, true, string.Empty);
+            await SharesFeeClass.Add(vm, true);
         }
         catch (Exception ex)
         {

@@ -6,7 +6,7 @@ namespace MyPrivateApp.Components.Shares.Classes.Interface
 {
     public interface ISharesFeeClass
     {
-        Task<string> Add(SharesFeeViewModel vm, bool import, string soldDate);
+        Task<string> Add(SharesFeeViewModel vm, bool import);
         Task<string> Edit(SharesFeeViewModel vm);
         Task<string> Delete(SharesFee model);
         SharesFeeViewModel ChangeFromModelToViewModel(SharesFee model);

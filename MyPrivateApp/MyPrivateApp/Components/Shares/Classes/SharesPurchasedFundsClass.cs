@@ -226,7 +226,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (string.IsNullOrEmpty(soldFund.DateOfSold))
                     return await HandleError(vm, "Sälj", import, "Finns inget sålt datum!");
 
-                await sharesFeeClass.Add(feeVm, true, soldFund.DateOfSold);
+                await sharesFeeClass.Add(feeVm, true);
 
                 // Remove the purchased fund
                 await Delete(fundsPurchased);
@@ -256,7 +256,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 if (string.IsNullOrEmpty(soldFund.DateOfSold))
                     return await HandleError(vm, "Sälj", import, "Finns inget sålt datum!");
 
-                await sharesFeeClass.Add(feeVm, import, soldFund.DateOfSold);
+                await sharesFeeClass.Add(feeVm, import);
 
                 string errorMessages = string.Empty;
 

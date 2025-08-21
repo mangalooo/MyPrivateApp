@@ -204,7 +204,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             await db.SaveChangesAsync();
 
             var feeVM = ChangeFromToPurchasedToFeeViewModel(vm, soldModel.Brokerage, $"Courtage för aktien: \r\nBolag: {vm.CompanyName} \r\nISIN: {vm.ISIN}");
-            await sharesFeeClass.Add(feeVM, true, soldModel.DateOfSold);
+            await sharesFeeClass.Add(feeVM, true);
 
             await Delete(purchasedsModel, vm, true);
         }
@@ -224,7 +224,7 @@ namespace MyPrivateApp.Components.Shares.Classes
             SharesFeeViewModel feeVM = ChangeFromToPurchasedToFeeViewModel
                 (vm, shares.Brokerage, $"Courtage för sålda delar av aktien: \r\nBolag: {vm.CompanyName} \r\nISIN: {vm.ISIN}");
 
-            await sharesFeeClass.Add(feeVM, false, shares.DateOfSold);
+            await sharesFeeClass.Add(feeVM, true);
 
             await EditSell(sharesPurchaseds, vm, true);
         }
