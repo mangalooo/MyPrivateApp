@@ -63,14 +63,6 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         private static double ParseAmount(string amountString) => amountString.Contains('-') ? double.Parse(amountString[1..]) : double.Parse(amountString);
 
-        private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, string transactionType, double amount)
-        {
-            if (transactionType == "Insättning")
-                totalAmount.TotalAmount += amount;
-            else if (transactionType == "Uttag")
-                totalAmount.TotalAmount -= amount;
-        }
-
         public async Task<string> Edit(SharesDepositMoneyViewModel vm)
         {
             try
@@ -100,14 +92,6 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 return await HandleError(vm, "Ändra", false, ex.Message);
             }
-        }
-
-        private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, double amount, bool isAdding)
-        {
-            if (isAdding)
-                totalAmount.TotalAmount += amount;
-            else
-                totalAmount.TotalAmount -= amount;
         }
 
         public async Task<string> Delete(SharesDepositMoney model)
@@ -142,6 +126,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             {
                 return $"Gick inte att ta bort överföringen! Felmeddelande: {ex.Message} ";
             }
+        }
+
+        private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, string transactionType, double amount)
+        {
+            if (transactionType == "Insättning")
+                totalAmount.TotalAmount += amount;
+            else if (transactionType == "Uttag")
+                totalAmount.TotalAmount -= amount;
+        }
+
+        private static void UpdateTotalAmount(SharesTotalAmounts totalAmount, double amount, bool isAdding)
+        {
+            if (isAdding)
+                totalAmount.TotalAmount += amount;
+            else
+                totalAmount.TotalAmount -= amount;
         }
 
         private static DateTime ParseDate(string date)

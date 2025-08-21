@@ -35,10 +35,6 @@ namespace MyPrivateApp.Components.ViewModels.SharesViewModels
         [DataType(DataType.Text)]
         public string? TotalAmount { get; set; }
 
-        [Display(Name = "Courtage")]
-        [DataType(DataType.Text)]
-        public double Brokerage { get; set; }
-
         [Display(Name = "Valuta")]
         [DataType(DataType.Text)]
         public string? Currency { get; set; }
