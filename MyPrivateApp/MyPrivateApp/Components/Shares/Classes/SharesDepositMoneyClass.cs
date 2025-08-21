@@ -156,7 +156,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public SharesDepositMoneyViewModel ChangeFromModelToViewModel(SharesDepositMoney model)
         {
-            SharesDepositMoneyViewModel vm = new()
+            return new SharesDepositMoneyViewModel
             {
                 DepositMoneyId = model.DepositMoneyId,
                 Date = model.Date != null ? ParseDate(model.Date) : DateTime.MinValue,
@@ -168,8 +168,6 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Currency = model.Currency,
                 Note = model.Note
             };
-
-            return vm;
         }
 
         private static SharesDepositMoney ChangeFromViewModelToModel(SharesDepositMoneyViewModel vm, double amount)
@@ -198,7 +196,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public SharesDepositMoneyViewModel ChangeFromImportToViewModel(SharesImports model)
         {
-            SharesDepositMoneyViewModel vm = new()
+            return new SharesDepositMoneyViewModel
             {
                 Date = model.Date != null ? ParseDate(model.Date) : DateTime.MinValue,
                 DepositMoney = double.Parse(model.AmountString).ToString("#,##0.00"),
@@ -208,8 +206,6 @@ namespace MyPrivateApp.Components.Shares.Classes
                 Account = model.AccountNumber,
                 Currency = model.Currency,
             };
-
-            return vm;
         }
 
         private static void EditModel(SharesDepositMoney model, SharesDepositMoneyViewModel vm)
