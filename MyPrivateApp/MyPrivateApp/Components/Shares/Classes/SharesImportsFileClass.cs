@@ -28,6 +28,7 @@ namespace MyPrivateApp.Components.Shares.Classes
 
                 await db.SharesImportsFiles.AddAsync(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }
@@ -77,6 +78,7 @@ namespace MyPrivateApp.Components.Shares.Classes
                 db.ChangeTracker.Clear();
                 db.SharesImportsFiles.Remove(model);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
                 return string.Empty;
             }

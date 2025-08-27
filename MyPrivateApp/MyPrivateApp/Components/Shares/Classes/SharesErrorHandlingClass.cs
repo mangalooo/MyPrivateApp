@@ -16,10 +16,10 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
-
                 if (vm == null || vm.ErrorHandlingsId <= 0)
                     return "Hittar ingen data från formuläret!";
+
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 SharesErrorHandlings? model = await db.SharesErrorHandlings.FirstOrDefaultAsync(r => r.ErrorHandlingsId == vm.ErrorHandlingsId)
                     ?? throw new Exception("Falhanteringen hittades inte i databasen!");

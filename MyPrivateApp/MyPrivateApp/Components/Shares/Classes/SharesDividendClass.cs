@@ -16,8 +16,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
-
                 if (vm == null)
                     return await HandleError(null, "Lägg till", import, "Hittar ingen data från formuläret!");
 
@@ -25,6 +23,8 @@ namespace MyPrivateApp.Components.Shares.Classes
                     return await HandleError(vm, "Lägg till", import, "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie.");
 
                 SharesDividend model = ChangeFromViewModelToModel(vm);
+
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
 
                 await db.SharesDividends.AddAsync(model);
                 await db.SaveChangesAsync();
@@ -42,13 +42,13 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
-
                 if (vm == null)
                     return "Hittar ingen data från formuläret!";
 
                 if (IsImportantFieldsSet(vm))
                     return "Du måste fylla i fälten: Inköpsdatum, Företag, ISIN, Antal och Pris per aktie.";
+
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
                 SharesDividend? model = await db.SharesDividends.FirstOrDefaultAsync(r => r.DividendId == vm.DividendId) 
                     ?? throw new Exception("Utdelningen hittades inte i databasen!");

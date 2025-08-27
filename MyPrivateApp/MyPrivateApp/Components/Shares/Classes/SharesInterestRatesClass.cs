@@ -8,19 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesInterestRatesClass(ApplicationDbContext db, ILogger<SharesInterestRatesClass> logger, IMapper mapper) : ISharesInterestRatesClass
+    public class SharesInterestRatesClass(ApplicationDbContext db, ILogger<SharesInterestRatesClass> logger) : ISharesInterestRatesClass
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<SharesInterestRatesClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         private async Task<SharesInterestRates?> Get(int? id)
         {
             if (id == null)
                 throw new ArgumentNullException(nameof(id));
 
-            return await _db.SharesInterestRates.FirstOrDefaultAsync(r => r.InterestRatesId == id)
-                ?? throw new Exception("Räntan hittades inte i databasen!");
+            return 
         }
 
         public async Task<string> Add(SharesInterestRatesViewModel vm, bool import)
@@ -54,12 +52,14 @@ namespace MyPrivateApp.Components.Shares.Classes
 
             try
             {
-                SharesInterestRates? model = await Get(vm.InterestRatesId);
+                SharesInterestRates? model = await _db.SharesInterestRates.FirstOrDefaultAsync(r => r.InterestRatesId == vm.InterestRatesId)
+                ?? throw new Exception("Räntan hittades inte i databasen!");
 
                 if (model == null)
                     return "Hittar inte avgiften i databasen!";
 
-                _mapper.Map(vm, model);
+                EditModel(model, vm);
+
                 await _db.SaveChangesAsync();
                 return string.Empty;
             }
@@ -100,33 +100,31 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public SharesInterestRatesViewModel ChangeFromModelToViewModel(SharesInterestRates model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            SharesInterestRatesViewModel vm = _mapper.Map<SharesInterestRatesViewModel>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
-
-            return vm;
+            return new SharesInterestRatesViewModel
+            {
+                InterestRatesId = model.InterestRatesId,
+                Date = model.Date != null ? ParseDate(model.Date) : DateTime.MinValue,
+                Account = model.Account,
+                TypeOfTransaction = model.TypeOfTransaction,
+                TotalAmount = double.Round(model.TotalAmount, 2, MidpointRounding.AwayFromZero),
+                Currency = model.Currency,
+                Note = model.Note
+            };
         }
 
         public SharesInterestRatesViewModel ChangeFromImportToViewModel(SharesImports model)
         {
-            DateTime date = DateTime.Parse(model.Date);
-
-            SharesInterestRatesViewModel vm = new()
+            return new SharesInterestRatesViewModel
             {
+                Date = ParseDate(model.Date),
                 Account = model.AccountNumber,
                 Currency = model.Currency,
-                Date = date,
                 TotalAmount = double.Round(double.Parse(model.AmountString), 2, MidpointRounding.AwayFromZero),
-                TypeOfTransaction = model.TypeOfTransaction
+                TypeOfTransaction = model.TypeOfTransaction,
             };
-
-            return vm;
         }
 
-        private SharesInterestRates ChangeFromViewModelToModel(SharesInterestRatesViewModel vm)
+        private static SharesInterestRates ChangeFromViewModelToModel(SharesInterestRatesViewModel vm)
         {
             ArgumentNullException.ThrowIfNull(vm);
 
@@ -138,6 +136,16 @@ namespace MyPrivateApp.Components.Shares.Classes
             model.TotalAmount = double.Round(vm.TotalAmount, 2, MidpointRounding.AwayFromZero);
 
             return model;
+        }
+
+        private static void EditModel(SharesInterestRates model, SharesInterestRatesViewModel vm)
+        {
+            model.Date = vm.Date.ToString("yyyy-MM-dd");
+            model.Account = vm.Account;
+            model.TypeOfTransaction = vm.TypeOfTransaction;
+            model.TotalAmount = double.Round(vm.TotalAmount, 2, MidpointRounding.AwayFromZero);
+            model.Currency = vm.Currency;
+            model.Note = vm.Note;
         }
 
         private async Task<string> HandleError(SharesInterestRatesViewModel? vm, string type, bool import, string errorMessage)
