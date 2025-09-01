@@ -2,9 +2,8 @@
 using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
-using MyPrivateApp.Components.Shares.Classes.Interface;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyPrivateApp.Components.Shares.Classes.Interface;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
@@ -12,14 +11,6 @@ namespace MyPrivateApp.Components.Shares.Classes
     {
         private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
         private readonly ILogger<SharesInterestRatesClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-        private async Task<SharesInterestRates?> Get(int? id)
-        {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
-
-            return 
-        }
 
         public async Task<string> Add(SharesInterestRatesViewModel vm, bool import)
         {
@@ -97,7 +88,6 @@ namespace MyPrivateApp.Components.Shares.Classes
             throw new FormatException($"Ogiltigt datumformat: {date}");
         }
 
-
         public SharesInterestRatesViewModel ChangeFromModelToViewModel(SharesInterestRates model)
         {
             return new SharesInterestRatesViewModel
@@ -126,16 +116,16 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         private static SharesInterestRates ChangeFromViewModelToModel(SharesInterestRatesViewModel vm)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            SharesInterestRates model = _mapper.Map<SharesInterestRates>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
-
-            model.TotalAmount = double.Round(vm.TotalAmount, 2, MidpointRounding.AwayFromZero);
-
-            return model;
+            return new SharesInterestRates
+            {
+                InterestRatesId = vm.InterestRatesId,
+                Date = vm.Date != DateTime.MinValue ? vm.Date.ToString("yyyy-MM-dd") : null,
+                Account = vm.Account,
+                TypeOfTransaction = vm.TypeOfTransaction,
+                TotalAmount = double.Round(vm.TotalAmount, 2, MidpointRounding.AwayFromZero),
+                Currency = vm.Currency,
+                Note = vm.Note
+            };
         }
 
         private static void EditModel(SharesInterestRates model, SharesInterestRatesViewModel vm)

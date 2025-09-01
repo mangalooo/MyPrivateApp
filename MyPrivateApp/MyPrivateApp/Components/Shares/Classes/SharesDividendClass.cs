@@ -195,7 +195,6 @@ namespace MyPrivateApp.Components.Shares.Classes
         {
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
 
                 if (vm == null)
                     throw new Exception("ErrorHandling: SharesDividendViewModel == null!");
@@ -211,8 +210,10 @@ namespace MyPrivateApp.Components.Shares.Classes
                     Note = vm == null ? null : $"{type} UTDELNING: \r\nDatum: {vm.Date} \r\nImport: {importTrue}  \r\nISIN: {vm.ISIN} \r\nId: {vm.DividendId}. "
                 };
 
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
                 await db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
                 await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
             }
             catch (Exception ex)
             {

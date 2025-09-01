@@ -57,6 +57,8 @@
 
     <br /> <br />
 
+    <h1 align="center"> Ränta </h1>
+
     @if (ShowOrHideCreateButton)
     {
         <br />
@@ -480,9 +482,9 @@ catch (Exception ex)
         {
             using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
 
-            if (!db.SharesFees.Any())
+            if (!db.SharesInterestRates.Any())
             {
-                ShowErrorMessage("Det finns inga utdelningar att ta bort!");
+                ShowErrorMessage("Det finns ingen ränta att ta bort!");
                 return;
             }
 

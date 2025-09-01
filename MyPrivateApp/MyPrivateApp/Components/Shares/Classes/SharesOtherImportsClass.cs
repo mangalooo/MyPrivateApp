@@ -3,40 +3,34 @@ using MyPrivateApp.Components.ViewModels.SharesViewModels;
 using MyPrivateApp.Data.Models.SharesModels;
 using MyPrivateApp.Data;
 using MyPrivateApp.Components.Shares.Classes.Interface;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace MyPrivateApp.Components.Shares.Classes
 {
-    public class SharesOtherImportsClass(ApplicationDbContext db, ILogger<SharesOtherImportsClass> logger, IMapper mapper) : ISharesOtherImportsClass
+    public class SharesOtherImportsClass(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<SharesOtherImportsClass> logger) : ISharesOtherImportsClass
     {
-        private readonly ApplicationDbContext _db = db ?? throw new ArgumentNullException(nameof(db));
+        private readonly IDbContextFactory<ApplicationDbContext> _dbFactory = dbFactory ?? throw new ArgumentNullException(nameof(dbFactory));
         private readonly ILogger<SharesOtherImportsClass> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-
-        private async Task<SharesOtherImports?> Get(int? id)
-        {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
-
-            return await _db.SharesOtherImports.FirstOrDefaultAsync(r => r.OtherImportsId == id)
-                ?? throw new Exception("Andra importer hittades inte i databasen!");
-        }
 
         public async Task<string> Add(SharesOtherShareImportViewModel vm, bool import)
         {
-            if (vm == null || _db == null)
-                return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret eller databasen!");
+            if (vm == null)
+                return await HandleError(vm, "Lägg till", import, "Hittar ingen data från formuläret!");
 
             if (vm.Date == DateTime.MinValue)
                 return await HandleError(vm, "Lägg till", import, "Ingen datum ifyllt!");
 
             try
             {
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+
                 string importTrue = import ? "Ja" : "Nej";
                 SharesOtherImports model = ChangeFromViewModelToModel(vm, importTrue);
-                await _db.SharesOtherImports.AddAsync(model);
-                await _db.SaveChangesAsync();
+
+                await db.SharesOtherImports.AddAsync(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -47,21 +41,24 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Edit(SharesOtherShareImportViewModel vm)
         {
-            if (vm == null || _db == null || vm.OtherImportsId <= 0)
-                return "Hittar ingen data från formuläret eller databasen!";
+            if (vm == null || vm.OtherImportsId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             if (vm.Date == DateTime.MinValue)
                 return "Ingen datum ifyllt!";
 
             try
             {
-                SharesOtherImports? model = await Get(vm.OtherImportsId);
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
 
-                if (model == null)
-                    return "Hittar inte andra importer i databasen!";
+                SharesOtherImports? model = await db.SharesOtherImports.FirstOrDefaultAsync(r => r.OtherImportsId == vm.OtherImportsId)
+                    ?? throw new Exception("Andra importer hittades inte i databasen!");
 
-                _mapper.Map(vm, model);
-                await _db.SaveChangesAsync();
+                EditModel(model, vm);
+
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -72,14 +69,17 @@ namespace MyPrivateApp.Components.Shares.Classes
 
         public async Task<string> Delete(SharesOtherImports model)
         {
-            if (model == null || _db == null || model.OtherImportsId <= 0)
-                return "Hittar ingen data från formuläret eller databasen!";
+            if (model == null || model.OtherImportsId <= 0)
+                return "Hittar ingen data från formuläret!";
 
             try
             {
-                _db.ChangeTracker.Clear();
-                _db.SharesOtherImports.Remove(model);
-                await _db.SaveChangesAsync();
+                using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+
+                db.SharesOtherImports.Remove(model);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+
                 return string.Empty;
             }
             catch (Exception ex)
@@ -98,16 +98,38 @@ namespace MyPrivateApp.Components.Shares.Classes
             throw new FormatException($"Ogiltigt datumformat: {date}");
         }
 
+        private static void EditModel(SharesOtherImports model, SharesOtherShareImportViewModel vm)
+        {
+            model.Date = vm.Date.ToString("yyyy-MM-dd");
+            model.Account = vm.Account;
+            model.TypeOfTransaction = vm.TypeOfTransaction;
+            model.Company = vm.Company;
+            model.NumberOfShares = vm.NumberOfShares;
+            model.PricePerShare = vm.PricePerShare;
+            model.Amount = vm.Amount;
+            model.Brokerage = vm.Brokerage;
+            model.Currency = vm.Currency;
+            model.ISIN = vm.ISIN;
+            model.Note = vm.Note;
+        }
+
         public SharesOtherShareImportViewModel ChangeFromModelToViewModel(SharesOtherImports model)
         {
-            ArgumentNullException.ThrowIfNull(model);
-
-            SharesOtherShareImportViewModel vm = _mapper.Map<SharesOtherShareImportViewModel>(model);
-
-            if (!string.IsNullOrEmpty(model.Date))
-                vm.Date = ParseDate(model.Date);
-
-            return vm;
+            return new SharesOtherShareImportViewModel
+            {
+                OtherImportsId = model.OtherImportsId,
+                Date = model.Date == null ? DateTime.MinValue : DateTime.MinValue,
+                Account = model.Account,
+                Company = model.Company,
+                Currency = model.Currency,
+                ISIN = model.ISIN,
+                TypeOfTransaction = model.TypeOfTransaction,
+                NumberOfShares = model.NumberOfShares,
+                PricePerShare = model.PricePerShare,
+                Amount = model.Amount,
+                Brokerage = model.Brokerage,
+                Note = model.Note
+            };
         }
 
         public SharesOtherShareImportViewModel ChangeFromImportToViewModel(SharesImports model)
@@ -147,18 +169,22 @@ namespace MyPrivateApp.Components.Shares.Classes
             return vm;
         }
 
-        private SharesOtherImports ChangeFromViewModelToModel(SharesOtherShareImportViewModel vm, string import)
+        private static SharesOtherImports ChangeFromViewModelToModel(SharesOtherShareImportViewModel vm, string import)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
-            SharesOtherImports model = _mapper.Map<SharesOtherImports>(vm);
-
-            if (vm.Date != DateTime.MinValue)
-                model.Date = vm.Date.ToString("yyyy-MM-dd");
-
-            model.Note = $"Import: {import}\r\n. " + vm.Note;
-
-            return model;
+            return new SharesOtherImports
+            {
+                Account = vm.Account,
+                Date = vm.Date.ToString("yyyy-MM-dd"),
+                TypeOfTransaction = vm.TypeOfTransaction,
+                Company = vm.Company,
+                NumberOfShares = vm.NumberOfShares,
+                PricePerShare = vm.PricePerShare,
+                Amount = vm.Amount,
+                Brokerage = vm.Brokerage,
+                Currency = vm.Currency,
+                ISIN = vm.ISIN,
+                Note = $"Import: {import}\r\n. " + vm.Note
+            };
         }
 
         private async Task<string> HandleError(SharesOtherShareImportViewModel? vm, string type, bool import, string errorMessage)
@@ -166,18 +192,19 @@ namespace MyPrivateApp.Components.Shares.Classes
             if (import)
                 await ErrorHandling(vm, type, import, errorMessage);
 
-            return $"{type}: Felmeddelande: {errorMessage}";
+            return $"Felmeddelande: {errorMessage}";
         }
 
         private async Task ErrorHandling(SharesOtherShareImportViewModel? vm, string type, bool import, string errorMessage)
         {
-            ArgumentNullException.ThrowIfNull(vm);
-
             DateTime date = DateTime.Now;
             string importTrue = import ? "Ja" : "Nej";
 
             try
             {
+                if (vm == null)
+                    throw new Exception("ErrorHandling: SharesDividendViewModel == null!");
+
                 SharesErrorHandlings sharesErrorHandling = new()
                 {
                     Date = $"{date.Year}-{date.Month}-{date.Day}",
@@ -187,8 +214,10 @@ namespace MyPrivateApp.Components.Shares.Classes
                     Note = $"{type} ANDRA IMPORTER: \r\nDatum: {vm.Date} \r\nImport: {importTrue}  \r\nISIN: {vm.ISIN}  \r\nId: {vm.OtherImportsId}. "
                 };
 
-                await _db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
-                await _db.SaveChangesAsync();
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("ErrorHandling: db == null!");
+                await db.SharesErrorHandlings.AddAsync(sharesErrorHandling);
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
             }
             catch (Exception ex)
             {
