@@ -531,7 +531,8 @@ catch (Exception ex)
     {
         try
         {
-            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() 
+                ?? throw new Exception("Delete: db == null!");
 
             if (!db.SharesDividends.Any())
             {

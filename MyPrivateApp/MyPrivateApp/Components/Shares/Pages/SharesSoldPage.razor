@@ -617,7 +617,7 @@ catch (Exception ex)
 
             if (!db.SharesSolds.Any())
             {
-                ShowErrorMessage("Gick inte att ta bort överföringen, databasen är tom!");
+                ShowErrorMessage("Gick inte att ta bort såld aktie, databasen är tom!");
                 return;
             }
 
@@ -625,7 +625,7 @@ catch (Exception ex)
 
             if (model == null)
             {
-                ShowErrorMessage($"Går inte att ta bort överföringen. (TemporaryId = {TemporaryId})!");
+                ShowErrorMessage($"Det finns inga såld aktie att ta bort!. (TemporaryId = {TemporaryId})!");
                 return;
             }
 
