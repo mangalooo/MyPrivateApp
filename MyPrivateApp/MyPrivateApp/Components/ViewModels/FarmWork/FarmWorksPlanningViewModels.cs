@@ -22,6 +22,7 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         public FarmWorkPlaces Place { get; set; }
 
         [Display(Name = "Område")]
+        [DataType(DataType.Text)]
         public string? Area { get; set; }
 
         [Display(Name = "Fastighetsbeteckning")]

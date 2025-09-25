@@ -10,6 +10,7 @@ namespace MyPrivateApp.Data.Models.FarmWork
         public string? Date { get; set; }
         public FarmWorkPlaces Place { get; set; }
         public string? PropertyDesignation { get; set; }
+        public string? Area { get; set; }
         public double Hours { get; set; }
         public bool NextSalary { get; set; }
         public string? Note { get; set; }

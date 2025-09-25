@@ -22,6 +22,10 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [DataType(DataType.Text)]
         public string? PropertyDesignation { get; set; }
 
+        [Display(Name = "Område")]
+        [DataType(DataType.Text)]
+        public string? Area { get; set; }
+
         [Display(Name = "Timmar")]
         [DataType(DataType.Text)]
         public double Hours { get; set; }

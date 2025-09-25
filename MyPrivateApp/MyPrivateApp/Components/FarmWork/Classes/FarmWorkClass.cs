@@ -98,6 +98,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 Date = DateTime.Parse(model.Date ?? string.Empty),
                 Place = model.Place,
                 PropertyDesignation = model.PropertyDesignation,
+                Area = model.Area,
                 Hours = model.Hours,
                 NextSalary = model.NextSalary,
                 Note = model.Note
@@ -114,6 +115,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 Date = vm.Date.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
                 PropertyDesignation = vm.PropertyDesignation,
+                Area = vm.Area,
                 Hours = vm.Hours,
                 NextSalary = vm.NextSalary,
                 Note = vm.Note
@@ -128,6 +130,7 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             model.Date = vm.Date.ToString("yyyy-MM-dd");
             model.Place = vm.Place;
             model.PropertyDesignation = vm.PropertyDesignation;
+            model.Area = vm.Area;
             model.Hours = vm.Hours;
             model.NextSalary = vm.NextSalary;
             model.Note = vm.Note;
