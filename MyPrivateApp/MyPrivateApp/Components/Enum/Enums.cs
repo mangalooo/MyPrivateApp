@@ -121,7 +121,8 @@ namespace MyPrivateApp.Components.Enum
         Klev,
         Skog,
         Smältryd,
-        Övrigt
+        Övrigt,
+        TorestorpBacka
     }
 
     public enum FarmWorkPrioritize
@@ -140,7 +141,8 @@ namespace MyPrivateApp.Components.Enum
         Röjning,
         Förröjning,
         Gallra,
-        Skota
+        Skota,
+        Vindfällor
     }
 
     public enum TransactionType
