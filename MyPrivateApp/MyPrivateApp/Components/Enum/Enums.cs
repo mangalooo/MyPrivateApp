@@ -120,8 +120,9 @@ namespace MyPrivateApp.Components.Enum
         Karlabo,
         Klev,
         Skog,
-        Smältryd,
+        Sätila,
         Övrigt,
+        SätilaHede,
         TorestorpBacka
     }
 
