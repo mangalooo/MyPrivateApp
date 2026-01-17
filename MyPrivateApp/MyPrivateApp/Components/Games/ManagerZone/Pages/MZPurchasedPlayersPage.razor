@@ -1,5 +1,4 @@
-﻿
-@page "/MZPurchasedPlayersPage"
+﻿@page "/MZPurchasedPlayersPage"
 
 @using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Components.Games.ManagerZone.Classes
@@ -93,27 +92,29 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
-
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Name"> Namn </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Name"> Namn </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="YearsOld"> Ålder </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.YearsOld" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="YearsOld"> Ålder </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="Number"> Nummer </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="Number"> Nummer </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
 
                                 <br />
@@ -121,27 +122,29 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
-
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputDate @bind-Value="pageViewModel.PurchasedDate" class="form-control" disabled="@DisabledForm" />
-                                            <label for="PurchasedDate"> Inköpsdatum </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputDate @bind-Value="pageViewModel.PurchasedDate" class="form-control" disabled="@DisabledForm" />
+                                                <label for="PurchasedDate"> Inköpsdatum </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="PurchaseAmount"> Inköpsbelopp </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.PurchaseAmount" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="PurchaseAmount"> Inköpsbelopp </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.DaysInTheClub(pageViewModel.PurchasedDate) </span>
-                                            <label for="DaysInTheClub"> Dagar i klubben </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.DaysInTheClub(pageViewModel.PurchasedDate) </span>
+                                                <label for="DaysInTheClub"> Dagar i klubben </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
 
                                 <br />
@@ -149,34 +152,36 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-3" />
-
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.Salary" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Salary"> Lön </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.Salary" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Salary"> Lön </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalSalary(pageViewModel.PurchasedDate, pageViewModel.Salary) </span>
-                                            <label for="SalaryTotal"> Total utbetalad lön </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalSalary(pageViewModel.PurchasedDate, pageViewModel.Salary) </span>
+                                                <label for="SalaryTotal"> Total utbetalad lön </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.SalaryChange" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                            <label for="SalaryChange"> Ändra lön </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.SalaryChange" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                <label for="SalaryChange"> Ändra lön </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.SalarySaved" class="form-control" placeholder="" disabled="@true" />
-                                            <label for="SalarySaved"> Spara gammal lön </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.SalarySaved" class="form-control" placeholder="" disabled="@true" />
+                                                <label for="SalarySaved"> Spara gammal lön </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
 
                                 <br />
@@ -184,38 +189,43 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
-
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.TrainingModeCost" class="form-control" disabled="@DisabledForm" />
-                                            <label for="TrainingModeCost"> Denna träningsläger kostnad </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.TrainingModeCost" class="form-control" disabled="@DisabledForm" />
+                                                <label for="TrainingModeCost"> Denna träningsläger kostnad </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.TrainingModeTotalCost" class="form-control" placeholder="" disabled="@true" />
-                                            <label for="TrainingModeTotalCost"> Total träningsläger kostnad </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.TrainingModeTotalCost" class="form-control" placeholder="" disabled="@true" />
+                                                <label for="TrainingModeTotalCost"> Total träningsläger kostnad </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalCost(pageViewModel.PurchasedDate, pageViewModel.Salary, pageViewModel.PurchaseAmount, pageViewModel.TrainingModeTotalCost, pageViewModel.SaleCharge) </span>
-                                            <label for="TotalCostRightNow"> Total kostnad just nu </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <span class="form-control" disabled="@true" placeholder=""> @BackEndClass.TotalCost(pageViewModel.PurchasedDate, pageViewModel.Salary, pageViewModel.PurchaseAmount, pageViewModel.TrainingModeTotalCost, pageViewModel.SaleCharge) </span>
+                                                <label for="TotalCostRightNow"> Total kostnad just nu </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
 
                                 <br />
 
                                 <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <InputTextArea rows="2" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Note"> Beskrivning </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <InputTextArea rows="2" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Note"> Beskrivning </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
 
                                 <br />
@@ -225,28 +235,29 @@
                                     <div class="row">
 
                                         <div id="mobile" class="col-4" />
-
-                                        <div class="col-4">
-                                            <div class="form-floating">
-                                                <InputDate @bind-Value="pageViewModel.SoldDate" class="form-control" />
-                                                <label for="SoldDate"> Sälj datum </label>
+                                        @if (pageViewModel != null)
+                                        {
+                                            <div class="col-4">
+                                                <div class="form-floating">
+                                                    <InputDate @bind-Value="pageViewModel.SoldDate" class="form-control" />
+                                                    <label for="SoldDate"> Sälj datum </label>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-4">
-                                            <div class="form-floating">
-                                                <InputNumber @bind-Value="pageViewModel.SoldAmount" class="form-control" placeholder="" />
-                                                <label for="SoldAmount"> Sälj värdet </label>
+                                            <div class="col-4">
+                                                <div class="form-floating">
+                                                    <InputNumber @bind-Value="pageViewModel.SoldAmount" class="form-control" placeholder="" />
+                                                    <label for="SoldAmount"> Sälj värdet </label>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-4">
-                                            <div class="form-floating">
-                                                <InputNumber @bind-Value="pageViewModel.SaleCharge" class="form-control" placeholder="" />
-                                                <label for="SaleCharge"> Sälj avgift </label>
+                                            <div class="col-4">
+                                                <div class="form-floating">
+                                                    <InputNumber @bind-Value="pageViewModel.SaleCharge" class="form-control" placeholder="" />
+                                                    <label for="SaleCharge"> Sälj avgift </label>
+                                                </div>
                                             </div>
-                                        </div>
-
+                                        }
                                     </div>
                                 }
 
@@ -278,8 +289,10 @@
                                                 <div class="modal-content">
 
                                                     <br />
-
-                                                    <h5> Vill du sälja spelaren: <strong> @pageViewModel.Name? </strong> </h5>
+                                                    @if (pageViewModel != null)
+                                                    {
+                                                        <h5> Vill du sälja spelaren: <strong> @pageViewModel!.Name? </strong> </h5>
+                                                    }
 
                                                     <br />
 
@@ -342,7 +355,7 @@
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel.Name? </h5>
+                                                <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel!.Name? </h5>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelaren </button>
@@ -395,7 +408,7 @@
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel.Name? </h5>
+                                                <h5 class="modal-title"> Vill du ta bort spelaren: @pageViewModel!.Name? </h5>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort spelare </button>
@@ -446,7 +459,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private MZPurchasedPlayersViewModels pageViewModel { get; set; } = new();
+    private MZPurchasedPlayersViewModels? pageViewModel { get; set; }
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<MZPurchasedPlayersViewModels> queryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
 
@@ -527,6 +540,12 @@ catch (Exception ex)
     {
         DisabledForm = false;
 
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
+
         try
         {
             if (pageViewModel.ManagerZonePurchasedPlayersId > 0)
@@ -606,21 +625,28 @@ catch (Exception ex)
 
     private async Task SellButton()
     {
-        try
+        if (pageViewModel != null)
         {
-            ErrorMessage = await BackEndClass.Sell(pageViewModel);
-
-            if (!string.IsNullOrEmpty(ErrorMessage))
-                ShowOrHideErrorMessage = true;
-            else
+            try
             {
-                pageViewModel = new();
-                await RefreshPage();
+                ErrorMessage = await BackEndClass.Sell(pageViewModel);
+
+                if (!string.IsNullOrEmpty(ErrorMessage))
+                    ShowOrHideErrorMessage = true;
+                else
+                {
+                    pageViewModel = new();
+                    await RefreshPage();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage($"Ett fel uppstod när spelaren skulle säljas: {ex.Message}");
             }
         }
-        catch (Exception ex)
+        else
         {
-            ShowErrorMessage($"Ett fel uppstod när spelaren skulle säljas: {ex.Message}");
+            ShowErrorMessage($"SellButton: pageViewModel = null!");
         }
     }
 

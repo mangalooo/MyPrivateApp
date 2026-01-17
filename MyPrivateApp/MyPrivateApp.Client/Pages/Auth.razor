@@ -1,14 +1,16 @@
 ﻿@page "/auth"
 
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize]
-@rendermode InteractiveAuto
 
 <PageTitle>Auth</PageTitle>
 
 <h1>Godkänd inloggning</h1>
 
 <AuthorizeView>
-    Hej @context.User.Identity?.Name!
+    <Authorized>
+        Hej @context.User.Identity?.Name!
+    </Authorized>
 </AuthorizeView>

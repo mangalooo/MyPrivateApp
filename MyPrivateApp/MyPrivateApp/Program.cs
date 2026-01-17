@@ -1,4 +1,3 @@
-
 using AutoMapper;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -6,6 +5,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MyPrivateApp.Components;
 using MyPrivateApp.Components.Account;
 using MyPrivateApp.Components.Contact.Classes;
@@ -25,17 +25,11 @@ using MyPrivateApp.Data.Models.Hunting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Cookie settings
-builder.Services.ConfigureApplicationCookie(options =>
+// Configure Kestrel server limits
+builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Strict;
-});
-
-builder.Services.Configure<CookiePolicyOptions>(options =>
-{
-    options.MinimumSameSitePolicy = SameSiteMode.Strict; // Or Lax/None as needed
-    options.Secure = CookieSecurePolicy.Always;
+    serverOptions.Limits.MaxRequestLineSize = 16384; // 16 KB (default is 8 KB)
+    serverOptions.Limits.MaxRequestHeadersTotalSize = 65536; // 64 KB
 });
 
 // Add services to the container.
@@ -92,7 +86,7 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 
 builder.Services.AddServerSideBlazor().AddCircuitOptions(options =>
 {
@@ -101,15 +95,23 @@ builder.Services.AddServerSideBlazor().AddCircuitOptions(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Enforces Secure attribute
-    options.Cookie.SameSite = SameSiteMode.Strict; // Ensures cookies are sent only in same-site requests
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+
+    options.Cookie.SameSite = SameSiteMode.Lax;
+
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ReturnUrlParameter = "returnUrl";
 });
 
 builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    })
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
     .AddIdentityCookies();
 
 builder.Services.AddAuthorizationBuilder()
@@ -143,7 +145,6 @@ builder.Services.AddHangfire(x => x
     }));
 
 builder.Services.AddHangfireServer();
-builder.Services.AddRazorComponents();
 
 builder.WebHost.UseWebRoot("wwwroot");
 builder.WebHost.UseStaticWebAssets();
@@ -170,67 +171,23 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode();
-
-// Add additional endpoints required by the Identity /Account Razor components.
-app.MapAdditionalIdentityEndpoints();
-
-//Hangfire
-app.UseHangfireDashboard("/hangfire");
-
-// Logs
-ILogger<ContactClass> loggerContact = app.Services.GetRequiredService<ILogger<ContactClass>>();
-ILogger<FarmingClass> loggerFarmingClass = app.Services.GetRequiredService<ILogger<FarmingClass>>();
-ILogger<FarmWorkClass> loggerFarmWorkClass = app.Services.GetRequiredService<ILogger<FarmWorkClass>>();
-ILogger<FarmWorksPlanningClass> loggerFarmWorkPlanningClass = app.Services.GetRequiredService<ILogger<FarmWorksPlanningClass>>();
-ILogger<MZPurchasedClass> loggerMZPurchasedClass = app.Services.GetRequiredService<ILogger<MZPurchasedClass>>();
-ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger<MZSoldClass>>();
-ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
-ILogger<HuntingMyList> loggerHuntingMyList = app.Services.GetRequiredService<ILogger<HuntingMyList>>();
-ILogger<ShopingList> loggerShopingList = app.Services.GetRequiredService<ILogger<ShopingList>>();
-ILogger<Trips> loggerTrips = app.Services.GetRequiredService<ILogger<Trips>>();
-
-// Shares logs
-ILogger<SharesDepositMoneyClass> loggerDepositMoney = app.Services.GetRequiredService<ILogger<SharesDepositMoneyClass>>();
-ILogger<SharesDividendClass> loggerDividend = app.Services.GetRequiredService<ILogger<SharesDividendClass>>();
-ILogger<SharesPurchasedClass> loggerPurchased = app.Services.GetRequiredService<ILogger<SharesPurchasedClass>>();
-ILogger<SharesSoldClass> loggerSold = app.Services.GetRequiredService<ILogger<SharesSoldClass>>();
-ILogger<SharesPurchasedFundsClass> LoggerPurchasedFunds = app.Services.GetRequiredService<ILogger<SharesPurchasedFundsClass>>();
-ILogger<SharesSoldFundsClass> loggerSoldFunds = app.Services.GetRequiredService<ILogger<SharesSoldFundsClass>>();
-ILogger<SharesFeeClass> loggerFee = app.Services.GetRequiredService<ILogger<SharesFeeClass>>();
-ILogger<SharesInterestRatesClass> loggerInterestRates = app.Services.GetRequiredService<ILogger<SharesInterestRatesClass>>();
-ILogger<SharesOtherImportsClass> loggerOtherImports = app.Services.GetRequiredService<ILogger<SharesOtherImportsClass>>();
-ILogger<SharesImportsFileClass> loggerImportsFile = app.Services.GetRequiredService<ILogger<SharesImportsFileClass>>();
-ILogger<SharesIndexYearsClass> loggerIndexYears = app.Services.GetRequiredService<ILogger<SharesIndexYearsClass>>();
-
-// Mapper
-IMapper mapper = app.Services.GetRequiredService<IMapper>();
-MapperConfiguration config = new(cfg =>
-{
-    cfg.AddProfile<SharesMappingProfileClass>();
-});
-mapper = config.CreateMapper();
-
-// Email
-IConfiguration configuration = app.Services.GetRequiredService<IConfiguration>();
-IEmailSender emailSender = app.Services.GetRequiredService<IEmailSender>();
-
-async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
-{
-    if (id == null) 
-        throw new ArgumentNullException(nameof(id));
-
-    return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
-           ?? throw new Exception("Datum för mejl-utskick hittades inte i databasen!");
-}
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Get ApplicationDbContext from the request services
 app.Use(async (context, next) =>
 {
-    ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>() 
+    ApplicationDbContext db = context.RequestServices.GetRequiredService<ApplicationDbContext>()
         ?? throw new InvalidOperationException("Program felmeddelande: Gick inte att koppla till databasen!");
+
+    async Task<LastEmailSent?> Get(ApplicationDbContext db, int? id)
+    {
+        if (id == null)
+            throw new ArgumentNullException(nameof(id));
+
+        return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
+               ?? throw new Exception("Datum för mejl-utskick hittades inte i databasen!");
+    }
 
     LastEmailSent? lastEmailSentBirthday = await Get(db, 1);
 
@@ -267,18 +224,39 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseHsts();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(MyPrivateApp.Client._Imports).Assembly);
 
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-        logger.LogError(exceptionHandlerPathFeature?.Error, "Unhandled exception");
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsync("An error occurred.");
-    });
-});
+app.MapAdditionalIdentityEndpoints();
+
+//Hangfire
+app.UseHangfireDashboard("/hangfire");
+
+// Logs
+ILogger<ContactClass> loggerContact = app.Services.GetRequiredService<ILogger<ContactClass>>();
+ILogger<FarmingClass> loggerFarmingClass = app.Services.GetRequiredService<ILogger<FarmingClass>>();
+ILogger<FarmWorkClass> loggerFarmWorkClass = app.Services.GetRequiredService<ILogger<FarmWorkClass>>();
+ILogger<FarmWorksPlanningClass> loggerFarmWorkPlanningClass = app.Services.GetRequiredService<ILogger<FarmWorksPlanningClass>>();
+ILogger<MZPurchasedClass> loggerMZPurchasedClass = app.Services.GetRequiredService<ILogger<MZPurchasedClass>>();
+ILogger<MZSoldClass> loggerMZSoldClass = app.Services.GetRequiredService<ILogger<MZSoldClass>>();
+ILogger<FrozenFoodClass> loggerFrozenFood = app.Services.GetRequiredService<ILogger<FrozenFoodClass>>();
+ILogger<HuntingMyList> loggerHuntingMyList = app.Services.GetRequiredService<ILogger<HuntingMyList>>();
+ILogger<ShopingList> loggerShopingList = app.Services.GetRequiredService<ILogger<ShopingList>>();
+ILogger<Trips> loggerTrips = app.Services.GetRequiredService<ILogger<Trips>>();
+
+// Shares logs
+ILogger<SharesDepositMoneyClass> loggerDepositMoney = app.Services.GetRequiredService<ILogger<SharesDepositMoneyClass>>();
+ILogger<SharesDividendClass> loggerDividend = app.Services.GetRequiredService<ILogger<SharesDividendClass>>();
+ILogger<SharesPurchasedClass> loggerPurchased = app.Services.GetRequiredService<ILogger<SharesPurchasedClass>>();
+ILogger<SharesSoldClass> loggerSold = app.Services.GetRequiredService<ILogger<SharesSoldClass>>();
+ILogger<SharesPurchasedFundsClass> LoggerPurchasedFunds = app.Services.GetRequiredService<ILogger<SharesPurchasedFundsClass>>();
+ILogger<SharesSoldFundsClass> loggerSoldFunds = app.Services.GetRequiredService<ILogger<SharesSoldFundsClass>>();
+ILogger<SharesFeeClass> loggerFee = app.Services.GetRequiredService<ILogger<SharesFeeClass>>();
+ILogger<SharesInterestRatesClass> loggerInterestRates = app.Services.GetRequiredService<ILogger<SharesInterestRatesClass>>();
+ILogger<SharesOtherImportsClass> loggerOtherImports = app.Services.GetRequiredService<ILogger<SharesOtherImportsClass>>();
+ILogger<SharesImportsFileClass> loggerImportsFile = app.Services.GetRequiredService<ILogger<SharesImportsFileClass>>();
+ILogger<SharesIndexYearsClass> loggerIndexYears = app.Services.GetRequiredService<ILogger<SharesIndexYearsClass>>();
 
 app.Run();

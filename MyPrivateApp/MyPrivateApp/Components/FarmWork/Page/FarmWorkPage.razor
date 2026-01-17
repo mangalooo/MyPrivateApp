@@ -111,21 +111,22 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-6" />
-
-                                <div class="col-6">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.Date" id="inputDate" class="form-control" disabled="@DisabledForm" aria-label="Datum" />
-                                        <label for="inputDate">Datum</label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.Date" id="inputDate" class="form-control" disabled="@DisabledForm" aria-label="Datum" />
+                                            <label for="inputDate">Datum</label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-6">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.Hours" id="inputHours" class="form-control" disabled="@DisabledForm" aria-label="Timmar" />
-                                        <label for="inputHours">Timmar</label>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Hours" id="inputHours" class="form-control" disabled="@DisabledForm" aria-label="Timmar" />
+                                            <label for="inputHours">Timmar</label>
+                                        </div>
                                     </div>
-                                </div>
-
+                                }
                             </div>
 
                             <br />
@@ -135,32 +136,41 @@
                                 <div id="mobile" class="col-4" />
 
                                 <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputSelect @bind-Value="pageViewModel.Place" id="inputPlace" class="form-control" disabled="@DisabledForm" aria-label="Plats">
-                                            @foreach (FarmWorkPlaces place in Enum.GetValues(typeof(FarmWorkPlaces)))
-                                            {
-                                                if (place != FarmWorkPlaces.Välj)
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Place" id="inputPlace" class="form-control" disabled="@DisabledForm" aria-label="Plats">
+                                                @foreach (FarmWorkPlaces place in Enum.GetValues(typeof(FarmWorkPlaces)))
                                                 {
-                                                    <option @key="place" value="@place">@place</option>
+                                                    if (place != FarmWorkPlaces.Välj)
+                                                    {
+                                                        <option @key="place" value="@place">@place</option>
+                                                    }
                                                 }
-                                            }
-                                        </InputSelect>
-                                        <label for="inputPlace">Plats</label>
-                                    </div>
+                                            </InputSelect>
+                                            <label for="inputPlace">Plats</label>
+                                        </div>
+                                    }
                                 </div>
 
                                 <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.PropertyDesignation" id="propertyDesignation" class="form-control" disabled="@DisabledForm" aria-label="Timmar" />
-                                        <label for="propertyDesignation"> Fastighetsbeteckning </label>
-                                    </div>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.PropertyDesignation" id="propertyDesignation" class="form-control" disabled="@DisabledForm" aria-label="Timmar" />
+                                            <label for="propertyDesignation"> Fastighetsbeteckning </label>
+                                        </div>
+                                    }
                                 </div>
 
                                 <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Area" id="area" class="form-control" disabled="@DisabledForm" aria-label="Timmar" />
-                                        <label for="area"> Område </label>
-                                    </div>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Area" id="area" class="form-control" disabled="@DisabledForm" aria-label="Timmar" />
+                                            <label for="area"> Område </label>
+                                        </div>
+                                    }
                                 </div>
 
                             </div>
@@ -168,21 +178,27 @@
                             <br />
 
                             <div class="row">
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputTextArea rows="10" id="inputNote" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" aria-label="Beskrivning" />
-                                        <label for="inputNote">Beskrivning</label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputTextArea rows="10" id="inputNote" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" aria-label="Beskrivning" />
+                                            <label for="inputNote">Beskrivning</label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </div>
 
                             <br />
 
                             <div class="form-group text-center">
-                                <div class="form-check d-inline-block">
-                                    <InputCheckbox id="inputNextSalary" @bind-Value="pageViewModel.NextSalary" class="form-check-input" disabled="@DisabledForm" aria-label="Nästa lön" />
-                                    <label class="form-check-label" for="inputNextSalary">Nästa lön?</label>
-                                </div>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="form-check d-inline-block">
+                                        <InputCheckbox id="inputNextSalary" @bind-Value="pageViewModel.NextSalary" class="form-check-input" disabled="@DisabledForm" aria-label="Nästa lön" />
+                                        <label class="form-check-label" for="inputNextSalary">Nästa lön?</label>
+                                    </div>
+                                }
                             </div>
 
                             <br />
@@ -379,7 +395,7 @@
                         </TemplateColumn>
                     </QuickGrid>
 
-                    @if (isDeleteSalaryButtonVisible)
+                    @if (pageViewModel != null && isDeleteSalaryButtonVisible)
                     {
                         <br />
 
@@ -433,7 +449,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private FarmWorksViewModels pageViewModel { get; set; } = new();
+    private FarmWorksViewModels? pageViewModel { get; set; }
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<FarmWorksViewModels> queryable = Enumerable.Empty<FarmWorksViewModels>().AsQueryable();
@@ -533,13 +549,19 @@
 
         try
         {
-            if (pageViewModel.FarmWorksId > 0)
+            if (pageViewModel != null && pageViewModel.FarmWorksId > 0)
             {
                 ErrorMessage = await BackEndClass.Edit(pageViewModel);
                 ShowOrHideEditButton = true;
             }
             else
             {
+                if (pageViewModel == null)
+                {
+                    ShowErrorMessage("AddOrEdit: pageViewModel = null!");
+                    return;
+                }
+                
                 ErrorMessage = await BackEndClass.Add(pageViewModel);
                 ShowOrHideAddNewButton = true;
             }

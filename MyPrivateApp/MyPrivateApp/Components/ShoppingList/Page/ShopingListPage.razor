@@ -83,40 +83,43 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-4" />
-
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Date"> Datum </label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Date"> Datum </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Place" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Places"> Plats </label>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Place" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Places"> Plats </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Name"> Namn </label>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Name"> Namn </label>
+                                        </div>
                                     </div>
-                                </div>
-
+                                }
                             </div>
 
                             <br />
 
                             <div class="row">
-
+                                                                    @if (pageViewModel != null)
+                                    {
                                 <div class="col-12">
                                     <div class="form-floating">
                                         <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.List" class="form-control" disabled="@DisabledForm" />
                                         <label for="List"> Inköpslistan </label>
                                     </div>
                                 </div>
+                                    }
                             </div>
 
                             <br />
@@ -269,7 +272,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private ShopingListViewModels pageViewModel { get; set; } = new();
+    private ShopingListViewModels? pageViewModel { get; set; }
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<ShopingListViewModels> queryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
 
@@ -342,6 +345,12 @@
     private async Task AddOrEdit()
     {
         DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
 
         try
         {

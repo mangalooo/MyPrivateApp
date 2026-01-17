@@ -80,19 +80,21 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-6" />
-
-                                <div class="col-6">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="Date"> Reser bort </label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.Date" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Date"> Reser bort </label>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.HomeDate" class="form-control" disabled="@DisabledForm" />
-                                        <label for="HomeDate"> Reser hem </label>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.HomeDate" class="form-control" disabled="@DisabledForm" />
+                                            <label for="HomeDate"> Reser hem </label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </div>
 
                             <br />
@@ -100,41 +102,49 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-6" />
-
-                                <div class="col-6">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Country" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="Country"> Land </label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Country" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Country"> Land </label>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="Place"> Plats </label>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Place"> Plats </label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </div>
 
                             <br />
 
                             <div class="row">
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.TravelBuddies" class="form-control" disabled="@DisabledForm" />
-                                        <label for="TravelBuddies"> Medpassagerare</label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.TravelBuddies" class="form-control" disabled="@DisabledForm" />
+                                            <label for="TravelBuddies"> Medpassagerare</label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </div>
 
                             <br />
 
                             <div class="row">
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputTextArea @bind-Value="pageViewModel.Description" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Description"> Beskrivning </label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputTextArea @bind-Value="pageViewModel.Description" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Description"> Beskrivning </label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </div>
 
                             <br />
@@ -304,7 +314,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private TripsViewModel pageViewModel { get; set; } = new();
+    private TripsViewModel? pageViewModel { get; set; }
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<TripsViewModel> queryable = Enumerable.Empty<TripsViewModel>().AsQueryable();
 
@@ -379,6 +389,12 @@
     private async Task AddOrEdit()
     {
         DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
 
         try
         {

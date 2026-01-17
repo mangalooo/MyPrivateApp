@@ -113,28 +113,29 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-4" />
-
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.CompanyName" class="form-control" disabled="@DisabledForm" />
-                                        <label for="CompanyName"> Företag </label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.CompanyName" class="form-control" disabled="@DisabledForm" />
+                                            <label for="CompanyName"> Företag </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.TypeOfShares" class="form-control" disabled="@DisabledForm" />
-                                        <label for="TypeOfShares"> Typ av aktie </label>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.TypeOfShares" class="form-control" disabled="@DisabledForm" />
+                                            <label for="TypeOfShares"> Typ av aktie </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.ISIN" class="form-control" disabled="@DisabledForm" />
-                                        <label for="ISIN"> ISIN </label>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.ISIN" class="form-control" disabled="@DisabledForm" />
+                                            <label for="ISIN"> ISIN </label>
+                                        </div>
                                     </div>
-                                </div>
-
+                                }
                             </div>
 
                             <br />
@@ -142,28 +143,29 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-4" />
-
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
-                                        <label for="DateOfPurchase"> Datum </label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.DateOfPurchase" class="form-control" disabled="@DisabledForm" />
+                                            <label for="DateOfPurchase"> Datum </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Account" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Account"> Konto </label>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Account" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Account"> Konto </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Currency" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Currency"> Valuta </label>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Currency" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Currency"> Valuta </label>
+                                        </div>
                                     </div>
-                                </div>
-
+                                }
                             </div>
 
                             <br />
@@ -171,48 +173,50 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-3" />
-
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.HowMany" class="form-control" disabled="@DisabledForm" />
-                                        <label for="HowMany"> Antal </label>
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.HowMany" class="form-control" disabled="@DisabledForm" />
+                                            <label for="HowMany"> Antal </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.PricePerShares" class="form-control" disabled="@DisabledForm" />
-                                        <label for="PricePerShares"> Pris per aktie (snitt vid köp av fler) </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.PricePerShares" class="form-control" disabled="@DisabledForm" />
+                                            <label for="PricePerShares"> Pris per aktie (snitt vid köp av fler) </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Amount" class="form-control" disabled="true" />
-                                        <label for="Amount"> Inköpsvärdet </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Amount" class="form-control" disabled="true" />
+                                            <label for="Amount"> Inköpsvärdet </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.Brokerage" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Brokerage"> Courtage </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Brokerage" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Brokerage"> Courtage </label>
+                                        </div>
                                     </div>
-                                </div>
-
+                                }
                             </div>
 
                             <br />
 
                             <div class="row">
-
+                                  @if (pageViewModel != null)
+{
                                 <div class="col-12">
                                     <div class="form-floating">
                                         <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
                                         <label for="Note"> Anteckningar </label>
                                     </div>
                                 </div>
-
+}
                             </div>
 
                             <br />
@@ -222,35 +226,36 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-3" />
-
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputDate @bind-Value="pageViewModel.MoreDateOfPurchase" class="form-control" />
-                                            <label for="MoreDateOfPurchase"> Köp mer: Datum </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputDate @bind-Value="pageViewModel.MoreDateOfPurchase" class="form-control" />
+                                                <label for="MoreDateOfPurchase"> Köp mer: Datum </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.MoreHowMany" class="form-control" />
-                                            <label for="MoreHowMany"> Köp mer: Antal </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.MoreHowMany" class="form-control" />
+                                                <label for="MoreHowMany"> Köp mer: Antal </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.MorePricePerShares" class="form-control" />
-                                            <label for="MorePricePerShares"> Köp mer: Pris per aktie </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.MorePricePerShares" class="form-control" />
+                                                <label for="MorePricePerShares"> Köp mer: Pris per aktie </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.MoreBrokerage" class="form-control" />
-                                            <label for="MoreBrokerage"> Köp mer: Courtage </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.MoreBrokerage" class="form-control" />
+                                                <label for="MoreBrokerage"> Köp mer: Courtage </label>
+                                            </div>
                                         </div>
-                                    </div>
-
+                                    }
                                 </div>
                             }
 
@@ -259,35 +264,36 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-3" />
-
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputDate @bind-Value="pageViewModel.SaleDateOfPurchase" class="form-control" />
-                                            <label for="SaleDateOfPurchase"> Sälj: Datum </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputDate @bind-Value="pageViewModel.SaleDateOfPurchase" class="form-control" />
+                                                <label for="SaleDateOfPurchase"> Sälj: Datum </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.SaleHowMany" class="form-control" />
-                                            <label for="SaleHowMany"> Sälj: Antal </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.SaleHowMany" class="form-control" />
+                                                <label for="SaleHowMany"> Sälj: Antal </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.SalePricePerShares" class="form-control" />
-                                            <label for="SalePricePerShares"> Sälj: Pris per aktie </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.SalePricePerShares" class="form-control" />
+                                                <label for="SalePricePerShares"> Sälj: Pris per aktie </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-3">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.SaleBrokerage" class="form-control" />
-                                            <label for="SaleBrokerage"> Sälj: Courtage </label>
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.SaleBrokerage" class="form-control" />
+                                                <label for="SaleBrokerage"> Sälj: Courtage </label>
+                                            </div>
                                         </div>
-                                    </div>
-
+                                    }
                                 </div>
                             }
 
@@ -330,7 +336,7 @@
                                             <div class="modal-content">
 
                                                 <br />
-                                                <h5> Vill du sälja aktien: <strong> @pageViewModel.CompanyName? </strong> </h5>
+                                                <h5> Vill du sälja aktien: <strong> @pageViewModel!.CompanyName? </strong> </h5>
                                                 <br />
                                                 <h5> Antal aktier: <strong> @pageViewModel.SaleHowMany av @pageViewModel.HowMany </strong> </h5>
                                                 <br />
@@ -501,7 +507,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private SharesPurchasedViewModel pageViewModel { get; set; } = new();
+    private SharesPurchasedViewModel? pageViewModel { get; set; }
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<SharesPurchasedViewModel> queryable = Enumerable.Empty<SharesPurchasedViewModel>().AsQueryable();
 
@@ -615,6 +621,12 @@ catch (Exception ex)
     {
         DisabledForm = false;
 
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
+
         try
         {
             if (pageViewModel.SharesPurchasedId > 0)
@@ -660,6 +672,12 @@ catch (Exception ex)
 
     private async Task AddMoreButton()
     {
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddMoreButton: pageViewModel = null!");
+            return;
+        }
+
         ErrorMessage = await BackEndClass.AddMore(pageViewModel, false);
 
         if (!string.IsNullOrEmpty(ErrorMessage))
@@ -720,18 +738,26 @@ catch (Exception ex)
 
     private async Task SellButton()
     {
-        ErrorMessage = await BackEndClass.Sell(pageViewModel, false, ISharesFeeClass);
-
-        if (!string.IsNullOrEmpty(ErrorMessage))
+        if (pageViewModel != null)
         {
-            ShowOrHideErrorMessage = false;
-            HideNewOrChangesFields = true;
-            ShowOrHideEditButton = false;
+            ErrorMessage = await BackEndClass.Sell(pageViewModel, false, ISharesFeeClass);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = false;
+                HideNewOrChangesFields = true;
+                ShowOrHideEditButton = false;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
         }
         else
         {
-            pageViewModel = new();
-            await RefreshPage();
+            ShowErrorMessage("SellButten: pageViewModel = null");
+            return;
         }
     }
 
@@ -739,6 +765,12 @@ catch (Exception ex)
     {
         try
         {
+            if (pageViewModel == null)
+            {
+                ShowErrorMessage($"Delete: pageViewModel = null");
+                return;
+            }
+
             using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
                 ?? throw new Exception("Delete: db == null!");
 

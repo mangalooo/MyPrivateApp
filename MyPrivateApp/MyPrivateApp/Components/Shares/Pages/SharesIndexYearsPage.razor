@@ -1,5 +1,4 @@
-﻿
-@page "/SharesIndexYearsPage"
+﻿@page "/SharesIndexYearsPage"
 
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -28,62 +27,62 @@
     @* Header *@
     <div>
 
-    @* Navigation *@
-    <div class="navigation">
+        @* Navigation *@
+        <div class="navigation">
 
-        <div id="desktop" class="text-center">
-            <div class="btn-group">
-                @foreach (var item in NavigationItems)
-                {
-                    <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
-                }
-            </div>
-        </div>
-
-        <div id="mobile">
-            <div class="btn-group" role="group">
-                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    Alla aktier sidor
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+            <div id="desktop" class="text-center">
+                <div class="btn-group">
                     @foreach (var item in NavigationItems)
                     {
-                        <li class="dropdown-item">
-                            <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
-                        </li>
+                        <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
                     }
-                </ul>
+                </div>
+            </div>
+
+            <div id="mobile">
+                <div class="btn-group" role="group">
+                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Alla aktier sidor
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        @foreach (var item in NavigationItems)
+                        {
+                            <li class="dropdown-item">
+                                <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
 
-    <br /> <br />
+        <br /> <br />
 
-    <h1 align="center"> Resultat </h1>
+        <h1 align="center"> Resultat </h1>
 
-    <br />
-
-    <h3 align="center">Total vinst: @TotalProfitsOrLosses</h3>
-
-    <br />
-
-    <div align="center">
-        <button class="btn btn-outline-success btn-sm" @onclick="@CalculateLastYearsResults"> Beräkna förra årets resultat </button>
-    </div>
-
-    @if (ShowOrHideErrorMessage)
-    {
         <br />
 
-        <div style="text-align:center">
-            <Alert Color="AlertColor.Danger">
-                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
-                <b>@ErrorMessage</b>
-            </Alert>
-        </div>
-    }
+        <h3 align="center">Total vinst: @TotalProfitsOrLosses</h3>
 
-    @if (ShowOrHideInfoMessage)
+        <br />
+
+        <div align="center">
+            <button class="btn btn-outline-success btn-sm" @onclick="@CalculateLastYearsResults"> Beräkna förra årets resultat </button>
+        </div>
+
+        @if (ShowOrHideErrorMessage)
+        {
+            <br />
+
+            <div style="text-align:center">
+                <Alert Color="AlertColor.Danger">
+                    <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                    <b>@ErrorMessage</b>
+                </Alert>
+            </div>
+        }
+
+        @if (ShowOrHideInfoMessage)
         {
             <br />
 
@@ -94,146 +93,152 @@
             </div>
         }
 
-    <br />
+        <br />
 
-</div>
-    
+    </div>
+
     @* Views *@
     <div class="container">
-    <div class="col-md-16">
-        <div class="card">
+        <div class="col-md-16">
+            <div class="card">
 
-            @* View - Desktop *@
-            <div id="desktop">
-                <div id="desktop" class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
+                @* View - Desktop *@
+                <div id="desktop">
+                    <div id="desktop" class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true">
-                            <ColumnOptions>
-                                <div class="search-box">
-                                    <input type="search" autofocus @onchange="SearchYear" />
+                            <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchYear" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLossYear)" Sortable="true" />
+                            <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
+                            <PropertyColumn Title="Aktier" Property="@(c => c.SharesYear)" Sortable="true" />
+                            <PropertyColumn Title="Fonder" Property="@(c => c.FundsYear)" Sortable="true" />
+                            <PropertyColumn Title="Ränta" Property="@(c => c.InterestRatesYear)" Sortable="true" />
+                            <PropertyColumn Title="Utdelning" Property="@(c => c.DividendYear)" Sortable="true" />
+                            <PropertyColumn Title="Avgifter" Property="@(c => "-" + c.FeeYear)" Sortable="true" />
+                            <PropertyColumn Title="Skatt" Property="@(c => "-" + c.TaxYear)" Sortable="true" />
+                            <PropertyColumn Title="Courtage" Property="@(c => "-" + c.BrokerageYear)" Sortable="true" />
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
                                 </div>
-                            </ColumnOptions>
-                        </PropertyColumn>
 
-                        <PropertyColumn Title="Vinst/förlust" Property="@(c => c.MoneyProfitOrLossYear)" Sortable="true" />
-                        <PropertyColumn Title="Vinst/förlust i %" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
-                        <PropertyColumn Title="Aktier" Property="@(c => c.SharesYear)" Sortable="true" />
-                        <PropertyColumn Title="Fonder" Property="@(c => c.FundsYear)" Sortable="true" />
-                        <PropertyColumn Title="Ränta" Property="@(c => c.InterestRatesYear)" Sortable="true" />
-                        <PropertyColumn Title="Utdelning" Property="@(c => c.DividendYear)" Sortable="true" />
-                        <PropertyColumn Title="Avgifter" Property="@(c => "-" + c.FeeYear)" Sortable="true" />
-                        <PropertyColumn Title="Skatt" Property="@(c => "-" + c.TaxYear)" Sortable="true" />
-                        <PropertyColumn Title="Courtage" Property="@(c => "-" + c.BrokerageYear)" Sortable="true" />
-                        <TemplateColumn Title="Info">
-
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
-
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort @pageViewModel.Year resultat? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <h5 class="modal-title"> Vill du ta bort @pageViewModel.Year resultat? </h5>
+                                                }
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            @if (ShowBackdrop)
-                            {
-                                <div class="modal-backdrop fade show"></div>
-                            }
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
 
-                        </TemplateColumn>
-                    </QuickGrid>
+                            </TemplateColumn>
+                        </QuickGrid>
 
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
+                        <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    <br /> <br />
+                        <br /> <br />
 
+                    </div>
                 </div>
-            </div>
 
-            @* View - Mobile *@
-            <div id="mobile">
-                <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
+                @* View - Mobile *@
+                <div id="mobile">
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true">
-                            <ColumnOptions>
-                                <div class="search-box">
-                                    <input type="search" autofocus @onchange="SearchYear" />
+                            <PropertyColumn Title="År" Property="@(c => c.Year)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchYear" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Title="%" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
                                 </div>
-                            </ColumnOptions>
-                        </PropertyColumn>
 
-                        <PropertyColumn Title="%" Property="@(c => c.PercentProfitOrLossYear)" Sortable="true" />
-                        <TemplateColumn Title="Info">
-
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
-
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort @pageViewModel.Year resultat? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <h5 class="modal-title"> Vill du ta bort @pageViewModel.Year resultat? </h5>
+                                                }
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            @if (ShowBackdrop)
-                            {
-                                <div class="modal-backdrop fade show"></div>
-                            }
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
 
-                        </TemplateColumn>
-                    </QuickGrid>
+                            </TemplateColumn>
+                        </QuickGrid>
 
-                    <br /> <br />
+                        <br /> <br />
 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-    
+
     @* Footer *@
     <div>
 
-    <br /> <br />
+        <br /> <br />
 
-    <div class="footer" align="center">
-        <p> Copyright 2023 - @DateTime.Now.Year</p>
+        <div class="footer" align="center">
+            <p> Copyright 2023 - @DateTime.Now.Year</p>
+        </div>
+
+        <br /> <br />
+
     </div>
-
-    <br /> <br />
-
-</div>
 }
 catch (Exception ex)
 {
@@ -244,7 +249,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private SharesProfitOrLossYearViewModel pageViewModel { get; set; } = new();
+    private SharesProfitOrLossYearViewModel? pageViewModel { get; set; }
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<SharesProfitOrLossYearViewModel> queryable = Enumerable.Empty<SharesProfitOrLossYearViewModel>().AsQueryable();
 
@@ -460,6 +465,6 @@ catch (Exception ex)
         catch (Exception ex)
         {
             ShowErrorMessage($"Sök år. Felmeddelande: {ex.Message}");
-        }     
+        }
     }
 }

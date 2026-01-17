@@ -86,22 +86,31 @@
 
                                     <div class="col-4">
                                         <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                            }
                                             <label for="Name"> Namn </label>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="form-floating">
-                                            <InputDate @bind-Value="pageViewModel.Birthday" class="form-control" disabled="@DisabledForm" />
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputDate @bind-Value="pageViewModel.Birthday" class="form-control" disabled="@DisabledForm" />
+                                            }
                                             <label for="Birthday"> Födelsedag </label>
                                         </div>
                                     </div>
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.MarriedPartner))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.MarriedPartner))
                                     {
                                         <div class="col-4">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.MarriedPartner" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.MarriedPartner" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="MarriedPartner"> Gift/sambo med </label>
                                             </div>
                                         </div>
@@ -115,41 +124,53 @@
 
                                     <div id="mobile" class="col-3" />
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildOne))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildOne))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.ChildOne" class="form-control" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildOne" class="form-control" disabled="@DisabledForm" />
+                                                }
                                                 <label for="ChildOne"> Barn 1 </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildTwo))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildTwo))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.ChildTwo" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildTwo" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="ChildTwo"> Barn 2 </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildThree))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildThree))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.ChildThree" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildThree" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="ChildThree"> barn 3 </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ChildFour))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildFour))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.ChildFour" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildFour" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="ChildFour"> Barn 4 </label>
                                             </div>
                                         </div>
@@ -165,19 +186,28 @@
 
                                     <div class="col-4">
                                         <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputText @bind-Value="pageViewModel.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            }
                                             <label for="Address"> Adress </label>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.PostCode" class="form-control" disabled="@DisabledForm" />
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputNumber @bind-Value="pageViewModel.PostCode" class="form-control" disabled="@DisabledForm" />
+                                            }
                                             <label for="PostCode"> Postnummer </label>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.City" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputText @bind-Value="pageViewModel.City" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            }
                                             <label for="City"> Stad/ort </label>
                                         </div>
                                     </div>
@@ -189,31 +219,40 @@
 
                                     <div id="mobile" class="col-4" />
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.PrivateMail))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.PrivateMail))
                                     {
                                         <div class="col-4">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.PrivateMail" class="form-control" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.PrivateMail" class="form-control" disabled="@DisabledForm" />
+                                                }
                                                 <label for="PrivateMail"> E-post </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.WorkEMail))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.WorkEMail))
                                     {
                                         <div class="col-4">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.WorkEMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.WorkEMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="WorkEMail"> E-post jobb </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ExtraMail))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ExtraMail))
                                     {
                                         <div class="col-4">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.ExtraMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ExtraMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="ExtraMail"> E-post extra </label>
                                             </div>
                                         </div>
@@ -227,41 +266,53 @@
 
                                     <div id="mobile" class="col-3" />
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.PhoneNumber))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.PhoneNumber))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.PhoneNumber" class="form-control" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.PhoneNumber" class="form-control" disabled="@DisabledForm" />
+                                                }
                                                 <label for="PhoneNumber"> Mobil nummer </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.HomePhoneNumber))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.HomePhoneNumber))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="HomePhoneNumber"> Hem nummer </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.WorkPhoneNumber))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.WorkPhoneNumber))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.WorkPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.WorkPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="WorkPhoneNumber"> Jobb nummer </label>
                                             </div>
                                         </div>
                                     }
 
-                                    @if (!string.IsNullOrWhiteSpace(pageViewModel.ExtraPhoneNumber))
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ExtraPhoneNumber))
                                     {
                                         <div class="col-3">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.ExtraPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ExtraPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="ExtraPhoneNumber"> Extra nummer </label>
                                             </div>
                                         </div>
@@ -271,12 +322,15 @@
 
                                 <br />
 
-                                @if (!string.IsNullOrWhiteSpace(pageViewModel.HomePage))
+                                @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.HomePage))
                                 {
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-floating">
-                                                <InputText @bind-Value="pageViewModel.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
                                                 <label for="HomePage"> Hemsida </label>
                                             </div>
                                         </div>
@@ -285,11 +339,14 @@
                                     <br />
                                 }
 
-                                @if (!string.IsNullOrWhiteSpace(pageViewModel.Notes))
+                                @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.Notes))
                                 {
                                     <div class="col-12">
                                         <div class="form-floating">
-                                            <InputTextArea rows="6" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputTextArea rows="6" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            }
                                             <label for="Notes"> Antecklingar </label>
                                         </div>
                                     </div>
@@ -300,43 +357,67 @@
                                 @* View - Desktop *@
                                 <div id="desktop" class="form-group" align="center">
                                     <label for="ChristmasCard"> Julkort </label>
-                                    <InputCheckbox @bind-Value="pageViewModel.ChristmasCard" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.ChristmasCard" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
 
                                     &nbsp;&nbsp;
 
                                     <label for="Relatives"> Släkt </label>
-                                    <InputCheckbox @bind-Value="pageViewModel.Relatives" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.Relatives" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
 
                                     &nbsp;&nbsp;
 
                                     <label for="Friends"> Vänner </label>
-                                    <InputCheckbox @bind-Value="pageViewModel.Friends" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.Friends" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
 
                                     &nbsp;&nbsp;
 
                                     <label for="Colleagues"> Kollegor </label>
-                                    <InputCheckbox @bind-Value="pageViewModel.Colleagues" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.Colleagues" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
                                 </div>
 
                                 @* View - Mobile *@
                                 <div id="mobile">
                                     <div class="form-check">
-                                        <InputCheckbox id="ChristmasCard" @bind-Value="pageViewModel.ChristmasCard" class="form-check-input" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="ChristmasCard" @bind-Value="pageViewModel.ChristmasCard" class="form-check-input" disabled="@DisabledForm" />
+                                        }
                                         <label class="form-check-label" for="ChristmasCard"> Julkort </label>
                                     </div>
 
                                     <div class="form-check">
-                                        <InputCheckbox id="Relatives" @bind-Value="pageViewModel.Relatives" class="form-check-input" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="Relatives" @bind-Value="pageViewModel.Relatives" class="form-check-input" disabled="@DisabledForm" />
+                                        }
                                         <label class="form-check-label" for="Relatives"> Släkting </label>
                                     </div>
 
                                     <div class="form-check">
-                                        <InputCheckbox id="Friends" @bind-Value="pageViewModel.Friends" class="form-check-input" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="Friends" @bind-Value="pageViewModel.Friends" class="form-check-input" disabled="@DisabledForm" />
+                                        }
                                         <label class="form-check-label" for="Friends"> Vän </label>
                                     </div>
 
                                     <div class="form-check">
-                                        <InputCheckbox id="Colleagues" @bind-Value="pageViewModel.Colleagues" class="form-check-input" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="Colleagues" @bind-Value="pageViewModel.Colleagues" class="form-check-input" disabled="@DisabledForm" />
+                                        }
                                         <label class="form-check-label" for="Colleagues"> Kollega </label>
                                     </div>
 
@@ -587,7 +668,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private ContactsViewModels pageViewModel { get; set; } = new();
+    private ContactsViewModels? pageViewModel { get; set; }
 
     // Show items from db
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
@@ -604,6 +685,7 @@ catch (Exception ex)
 
     // Hide button and fields
     private bool ShowOrHideAddOrEditForm { get; set; } = false;
+    private bool ShowAllFieldsWithAddForm { get; set; } = false;
     private bool ShowOrHideCreateButton { get; set; } = true;
     private bool ShowOrHideEditButton { get; set; } = false;
     private bool ShowOrHideAddNewButton { get; set; } = false;
@@ -655,6 +737,7 @@ catch (Exception ex)
 
     private void ShowAddForm()
     {
+        ShowAllFieldsWithAddForm = true;
         ShowOrHideAddOrEditForm = true;
         ShowOrHideAddNewButton = true;
     }
@@ -665,15 +748,18 @@ catch (Exception ex)
 
         try
         {
-            if (pageViewModel.ContactsId > 0)
+            if (pageViewModel != null && pageViewModel.ContactsId > 0)
             {
                 ErrorMessage = await BackEndClass.Edit(pageViewModel);
                 ShowOrHideEditButton = true;
             }
             else
             {
-                ErrorMessage = await BackEndClass.Add(pageViewModel);
-                ShowOrHideAddNewButton = true;
+                if (pageViewModel != null)
+                {
+                    ErrorMessage = await BackEndClass.Add(pageViewModel);
+                    ShowOrHideAddNewButton = true;
+                }
             }
 
             if (!string.IsNullOrEmpty(ErrorMessage))

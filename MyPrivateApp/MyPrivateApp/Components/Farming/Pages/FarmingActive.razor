@@ -91,21 +91,30 @@
 
                                 <div class="col-4">
                                     <div class="form-floating">
+                                    @if (pageViewModel != null)
+                                    {
                                         <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                    }
                                         <label for="Name"> Namn </label>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
                                     <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Type" class="form-control" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputText @bind-Value="pageViewModel.Type" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="Type"> Typ </label>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
                                     <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Place" class="form-control" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputText @bind-Value="pageViewModel.Place" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="Place"> Plats </label>
                                     </div>
                                 </div>
@@ -120,21 +129,29 @@
 
                                 <div class="col-4">
                                     <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.PutSeedDate" class="form-control" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputDate @bind-Value="pageViewModel.PutSeedDate" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="PutSeedDate"> Satt frö datum </label>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.SetDate" class="form-control" disabled="@DisabledForm" />
+                                    <div class="form-floating">@if (pageViewModel != null)
+                                        {
+                                            <InputDate @bind-Value="pageViewModel.SetDate" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="SetDate"> Plantera ut datum </label>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
                                     <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.TakeUpDate" class="form-control" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputDate @bind-Value="pageViewModel.TakeUpDate" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="TakeUpDate"> Ta upp datum </label>
                                     </div>
                                 </div>
@@ -149,14 +166,20 @@
 
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.HowMany" class="form-control" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputNumber @bind-Value="pageViewModel.HowMany" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="HowMany"> Hur många satta </label>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <InputNumber @bind-Value="pageViewModel.HowManySave" class="form-control" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputNumber @bind-Value="pageViewModel.HowManySave" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="HowManySave"> Hur många sparade </label>
                                     </div>
                                 </div>
@@ -168,7 +191,10 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <InputTextArea rows="5" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputTextArea rows="5" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                        }
                                         <label for="Note"> Anteckningar </label>
                                     </div>
                                 </div>
@@ -367,7 +393,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private FarmingViewModels pageViewModel { get; set; } = new();
+    private FarmingViewModels? pageViewModel { get; set; }
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<FarmingViewModels> queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
@@ -445,6 +471,12 @@ catch (Exception ex)
     private async Task AddOrEdit()
     {
         DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
 
         try
         {
@@ -556,7 +588,7 @@ catch (Exception ex)
             FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
             ErrorMessage = await BackEndClass.Inactive(vm);
 
-            if (!string.IsNullOrEmpty(ErrorMessage))
+            if (pageViewModel != null && !string.IsNullOrEmpty(ErrorMessage))
             {
                 ShowOrHideErrorMessage = true;
                 ShowOrHideAddOrEditForm = true;

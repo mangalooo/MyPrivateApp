@@ -1,5 +1,4 @@
-﻿
-@page "/SharesErrorHandlingPage"
+﻿@page "/SharesErrorHandlingPage"
 
 @using Microsoft.EntityFrameworkCore
 @using MyPrivateApp.Client.ViewModels
@@ -28,269 +27,272 @@
     @* Header *@
     <div>
 
-    @* Navigation *@
-    <div class="navigation">
-        <div id="desktop" align="center">
-            <div class="btn-group">
-                @foreach (var item in NavigationItems)
-                {
-                    <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
-                }
-            </div>
-        </div>
-
-        <div id="mobile">
-            <div class="btn-group" role="group">
-                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    Alla aktier sidor
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+        @* Navigation *@
+        <div class="navigation">
+            <div id="desktop" align="center">
+                <div class="btn-group">
                     @foreach (var item in NavigationItems)
                     {
-                        <li class="dropdown-item">
-                            <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
-                        </li>
+                        <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
                     }
-                </ul>
+                </div>
+            </div>
+
+            <div id="mobile">
+                <div class="btn-group" role="group">
+                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Alla aktier sidor
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        @foreach (var item in NavigationItems)
+                        {
+                            <li class="dropdown-item">
+                                <NavLink href="@item.Href" type="button" class="btn btn-outline-dark btn-sm"> @item.Text </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
+
+        <br /> <br />
+
+        <h1 align="center"> Felhantering </h1>
+
+        @if (ShowOrHideErrorMessage)
+        {
+            <br />
+
+            <div align="center">
+                <Alert Color="AlertColor.Danger">
+                    <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                    <b>@ErrorMessage</b>
+                </Alert>
+            </div>
+        }
+
+        @if (ShowOrHideInfoMessage)
+        {
+            <br />
+
+            <div align="center">
+                <Alert Color="AlertColor.Info">
+                    <b>@InfoMessage</b>
+                </Alert>
+            </div>
+        }
+
+        <br />
+
     </div>
 
-    <br /> <br />
-
-    <h1 align="center"> Felhantering </h1>
-
-    @if (ShowOrHideErrorMessage)
-    {
-        <br />
-
-        <div align="center">
-            <Alert Color="AlertColor.Danger">
-                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
-                <b>@ErrorMessage</b>
-            </Alert>
-        </div>
-    }
-
-    @if (ShowOrHideInfoMessage)
-    {
-        <br />
-
-        <div align="center">
-            <Alert Color="AlertColor.Info">
-                <b>@InfoMessage</b>
-            </Alert>
-        </div>
-    }
-
-    <br />
-
-</div>
-    
     @* @* Form and views *@
     <div class="container">
-    <div class="col-md-12">
-        <div class="card">
+        <div class="col-md-12">
+            <div class="card">
 
-            @* Form *@
-            <div>
-                @if (ShowOrHideEditForm)
-                {
-                    <div class="card-header">
-                        <EditForm Model="pageViewModel" OnSubmit="Edit" Enhance>
+                @* Form *@
+                <div>
+                    @if (ShowOrHideEditForm)
+                    {
+                        <div class="card-header">
+                            <EditForm Model="pageViewModel" OnSubmit="Edit" Enhance>
 
-                            <div class="row">
+                                <div class="row">
 
-                                <div id="mobile" class="col-4" />
+                                    <div id="mobile" class="col-4" />
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputDate id="Date" @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Date"> Datum </label>
+                                            </div>
+                                        </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputDate id="Date" @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Date"> Datum </label>
-                                    </div>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText id="CompanyOrInformation" @bind-Value="pageViewModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
+                                                <label for="CompanyOrInformation"> Aktie / fond </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText id="TypeOfTransaction" @bind-Value="pageViewModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
+                                                <label for="TypeOfTransaction"> Transaktion </label>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText id="CompanyOrInformation" @bind-Value="pageViewModel.CompanyOrInformation" class="form-control" disabled="@DisabledForm" />
-                                        <label for="CompanyOrInformation"> Aktie / fond </label>
-                                    </div>
+                                <br />
+
+                                <div class="row">
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <InputTextArea id="Note" rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Note"> Anteckningar </label>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
 
-                                <div class="col-4">
-                                    <div class="form-floating">
-                                        <InputText id="TypeOfTransaction" @bind-Value="pageViewModel.TypeOfTransaction" class="form-control" disabled="@DisabledForm" />
-                                        <label for="TypeOfTransaction"> Transaktion </label>
-                                    </div>
+                                <br />
+
+                                <div class="row">
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <InputTextArea id="ErrorMessage" rows="10" style="height:100%;" @bind-Value="pageViewModel.ErrorMessage" class="form-control" disabled="@DisabledForm" />
+                                                <label for="ErrorMessage"> Felmeddelande </label>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
 
-                            </div>
+                                @if (ShowOrHideEditButton)
+                                {
+                                    <br />
 
-                            <br />
-
-                            <div class="row">
-
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputTextArea id="Note" rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Note"> Anteckningar </label>
+                                    <div align="center">
+                                        <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
                                     </div>
-                                </div>
+                                }
 
-                            </div>
-
-                            <br />
-
-                            <div class="row">
-
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputTextArea id="ErrorMessage" rows="10" style="height:100%;" @bind-Value="pageViewModel.ErrorMessage" class="form-control" disabled="@DisabledForm" />
-                                        <label for="ErrorMessage"> Felmeddelande </label>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            @if (ShowOrHideEditButton)
-                            {
                                 <br />
 
                                 <div align="center">
-                                    <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                    <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
                                 </div>
-                            }
 
-                            <br />
+                                <br /><br />
 
-                            <div align="center">
-                                <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
-                            </div>
+                            </EditForm>
+                        </div>
+                    }
+                </div>
 
-                            <br /><br />
+                @* View - Desktop *@
+                <div id="desktop">
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        </EditForm>
+                            <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+                            <PropertyColumn Title="Aktie / fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
+                            <PropertyColumn Title="Transaktion" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
+                            <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
+
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
+
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                            </TemplateColumn>
+
+                        </QuickGrid>
+
+                        <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                        <br /> <br />
+
                     </div>
-                }
-            </div>
+                </div>
 
-            @* View - Desktop *@
-            <div id="desktop">
-                <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
+                @* View - Mobile *@
+                <div id="mobile">
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
-                        <PropertyColumn Title="Aktie / fond" Property="@(c => c.CompanyOrInformation)" Sortable="true" />
-                        <PropertyColumn Title="Transaktion" Property="@(c => c.TypeOfTransaction)" Sortable="true" />
-                        <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
+                            <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
 
-                        <TemplateColumn Title="Info">
+                            <TemplateColumn Title="Info">
 
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
 
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            @if (ShowBackdrop)
-                            {
-                                <div class="modal-backdrop fade show"></div>
-                            }
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
 
-                        </TemplateColumn>
+                            </TemplateColumn>
 
-                    </QuickGrid>
+                        </QuickGrid>
 
-                    <div class="card-footer"><Paginator State="@pagination" /></div>
+                        <br /><br />
 
-                    <br /> <br />
-
+                    </div>
                 </div>
+
             </div>
-
-            @* View - Mobile *@
-            <div id="mobile">
-                <div class="card-body">
-                    <QuickGrid Items="@queryable" Pagination="pagination">
-
-                        <PropertyColumn Title="Felmeddelande" Property="@(c => c.ErrorMessage)" Sortable="true" />
-
-                        <TemplateColumn Title="Info">
-
-                            <div class="btn-group" role="group">
-                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Info
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
-                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
-                                </ul>
-                            </div>
-
-                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"> Vill du ta bort felhanteringen? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort felhanteringen </button>
-                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            @if (ShowBackdrop)
-                            {
-                                <div class="modal-backdrop fade show"></div>
-                            }
-
-                        </TemplateColumn>
-
-                    </QuickGrid>
-
-                    <br /><br />
-
-                </div>
-            </div>
-
         </div>
     </div>
-</div> 
-    
+
     @* Footer *@
     <div>
 
-    <br /> <br />
+        <br /> <br />
 
-    <div class="footer" align="center">
-        <p> Copyright 2023 - @DateTime.Now.Year</p>
+        <div class="footer" align="center">
+            <p> Copyright 2023 - @DateTime.Now.Year</p>
+        </div>
+
+        <br /> <br />
+
     </div>
-
-    <br /> <br />
-
-</div>
 }
 catch (Exception ex)
 {
@@ -301,7 +303,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private SharesErrorHandlingViewModel pageViewModel { get; set; } = new();
+    private SharesErrorHandlingViewModel? pageViewModel { get; set; }
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<SharesErrorHandlingViewModel> queryable = Enumerable.Empty<SharesErrorHandlingViewModel>().AsQueryable();
@@ -396,6 +398,12 @@ catch (Exception ex)
     private async Task Edit()
     {
         DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"Edit: pageViewModel = null!");
+            return;
+        }
 
         try
         {

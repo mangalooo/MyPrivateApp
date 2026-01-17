@@ -114,101 +114,116 @@
                             <div class="row">
 
                                 <div id="mobile" class="col-3" />
+                                @if (pageViewModel != null)
+                                {
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputDate @bind-Value="pageViewModel.LastInspected" class="form-control" disabled="@DisabledForm" />
-                                        <label for="LastInspected"> Senast besiktad </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.LastInspected" class="form-control" disabled="@DisabledForm" />
+                                            <label for="LastInspected"> Senast besiktad </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
-                                            @foreach (object place in Enum.GetValues(typeof(HuntingPlaces)))
-                                            {
-                                                <option value="@place">@place</option>
-                                            }
-                                        </InputSelect>
-                                        <label for="Place"> Plats </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object place in Enum.GetValues(typeof(HuntingPlaces)))
+                                                {
+                                                    <option value="@place">@place</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="Place"> Plats </label>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputText @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
-                                        <label for="Number"> Nummer </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Number"> Nummer </label>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-floating">
-                                        <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
-                                            @foreach (object Todo in Enum.GetValues(typeof(HuntingTodo)))
-                                            {
-                                                <option value="@Todo">@Todo</option>
-                                            }
-                                        </InputSelect>
-                                        <label for="Todo"> Att göra </label>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object Todo in Enum.GetValues(typeof(HuntingTodo)))
+                                                {
+                                                    <option value="@Todo">@Todo</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="Todo"> Att göra </label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </div>
 
                             <br />
 
                             <div class="row">
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                        <label for="Note"> Beskrivning </label>
+                                @if (pageViewModel != null)
+                                {
+
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Note"> Beskrivning </label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </div>
 
                             <br />
 
                             @* View - Desktop *@
                             <div id="desktop">
-                                <InputCheckbox id="Inspected-d" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
-                                <label class="form-check-label" for="Inspected-d"> Besiktad? </label>
-                                <div>&nbsp; &nbsp;</div>
+                                @if (pageViewModel != null)
+                                {
 
-                                <InputCheckbox id="InspectedTodo-d" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
-                                <label class="form-check-label" for="InspectedTodo-d"> Att göra </label>
-                                <div>&nbsp; &nbsp;</div>
+                                    <InputCheckbox id="Inspected-d" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="Inspected-d"> Besiktad? </label>
+                                    <div>&nbsp; &nbsp;</div>
 
-                                <InputCheckbox id="NotBeUsed-d" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
-                                <label class="form-check-label" for="NotBeUsed-d"> Utdömd </label>
-                                <div>&nbsp; &nbsp;</div>
+                                    <InputCheckbox id="InspectedTodo-d" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="InspectedTodo-d"> Att göra </label>
+                                    <div>&nbsp; &nbsp;</div>
 
-                                <InputCheckbox id="MooseTower-d" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
-                                <label class="form-check-label" for="MooseTower-d"> Älgtorn </label>
-                                <div>&nbsp; &nbsp;</div>
+                                    <InputCheckbox id="NotBeUsed-d" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="NotBeUsed-d"> Utdömd </label>
+                                    <div>&nbsp; &nbsp;</div>
 
-                                <InputCheckbox id="WildBoarTower-d" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
-                                <label class="form-check-label" for="WildBoarTower-d"> Vildsvinstorn </label>
+                                    <InputCheckbox id="MooseTower-d" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="MooseTower-d"> Älgtorn </label>
+                                    <div>&nbsp; &nbsp;</div>
+
+                                    <InputCheckbox id="WildBoarTower-d" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="WildBoarTower-d"> Vildsvinstorn </label>
+                                }
                             </div>
 
                             @* View - Mobile *@
                             <div id="mobile">
-                                <div class="form-check">
-                                    <InputCheckbox id="Inspected-m" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="Inspected-m"> Besiktad? </label>
-                                </div>
-                                <div class="form-check">
-                                    <InputCheckbox id="InspectedTodo-m" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="InspectedTodo-m"> Att göra </label>
-                                </div>
-                                <div class="form-check">
-                                    <InputCheckbox id="NotBeUsed-m" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="NotBeUsed-m"> Utdömd </label>
-                                </div>
-                                <div class="form-check">
-                                    <InputCheckbox id="MooseTower-m" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="MooseTower-m"> Älgtorn </label>
-                                </div>
-                                <div class="form-check">
-                                    <InputCheckbox id="WildBoarTower-m" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="WildBoarTower-m"> Vildsvinstorn </label>
-                                </div>
+                                @if (pageViewModel != null)
+                                {
+
+                                    <div class="form-check">
+                                        <InputCheckbox id="Inspected-m" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="Inspected-m"> Besiktad? </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="InspectedTodo-m" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="InspectedTodo-m"> Att göra </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="NotBeUsed-m" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="NotBeUsed-m"> Utdömd </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="MooseTower-m" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="MooseTower-m"> Älgtorn </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="WildBoarTower-m" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="WildBoarTower-m"> Vildsvinstorn </label>
+                                    </div>
+                                }
                             </div>
 
                             <br />
@@ -349,11 +364,11 @@
 
                     <div class="card-footer"><Paginator State="@pagination" /></div>
 
-                    @if (ShowOrHideDeleteInspectionsButton)
+                    @if (pageViewModel != null && ShowOrHideDeleteInspectionsButton)
                     {
                         <br />
 
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection(pageViewModel))"> Ta bort alla besiktningar </button>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => { if (pageViewModel != null) OpenDeleteWindowInspection(pageViewModel); })"> Ta bort alla besiktningar </button>
 
                         <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
                             <div class="modal-dialog" role="document">
@@ -478,7 +493,7 @@
                     {
                         <br />
 
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowInspection(pageViewModel))"> Ta bort alla besiktningar </button>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => { if (pageViewModel != null) OpenDeleteWindowInspection(pageViewModel); })"> Ta bort alla besiktningar </button>
 
                         <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
                             <div class="modal-dialog" role="document">
@@ -527,7 +542,7 @@
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingTowerInspectionViewModels pageViewModel { get; set; } = new();
+    private HuntingTowerInspectionViewModels? pageViewModel { get; set; }
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 50 };
     private IQueryable<HuntingTowerInspectionViewModels> queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
@@ -620,6 +635,12 @@
     private async Task AddOrEdit()
     {
         DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
 
         try
         {

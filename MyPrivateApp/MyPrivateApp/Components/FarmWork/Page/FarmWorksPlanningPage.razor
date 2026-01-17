@@ -116,60 +116,62 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
-
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputDate @bind-Value="pageViewModel.PlanningDate" class="form-control" disabled="@DisabledForm" />
-                                            <label for="PlanningDate"> Planeringsdatum </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputDate @bind-Value="pageViewModel.PlanningDate" class="form-control" disabled="@DisabledForm" />
+                                                <label for="PlanningDate"> Planeringsdatum </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputDate @bind-Value="pageViewModel.StartDate" class="form-control" disabled="@DisabledForm" />
-                                            <label for="StartDate"> Startdatum </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputDate @bind-Value="pageViewModel.StartDate" class="form-control" disabled="@DisabledForm" />
+                                                <label for="StartDate"> Startdatum </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Hours"> Timmar </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Hours"> Timmar </label>
+                                            </div>
                                         </div>
-                                    </div>
-
+                                    }
                                 </div>
 
                                 <br />
 
                                 <div class="row">
-
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
-                                                @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
-                                                {
-                                                    <option value="@place">@place</option>
-                                                }
-                                            </InputSelect>
-                                            <label for="wildAnimal"> Plats </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                    @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
+                                                    {
+                                                        <option value="@place">@place</option>
+                                                    }
+                                                </InputSelect>
+                                                <label for="wildAnimal"> Plats </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.PropertyDesignation" class="form-control" disabled="@DisabledForm" />
-                                            <label for="PropertyDesignation"> Fastighetsbeteckning </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.PropertyDesignation" class="form-control" disabled="@DisabledForm" />
+                                                <label for="PropertyDesignation"> Fastighetsbeteckning </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputText @bind-Value="pageViewModel.Area" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Area"> Område </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.Area" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Area"> Område </label>
+                                            </div>
                                         </div>
-                                    </div>
-
+                                    }
                                 </div>
 
                                 <br />
@@ -177,49 +179,53 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
-
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
-                                                @foreach (object todo in Enum.GetValues(typeof(FarmWorkTodo)))
-                                                {
-                                                    <option value="@todo">@todo</option>
-                                                }
-                                            </InputSelect>
-                                            <label for="Todo"> Att göra </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                    @foreach (object todo in Enum.GetValues(typeof(FarmWorkTodo)))
+                                                    {
+                                                        <option value="@todo">@todo</option>
+                                                    }
+                                                </InputSelect>
+                                                <label for="Todo"> Att göra </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputNumber @bind-Value="pageViewModel.Hectare" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Hectare"> Hektar </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.Hectare" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Hectare"> Hektar </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <div class="form-floating">
-                                            <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
-                                                @foreach (object prioritize in Enum.GetValues(typeof(FarmWorkPrioritize)))
-                                                {
-                                                    <option value="@prioritize">@prioritize</option>
-                                                }
-                                            </InputSelect>
-                                            <label for="prioritize"> Prioritera </label>
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                    @foreach (object prioritize in Enum.GetValues(typeof(FarmWorkPrioritize)))
+                                                    {
+                                                        <option value="@prioritize">@prioritize</option>
+                                                    }
+                                                </InputSelect>
+                                                <label for="prioritize"> Prioritera </label>
+                                            </div>
                                         </div>
-                                    </div>
-
+                                    }
                                 </div>
 
                                 <br />
 
                                 <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Notes"> Anteckningar </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Notes"> Anteckningar </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
 
                                 <br />
@@ -442,7 +448,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private FarmWorksPlanningViewModels pageViewModel { get; set; } = new();
+    private FarmWorksPlanningViewModels? pageViewModel { get; set; }
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<FarmWorksPlanningViewModels> queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
@@ -531,6 +537,12 @@ catch (Exception ex)
     private async Task AddOrEdit()
     {
         DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
 
         try
         {
@@ -642,7 +654,7 @@ catch (Exception ex)
             FarmWorksPlanningViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
             ErrorMessage = await BackEndClass.Completed(vm);
 
-            if (!string.IsNullOrEmpty(ErrorMessage))
+            if (pageViewModel != null && !string.IsNullOrEmpty(ErrorMessage))
             {
                 ShowOrHideErrorMessage = true;
                 ShowOrHideAddOrEditForm = true;

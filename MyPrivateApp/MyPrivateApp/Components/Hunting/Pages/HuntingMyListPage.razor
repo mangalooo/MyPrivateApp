@@ -107,7 +107,8 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
-
+                                    @if (pageViewModel != null)
+                                    {
                                     <div class="col-4">
                                         <div class="form-floating">
                                             <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
@@ -138,6 +139,7 @@
                                             <label for="HuntingForm"> Jakt typ </label>
                                         </div>
                                     </div>
+                                    }
                                 </div>
 
                                 <br />
@@ -145,7 +147,8 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
-
+                                    @if (pageViewModel != null)
+                                    {
                                     <div class="col-4">
                                         <div class="form-floating">
                                             <InputSelect @bind-Value="pageViewModel.WildAnimal" class="form-control" placeholder="" disabled="@DisabledForm">
@@ -171,17 +174,21 @@
                                             <label for="Dog"> Hund </label>
                                         </div>
                                     </div>
+                                    }
                                 </div>
 
                                 <br />
 
                                 <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
-                                            <label for="Note"> Beskrivning </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Note"> Beskrivning </label>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
 
                                 <br />
@@ -365,7 +372,7 @@ catch (Exception ex)
 @code
 {
     [SupplyParameterFromForm]
-    private HuntingMyListViewModels pageViewModel { get; set; } = new();
+    private HuntingMyListViewModels? pageViewModel { get; set; }
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<HuntingMyListViewModels> queryable = Enumerable.Empty<HuntingMyListViewModels>().AsQueryable();
@@ -449,6 +456,12 @@ catch (Exception ex)
     private async Task AddOrEdit()
     {
         DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
 
         try
         {
