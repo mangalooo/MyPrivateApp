@@ -354,8 +354,7 @@ catch (Exception ex)
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private SharesDepositMoneyViewModel? pageViewModel { get; set; }
+    private SharesDepositMoneyViewModel? pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<SharesDepositMoneyViewModel> queryable = Enumerable.Empty<SharesDepositMoneyViewModel>().AsQueryable();

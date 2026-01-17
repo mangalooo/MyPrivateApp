@@ -350,8 +350,7 @@ catch (Exception ex)
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private HuntingTeamMembersViewModels? pageViewModel { get; set; }
+    private HuntingTeamMembersViewModels? pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<HuntingTeamMembersViewModels> queryable = Enumerable.Empty<HuntingTeamMembersViewModels>().AsQueryable();

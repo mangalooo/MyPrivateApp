@@ -541,8 +541,7 @@
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private HuntingTowerInspectionViewModels? pageViewModel { get; set; }
+    private HuntingTowerInspectionViewModels? pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 50 };
     private IQueryable<HuntingTowerInspectionViewModels> queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();

@@ -351,8 +351,7 @@ catch (Exception ex)
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private SharesOtherShareImportViewModel? pageViewModel { get; set; }
+    private SharesOtherShareImportViewModel? pageViewModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<SharesOtherShareImportViewModel> queryable = Enumerable.Empty<SharesOtherShareImportViewModel>().AsQueryable();
 

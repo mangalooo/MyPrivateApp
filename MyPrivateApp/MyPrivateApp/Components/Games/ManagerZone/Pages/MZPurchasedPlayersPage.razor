@@ -458,8 +458,7 @@ catch (Exception ex)
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private MZPurchasedPlayersViewModels? pageViewModel { get; set; }
+    private MZPurchasedPlayersViewModels? pageViewModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<MZPurchasedPlayersViewModels> queryable = Enumerable.Empty<MZPurchasedPlayersViewModels>().AsQueryable();
 

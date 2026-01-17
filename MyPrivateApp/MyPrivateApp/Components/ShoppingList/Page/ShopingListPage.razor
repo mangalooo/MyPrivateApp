@@ -271,8 +271,7 @@
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private ShopingListViewModels? pageViewModel { get; set; }
+    private ShopingListViewModels? pageViewModel { get; set; } = new();
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
     private IQueryable<ShopingListViewModels> queryable = Enumerable.Empty<ShopingListViewModels>().AsQueryable();
 

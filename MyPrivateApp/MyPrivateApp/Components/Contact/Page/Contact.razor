@@ -667,8 +667,7 @@ catch (Exception ex)
 @* Back-End *@
 @code
 {
-    [SupplyParameterFromForm]
-    private ContactsViewModels? pageViewModel { get; set; }
+    private ContactsViewModels? pageViewModel { get; set; } = new();
 
     // Show items from db
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
