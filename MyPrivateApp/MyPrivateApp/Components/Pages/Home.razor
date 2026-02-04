@@ -1,16 +1,16 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Hem</PageTitle>
 
-<h1>Welcome</h1>
+<h1>Välkommen!</h1>
 
 <AuthorizeView>
     <Authorized>
-        <p>You are successfully logged in!</p>
-        <p>Hello, @context.User.Identity?.Name!</p>
+        <p>Hej, @context.User.Identity?.Name!</p>
+        <p>Du är nu inloggad!</p>
     </Authorized>
     <NotAuthorized>
-        <p>You are not logged in.</p>
-        <a class="btn btn-primary" href="Account/Login">Log in</a>
+        <p>Du är inte inloggad.</p>
+        <a class="btn btn-primary" href="Account/Login">Logga in</a>
     </NotAuthorized>
 </AuthorizeView>

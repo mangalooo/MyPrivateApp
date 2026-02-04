@@ -746,7 +746,7 @@
             // Calculate total salary for items marked as NextSalary
             decimal nextSalary = await db.FarmWorks
                 .Where(item => item.NextSalary)
-                .SumAsync(item => (decimal)item.Hours * 214m)
+                .SumAsync(item => (decimal)item.Hours * 225m)
                 .ConfigureAwait(false);
 
             // Calculate the result after tax
