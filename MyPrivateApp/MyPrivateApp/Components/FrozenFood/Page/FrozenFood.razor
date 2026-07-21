@@ -1,0 +1,835 @@
+﻿@page "/FrozenFoodPage"
+
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.FrozenFood.Classes
+@using MyPrivateApp.Components.ViewModels
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject NavigationManager Navigation
+@inject IFrozenFoodClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
+
+<PageTitle> Frysvaror </PageTitle>
+
+@* Header *@
+<div>
+
+    <br />
+
+    <h1 align="center"> Frysvaror </h1>
+
+    <br />
+
+    <h3 align="center">Total vikt: @TotalWeight kg</h3>
+
+    <br />
+
+    @if (ShowOrHideCreateButton)
+    {
+        <div style="text-align:center">
+            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny kontakt </button>
+        </div>
+    }
+
+    @if (ShowOrHideErrorMessage)
+    {
+        <br />
+
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
+
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
+    <br />
+
+</div>
+
+@* Form and views *@
+<div class="container">
+    <div class="col-md-12">
+        <div class="card">
+
+            @* Form *@
+            <div>
+                @if (ShowOrHideAddOrEditForm)
+                {
+                    <div class="card-header">
+                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
+
+                            <br />
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-6" />
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.Date" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Date"> Datum </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Type" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Type"> Typ </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-6" />
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Name" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Name"> Namn </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.FrozenGoods" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object frozenGoods in Enum.GetValues(typeof(FreezerFrozenGoods)))
+                                                {
+                                                    <option value="@frozenGoods">@frozenGoods</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="frozenGoods"> Vilt </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-6" />
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object freezerPlaces in Enum.GetValues(typeof(FreezerPlaces)))
+                                                {
+                                                    <option value="@freezerPlaces">@freezerPlaces</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="FreezerPlaces"> Frys plats </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.FreezerCompartment" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object freezerCompartment in Enum.GetValues(typeof(FreezerCompartment)))
+                                                {
+                                                    <option value="@freezerCompartment">@freezerCompartment</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="FreezerCompartment"> Frysfack </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-6" />
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Weight" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Weight"> Vikt (gram) </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <InputNumber @bind-Value="pageViewModel.Number" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Number"> Antal </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+                                @if (pageViewModel != null)
+                                {
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputTextArea @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Notes"> Anteckningar </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            @if (ShowOrHideAddNewButton)
+                            {
+                                <div style="text-align:center">
+                                    <button type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny frysvara </button>
+                                </div>
+                            }
+
+                            @if (ShowOrHideEditButton)
+                            {
+                                <div style="text-align:center">
+                                    <button type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                </div>
+                            }
+
+                            <br />
+
+                            <div align="center">
+                                <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                            </div>
+
+                            <br /><br />
+
+                        </EditForm>
+                    </div>
+                }
+            </div>
+
+            @* View - Desktop *@
+            <div id="desktop">
+
+                <br />
+
+                <div align="center">
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Rådjur <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchDeer">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Vildsvin <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchWildboar">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Älg <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchMoose">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Övrigt <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchOther">
+                        </label>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="card-body">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Datum" Property="@(c => c.Date)" Format="yyyy-MM-dd" Sortable="true" />
+
+                        <PropertyColumn Title="Name" Property="@(c => c.Name)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchName" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Varor" Property="@(c => c.FrozenGoods)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchWildMeat" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
+
+                        <PropertyColumn Title="År" Property="@(c => BackEndClass.HowLongTimeInFreezer(c.Date))" Sortable="true" />
+
+                        <PropertyColumn Title="Frys plats" Property="@(c => c.Place)" Sortable="true" />
+
+                        <PropertyColumn Title="Frysfack" Property="@(c => c.FreezerCompartment)" Sortable="true" />
+
+                        <PropertyColumn Title="Vikt (gram)" Property="@(c => c.Weight)" Sortable="true" />
+
+                        <PropertyColumn Title="Antal" Property="@(c => c.Number)" Sortable="true" />
+
+                        <TemplateColumn Title="Ändra">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort frysvaran </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* View - Mobile *@
+            <div id="mobile">
+                <div class="card-body">
+
+                    <br />
+
+                    <div class="row" align="center">
+                        <div class="form-check-inline">
+
+                            <label class="form-check-label">
+                                Rådjur <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchDeer">
+                            </label>
+
+                            &nbsp;&nbsp;
+
+                            <label class="form-check-label">
+                                Vildsvin <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchWildboar">
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row" align="center">
+                        <div class="form-check-inline">
+
+                            <label class="form-check-label">
+                                Älg <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchMoose">
+                            </label>
+
+                            &nbsp;&nbsp;
+
+                            <label class="form-check-label">
+                                Övrigt <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchOther">
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <QuickGrid Items="@queryable">
+
+                        <PropertyColumn Title="Varor" Property="@(c => c.FrozenGoods)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchWildMeat" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="År" Property="@(c => BackEndClass.HowLongTimeInFreezer(c.Date))" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort frysvaran? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort frysvaran </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseDeleteWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Footer *@
+<div>
+
+    <br /> <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br /> <br />
+
+</div>
+
+@* Back-End *@
+@code
+{
+    private FrozenFoodViewModel? pageViewModel { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
+    private IQueryable<FrozenFoodViewModel> queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
+
+    // Modol window settings
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool ShowOrHideAddOrEditForm { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = true;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+    private string TotalWeight = string.Empty;
+
+    // Text messeges
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryable()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<FrozenFoods> items = await db.FrozenFoods.OrderByDescending(c => c.Date).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        TotalWeight = await GetTotalWeight();
+        await ConvertListToQueryable();
+    }
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
+
+    private void ShowAddForm()
+    {
+        ShowOrHideAddOrEditForm = true;
+        ShowOrHideAddNewButton = true;
+    }
+
+    private async Task AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
+
+        try
+        {
+            if (pageViewModel.FrozenFoodsId > 0)
+            {
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
+                ShowOrHideEditButton = true;
+            }
+            else
+            {
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
+                ShowOrHideAddNewButton = true;
+            }
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void Info(FrozenFoodViewModel vm)
+    {
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = false;
+        DisabledForm = true;
+        pageViewModel = vm;
+    }
+
+    private void Edit(FrozenFoodViewModel vm)
+    {
+        if (vm.FrozenFoodsId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra frysvaran. ID = {vm.FrozenFoodsId}!");
+            return;
+        }
+
+        DisabledForm = false;
+        ShowOrHideEditButton = true;
+        ShowOrHideAddNewButton = false;
+        ShowOrHideCreateButton = false;
+        ShowOrHideAddOrEditForm = true;
+        pageViewModel = vm;
+    }
+
+    private async Task Delete()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.FrozenFoods.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort frysvaran, databasen är tom!");
+                return;
+            }
+
+            FrozenFoods? model = await db.FrozenFoods.FirstOrDefaultAsync(a => a.FrozenFoodsId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort frysvaran. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteWindow(FrozenFoodViewModel vm)
+    {
+        TemporaryId = vm.FrozenFoodsId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
+
+    private void CloseDeleteWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private async Task SearchName(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchName: db == null!");
+            string? searchValue = e.Value?.ToString();
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                var result = await db.FrozenFoods
+                   .AsNoTracking()
+                   .Where(c => c.Name != null && EF.Functions.Like(c.Name, $"%{searchValue}%"))
+                   .OrderBy(c => c.FrozenFoodsId)
+                   .ToListAsync();
+
+                queryable = result
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .AsQueryable();
+
+                if (!queryable.Any())
+                    queryable = Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            }
+            else
+                await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök namn. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchWildMeat(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchWildMeat: db == null!");
+
+            if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            string? searchValue = e.Value?.ToString()?.Trim().ToLower();
+
+            // Attempt to parse the input string to the FreezerFrozenGoods enum
+            if (Enum.TryParse(typeof(FreezerFrozenGoods), searchValue, true, out var parsedEnum) && parsedEnum is FreezerFrozenGoods frozenGoods)
+            {
+                ShowOrHideErrorMessage = false;
+
+                // Query the database for matching frozen goods
+                var result = await db.FrozenFoods
+                    .AsNoTracking()
+                    .Where(c => c.FrozenGoods == frozenGoods)
+                    .OrderBy(c => c.FrozenFoodsId)
+                    .ToListAsync();
+
+                queryable = result.Any()
+                    ? result.Select(model => BackEndClass.ChangeFromModelToViewModel(model)).AsQueryable()
+                    : Enumerable.Empty<FrozenFoodViewModel>().AsQueryable();
+            }
+            else
+            {
+                ShowErrorMessage("Måste skriva fullständigt namn! Kontrollera stavningen och försök igen.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök vilt. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task<string> GetTotalWeight()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("GetTotalWeight: db == null!");
+
+            if (await db.FrozenFoods.AnyAsync())
+            {
+                double totalWeight = await db.FrozenFoods
+                    .SumAsync(item => item.Number > 0 ? item.Weight * item.Number : item.Weight);
+
+                return Math.Round(totalWeight / 1000, 1, MidpointRounding.AwayFromZero).ToString("#,##0.00");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sett total vikt. Felmeddelande: {ex.Message}");
+        }
+
+        return string.Empty;
+    }
+
+    private void SetQuery(IEnumerable<FrozenFoods> result)
+    {
+        queryable = result
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .AsQueryable();
+    }
+
+    private async Task SearchDeer(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchDeer: db == null!");
+
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Rådjur)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök rådjur. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchWildboar(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchWildboar: db == null!");
+
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Vildsvin)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök vildsvin. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchMoose(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchMoose: db == null!");
+
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Älg)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök älg. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchOther(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchOther: db == null!");
+
+            if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            {
+                var result = await db.FrozenFoods
+                    .Where(c => c.FrozenGoods == FreezerFrozenGoods.Övrigt)
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök andra. Felmeddelande: {ex.Message}");
+        }
+    }
+}

@@ -1,0 +1,16 @@
+﻿@page "/"
+
+<PageTitle>Hem</PageTitle>
+
+<h1>Välkommen!</h1>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Hej, @context.User.Identity?.Name!</p>
+        <p>Du är nu inloggad!</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Du är inte inloggad.</p>
+        <a class="btn btn-primary" href="Account/Login">Logga in</a>
+    </NotAuthorized>
+</AuthorizeView>

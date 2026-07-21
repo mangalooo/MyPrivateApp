@@ -1,0 +1,1006 @@
+﻿@page "/Contact"
+
+@using Microsoft.EntityFrameworkCore
+@using Azure.Core
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Contact.Classes
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.AspNetCore.Http;
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject NavigationManager Navigation
+@inject IContactClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
+
+<PageTitle> Kontakter </PageTitle>
+
+@try
+{
+    @* Header *@
+    <div>
+
+        <br />
+
+        <h1 style="text-align:center"> Kontakter </h1>
+
+        <br />
+
+        @if (ShowOrHideCreateButton)
+        {
+            <div style="text-align:center">
+                <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny kontakt </button>
+            </div>
+        }
+
+        @if (ShowOrHideErrorMessage)
+        {
+            <br />
+
+            <div style="text-align:center">
+                <Alert Color="AlertColor.Danger">
+                    <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                    <b>@ErrorMessage</b>
+                </Alert>
+            </div>
+        }
+
+        @if (ShowOrHideInfoMessage)
+        {
+            <br />
+
+            <div align="center">
+                <Alert Color="AlertColor.Info">
+                    <b>@InfoMessage</b>
+                </Alert>
+            </div>
+        }
+
+        <br />
+
+    </div>
+
+    @* Form and views *@
+    <div class="container">
+        <div>
+            <div class="card">
+
+                @* Form *@
+                <div>
+                    @if (ShowOrHideAddOrEditForm)
+                    {
+                        <div class="card-header">
+
+                            <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance>
+
+                                <DataAnnotationsValidator />
+
+                                <ValidationSummary class="text-danger" role="alert" />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                            }
+                                            <label for="Name"> Namn </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputDate @bind-Value="pageViewModel.Birthday" class="form-control" disabled="@DisabledForm" />
+                                            }
+                                            <label for="Birthday"> Födelsedag </label>
+                                        </div>
+                                    </div>
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.MarriedPartner))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.MarriedPartner" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="MarriedPartner"> Gift/sambo med </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-3" />
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildOne))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildOne" class="form-control" disabled="@DisabledForm" />
+                                                }
+                                                <label for="ChildOne"> Barn 1 </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildTwo))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildTwo" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="ChildTwo"> Barn 2 </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildThree))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildThree" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="ChildThree"> barn 3 </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildFour))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ChildFour" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="ChildFour"> Barn 4 </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputText @bind-Value="pageViewModel.Address" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            }
+                                            <label for="Address"> Adress </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputNumber @bind-Value="pageViewModel.PostCode" class="form-control" disabled="@DisabledForm" />
+                                            }
+                                            <label for="PostCode"> Postnummer </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputText @bind-Value="pageViewModel.City" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            }
+                                            <label for="City"> Stad/ort </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.PrivateMail))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.PrivateMail" class="form-control" disabled="@DisabledForm" />
+                                                }
+                                                <label for="PrivateMail"> E-post </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.WorkEMail))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.WorkEMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="WorkEMail"> E-post jobb </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ExtraMail))
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ExtraMail" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="ExtraMail"> E-post extra </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-3" />
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.PhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.PhoneNumber" class="form-control" disabled="@DisabledForm" />
+                                                }
+                                                <label for="PhoneNumber"> Mobil nummer </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.HomePhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.HomePhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="HomePhoneNumber"> Hem nummer </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.WorkPhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.WorkPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="WorkPhoneNumber"> Jobb nummer </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ExtraPhoneNumber))
+                                    {
+                                        <div class="col-3">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.ExtraPhoneNumber" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="ExtraPhoneNumber"> Extra nummer </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                                <br />
+
+                                @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.HomePage))
+                                {
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                @if (pageViewModel != null)
+                                                {
+                                                    <InputText @bind-Value="pageViewModel.HomePage" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                                }
+                                                <label for="HomePage"> Hemsida </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <br />
+                                }
+
+                                @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.Notes))
+                                {
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            @if (pageViewModel != null)
+                                            {
+                                                <InputTextArea rows="6" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            }
+                                            <label for="Notes"> Antecklingar </label>
+                                        </div>
+                                    </div>
+
+                                    <br />
+                                }
+
+                                @* View - Desktop *@
+                                <div id="desktop" class="form-group" align="center">
+                                    <label for="ChristmasCard"> Julkort </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.ChristmasCard" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
+
+                                    &nbsp;&nbsp;
+
+                                    <label for="Relatives"> Släkt </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.Relatives" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
+
+                                    &nbsp;&nbsp;
+
+                                    <label for="Friends"> Vänner </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.Friends" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
+
+                                    &nbsp;&nbsp;
+
+                                    <label for="Colleagues"> Kollegor </label>
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputCheckbox @bind-Value="pageViewModel.Colleagues" class="darker-border-checkbox form-check-input" disabled="@DisabledForm" />
+                                    }
+                                </div>
+
+                                @* View - Mobile *@
+                                <div id="mobile">
+                                    <div class="form-check">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="ChristmasCard" @bind-Value="pageViewModel.ChristmasCard" class="form-check-input" disabled="@DisabledForm" />
+                                        }
+                                        <label class="form-check-label" for="ChristmasCard"> Julkort </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="Relatives" @bind-Value="pageViewModel.Relatives" class="form-check-input" disabled="@DisabledForm" />
+                                        }
+                                        <label class="form-check-label" for="Relatives"> Släkting </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="Friends" @bind-Value="pageViewModel.Friends" class="form-check-input" disabled="@DisabledForm" />
+                                        }
+                                        <label class="form-check-label" for="Friends"> Vän </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputCheckbox id="Colleagues" @bind-Value="pageViewModel.Colleagues" class="form-check-input" disabled="@DisabledForm" />
+                                        }
+                                        <label class="form-check-label" for="Colleagues"> Kollega </label>
+                                    </div>
+
+                                </div>
+
+                                <br />
+
+                                @if (ShowOrHideAddNewButton)
+                                {
+                                    <div style="text-align:center">
+                                        <button type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till ny kontakt </button>
+                                    </div>
+                                }
+
+                                @if (ShowOrHideEditButton)
+                                {
+                                    <div style="text-align:center">
+                                        <button type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                    </div>
+                                }
+
+                                <br />
+
+                                <div align="center">
+                                    <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                                </div>
+
+                                <br /> <br />
+
+                            </EditForm>
+
+                        </div>
+                    }
+                </div>
+
+                @* View - Desktop *@
+                <div id="desktop">
+
+                    <br />
+
+                    <div align="center">
+                        <div class="form-check-inline">
+                            <label class="form-check-label">
+                                Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
+                            </label>
+                        </div>
+                        <div class="form-check-inline">
+                            <label class="form-check-label">
+                                Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
+                            </label>
+                        </div>
+                        <div class="form-check-inline">
+                            <label class="form-check-label">
+                                Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
+                            </label>
+                        </div>
+                        <div class="form-check-inline">
+                            <label class="form-check-label">
+                                Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
+                            </label>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
+
+                            <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchFirstName" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Fördelsedag" Property="@(c => c.Birthday)" Sortable="true" />
+
+                            <PropertyColumn Title="Ålder" Property="@(c => GetAge(c.Birthday))" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchAge" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Title="Dagar till nästa födelsedag" Property="@(c => GetDaysToNextBirthday(c.Birthday))" Sortable="true" />
+                            <PropertyColumn Title="Mobilnummer" Property="@(c => c.PhoneNumber)" Sortable="true" />
+
+                            <TemplateColumn>
+
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
+
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort kontakt </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                            </TemplateColumn>
+                        </QuickGrid>
+
+                        <br />
+
+                        <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                        <br /> <br />
+
+                    </div>
+                </div>
+
+                @* View - Mobile *@
+                <div id="mobile">
+
+                    <br />
+
+                    <div class="row" align="center">
+                        <div class="form-check-inline">
+
+                            <label class="form-check-label">
+                                Julkort <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchChristmasCard">
+                            </label>
+
+                            &nbsp;&nbsp;
+
+                            <label class="form-check-label">
+                                Släkt <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchRelatives">
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row" align="center">
+                        <div class="form-check-inline">
+
+                            <label class="form-check-label">
+                                Vänner <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchFriends">
+                            </label>
+
+                            &nbsp;&nbsp;
+
+                            <label class="form-check-label">
+                                Kollegor <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearchColleagues">
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
+
+                            <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchFirstName" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <TemplateColumn>
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
+
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort kontaken? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort kontakt </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                            </TemplateColumn>
+
+                        </QuickGrid>
+
+                        <br /> <br />
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @* Footer *@
+    <div>
+
+        <br /> <br />
+
+        <div class="footer" align="center">
+            <p> Copyright 2023 - @DateTime.Now.Year</p>
+        </div>
+
+        <br /> <br />
+
+    </div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
+
+@* Back-End *@
+@code
+{
+    private ContactsViewModels? pageViewModel { get; set; } = new();
+
+    // Show items from db
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
+    private IQueryable<ContactsViewModels> queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
+
+    // Modol window settings
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Hide button and fields
+    private bool ShowOrHideAddOrEditForm { get; set; } = false;
+    private bool ShowAllFieldsWithAddForm { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = true;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+
+    // Error text messeges
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryableAsync()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<Contacts> items = await db.Contacts.OrderBy(c => c.ContactsId).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
+
+    private void ShowAddForm()
+    {
+        ShowAllFieldsWithAddForm = true;
+        ShowOrHideAddOrEditForm = true;
+        ShowOrHideAddNewButton = true;
+    }
+
+    private async Task AddOrEdit()
+    {
+        DisabledForm = false;
+
+        try
+        {
+            if (pageViewModel != null && pageViewModel.ContactsId > 0)
+            {
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
+                ShowOrHideEditButton = true;
+            }
+            else
+            {
+                if (pageViewModel != null)
+                {
+                    ErrorMessage = await BackEndClass.Add(pageViewModel);
+                    ShowOrHideAddNewButton = true;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void Info(ContactsViewModels vm)
+    {
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = false;
+        DisabledForm = true;
+        pageViewModel = vm;
+    }
+
+    private void Edit(ContactsViewModels vm)
+    {
+        if (vm.ContactsId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra kontakten. ID = {vm.ContactsId}!");
+            return;
+        }
+
+        DisabledForm = false;
+        ShowOrHideEditButton = true;
+        ShowOrHideAddNewButton = false;
+        ShowOrHideCreateButton = false;
+        ShowOrHideAddOrEditForm = true;
+        pageViewModel = vm;
+    }
+
+    private async Task Delete()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.Contacts.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort kontakten, databasen är tom!");
+                return;
+            }
+
+            Contacts? model = await db.Contacts.FirstOrDefaultAsync(a => a.ContactsId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort kontakten. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteWindow(ContactsViewModels vm)
+    {
+        TemporaryId = vm.ContactsId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
+
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private int GetAge(DateTime birthDate)
+    {
+        DateTime today = DateTime.Today;
+        int age = today.Year - birthDate.Year;
+
+        if (birthDate.Date > today.AddYears(-age)) age--;
+
+        return age;
+    }
+
+    private int GetDaysToNextBirthday(DateTime birthDate)
+    {
+        DateTime today = DateTime.Today;
+        DateTime nextBirthday = new DateTime(today.Year, birthDate.Month, birthDate.Day);
+
+        if (nextBirthday < today)
+            nextBirthday = nextBirthday.AddYears(1);
+
+        return (nextBirthday - today).Days;
+    }
+
+    private static DateTime ParseDate(string date)
+    {
+        if (DateTime.TryParse(date, out DateTime parsedDate))
+            return parsedDate;
+
+        return DateTime.MinValue;
+
+        throw new FormatException($"Ogiltigt datumformat: {date}");
+    }
+
+    private Task SetQuery(IEnumerable<Contacts> result)
+    {
+        if (!result.Any())
+        {
+            queryable = Enumerable.Empty<ContactsViewModels>().AsQueryable();
+            return Task.CompletedTask;
+        }
+
+        IEnumerable<ContactsViewModels> contactList = result
+            .OrderBy(c => c.ContactsId)
+            .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+            .ToList();
+
+        queryable = contactList.AsQueryable();
+        return Task.CompletedTask;
+    }
+
+    private async Task SearchFirstName(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchFirstName: db == null!");
+
+            string? searchValue = e.Value?.ToString();
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                IEnumerable<Contacts> result = await db.Contacts
+                    .Where(c => c.Name!.Contains(searchValue))
+                    .ToListAsync();
+
+                await SetQuery(result);
+            }
+            else
+                await RefreshPage();
+
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök namn. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchAge(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchAge: db == null!");
+
+            string? searchValue = e.Value?.ToString();
+
+            if (!string.IsNullOrEmpty(searchValue) && int.TryParse(searchValue, out int age))
+            {
+                var result = await db.Contacts.ToListAsync();
+                var filteredResult = result
+                    .Where(c =>
+                    {
+                        if (!string.IsNullOrEmpty(c.Birthday))
+                        {
+                            DateTime birthDate = ParseDate(c.Birthday);
+                            return birthDate != DateTime.MinValue && GetAge(birthDate) == age;
+                        }
+                        return 0 == age;
+                    })
+                    .ToList();
+                await SetQuery(filteredResult);
+            }
+            else
+                await RefreshPage();
+
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök ålder. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task GetSearchValue(ChangeEventArgs e, IEnumerable<Contacts> result)
+    {
+        if (e.Value == null) return;
+
+        string trueOrFalse = e.Value.ToString() ?? string.Empty;
+
+        if (trueOrFalse == "True")
+        {
+            await SetQuery(result);
+            return;
+        }
+
+        await RefreshPage();
+    }
+
+    private async Task SearchFriends(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchFriends: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.Friends).ToListAsync());
+    }
+
+    private async Task SearchChristmasCard(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchChristmasCard: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.ChristmasCard).ToListAsync());
+    }
+
+    private async Task SearchRelatives(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchRelatives: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.Relatives).ToListAsync());
+    }
+
+    private async Task SearchColleagues(ChangeEventArgs e)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchColleagues: db == null!");
+        await GetSearchValue(e, await db.Contacts.Where(c => c.Colleagues).ToListAsync());
+    }
+}

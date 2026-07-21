@@ -1,0 +1,837 @@
+﻿@page "/FarmWorksPlanningPage"
+
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.FarmWork.Classes
+@using MyPrivateApp.Components.ViewModels.FarmWork
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models.FarmWork
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject NavigationManager Navigation
+@inject IFarmWorksPlanningClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
+
+<PageTitle> Gårdsarbeten </PageTitle>
+
+@try
+{
+    @* Header *@
+    <div>
+
+        <br />
+
+        @* Navigation - Desktop *@
+        <div id="desktop" align="center">
+            <div class="btn-group" role="group" aria-label="Desktop Navigation">
+                @foreach (var page in navList)
+                {
+                    <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+                }
+            </div>
+        </div>
+
+        @* Navigation - Mobile *@
+        <div id="mobile">
+            <div class="btn-group" role="group">
+                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                    Alla gårdarbets sidor
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    @foreach (var page in navList)
+                    {
+                        <li class="dropdown-item">
+                            <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <br /> <br />
+
+        <h1 align="center"> Skogsplaneringen </h1>
+
+        <br />
+
+        @if (ShowOrHideCreateButton)
+        {
+            <br />
+
+            <div align="center">
+                <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny skogsplanering </button>
+            </div>
+
+            <br />
+        }
+
+        @if (ShowOrHideErrorMessage)
+        {
+            <br />
+
+            <div align="center">
+                <Alert Color="AlertColor.Danger">
+                    <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                    <b>@ErrorMessage</b>
+                </Alert>
+            </div>
+        }
+
+        @if (ShowOrHideInfoMessage)
+        {
+            <br />
+
+            <div align="center">
+                <Alert Color="AlertColor.Info">
+                    <b>@InfoMessage</b>
+                </Alert>
+            </div>
+        }
+
+        <br />
+
+    </div>
+
+    @* Form and views *@
+    <div class="container">
+        <div class="col-md-12">
+            <div class="card">
+
+                @* Form *@
+                <div>
+                    @if (ShowOrHideAddOrEditForm)
+                    {
+                        <div class="card-header">
+
+                            <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
+
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputDate @bind-Value="pageViewModel.PlanningDate" class="form-control" disabled="@DisabledForm" />
+                                                <label for="PlanningDate"> Planeringsdatum </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputDate @bind-Value="pageViewModel.StartDate" class="form-control" disabled="@DisabledForm" />
+                                                <label for="StartDate"> Startdatum </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Hours"> Totalt timmar </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                    @foreach (object place in Enum.GetValues(typeof(FarmWorkPlaces)))
+                                                    {
+                                                        <option value="@place">@place</option>
+                                                    }
+                                                </InputSelect>
+                                                <label for="wildAnimal"> Plats </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.PropertyDesignation" class="form-control" disabled="@DisabledForm" />
+                                                <label for="PropertyDesignation"> Fastighetsbeteckning </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputText @bind-Value="pageViewModel.Area" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Area"> Område </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                    @foreach (object todo in Enum.GetValues(typeof(FarmWorkTodo)))
+                                                    {
+                                                        <option value="@todo">@todo</option>
+                                                    }
+                                                </InputSelect>
+                                                <label for="Todo"> Att göra </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputNumber @bind-Value="pageViewModel.Hectare" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Hectare"> Hektar </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-floating">
+                                                <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                    @foreach (object prioritize in Enum.GetValues(typeof(FarmWorkPrioritize)))
+                                                    {
+                                                        <option value="@prioritize">@prioritize</option>
+                                                    }
+                                                </InputSelect>
+                                                <label for="prioritize"> Prioritera </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+                                    @if (pageViewModel != null)
+                                    {
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <InputTextArea rows="5" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
+                                                <label for="Notes"> Anteckningar </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <br />
+
+                                <div class="farmwork-related-section">
+                                    <div class="farmwork-related-section__title">
+                                        Relaterade gårdsarbeten
+                                    </div>
+
+                                    @if (!relatedFarmWorks.Any())
+                                    {
+                                        <div class="alert alert-light border text-center mb-0">
+                                            Inga relaterade gårdsarbeten hittades.
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="farmwork-related-list">
+                                            @foreach (FarmWorks item in relatedFarmWorks)
+                                            {
+                                                <NavLink href="@($"/FarmWorkPage?farmWorksId={item.FarmWorksId}&returnPlanningId={item.FarmWorksPlanningsId}")"
+                                                         class="farmwork-related-one-line text-decoration-none">
+                                                    <span class="farmwork-related-one-line__place">@item.Place</span>
+                                                    <span class="farmwork-related-one-line__date">@item.Date</span>
+                                                    <span class="farmwork-related-one-line__detail">
+                                                        <b>Område:</b> @(string.IsNullOrWhiteSpace(item.Area) ? "-" : item.Area)
+                                                    </span>
+                                                    <span class="farmwork-related-one-line__detail">
+                                                        <b>Gjort:</b> @item.Todo
+                                                    </span>
+                                                    <span class="farmwork-related-one-line__detail">
+                                                        <b>Timmar:</b> @item.Hours
+                                                    </span>
+                                                    <span class="farmwork-related-one-line__detail">
+                                                        <b>Anteckningar:</b> @item.Note
+                                                    </span>
+                                                </NavLink>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                <br />
+
+                                @if (ShowOrHideAddNewButton)
+                                {
+                                    <div align="center">
+                                        <button type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny planering </button>
+                                    </div>
+                                }
+
+                                @if (ShowOrHideEditButton)
+                                {
+                                    <div align="center">
+                                        <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                    </div>
+                                }
+
+                                <br />
+
+                                <div align="center">
+                                    <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                                </div>
+
+                                <br /> <br />
+
+                            </EditForm>
+                        </div>
+                    }
+                </div>
+
+                @* View - Desktop *@
+                <div id="desktop">
+
+                    <br />
+
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
+
+                            <PropertyColumn Title="Prio" Property="@(c => c.Prioritize != FarmWorkPrioritize.Välj ? c.Prioritize.ToString() : string.Empty)" Sortable="true" />
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Planeringsdatum" Property="@(c => c.PlanningDate)" Sortable="true" />
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Startdatum" Property="@(c => c.StartDate)" Sortable="true" />
+
+                            <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchPlace" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
+                            <PropertyColumn Title="Fastighetsbeteckning" Property="@(c => c.PropertyDesignation)" Sortable="true" />
+                            <PropertyColumn Title="Att göra" Property="@(c => c.Todo)" Sortable="true" />
+
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenCompletedWindow(context))"> Åtgärdat skogsområde </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
+
+                                <div class="modal @ModalClassCompleted" tabindex="-1" role="dialog" style="display:@ModalDisplayCompleted">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du färdigställa skogsområdet? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Completed())"> Färdigställt skogsområde </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseCompletedWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort skogsplaneringen? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort skogsplaneringen </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (ShowBackdropCompleted)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                            </TemplateColumn>
+                        </QuickGrid>
+
+                        <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                        <br /> <br />
+
+                    </div>
+                </div>
+
+                @* View - Mobile *@
+                <div id="mobile">
+
+                    <br />
+
+                    <div class="card-body">
+                        <QuickGrid Items="@queryable" Pagination="pagination">
+
+                            <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" autofocus @onchange="SearchPlace" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
+                            <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
+
+                            <TemplateColumn Title="Info">
+
+                                <div class="btn-group" role="group">
+                                    <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Info
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenCompletedWindow(context))"> Åtgärdat skogsområde </button></li>
+                                        <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                    </ul>
+                                </div>
+
+                                <div class="modal @ModalClassCompleted" tabindex="-1" role="dialog" style="display:@ModalDisplayCompleted">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du färdigställa skogsområdet? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Completed())"> Färdigställt skogsområde </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseCompletedWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"> Vill du ta bort skogsplaneringen? </h5>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort skogsplaneringen </button>
+                                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (ShowBackdropCompleted)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                                @if (ShowBackdrop)
+                                {
+                                    <div class="modal-backdrop fade show"></div>
+                                }
+
+                            </TemplateColumn>
+                        </QuickGrid>
+
+                        <br /> <br />
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @* Footer *@
+    <div>
+
+        <br /> <br />
+
+        <div class="footer" align="center">
+            <p> Copyright 2023 - @DateTime.Now.Year</p>
+        </div>
+
+        <br /> <br />
+
+    </div>
+
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
+
+@* Back-End *@
+@code
+{
+    [SupplyParameterFromQuery(Name = "farmWorksPlanningsId")]
+    public int? FarmWorksPlanningsId { get; set; }
+
+    private List<FarmWorks> relatedFarmWorks = new();
+
+    private FarmWorksPlanningViewModels? pageViewModel { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
+    private IQueryable<FarmWorksPlanningViewModels> queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
+
+    // Modol window settings Delete
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Modol window settings Completed
+    public Guid GuidCompleted = Guid.NewGuid();
+    public string ModalDisplayCompleted = "none;";
+    public string ModalClassCompleted = "";
+    public bool ShowBackdropCompleted = false;
+
+    // Hide button and fields
+    private bool ShowOrHideAddOrEditForm { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = true;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+
+    // Error text messeges
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
+    {
+        ("FarmWorksStartPage", "Start"),
+        ("FarmWorkPage", "Tidsrapportering"),
+        ("FarmWorksReportPdf", "Tidsrapport PDF"),
+        ("FarmWorksPlanningPage", "Skogsplanneringen"),
+        ("FarmWorksPlanningCompletedPage", "Färdigställda skogområden")
+    };
+
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryableAsync()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<FarmWorksPlanning> items = await db.FarmWorksPlanning.OrderByDescending(c => c.PlanningDate).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+   
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
+
+    private void ShowAddForm()
+    {
+        ShowOrHideAddOrEditForm = true;
+        ShowOrHideAddNewButton = true;
+        relatedFarmWorks = new();
+    }
+
+    private async Task AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
+
+        try
+        {
+            if (pageViewModel.FarmWorksPlanningsId > 0)
+            {
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
+                ShowOrHideEditButton = true;
+            }
+            else
+            {
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
+                ShowOrHideAddNewButton = true;
+            }
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task Info(FarmWorksPlanningViewModels vm)
+    {
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = false;
+        DisabledForm = true;
+        pageViewModel = vm;
+
+        await LoadRelatedFarmWorksAsync(vm.FarmWorksPlanningsId);
+    }
+
+    private async Task Edit(FarmWorksPlanningViewModels vm)
+    {
+        if (vm.FarmWorksPlanningsId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra skogsplaneringen. ID = {vm.FarmWorksPlanningsId}!");
+            return;
+        }
+
+        DisabledForm = false;
+        ShowOrHideEditButton = true;
+        ShowOrHideAddNewButton = false;
+        ShowOrHideCreateButton = false;
+        ShowOrHideAddOrEditForm = true;
+        pageViewModel = vm;
+
+        await LoadRelatedFarmWorksAsync(vm.FarmWorksPlanningsId);
+    }
+
+    private async Task Delete()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.FarmWorks.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort skogsplaneringen, databasen är tom!");
+                return;
+            }
+
+            FarmWorksPlanning? model = await db.FarmWorksPlanning.FirstOrDefaultAsync(a => a.FarmWorksPlanningsId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Går inte att ta bort skogsplaneringen. (TemporaryId = {TemporaryId})!");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task Completed()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Completed: db == null!");
+
+            FarmWorksPlanning? model = await db.FarmWorksPlanning.FirstOrDefaultAsync(a => a.FarmWorksPlanningsId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att färdigställa skogsområdet. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            FarmWorksPlanningViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            ErrorMessage = await BackEndClass.Completed(vm);
+
+            if (pageViewModel != null && !string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = true;
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideEditButton = pageViewModel.FarmWorksPlanningsId > 0;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Gick inte att färdigställa skogsområdet. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteWindow(FarmWorksPlanningViewModels vm)
+    {
+        TemporaryId = vm.FarmWorksPlanningsId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
+
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private void OpenCompletedWindow(FarmWorksPlanningViewModels vm)
+    {
+        TemporaryId = vm.FarmWorksPlanningsId;
+        ToggleModal(ref ModalDisplayCompleted, ref ModalClassCompleted, ref ShowBackdropCompleted, true);
+    }
+
+    private void CloseCompletedWindow() => ToggleModal(ref ModalDisplayCompleted, ref ModalClassCompleted, ref ShowBackdropCompleted, false);
+
+    private async Task SearchPlace(ChangeEventArgs e)
+    {
+        try
+        {
+            var input = e.Value?.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            // Try to parse the input to the enum, allowing partial and case-insensitive matches
+            var matchedPlace = Enum.GetValues(typeof(FarmWorkPlaces))
+                .Cast<FarmWorkPlaces>()
+                .FirstOrDefault(p => p.ToString().StartsWith(input, StringComparison.OrdinalIgnoreCase));
+
+            await using var db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
+
+            if (matchedPlace != FarmWorkPlaces.Välj)
+            {
+                var farmWorksList = await db.FarmWorksPlanning
+                    .Where(c => c.Place == matchedPlace)
+                    .OrderBy(c => c.PlanningDate)
+                    .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                    .ToListAsync();
+
+                queryable = farmWorksList.AsQueryable();
+            }
+            else
+            {
+                // No match found, clear the grid or show a message if desired
+                queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök plats. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task LoadRelatedFarmWorksAsync(int farmWorksPlanningsId)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+            ?? throw new Exception("LoadRelatedFarmWorksAsync: db == null!");
+
+        relatedFarmWorks = await db.FarmWorks
+            .AsNoTracking()
+            .Where(x => x.FarmWorksPlanningsId == farmWorksPlanningsId)
+            .OrderByDescending(x => x.Date)
+            .ToListAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (FarmWorksPlanningsId is > 0)
+            await LoadPlanningFromQueryAsync(FarmWorksPlanningsId.Value);
+    }
+
+    private async Task LoadPlanningFromQueryAsync(int farmWorksPlanningsId)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+                ?? throw new Exception("LoadPlanningFromQueryAsync: db == null!");
+
+            FarmWorksPlanning? model = await db.FarmWorksPlanning
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FarmWorksPlanningsId == farmWorksPlanningsId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Skogsplaneringen hittades inte. ID = {farmWorksPlanningsId}!");
+                return;
+            }
+
+            FarmWorksPlanningViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+
+            ShowOrHideAddOrEditForm = true;
+            ShowOrHideCreateButton = false;
+            ShowOrHideEditButton = false;
+            ShowOrHideAddNewButton = false;
+            DisabledForm = true;
+            pageViewModel = vm;
+
+            await LoadRelatedFarmWorksAsync(vm.FarmWorksPlanningsId);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ladda skogsplanering. Felmeddelande: {ex.Message}");
+        }
+    }
+}

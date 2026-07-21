@@ -1,0 +1,150 @@
+@page "/FarmWorksReportPdf"
+
+@inject NavigationManager Nav
+
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+<PageTitle>Gårdsarbete till PDF</PageTitle>
+
+@* Header *@
+<div>
+
+    <br />
+
+    @* Navigation - Desktop *@
+    <div id="desktop" align="center">
+        <div class="btn-group" role="group" aria-label="Desktop Navigation">
+            @foreach (var page in navList)
+            {
+                <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+            }
+        </div>
+    </div>
+
+    @* Navigation - Mobile *@
+    <div id="mobile">
+        <div class="btn-group" role="group">
+            <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                Alla gårdarbets sidor
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                @foreach (var page in navList)
+                {
+                    <li class="dropdown-item">
+                        <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <br /> <br />
+
+    <h1 align="center"> PDF rapport </h1>
+
+    <br />
+
+    <h3 align="center"> Gårdsarbeten mellan datum </h3>
+
+    <br />
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+
+        <br />
+    }
+
+</div>
+
+<div class="container" style="max-width: 600px;">
+    <div class="card">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Från</label>
+                    <input type="date" class="form-control" @bind="from" />
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Till</label>
+                    <input type="date" class="form-control" @bind="to" />
+                </div>
+
+                <div class="col-12 text-center">
+                    <button class="btn btn-outline-primary btn-sm" @onclick="Download">Ladda ner PDF</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Footer *@
+<div>
+
+    <br /> <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br /> <br />
+
+</div>
+
+@code {
+
+    private DateOnly from = DateOnly.FromDateTime(DateTime.Today.AddDays(-30));
+    private DateOnly to = DateOnly.FromDateTime(DateTime.Today);
+    private string ErrorMessage = string.Empty;
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    private IJSObjectReference? _downloadModule;
+
+    private async Task<IJSObjectReference> GetDownloadModuleAsync()
+    {
+        return _downloadModule ??=
+            await JS.InvokeAsync<IJSObjectReference>("import", "./js/downloadFile.js");
+        // or "/js/downloadFile.js"
+    }
+
+    private async Task Download()
+    {
+        ErrorMessage = string.Empty;
+
+        if (from > to)
+        {
+            ErrorMessage = "Från-datum måste vara tidigare än Till-datum.";
+            return;
+        }
+
+        var url = $"/api/farmworks/report?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}";
+        var fileName = $"Gårdsarbetesrapport_{from:yyyyMMdd}_{to:yyyyMMdd}.pdf";
+
+        var module = await GetDownloadModuleAsync();
+        await module.InvokeVoidAsync("downloadFileFromUrl", url, fileName);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_downloadModule is not null)
+            await _downloadModule.DisposeAsync();
+    }
+
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
+    {
+        ("FarmWorksStartPage", "Start"),
+        ("FarmWorkPage", "Tidsrapportering"),
+        ("FarmWorksReportPdf", "Tidsrapport PDF"),
+        ("FarmWorksPlanningPage", "Skogsplaneringen"),
+        ("FarmWorksPlanningCompletedPage", "Färdigställda skogområden")
+    };
+}

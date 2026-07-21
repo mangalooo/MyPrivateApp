@@ -1,0 +1,1020 @@
+﻿@page "/HuntingTowerInspectionPage"
+
+@using Microsoft.EntityFrameworkCore
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Hunting.Classes
+@using MyPrivateApp.Components.ViewModels.HuntingViemModels
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Data.Models.Hunting
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+@using System.Linq.Expressions
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject NavigationManager Navigation
+@inject IHuntingTowerInspectionClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
+@inject ApplicationDbContext _db
+
+<PageTitle> Jakt </PageTitle>
+
+@* Header *@
+<div>
+
+    <br />
+
+    @* Navigation *@
+    <div>
+        @* Desktop *@
+        <div id="desktop" align="center">
+            <div class="btn-group" role="group" aria-label="Desktop Navigation">
+                @foreach (var page in navList)
+                {
+                    <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm" aria-label="@(page.Text)"> @(page.Text) </NavLink>
+                }
+            </div>
+        </div>
+
+        @* Mobile *@
+        <div id="mobile">
+            <div class="btn-group" role="group">
+                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                    Alla jakt sidor
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    @foreach (var page in navList)
+                    {
+                        <li class="dropdown-item">
+                            <NavLink href=@(page.Href) type="button" class="btn btn-outline-dark btn-sm">@(page.Text)</NavLink>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <br />
+
+    <h1 align="center"> Jakttornsinspektion </h1>
+
+    <br />
+
+    @if (ShowOrHideCreateButton)
+    {
+        <br />
+
+        <div align="center">
+            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny inspektion </button>
+        </div>
+
+        <br />
+    }
+
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
+
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
+    <br />
+
+</div>
+
+@* Form and views *@
+<div class="container">
+    <div class="col-md-12">
+        <div class="card">
+
+            @* Form *@
+            <div>
+                @if (ShowOrHideAddOrEditForm)
+                {
+                    <div class="card-header">
+                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-3" />
+                                @if (pageViewModel != null)
+                                {
+
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.LastInspected" class="form-control" disabled="@DisabledForm" />
+                                            <label for="LastInspected"> Senast besiktad </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object place in Enum.GetValues(typeof(HuntingPlaces)))
+                                                {
+                                                    <option value="@place">@place</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="Place"> Plats </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
+                                            <label for="Number"> Nummer </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (object Todo in Enum.GetValues(typeof(HuntingTodo)))
+                                                {
+                                                    <option value="@Todo">@Todo</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="Todo"> Att göra </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+                                @if (pageViewModel != null)
+                                {
+
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <InputTextArea rows="10" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                            <label for="Note"> Beskrivning </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            @* View - Desktop *@
+                            <div id="desktop">
+                                @if (pageViewModel != null)
+                                {
+
+                                    <InputCheckbox id="Inspected-d" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="Inspected-d"> Besiktad? </label>
+                                    <div>&nbsp; &nbsp;</div>
+
+                                    <InputCheckbox id="InspectedTodo-d" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="InspectedTodo-d"> Att göra </label>
+                                    <div>&nbsp; &nbsp;</div>
+
+                                    <InputCheckbox id="NotBeUsed-d" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="NotBeUsed-d"> Utdömd </label>
+                                    <div>&nbsp; &nbsp;</div>
+
+                                    <InputCheckbox id="MooseTower-d" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="MooseTower-d"> Älgtorn </label>
+                                    <div>&nbsp; &nbsp;</div>
+
+                                    <InputCheckbox id="WildBoarTower-d" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                                    <label class="form-check-label" for="WildBoarTower-d"> Vildsvinstorn </label>
+                                }
+                            </div>
+
+                            @* View - Mobile *@
+                            <div id="mobile">
+                                @if (pageViewModel != null)
+                                {
+
+                                    <div class="form-check">
+                                        <InputCheckbox id="Inspected-m" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="Inspected-m"> Besiktad? </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="InspectedTodo-m" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="InspectedTodo-m"> Att göra </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="NotBeUsed-m" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="NotBeUsed-m"> Utdömd </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="MooseTower-m" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="MooseTower-m"> Älgtorn </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <InputCheckbox id="WildBoarTower-m" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                                        <label class="form-check-label" for="WildBoarTower-m"> Vildsvinstorn </label>
+                                    </div>
+                                }
+                            </div>
+
+                            <br />
+
+                            @if (ShowOrHideAddNewButton)
+                            {
+                                <div align="center">
+                                    <button type="submit" align="center" class="btn btn-outline-success btn-sm"> Lägg till ny inspektion </button>
+                                </div>
+                            }
+
+                            @if (ShowOrHideEditButton)
+                            {
+                                <div align="center">
+                                    <button type="submit" align="center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                </div>
+                            }
+
+                            <br />
+
+                            <div align="center">
+                                <button @onclick="RefreshPage" type="button" align="center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                            </div>
+
+                            <br />
+                            <br />
+                        </EditForm>
+                    </div>
+                }
+            </div>
+
+            @* View - Desktop *@
+            <div id="desktop">
+
+                <br />
+
+                <div align="center">
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNotInspections">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Att göra <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchInspectionsTodo">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Utdömd <input type="checkbox" class="form-check-input" value="" id="3" @onchange="SearchNotBeUsed">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Älgtorn <input type="checkbox" class="form-check-input" value="" id="4" @onchange="SearcMooseTower">
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label">
+                            Vildsvinstorn <input type="checkbox" class="form-check-input" value="" id="5" @onchange="SearchWildBoarTower">
+                        </label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="card-body">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
+
+                        <PropertyColumn Format="yyyy-MM-dd" Title="Senast besiktad" Property="@(c => c.LastInspected)" Sortable="true" />
+
+                        <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchPlace" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchTownNumber" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Att göra" Property="@(c => c.Todo != HuntingTodo.Inget ? c.Todo.ToString() : string.Empty)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchTodo" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort inspektionen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort inspektionen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+
+                    </QuickGrid>
+
+                    <div class="card-footer"><Paginator State="@pagination" /></div>
+
+                    @if (pageViewModel != null && ShowOrHideDeleteInspectionsButton)
+                    {
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => { if (pageViewModel != null) OpenDeleteWindowInspection(pageViewModel); })"> Ta bort alla besiktningar </button>
+
+                        <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort alla besiktningar? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveInspections())"> Ta bort alla besiktningar </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowInspection()"> Ångra </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropInspection)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+            @* View - Mobile *@
+            <div id="mobile">
+
+                <br />
+
+                <div class="row" align="center">
+                    <div class="form-check-inline">
+
+                        <label class="form-check-label">
+                            Besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchInspections">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Ej besiktade <input type="checkbox" class="form-check-input" value="" id="1" bind="" @onchange="SearchNotInspections">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Att göra <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchInspectionsTodo">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Utdömd <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchNotBeUsed">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Älgtorn <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearcMooseTower">
+                        </label>
+
+                        &nbsp;&nbsp;
+
+                        <label class="form-check-label">
+                            Vildsvinstorn <input type="checkbox" class="form-check-input" value="" id="2" @onchange="SearchWildBoarTower">
+                        </label>
+
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="card-body">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" autofocus @onchange="SearchTownNumber" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort inspektionen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort inspektionen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    @if (ShowOrHideDeleteInspectionsButton)
+                    {
+                        <br />
+
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => { if (pageViewModel != null) OpenDeleteWindowInspection(pageViewModel); })"> Ta bort alla besiktningar </button>
+
+                        <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"> Vill du ta bort alla besiktningar? </h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveInspections())"> Ta bort alla besiktningar </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowInspection()"> Ångra </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ShowBackdropInspection)
+                        {
+                            <div class="modal-backdrop fade show"></div>
+                        }
+                    }
+
+                    <br />
+                    <br />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Footer *@
+<div>
+
+    <br /> <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br /> <br />
+
+</div>
+
+@* Back-End *@
+@code
+{
+    private HuntingTowerInspectionViewModels? pageViewModel { get; set; } = new();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 50 };
+    private IQueryable<HuntingTowerInspectionViewModels> queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
+
+    // Modol window settings
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    // Modol window settings
+    public Guid GuidInspection = Guid.NewGuid();
+    public string ModalDisplayInspection = "none;";
+    public string ModalClassInspection = "";
+    public bool ShowBackdropInspection = false;
+
+    // Hide button and fields
+    private bool ShowOrHideAddOrEditForm { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = true;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+    private bool ShowOrHideDeleteInspectionsButton { get; set; } = false;
+
+    // Navigation list
+    private readonly (string Href, string Text)[] navList = new[]
+    {
+        ("HuntingPage", "Start"),
+        ("HuntingMyListPage", "Mina jaktbyten"),
+        ("HuntingPreyPage", "Jaktbyten"),
+        ("HuntingTeamMembersPage", "Medlemmar"),
+        ("HuntingTowerInspectionPage", "Jakttornsinspektioner")
+    };
+
+    // Error text messeges
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryable()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<HuntingTowerInspection> items = await db.HuntingTowerInspections.OrderBy(c => c.LastInspected).ToListAsync();
+
+            if (!items.Any())
+            {
+                InfoMessage = "Finns ingen data att visa!";
+                ShowOrHideInfoMessage = true;
+                return;
+            }
+
+            ShowOrHideDeleteInspectionsButton = await db.HuntingTowerInspections.AnyAsync(y => y.Inspected);
+
+            queryable = items
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryable();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
+
+    private void ShowAddForm()
+    {
+        ShowOrHideAddOrEditForm = true;
+        ShowOrHideAddNewButton = true;
+    }
+
+    private async Task AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
+
+        try
+        {
+            if (pageViewModel.HuntingTowerInspectionId > 0)
+            {
+                ErrorMessage = await BackEndClass.Edit(pageViewModel);
+                ShowOrHideEditButton = true;
+            }
+            else
+            {
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
+                ShowOrHideAddNewButton = true;
+            }
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void Info(HuntingTowerInspectionViewModels vm)
+    {
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = false;
+        DisabledForm = true;
+        pageViewModel = vm;
+    }
+
+    private void Edit(HuntingTowerInspectionViewModels vm)
+    {
+        if (vm.HuntingTowerInspectionId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra jaktinspektionen. ID = {vm.HuntingTowerInspectionId}!");
+            return;
+        }
+
+        DisabledForm = false;
+        ShowOrHideEditButton = true;
+        ShowOrHideAddNewButton = false;
+        ShowOrHideCreateButton = false;
+        ShowOrHideAddOrEditForm = true;
+        pageViewModel = vm;
+    }
+
+    private async Task Delete()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.HuntingTowerInspections.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort jaktinspektionen, databasen är tom!");
+                return;
+            }
+
+            HuntingTowerInspection? model = await db.HuntingTowerInspections.FirstOrDefaultAsync(a => a.HuntingTowerInspectionId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort jaktinspektionen. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.Delete(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteWindow(HuntingTowerInspectionViewModels vm)
+    {
+        TemporaryId = vm.HuntingTowerInspectionId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
+
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private void OpenDeleteWindowInspection(HuntingTowerInspectionViewModels vm)
+    {
+        TemporaryId = vm.HuntingTowerInspectionId;
+        ToggleModal(ref ModalDisplayInspection, ref ModalClassInspection, ref ShowBackdropInspection, true);
+    }
+
+    private void CloseWindowInspection() => ToggleModal(ref ModalDisplayInspection, ref ModalClassInspection, ref ShowBackdropInspection, false);
+
+    private void ShowInfoMessage(string message)
+    {
+        InfoMessage = message;
+        ShowOrHideInfoMessage = true;
+        queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+    }
+
+    private async Task SearchPlace(ChangeEventArgs e)
+    {
+        try
+        {
+            if (e.Value == null)
+            {
+                ShowErrorMessage("Fel vid sökning av plats!");
+                return;
+            }
+
+            queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+
+            string? placeName = e.Value?.ToString()?.ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(placeName))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            Dictionary<string, HuntingPlaces> placeMapping = new()
+            {
+                { "habäck", HuntingPlaces.Habäck },
+                { "dalsjöfors", HuntingPlaces.Dalsjöfors },
+                { "karlabo", HuntingPlaces.Karlabo },
+                { "skog", HuntingPlaces.Skog },
+                { "smältryd", HuntingPlaces.Smältryd },
+                { "övrigt", HuntingPlaces.Övrigt }
+            };
+
+            if (placeMapping.TryGetValue(placeName, out var place))
+            {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchPlace: db == null!");
+
+                var result = db.HuntingTowerInspections.Where(c => c.Place == place);
+
+                if (result.Any())
+                {
+                    ShowOrHideInfoMessage = false;
+
+                    var inspections = await result
+                        .OrderBy(c => c.HuntingTowerInspectionId)
+                        .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                        .ToListAsync();
+
+                    queryable = inspections.Any()
+                    ? inspections.AsQueryable()
+                    : Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+                }
+            }
+            else
+            {
+                ShowInfoMessage($"Hittade ingen plats för sökningen: {placeName}!");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök plats. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchTodo(ChangeEventArgs e)
+    {
+        try
+        {
+            if (e.Value == null)
+            {
+                ShowErrorMessage("Fel vid sökning av to do!");
+                return;
+            }
+
+            queryable = Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+            string? target = e.Value?.ToString()?.ToLower();
+
+            if (string.IsNullOrEmpty(target))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            Dictionary<string, HuntingTodo> todoMapping = new()
+            {
+                { "välj", HuntingTodo.Inget },
+                { "bygga", HuntingTodo.Bygga },
+                { "flytta", HuntingTodo.Flytta },
+                { "reparera", HuntingTodo.Reparera },
+                { "röja", HuntingTodo.Röja },
+                { "övrigt", HuntingTodo.Övrigt },
+                { "ny", HuntingTodo.Ny }
+            };
+
+            if (todoMapping.TryGetValue(target, out var todo))
+            {
+                await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchTodo: db == null!");
+
+                var result = db.HuntingTowerInspections.Where(c => c.Todo == todo);
+
+                if (result.Any())
+                {
+                    ShowOrHideInfoMessage = false;
+
+                    var inspections = await result
+                        .OrderBy(c => c.HuntingTowerInspectionId)
+                        .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                        .ToListAsync();
+
+                    queryable = inspections.Any()
+                    ? inspections.AsQueryable()
+                    : Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+                }
+            }
+            else
+            {
+                ShowInfoMessage($"Hittade ingen att göra för sökningen: {target}!");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök att göra. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void SetQuery(IEnumerable<HuntingTowerInspection> result)
+    {
+        // Materialize the input to avoid multiple enumerations
+        var inspectionsList = result.OrderBy(c => c.HuntingTowerInspectionId).ToList();
+
+        // Convert models to view models asynchronously
+        var viewModels = new List<HuntingTowerInspectionViewModels>();
+        foreach (var model in inspectionsList)
+        {
+            viewModels.Add(BackEndClass.ChangeFromModelToViewModel(model));
+        }
+
+        // Assign to queryable, ensuring correct type
+        queryable = viewModels.Any()
+            ? viewModels.AsQueryable()
+            : Enumerable.Empty<HuntingTowerInspectionViewModels>().AsQueryable();
+    }
+
+    private async Task SearchInspectionsByCriteria(Func<HuntingTowerInspection, bool> criteria)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchInspectionsByCriteria: db == null!");
+
+            var result = db.HuntingTowerInspections.Where(criteria);
+
+            SetQuery(result);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök inspekktioner kriterier. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchInspections(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            await SearchInspectionsByCriteria(c => c.Inspected);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchNotInspections(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            await SearchInspectionsByCriteria(c => !c.Inspected);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchInspectionsTodo(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            await SearchInspectionsByCriteria(c => c.InspectedTodo);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchNotBeUsed(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            await SearchInspectionsByCriteria(c => c.NotBeUsed);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearcMooseTower(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            await SearchInspectionsByCriteria(c => c.MooseTower);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchWildBoarTower(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked) && isChecked)
+            await SearchInspectionsByCriteria(c => c.WildBoarTower);
+        else
+            await RefreshPage();
+    }
+
+    private async Task SearchTownNumber(ChangeEventArgs e)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("SearchTownNumber: db == null!");
+
+            string? searchValue = e.Value?.ToString();
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                IEnumerable<HuntingTowerInspection> result = await db.HuntingTowerInspections
+                    .Where(c => c.Number != null && c.Number.Contains(searchValue))
+                    .ToListAsync();
+
+                SetQuery(result);
+            }
+            else
+                await RefreshPage();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök torn nummer! Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task RemoveInspections()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("RemoveInspections: db == null!");
+
+            var inspectionsToUpdate = db.HuntingTowerInspections.Where(item => item.Inspected).ToList();
+
+            if (inspectionsToUpdate.Any())
+            {
+                foreach (var item in inspectionsToUpdate)
+                    item.Inspected = false;
+
+                await db.SaveChangesAsync();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ta bort inspektioner! Felmeddelande: {ex.Message}");
+        }
+    }
+}

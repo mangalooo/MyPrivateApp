@@ -1,0 +1,631 @@
+﻿
+@page "/FarmingActive"
+
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using MyPrivateApp.Client.ViewModels
+@using MyPrivateApp.Components.Enum
+@using MyPrivateApp.Components.Farming.Classes
+@using MyPrivateApp.Components.Shares.Classes
+@using MyPrivateApp.Components.ViewModels
+@using MyPrivateApp.Components.ViewModels.FarmWork
+@using MyPrivateApp.Components.ViewModels.SharesViewModels
+@using MyPrivateApp.Data
+@using MyPrivateApp.Data.Models
+@using MyPrivateApp.Data.Models.Farming
+@using MyPrivateApp.Data.Models.SharesModels
+@using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject NavigationManager Navigation
+@inject IFarmingClass BackEndClass
+@inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
+
+<PageTitle> Odling </PageTitle>
+
+@try
+{
+    @* Header *@
+    <div>
+
+    <br />
+
+    <div align="center">
+        <NavLink href="FarmingInactive" type="button" class="btn btn-outline-dark btn-sm"> Inaktiv odling </NavLink>
+    </div>
+
+    <br /> <br />
+
+    <h1 style="text-align:center"> Odling (aktiv) </h1>
+
+    @if (ShowOrHideCreateButton)
+    {
+        <br /> <br />
+
+        <div align="center">
+            <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny odling </button>
+        </div>
+    }
+
+    @if (ShowOrHideErrorMessage)
+    {
+        <div style="text-align:center">
+            <Alert Color="AlertColor.Danger">
+                <Icon Name="IconName.ExclamationTriangleFill" class="me-2"></Icon>
+                <b>@ErrorMessage</b>
+            </Alert>
+        </div>
+    }
+
+    @if (ShowOrHideInfoMessage)
+    {
+        <br />
+
+        <div align="center">
+            <Alert Color="AlertColor.Info">
+                <b>@InfoMessage</b>
+            </Alert>
+        </div>
+    }
+
+    <br /> <br />
+
+</div>
+    
+    @* Form and views *@
+    <div class="container">
+        <div class="col-md-12">
+        <div class="card">
+
+            @* Form *@
+            <div>
+                @if (ShowOrHideAddOrEditForm)
+                {
+                    <div class="card-header">
+                        <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-4" />
+
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                    @if (pageViewModel != null)
+                                    {
+                                        <InputText @bind-Value="pageViewModel.Name" class="form-control" disabled="@DisabledForm" />
+                                    }
+                                        <label for="Name"> Namn </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputText @bind-Value="pageViewModel.Type" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="Type"> Typ </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputText @bind-Value="pageViewModel.Place" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="Place"> Plats </label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-4" />
+
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputDate @bind-Value="pageViewModel.PutSeedDate" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="PutSeedDate"> Satt frö datum </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="form-floating">@if (pageViewModel != null)
+                                        {
+                                            <InputDate @bind-Value="pageViewModel.SetDate" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="SetDate"> Plantera ut datum </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputDate @bind-Value="pageViewModel.TakeUpDate" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="TakeUpDate"> Ta upp datum </label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+
+                                <div id="mobile" class="col-6" />
+
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputNumber @bind-Value="pageViewModel.HowMany" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="HowMany"> Hur många satta </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputNumber @bind-Value="pageViewModel.HowManySave" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="HowManySave"> Hur många sparade </label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        @if (pageViewModel != null)
+                                        {
+                                            <InputTextArea rows="5" style="height:100%;" @bind-Value="pageViewModel.Note" class="form-control" disabled="@DisabledForm" />
+                                        }
+                                        <label for="Note"> Anteckningar </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br />
+
+                            @if (ShowOrHideAddNewButton)
+                            {
+                                <div style="text-align:center">
+                                    <button type="submit" style="text-align:center" class="btn btn-outline-success btn-sm"> Lägg till odling gårdsarbete </button>
+                                </div>
+                            }
+
+                            @if (ShowOrHideEditButton)
+                            {
+                                <div style="text-align:center">
+                                    <button type="submit" style="text-align:center" class="btn btn-outline-warning btn-sm"> Ändra </button>
+                                </div>
+                            }
+
+                            <br />
+
+                            <div style="text-align:center">
+                                <button @onclick="RefreshPage" type="button" style="text-align:center" class="btn btn-outline-secondary btn-sm"> Tillbaka </button>
+                            </div>
+
+                            <br /> <br />
+
+                        </EditForm>
+                    </div>
+                }
+            </div>
+
+            @* View - Desktop *@
+            <div id="desktop">
+                <div class="card-body">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
+                        <PropertyColumn Title="Typ" Property="@(c => c.Type)" Sortable="true" />
+                        <PropertyColumn Title="Hur många" Property="@(c => c.HowMany)" Sortable="true" />
+                        <PropertyColumn Title="Anteckningar" Property="@(c => c.Note)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-secondary btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClassInactive" tabindex="-1" role="dialog" style="display:@ModalDisplayInactive">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du inaktivera odlingen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Inactive())"> Inaktivera odlingen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseInactiveWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort odlingen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort odlingen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                            @if (ShowBackdropInactive)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <div style="text-align:center" class="card-footer"><Paginator State="@pagination" /></div>
+
+                    <br /> <br />
+
+                </div>
+            </div>
+
+            @* View - Mobile *@
+            <div id="mobile">
+                <div class="card-body">
+                    <QuickGrid Items="@queryable" Pagination="pagination">
+
+                        <PropertyColumn Title="Namn" Property="@(c => c.Name)" Sortable="true" />
+
+                        <TemplateColumn Title="Info">
+
+                            <div class="btn-group" role="group">
+                                <button title="Info" id="btnGroupDrop1" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Info
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li class="dropdown-item"><button class="btn btn-outline-info btn-sm" @onclick="@(() => Info(context))"> All info </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => Edit(context))"> Ändra </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-warning btn-sm" @onclick="@(() => OpenInactiveWindow(context))"> Inaktiv </button></li>
+                                    <li class="dropdown-item"><button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindow(context))"> Ta bort </button></li>
+                                </ul>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du inaktivera odlingen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Inactive())"> Inaktivera odlingen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseInactiveWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"> Vill du ta bort odlingen? </h5>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="@(() => Delete())"> Ta bort odlingen </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindow()"> Ångra </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ShowBackdrop)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                            @if (ShowBackdropInactive)
+                            {
+                                <div class="modal-backdrop fade show"></div>
+                            }
+
+                        </TemplateColumn>
+                    </QuickGrid>
+
+                    <br /> <br />
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    @* Footer *@
+    <div>
+
+    <br /> <br />
+
+    <div class="footer" align="center">
+        <p> Copyright 2023 - @DateTime.Now.Year</p>
+    </div>
+
+    <br /> <br />
+
+</div>
+}
+catch (Exception ex)
+{
+    ShowErrorMessage($"Övergripande felmeddelande: {ex.Message}");
+}
+
+@* Back-End *@
+@code
+{
+    private FarmingViewModels? pageViewModel { get; set; } = new ();
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
+    private IQueryable<FarmingViewModels> queryable = Enumerable.Empty<FarmingViewModels>().AsQueryable();
+
+    // Holds temporary id to delete items
+    private int TemporaryId { get; set; } = 0;
+
+    // Modol window settings
+    private Guid Guid = Guid.NewGuid();
+    private string ModalDisplay = "none;";
+    private string ModalClass = "";
+    private bool ShowBackdrop = false;
+
+    private Guid GuidInactive = Guid.NewGuid();
+    private string ModalDisplayInactive = "none;";
+    private string ModalClassInactive = "";
+    private bool ShowBackdropInactive = false;
+
+    // Hide button and fields
+    private bool ShowOrHideAddOrEditForm { get; set; } = false;
+    private bool ShowOrHideCreateButton { get; set; } = true;
+    private bool ShowOrHideEditButton { get; set; } = false;
+    private bool ShowOrHideAddNewButton { get; set; } = false;
+    private bool DisabledForm { get; set; } = false;
+
+    // Error text messeges
+    private bool ShowOrHideErrorMessage { get; set; } = false;
+    private string ErrorMessage { get; set; } = string.Empty;
+    private string InfoMessage { get; set; } = string.Empty;
+    private bool ShowOrHideInfoMessage { get; set; } = false;
+
+    private void ShowErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+        ShowOrHideErrorMessage = true;
+    }
+
+    // Load data from database to the Queryable container
+    private async Task ConvertListToQueryableAsync()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
+
+            List<FarmingsActive> item = await db.FarmingsActive.OrderBy(c => c.FarmingId).ToListAsync();
+
+            if (!item.Any())
+            {
+                ShowErrorMessage("Finns ingen data att visa!");
+                return;
+            }
+
+            queryable = item
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .AsQueryable();
+
+            pagination.TotalItemCountChanged += (sender, EventArgs) => StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"ConvertListToQueryableAsync. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
+
+    private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
+
+    private void ShowAddForm()
+    {
+        ShowOrHideAddOrEditForm = true;
+        ShowOrHideAddNewButton = true;
+    }
+
+    private async Task AddOrEdit()
+    {
+        DisabledForm = false;
+
+        if (pageViewModel == null)
+        {
+            ShowErrorMessage($"AddOrEdit: pageViewModel = null!");
+            return;
+        }
+
+        try
+        {
+            if (pageViewModel.FarmingId > 0)
+            {
+                ErrorMessage = await BackEndClass.EditActive(pageViewModel);
+                ShowOrHideEditButton = true;
+            }
+            else
+            {
+                ErrorMessage = await BackEndClass.Add(pageViewModel);
+                ShowOrHideAddNewButton = true;
+            }
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideErrorMessage = true;
+                return;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Lägg till eller ändra. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void Info(FarmingViewModels vm)
+    {
+        ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
+        ShowOrHideCreateButton = false;
+        ShowOrHideEditButton = false;
+        ShowOrHideAddNewButton = false;
+        DisabledForm = true;
+        pageViewModel = vm;
+    }
+
+    private void Edit(FarmingViewModels vm)
+    {
+        if (vm.FarmingId == 0)
+        {
+            ShowErrorMessage($"Går inte att ändra frysvaran. ID = {vm.FarmingId}!");
+            return;
+        }
+
+        DisabledForm = false;
+        ShowOrHideEditButton = true;
+        ShowOrHideAddNewButton = false;
+        ShowOrHideCreateButton = false;
+        ShowOrHideAddOrEditForm = true;
+        pageViewModel = vm;
+    }
+
+    private async Task Delete()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Delete: db == null!");
+
+            if (!db.FarmingsActive.Any())
+            {
+                ShowErrorMessage("Gick inte att ta bort odlingen, databasen är tom!");
+                return;
+            }
+
+            FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att ta bort odlingen. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            ErrorMessage = await BackEndClass.DeleteActive(model);
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                ShowOrHideErrorMessage = true;
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ta bort. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task Inactive()
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("Inactive: db == null!");
+
+            FarmingsActive? model = await db.FarmingsActive.FirstOrDefaultAsync(a => a.FarmingId == TemporaryId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Gick inte att inactivera odlingen. Model = null! (TemporaryId = {TemporaryId})");
+                return;
+            }
+
+            FarmingViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+            ErrorMessage = await BackEndClass.Inactive(vm);
+
+            if (pageViewModel != null && !string.IsNullOrEmpty(ErrorMessage))
+            {
+                ShowOrHideErrorMessage = true;
+                ShowOrHideAddOrEditForm = true;
+                ShowOrHideEditButton = pageViewModel.FarmingId > 0;
+            }
+            else
+            {
+                pageViewModel = new();
+                await RefreshPage();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Gick inte att inactivera odlingen. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private void ToggleModal(ref string modalDisplay, ref string modalClass, ref bool showBackdrop, bool isOpen)
+    {
+        modalDisplay = isOpen ? "block;" : "none";
+        modalClass = isOpen ? "Show" : "";
+        showBackdrop = isOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteWindow(FarmingViewModels vm)
+    {
+        TemporaryId = vm.FarmingId;
+        ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, true);
+    }
+
+    private void CloseWindow() => ToggleModal(ref ModalDisplay, ref ModalClass, ref ShowBackdrop, false);
+
+    private void OpenInactiveWindow(FarmingViewModels vm)
+    {
+        TemporaryId = vm.FarmingId;
+        ToggleModal(ref ModalDisplayInactive, ref ModalClassInactive, ref ShowBackdropInactive, true);
+    }
+
+    private void CloseInactiveWindow() => ToggleModal(ref ModalDisplayInactive, ref ModalClassInactive, ref ShowBackdropInactive, false);
+}
