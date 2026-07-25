@@ -113,6 +113,7 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-4">
@@ -141,6 +142,9 @@
                                 <br />
 
                                 <div class="row">
+
+                                    <div id="mobile" class="col-4" />
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-4">
@@ -176,6 +180,7 @@
                                 <div class="row">
 
                                     <div id="mobile" class="col-4" />
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-4">
@@ -245,20 +250,19 @@
                                             {
                                                 <NavLink href="@($"/FarmWorkPage?farmWorksId={item.FarmWorksId}&returnPlanningId={item.FarmWorksPlanningsId}")"
                                                          class="farmwork-related-one-line text-decoration-none">
-                                                    <span class="farmwork-related-one-line__place">@item.Place</span>
-                                                    <span class="farmwork-related-one-line__date">@item.Date</span>
-                                                    <span class="farmwork-related-one-line__detail">
-                                                        <b>Område:</b> @(string.IsNullOrWhiteSpace(item.Area) ? "-" : item.Area)
+                                                    <span class="farmwork-related-one-line__date">
+                                                        Datum: @item.Date
                                                     </span>
-                                                    <span class="farmwork-related-one-line__detail">
-                                                        <b>Gjort:</b> @item.Todo
+                                                    <span class="farmwork-related-one-line__place">
+                                                        Plats: @item.Place
                                                     </span>
-                                                    <span class="farmwork-related-one-line__detail">
-                                                        <b>Timmar:</b> @item.Hours
+                                                    <span class="farmwork-related-one-line__todo">
+                                                        Gjort: @item.Todo
                                                     </span>
-                                                    <span class="farmwork-related-one-line__detail">
-                                                        <b>Anteckningar:</b> @item.Note
+                                                    <span class="farmwork-related-one-line__hours">
+                                                        Timmar: @item.Hours
                                                     </span>
+
                                                 </NavLink>
                                             }
                                         </div>
@@ -534,7 +538,7 @@ catch (Exception ex)
         ("FarmWorksStartPage", "Start"),
         ("FarmWorkPage", "Tidsrapportering"),
         ("FarmWorksReportPdf", "Tidsrapport PDF"),
-        ("FarmWorksPlanningPage", "Skogsplanneringen"),
+        ("FarmWorksPlanningPage", "Skogsplannering"),
         ("FarmWorksPlanningCompletedPage", "Färdigställda skogområden")
     };
 
