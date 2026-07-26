@@ -7,6 +7,7 @@
 - Ensure that list sections have a visible title and an outer border/frame around the list container.
 - When a user requests a change in a specific code snippet, limit the solution to just that part instead of suggesting larger page changes.
 - Ensure that text in UI components has a consistent style unless otherwise specified.
+- Style the navigation menu with a black-to-green gradient background instead of a solid black background.
 
 ## Project-Specific Rules
 - Ensure that all instructions and code examples are tailored to the Blazor framework, leveraging its features and best practices.

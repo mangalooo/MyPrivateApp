@@ -2,18 +2,12 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-.nav-menu {
-    background-color: green; /* New background color */
-    /* Other styles */
-}
-
 .page {
     background-color: #f0f0f0; /* Change this to your desired color */
 }
 
 .sidebar {
-    background-color: #333; /* Change this to your desired color */
-    color: #fff; /* Change this to your desired color */
+    background-image: linear-gradient(180deg, #000000 0%, #198754 100%);
 }
 
 .content {
@@ -326,4 +320,59 @@ h1:focus {
         width: 100%;
         white-space: normal;
     }
+}
+
+/**/
+
+.top-row {
+    height: 3.5rem;
+    background-image: linear-gradient(180deg, #000000 0%, #198754 100%);
+}
+
+.nav-scrollable {
+    display: none;
+    background-image: linear-gradient(180deg, #000000 0%, #198754 100%);
+}
+
+.nav-item ::deep .nav-link {
+    color: #d7ffd7;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+    width: 100%;
+}
+
+.nav-item ::deep a.active {
+    background-color: #198754;
+    color: #ffffff;
+}
+
+.nav-item ::deep .nav-link:hover {
+    background-color: #145c32;
+    color: #ffffff;
+}
+
+.navbar-toggler {
+    appearance: none;
+    cursor: pointer;
+    width: 3.5rem;
+    height: 2.5rem;
+    color: white;
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    border: 1px solid rgba(25, 135, 84, 0.7);
+    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(25, 135, 84, 0.25);
+}
+
+    .navbar-toggler:checked {
+        background-color: rgba(25, 135, 84, 0.6);
+    }
+
+.nav-scrollable {
+    border-right: 2px solid #198754;
 }
