@@ -2,13 +2,10 @@
 
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.FarmWork.Classes
-@using MyPrivateApp.Components.ViewModels
 @using MyPrivateApp.Components.ViewModels.FarmWork
 @using MyPrivateApp.Data
-@using MyPrivateApp.Data.Models
 @using MyPrivateApp.Data.Models.FarmWork
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
 
@@ -214,6 +211,44 @@
 
                                 <br />
 
+                                <div class="farmwork-related-section">
+                                    <div class="farmwork-related-section__title">
+                                        Relaterade gårdsarbeten
+                                    </div>
+
+                                    @if (!relatedFarmWorks.Any())
+                                    {
+                                        <div class="alert alert-light border text-center mb-0">
+                                            Inga relaterade gårdsarbeten hittades.
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="farmwork-related-list">
+                                            @foreach (FarmWorks item in relatedFarmWorks)
+                                            {
+                                                <NavLink href="@($"/FarmWorkPage?farmWorksId={item.FarmWorksId}&returnPlanningCompletedId={item.FarmWorksPlanningCompletedId}")"
+                                                         class="farmwork-related-one-line text-decoration-none">
+                                                    <span class="farmwork-related-one-line__date">
+                                                        Datum: @item.Date
+                                                    </span>
+                                                    <span class="farmwork-related-one-line__place">
+                                                        Plats: @item.Place
+                                                    </span>
+                                                    <span class="farmwork-related-one-line__todo">
+                                                        Gjort: @item.Todo
+                                                    </span>
+                                                    <span class="farmwork-related-one-line__hours">
+                                                        Timmar: @item.Hours
+                                                    </span>
+                                                </NavLink>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                <br />
+
                                 @if (ShowOrHideAddNewButton)
                                 {
                                     <div align="center">
@@ -392,6 +427,11 @@ catch (Exception ex)
 @* Back-End *@
 @code
 {
+    [SupplyParameterFromQuery(Name = "farmWorksPlanningCompletedId")]
+    public int? FarmWorksPlanningCompletedId { get; set; }
+
+    private List<FarmWorks> relatedFarmWorks { get; set; } = new();
+
     private FarmWorksPlanningViewModels? pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
@@ -509,7 +549,7 @@ catch (Exception ex)
         }
     }
 
-    private void Info(FarmWorksPlanningViewModels vm)
+    private async Task Info(FarmWorksPlanningViewModels vm)
     {
         ShowOrHideAddOrEditForm = !ShowOrHideAddOrEditForm;
         ShowOrHideCreateButton = false;
@@ -517,9 +557,11 @@ catch (Exception ex)
         ShowOrHideAddNewButton = false;
         DisabledForm = true;
         pageViewModel = vm;
+
+        await LoadRelatedFarmWorksAsync(vm.FarmWorksPlanningsId);
     }
 
-    private void Edit(FarmWorksPlanningViewModels vm)
+    private async Task Edit(FarmWorksPlanningViewModels vm)
     {
         if (vm.FarmWorksPlanningsId == 0)
         {
@@ -533,6 +575,8 @@ catch (Exception ex)
         ShowOrHideCreateButton = false;
         ShowOrHideAddOrEditForm = true;
         pageViewModel = vm;
+
+        await LoadRelatedFarmWorksAsync(vm.FarmWorksPlanningsId);
     }
 
     private async Task Delete()
@@ -624,6 +668,58 @@ catch (Exception ex)
         catch (Exception ex)
         {
             ShowErrorMessage($"Sök plats. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task LoadRelatedFarmWorksAsync(int farmWorksPlanningCompletedId)
+    {
+        await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+            ?? throw new Exception("LoadRelatedFarmWorksAsync: db == null!");
+
+        relatedFarmWorks = await db.FarmWorks
+            .AsNoTracking()
+            .Where(x => x.FarmWorksPlanningCompletedId == farmWorksPlanningCompletedId)
+            .OrderByDescending(x => x.Date)
+            .ToListAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (FarmWorksPlanningCompletedId is > 0)
+            await LoadPlanningCompletedFromQueryAsync(FarmWorksPlanningCompletedId.Value);
+    }
+
+    private async Task LoadPlanningCompletedFromQueryAsync(int farmWorksPlanningCompletedId)
+    {
+        try
+        {
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+                ?? throw new Exception("LoadPlanningCompletedFromQueryAsync: db == null!");
+
+            FarmWorksPlanningCompleted? model = await db.FarmWorksPlanningCompleted
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FarmWorksPlanningCompletedId == farmWorksPlanningCompletedId);
+
+            if (model == null)
+            {
+                ShowErrorMessage($"Färdigställd skogsplanering hittades inte. ID = {farmWorksPlanningCompletedId}!");
+                return;
+            }
+
+            FarmWorksPlanningViewModels vm = BackEndClass.ChangeFromModelToViewModel(model);
+
+            ShowOrHideAddOrEditForm = true;
+            ShowOrHideCreateButton = false;
+            ShowOrHideEditButton = false;
+            ShowOrHideAddNewButton = false;
+            DisabledForm = true;
+            pageViewModel = vm;
+
+            await LoadRelatedFarmWorksAsync(vm.FarmWorksPlanningsId);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Ladda färdigställd skogsplanering. Felmeddelande: {ex.Message}");
         }
     }
 }

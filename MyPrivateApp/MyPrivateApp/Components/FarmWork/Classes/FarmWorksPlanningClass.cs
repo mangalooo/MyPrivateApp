@@ -15,7 +15,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         {
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Add: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() 
+                    ?? throw new Exception("Add: db == null!");
 
                 if (vm == null)
                     return "Hittar ingen data från formuläret!";
@@ -48,7 +49,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Edit: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() 
+                    ?? throw new Exception("Edit: db == null!");
 
                 // Fetch the entity in the same context to ensure tracking
                 FarmWorksPlanning? model = await db.FarmWorksPlanning.FirstOrDefaultAsync(r => r.FarmWorksPlanningsId == vm.FarmWorksPlanningsId);
@@ -71,24 +73,41 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
         public async Task<string> Completed(FarmWorksPlanningViewModels vm)
         {
-            if (vm == null)
+            if (vm == null || vm.FarmWorksPlanningsId <= 0)
                 return "Får ingen kontakt med formuläret!";
 
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Completed: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext()
+                    ?? throw new Exception("Completed: db == null!");
+
+                await using var transaction = await db.Database.BeginTransactionAsync();
+
+                FarmWorksPlanning? planning = await db.FarmWorksPlanning
+                    .Include(x => x.FarmWorks)
+                    .FirstOrDefaultAsync(x => x.FarmWorksPlanningsId == vm.FarmWorksPlanningsId);
+
+                if (planning == null)
+                    return "Hittar inte skogsplaneringen i databasen!";
 
                 FarmWorksPlanningCompleted modelCompleted = ChangeFromViewModelToModelCompleted(vm);
                 modelCompleted.EndDate = DateTime.Now.ToString("yyyy-MM-dd");
 
                 await db.FarmWorksPlanningCompleted.AddAsync(modelCompleted);
                 await db.SaveChangesAsync();
-                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
 
-                // Removes FarmWorksplanning from the database
-                FarmWorksPlanning model = ChangeFromViewModelToModel(vm);
-                await Delete(model);
+                foreach (FarmWorks farmWork in planning.FarmWorks)
+                {
+                    farmWork.FarmWorksPlanningsId = null;
+                    farmWork.FarmWorksPlanningCompletedId = modelCompleted.FarmWorksPlanningCompletedId;
+                }
 
+                db.FarmWorksPlanning.Remove(planning);
+
+                await db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                db.ChangeTracker.Clear();
                 return string.Empty;
             }
             catch (Exception ex)
@@ -105,7 +124,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() ?? throw new Exception("Delete: db == null!");
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext() 
+                    ?? throw new Exception("Delete: db == null!");
 
                 db.FarmWorksPlanning.Remove(model);
                 await db.SaveChangesAsync();

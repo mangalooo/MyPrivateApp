@@ -63,6 +63,12 @@ namespace MyPrivateApp.Data
                 .WithMany(x => x.FarmWorks)
                 .HasForeignKey(x => x.FarmWorksPlanningsId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<FarmWorks>()
+                .HasOne(x => x.FarmWorksPlanningCompleted)
+                .WithMany(x => x.FarmWorks)
+                .HasForeignKey(x => x.FarmWorksPlanningCompletedId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

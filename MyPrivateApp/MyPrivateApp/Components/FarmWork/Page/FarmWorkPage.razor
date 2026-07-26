@@ -553,6 +553,9 @@
     [SupplyParameterFromQuery(Name = "returnPlanningId")]
     public int? ReturnPlanningId { get; set; }
 
+    [SupplyParameterFromQuery(Name = "returnPlanningCompletedId")]
+    public int? ReturnPlanningCompletedId { get; set; }
+
     private FarmWorksViewModels? pageViewModel { get; set; } = new();
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 30 };
@@ -995,6 +998,12 @@
         if (ReturnPlanningId is > 0)
         {
             Navigation.NavigateTo($"/FarmWorksPlanningPage?farmWorksPlanningsId={ReturnPlanningId}");
+            return Task.CompletedTask;
+        }
+
+        if (ReturnPlanningCompletedId is > 0)
+        {
+            Navigation.NavigateTo($"/FarmWorksPlanningCompletedPage?farmWorksPlanningCompletedId={ReturnPlanningCompletedId}");
             return Task.CompletedTask;
         }
 

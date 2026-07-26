@@ -22,5 +22,8 @@ namespace MyPrivateApp.Data.Models.FarmWork
 
         public int? FarmWorksPlanningsId { get; set; }
         public FarmWorksPlanning? FarmWorksPlanning { get; set; }
+
+        public int? FarmWorksPlanningCompletedId { get; set; }
+        public FarmWorksPlanningCompleted? FarmWorksPlanningCompleted { get; set; }
     }
 }

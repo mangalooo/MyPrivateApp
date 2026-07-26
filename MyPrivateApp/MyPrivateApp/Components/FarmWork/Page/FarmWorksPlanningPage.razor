@@ -262,7 +262,6 @@
                                                     <span class="farmwork-related-one-line__hours">
                                                         Timmar: @item.Hours
                                                     </span>
-
                                                 </NavLink>
                                             }
                                         </div>
@@ -797,6 +796,22 @@ catch (Exception ex)
             .Where(x => x.FarmWorksPlanningsId == farmWorksPlanningsId)
             .OrderByDescending(x => x.Date)
             .ToListAsync();
+
+        double totalHours = relatedFarmWorks.Sum(x => x.Hours);
+
+        if (pageViewModel != null)
+            pageViewModel.Hours = totalHours;
+
+        FarmWorksPlanning? planning = await db.FarmWorksPlanning
+            .FirstOrDefaultAsync(x => x.FarmWorksPlanningsId == farmWorksPlanningsId);
+
+        if (planning != null && Math.Abs(planning.Hours - totalHours) > 0.001d)
+        {
+            planning.Hours = totalHours;
+            await db.SaveChangesAsync();
+        }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnParametersSetAsync()

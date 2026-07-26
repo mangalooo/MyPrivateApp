@@ -18,5 +18,7 @@ namespace MyPrivateApp.Data.Models.FarmWork
         public double Hectare { get; set; }
         public double Hours { get; set; } 
         public string? Notes { get; set; }
+
+        public ICollection<FarmWorks> FarmWorks { get; set; } = new List<FarmWorks>();
     }
 }
