@@ -161,9 +161,12 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 Area = model.Area,
                 PropertyDesignation = model.PropertyDesignation,
                 Prioritize = model.Prioritize,
-                Todo = model.Todo,
                 Hectare = model.Hectare,
                 Hours = model.Hours,
+                ClearingHours = model.ClearingHours,
+                ForClearingHours = model.ForClearingHours,
+                ThinHours = model.ThinHours,
+                ToForwardHours = model.ToForwardHours,
                 Notes = model.Notes
             };
 
@@ -181,9 +184,12 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 Area = vm.Area,
                 PropertyDesignation = vm.PropertyDesignation,
                 Prioritize = vm.Prioritize,
-                Todo = vm.Todo,
                 Hectare = vm.Hectare,
                 Hours = vm.Hours,
+                ClearingHours = vm.ClearingHours,
+                ForClearingHours = vm.ForClearingHours,
+                ThinHours = vm.ThinHours,
+                ToForwardHours = vm.ToForwardHours,
                 Notes = vm.Notes
             };
 
@@ -199,9 +205,12 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             model.Area = vm.Area;
             model.PropertyDesignation = vm.PropertyDesignation;
             model.Prioritize = vm.Prioritize;
-            model.Todo = vm.Todo;
             model.Hectare = vm.Hectare;
             model.Hours = vm.Hours;
+            model.ClearingHours = vm.ClearingHours;
+            model.ForClearingHours = vm.ForClearingHours;
+            model.ThinHours = vm.ThinHours;
+            model.ToForwardHours = vm.ToForwardHours;
             model.Notes = vm.Notes;
         }
 
@@ -215,9 +224,12 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 Area = vm.Area,
                 PropertyDesignation = vm.PropertyDesignation,
                 Prioritize = vm.Prioritize,
-                Todo = vm.Todo,
                 Hectare = vm.Hectare,
                 Hours = vm.Hours,
+                ClearingHours = vm.ClearingHours,
+                ForClearingHours = vm.ForClearingHours,
+                ThinHours = vm.ThinHours,
+                ToForwardHours = vm.ToForwardHours,
                 Notes = vm.Notes
             };
 

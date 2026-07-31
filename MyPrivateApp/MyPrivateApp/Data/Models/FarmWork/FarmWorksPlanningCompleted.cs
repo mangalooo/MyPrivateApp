@@ -14,9 +14,12 @@ namespace MyPrivateApp.Data.Models.FarmWork
         public string? Area { get; set; }
         public string? PropertyDesignation { get; set; }
         public FarmWorkPrioritize Prioritize { get; set; }
-        public FarmWorkTodo Todo { get; set; }
         public double Hectare { get; set; }
-        public double Hours { get; set; } 
+        public double Hours { get; set; }
+        public double ThinHours { get; set; } // Gallra tid
+        public double ClearingHours { get; set; } //Röjning tid
+        public double ForClearingHours { get; set; } // Förröjning tid
+        public double ToForwardHours { get; set; } // Skotnings tid
         public string? Notes { get; set; }
 
         public ICollection<FarmWorks> FarmWorks { get; set; } = new List<FarmWorks>();

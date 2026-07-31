@@ -28,18 +28,27 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
         [Display(Name = "Fastighetsbeteckning")]
         public string? PropertyDesignation { get; set; }
 
-        [Display(Name = "Att göra")]
-        [DataType(DataType.MultilineText)]
-        public FarmWorkTodo Todo { get; set; }
-
         [Display(Name = "Prioritera")]
         [DataType(DataType.Text)]
         public FarmWorkPrioritize Prioritize { get; set; }
 
+        [Display(Name = "Hektar")]
         public double Hectare { get; set; }
 
         [Display(Name = "Timmar")]
         public double Hours { get; set; }
+
+        [Display(Name = "Gallra")]
+        public double ThinHours { get; set; }
+
+        [Display(Name = "Röjning")]
+        public double ClearingHours { get; set; }
+
+        [Display(Name = "Förröjning")]
+        public double ForClearingHours { get; set; }
+
+        [Display(Name = "Skotning")]
+        public double ToForwardHours { get; set; }
 
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]

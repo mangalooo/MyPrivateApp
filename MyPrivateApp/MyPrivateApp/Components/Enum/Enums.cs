@@ -148,7 +148,7 @@ namespace MyPrivateApp.Components.Enum
         Röjning,
         Förröjning,
         Gallra,
-        Skota,
+        Skotat,
         Vindfällor
     }
 
