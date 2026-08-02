@@ -2,6 +2,32 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+/*Linje i vinsingsvyn*/
+/* Linje bara mellan rader */
+table.farmwork-grid tbody tr + tr td {
+    border-top: 1px solid #d6d6d6 !important;
+}
+
+/* Ingen linje efter sista raden */
+/* Ta bort tidigare regler för farmwork-grid */
+table.farmwork-grid tbody td {
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+/* Linje bara mellan rader som faktiskt innehåller data */
+table.farmwork-grid tbody tr:has(td:not(:empty)) + tr:has(td:not(:empty)) td {
+    border-top: 1px solid #d6d6d6 !important;
+}
+
+/* Dölj tomma rader efter sista dataraden */
+table.farmwork-grid tbody tr:has(td:empty) td {
+    border: none !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: 0 !important;
+}
+
 .page {
     background-color: #f0f0f0; /* Change this to your desired color */
 }
@@ -298,7 +324,6 @@ h1:focus {
 .farmwork-related-one-line__place,
 .farmwork-related-one-line__hours {
     font-weight: normal;
-}
 }
 
 @media (max-width: 768px) {

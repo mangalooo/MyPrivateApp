@@ -91,6 +91,7 @@
             </div>
         }
 
+        
         <br />
 
     </div>
@@ -319,7 +320,7 @@
                     <br />
 
                     <div class="card-body">
-                        <QuickGrid Items="@queryable" Pagination="pagination">
+                        <QuickGrid Class="farmwork-grid" Items="@queryable" Pagination="pagination">
 
                             <PropertyColumn Title="Prio" Property="@(c => c.Prioritize != FarmWorkPrioritize.Välj ? ((int)c.Prioritize).ToString() : string.Empty)" Sortable="true" />
                             <PropertyColumn Format="yyyy-MM-dd" Title="Planeringsdatum" Property="@(c => c.PlanningDate)" Sortable="true" />
@@ -404,7 +405,7 @@
                     <br />
 
                     <div class="card-body">
-                        <QuickGrid Items="@queryable" Pagination="pagination">
+                        <QuickGrid Class="farmwork-grid" Items="@queryable" Pagination="pagination">
 
                             <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                                 <ColumnOptions>

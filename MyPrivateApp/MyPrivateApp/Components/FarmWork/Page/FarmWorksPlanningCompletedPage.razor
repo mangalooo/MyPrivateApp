@@ -303,7 +303,7 @@
                     <br />
 
                     <div class="card-body">
-                        <QuickGrid Items="@queryable" Pagination="pagination">
+                        <QuickGrid Class="farmwork-grid" Items="@queryable" Pagination="pagination">
 
                             <PropertyColumn Format="yyyy-MM-dd" Title="Planeringsdatum" Property="@(c => c.PlanningDate)" Sortable="true" />
                             <PropertyColumn Format="yyyy-MM-dd" Title="Startdatum" Property="@(c => c.StartDate)" Sortable="true" />
@@ -369,7 +369,7 @@
                     <br />
 
                     <div class="card-body">
-                        <QuickGrid Items="@queryable" Pagination="pagination">
+                        <QuickGrid Class="farmwork-grid" Items="@queryable" Pagination="pagination">
 
                             <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                                 <ColumnOptions>

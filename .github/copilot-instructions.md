@@ -8,6 +8,7 @@
 - When a user requests a change in a specific code snippet, limit the solution to just that part instead of suggesting larger page changes.
 - Ensure that text in UI components has a consistent style unless otherwise specified.
 - Style the navigation menu with a black-to-green gradient background instead of a solid black background.
+- Do not show divider lines in views when there is no information to display, including after the last data row in grid/list views.
 
 ## Project-Specific Rules
 - Ensure that all instructions and code examples are tailored to the Blazor framework, leveraging its features and best practices.

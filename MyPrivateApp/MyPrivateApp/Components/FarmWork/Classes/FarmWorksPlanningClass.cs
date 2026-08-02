@@ -124,12 +124,20 @@ namespace MyPrivateApp.Components.FarmWork.Classes
 
             try
             {
-                await using ApplicationDbContext db = _dbFactory.CreateDbContext() 
+                await using ApplicationDbContext db = _dbFactory.CreateDbContext()
                     ?? throw new Exception("Delete: db == null!");
+
+                bool hasRelatedFarmWorks = await db.FarmWorks
+                    .AnyAsync(x => x.FarmWorksPlanningsId == model.FarmWorksPlanningsId);
+
+                if (hasRelatedFarmWorks)
+                {
+                    return "Går inte att ta bort skogsplaneringen eftersom det finns relaterade gårdsarbeten kopplade till den.";
+                }
 
                 db.FarmWorksPlanning.Remove(model);
                 await db.SaveChangesAsync();
-                db.ChangeTracker.Clear(); // Clear the change tracker to avoid tracking issues
+                db.ChangeTracker.Clear();
 
                 return string.Empty;
             }
