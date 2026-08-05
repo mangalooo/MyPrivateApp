@@ -172,6 +172,12 @@ h1:focus {
     }
 }
 
+@media (max-width: 640.98px) {
+    .page > main > .top-row {
+        display: none !important;
+    }
+}
+
 /* Loading page */
 .loading-section {
     text-align: center;
@@ -391,5 +397,5 @@ h1:focus {
     }
 
 .nav-scrollable {
-    border-right: 2px solid #198754;
+    border-right: none;
 }
