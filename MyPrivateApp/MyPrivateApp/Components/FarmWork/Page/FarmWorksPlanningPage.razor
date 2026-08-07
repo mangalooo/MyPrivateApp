@@ -9,7 +9,7 @@
 @using MyPrivateApp.Data.Models.FarmWork
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
 
-@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @inject NavigationManager Navigation
 @inject IFarmWorksPlanningClass BackEndClass
@@ -329,6 +329,7 @@
 
                             <PropertyColumn Title="Fastighetsbeteckning" Property="@(c => c.PropertyDesignation)" Sortable="true" />
                             <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
+                            <PropertyColumn Title="Hektar" Property="@(c => c.Hectare)" Sortable="true" />
                             <PropertyColumn Title="Anteckningar" Property="@(c => c.Notes)" Sortable="true" />
 
                             <TemplateColumn Title="Info">
@@ -558,7 +559,10 @@ catch (Exception ex)
         {
             await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
-            List<FarmWorksPlanning> items = await db.FarmWorksPlanning.OrderByDescending(c => c.Prioritize).ToListAsync();
+            List<FarmWorksPlanning> items = await db.FarmWorksPlanning
+                .OrderBy(c => c.Prioritize == FarmWorkPrioritize.Välj ? 1 : 0)
+                .ThenBy(c => c.Prioritize)
+                .ToListAsync();
 
             if (!items.Any())
             {
@@ -580,7 +584,7 @@ catch (Exception ex)
     }
 
     protected override async Task OnInitializedAsync() => await ConvertListToQueryableAsync();
-   
+
     private async Task RefreshPage() => await Task.Run(() => Navigation.Refresh(true));
 
     private void ShowAddForm()
