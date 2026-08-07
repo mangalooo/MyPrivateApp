@@ -43,11 +43,11 @@ public sealed class FarmWorksPdfDocument : IDocument
                 {
                     table.ColumnsDefinition(columns =>
                     {
-                        columns.ConstantColumn(90);
-                        columns.ConstantColumn(60);
-                        columns.ConstantColumn(60);
-                        columns.ConstantColumn(60);
-                        columns.RelativeColumn(1);
+                        columns.ConstantColumn(90);   // Datum
+                        columns.ConstantColumn(70);   // Plats
+                        columns.ConstantColumn(85);   // Område
+                        columns.ConstantColumn(65);   // Timmar
+                        columns.RelativeColumn(1);    // Notering
                     });
 
                     table.Header(header =>

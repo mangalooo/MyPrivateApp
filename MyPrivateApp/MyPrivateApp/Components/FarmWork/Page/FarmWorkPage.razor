@@ -358,7 +358,6 @@
                         <PropertyColumn Title="Fastighetsbeteckning" Property="@(c => c.PropertyDesignation)" Sortable="true" />
                         <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
                         <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
-                        <PropertyColumn Title="Skogsplanering" Property="@(c => c.FarmWorksPlanningsId)" Sortable="true" />
                         <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
 
                         <TemplateColumn Title="Info">
@@ -470,9 +469,7 @@
 
                     @if (pageViewModel != null && isDeleteSalaryButtonVisible)
                     {
-                        <br />
-
-                        <br />
+                        <br /> <br />
 
                         <button class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteWindowSalary(pageViewModel))"> Ta bort nästa lön </button>
 
@@ -496,7 +493,7 @@
                         }
                     }
 
-                    <br /><br />
+                    <br /> <br />
 
                 </div>
             </div>
