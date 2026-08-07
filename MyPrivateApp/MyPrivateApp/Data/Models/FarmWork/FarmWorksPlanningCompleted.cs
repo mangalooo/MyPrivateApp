@@ -7,7 +7,6 @@ namespace MyPrivateApp.Data.Models.FarmWork
     {
         [Key]
         public int FarmWorksPlanningCompletedId { get; set; }
-        public string? PlanningDate { get; set; }
         public string? StartDate { get; set; }
         public string? EndDate { get; set; }
         public FarmWorkPlaces Place { get; set; }

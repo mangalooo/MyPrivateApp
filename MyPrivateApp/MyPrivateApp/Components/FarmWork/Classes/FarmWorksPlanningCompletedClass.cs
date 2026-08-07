@@ -16,8 +16,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             if (vm == null || vm.FarmWorksPlanningsId <= 0)
                 return "Hittar ingen data från formuläret!";
 
-            if (vm.PlanningDate == DateTime.MinValue && vm.Place != 0 && vm.Area != string.Empty)
-                return "Inget datum, plats eller timmar ifyllt!";
+            if (vm.Place == 0 || vm.Area == string.Empty)
+                return "Plats, område eller timmar ifyllt!";
 
             try
             {
@@ -79,7 +79,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             FarmWorksPlanningViewModels vm = new()
             {
                 FarmWorksPlanningsId = model.FarmWorksPlanningCompletedId,
-                PlanningDate = ParseDate(model.PlanningDate ?? string.Empty),
                 StartDate = ParseDate(model.StartDate ?? string.Empty),
                 EndDate = ParseDate(model.EndDate ?? string.Empty),
                 Place = model.Place,
@@ -101,7 +100,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         private static void EditModel(FarmWorksPlanningViewModels vm, FarmWorksPlanningCompleted model)
         {
             model.FarmWorksPlanningCompletedId = vm.FarmWorksPlanningsId;
-            model.PlanningDate = vm.PlanningDate.ToString("yyyy-MM-dd");
             model.StartDate = vm.StartDate.ToString("yyyy-MM-dd");
             model.EndDate = vm.EndDate.ToString("yyyy-MM-dd");
             model.Place = vm.Place;

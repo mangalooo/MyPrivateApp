@@ -21,8 +21,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
                 if (vm == null)
                     return "Hittar ingen data från formuläret!";
 
-                if (vm.PlanningDate == DateTime.MinValue || vm.Place == 0 || vm.Area == string.Empty)
-                    return "Inget datum, plats, område eller timmar ifyllt!";
+                if (vm.Place == 0 || vm.Area == string.Empty)
+                    return "Plats, område eller timmar ifyllt!";
 
                 FarmWorksPlanning model = ChangeFromViewModelToModel(vm);
 
@@ -44,8 +44,8 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             if (vm == null || vm.FarmWorksPlanningsId <= 0)
                 return "Hittar ingen data från formuläret!";
 
-            if (vm.PlanningDate == DateTime.MinValue && vm.Place != 0 && vm.Area != string.Empty)
-                return "Inget datum, plats eller timmar ifyllt!";
+            if (vm.Place == 0 || vm.Area == string.Empty)
+                return "Plats, område eller timmar ifyllt!";
 
             try
             {
@@ -163,7 +163,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             FarmWorksPlanningViewModels vm = new()
             {
                 FarmWorksPlanningsId = model.FarmWorksPlanningsId,
-                PlanningDate = ParseDate(model.PlanningDate ?? string.Empty),
                 StartDate = ParseDate(model.StartDate ?? string.Empty),
                 Place = model.Place,
                 Area = model.Area,
@@ -186,7 +185,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
             FarmWorksPlanning model = new()
             {
                 FarmWorksPlanningsId = vm.FarmWorksPlanningsId,
-                PlanningDate = vm.PlanningDate.ToString("yyyy-MM-dd"),
                 StartDate = vm.StartDate.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
                 Area = vm.Area,
@@ -207,7 +205,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         private static void EditModel(FarmWorksPlanningViewModels vm, FarmWorksPlanning model)
         {
             model.FarmWorksPlanningsId = vm.FarmWorksPlanningsId;
-            model.PlanningDate = vm.PlanningDate.ToString("yyyy-MM-dd");
             model.StartDate = vm.StartDate.ToString("yyyy-MM-dd");
             model.Place = vm.Place;
             model.Area = vm.Area;
@@ -226,7 +223,6 @@ namespace MyPrivateApp.Components.FarmWork.Classes
         {
             FarmWorksPlanningCompleted model = new()
             {
-                PlanningDate = vm.PlanningDate.ToString("yyyy-MM-dd"),
                 StartDate = vm.StartDate.ToString("yyyy-MM-dd"),
                 Place = vm.Place,
                 Area = vm.Area,

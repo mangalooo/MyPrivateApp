@@ -101,32 +101,26 @@
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-3" />
+                                    <div id="mobile" class="col-4" />
 
                                     @if (pageViewModel != null)
                                     {
-                                        <div class="col-3">
-                                            <div class="form-floating">
-                                                <InputDate @bind-Value="pageViewModel.PlanningDate" class="form-control" disabled="@DisabledForm" />
-                                                <label for="PlanningDate"> Planeringsdatum </label>
-                                            </div>
-                                        </div>
 
-                                        <div class="col-3">
+                                        <div class="col-4">
                                             <div class="form-floating">
                                                 <InputDate @bind-Value="pageViewModel.StartDate" class="form-control" disabled="@DisabledForm" />
                                                 <label for="StartDate"> Startdatum </label>
                                             </div>
                                         </div>
 
-                                        <div class="col-3">
+                                        <div class="col-4">
                                             <div class="form-floating">
                                                 <InputDate @bind-Value="pageViewModel.EndDate" class="form-control" disabled="@DisabledForm" />
                                                 <label for="EndDate"> Slutdatum </label>
                                             </div>
                                         </div>
 
-                                        <div class="col-3">
+                                        <div class="col-4">
                                             <div class="form-floating">
                                                 <InputNumber @bind-Value="pageViewModel.Hours" class="form-control" disabled="True" />
                                                 <label for="Hours"> Timmar </label>
@@ -305,7 +299,6 @@
                     <div class="card-body">
                         <QuickGrid Class="farmwork-grid" Items="@queryable" Pagination="pagination">
 
-                            <PropertyColumn Format="yyyy-MM-dd" Title="Planeringsdatum" Property="@(c => c.PlanningDate)" Sortable="true" />
                             <PropertyColumn Format="yyyy-MM-dd" Title="Startdatum" Property="@(c => c.StartDate)" Sortable="true" />
                             <PropertyColumn Format="yyyy-MM-dd" Title="Slutdatum" Property="@(c => c.EndDate)" Sortable="true" />
 
@@ -318,8 +311,8 @@
                             </PropertyColumn>
 
                             <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
-                            <PropertyColumn Title="Fastighetsbeteckning" Property="@(c => c.PropertyDesignation)" Sortable="true" />
                             <PropertyColumn Title="Hektar" Property="@(c => c.Hectare)" Sortable="true" />
+                            <PropertyColumn Title="Anteckningar" Property="@(c => c.Notes)" Sortable="true" />
 
                             <TemplateColumn Title="Info">
 
@@ -673,7 +666,7 @@ catch (Exception ex)
             {
                 var farmWorksList = await db.FarmWorksPlanningCompleted
                     .Where(c => c.Place == matchedPlace)
-                    .OrderBy(c => c.PlanningDate)
+                    .OrderBy(c => c.EndDate)
                     .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
                     .ToListAsync();
 

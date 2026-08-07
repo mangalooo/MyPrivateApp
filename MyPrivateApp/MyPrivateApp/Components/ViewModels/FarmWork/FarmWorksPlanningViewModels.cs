@@ -5,13 +5,7 @@ namespace MyPrivateApp.Components.ViewModels.FarmWork
 {
     public class FarmWorksPlanningViewModels
     {
-        public FarmWorksPlanningViewModels() => PlanningDate = DateTime.Now;
-
         public int FarmWorksPlanningsId { get; set; }
-
-        [Display(Name = "Planeringsdatum")]
-        [DataType(DataType.Text)]
-        public DateTime PlanningDate { get; set; }
 
         [Display(Name = "Startdatum")]
         [DataType(DataType.Text)]
