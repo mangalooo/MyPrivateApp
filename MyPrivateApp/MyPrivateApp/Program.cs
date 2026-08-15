@@ -1,5 +1,4 @@
-
-using Hangfire;
+ï»¿using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,8 +7,10 @@ using MyPrivateApp.Components;
 using MyPrivateApp.Components.Account;
 using MyPrivateApp.Components.Contact.Classes;
 using MyPrivateApp.Components.Email.Classes;
+using MyPrivateApp.Components.Enum;
 using MyPrivateApp.Components.Farming.Classes;
 using MyPrivateApp.Components.FarmWork.Classes;
+using MyPrivateApp.Components.FarmWork.Pdf;
 using MyPrivateApp.Components.FrozenFood.Classes;
 using MyPrivateApp.Components.Games.ManagerZone.Classes;
 using MyPrivateApp.Components.Hunting.Classes;
@@ -17,7 +18,6 @@ using MyPrivateApp.Components.Shares.Classes;
 using MyPrivateApp.Components.Shares.Classes.Interface;
 using MyPrivateApp.Components.ShoppingList.Classes;
 using MyPrivateApp.Components.Trip.Classes;
-using MyPrivateApp.Components.FarmWork.Pdf;
 using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Hunting;
@@ -177,14 +177,17 @@ app.UseAntiforgery();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// FarmWork: Filter PDF report
 app.MapGet("/api/farmworks/report", async (
     DateOnly from,
     DateOnly to,
+    FarmWorkPlaces? place,
+    string? propertyDesignation,
     IFarmWorksPdfService pdfService,
     CancellationToken cancellationToken) =>
 {
-    byte[] bytes = await pdfService.CreateFarmWorksReportAsync(from, to, cancellationToken);
-    string fileName = $"Gårdsarbetesraport_{from:yyyyMMdd}_{to:yyyyMMdd}.pdf";
+    byte[] bytes = await pdfService.CreateFarmWorksReportAsync(from, to, place, propertyDesignation, cancellationToken);
+    string fileName = $"Gï¿½rdsarbetesraport_{from:yyyyMMdd}_{to:yyyyMMdd}.pdf";
     return Results.File(bytes, "application/pdf", fileName);
 });
 
@@ -200,7 +203,7 @@ app.Use(async (context, next) =>
             throw new ArgumentNullException(nameof(id));
 
         return await db.LastEmailSent.FirstOrDefaultAsync(r => r.Id == id)
-               ?? throw new Exception("Datum för mejl-utskick hittades inte i databasen!");
+               ?? throw new Exception("Datum fÃ¶r mejl-utskick hittades inte i databasen!");
     }
 
     LastEmailSent? lastEmailSentBirthday = await Get(db, 1);
