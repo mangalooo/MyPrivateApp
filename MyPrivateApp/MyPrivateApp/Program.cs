@@ -22,6 +22,7 @@ using MyPrivateApp.Data;
 using MyPrivateApp.Data.Models;
 using MyPrivateApp.Data.Models.Hunting;
 using QuestPDF.Infrastructure;
+using MyPrivateApp.Components.Hunting.Pdf;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +63,7 @@ builder.Services.AddScoped<IHuntingMyListClass, HuntingMyListClass>();
 builder.Services.AddScoped<IHuntingPreyClass, HuntingPreyClass>();
 builder.Services.AddScoped<IHuntingTeamMemberClass, HuntingTeamMemberClass>();
 builder.Services.AddScoped<IHuntingTowerInspectionClass, HuntingTowerInspectionClass>();
+builder.Services.AddScoped<IHuntingTowerInspectionPdfService, HuntingTowerInspectionPdfService>();
 
 // Games
 builder.Services.AddScoped<IMZPurchasedClass, MZPurchasedClass>();
@@ -188,6 +190,20 @@ app.MapGet("/api/farmworks/report", async (
 {
     byte[] bytes = await pdfService.CreateFarmWorksReportAsync(from, to, place, propertyDesignation, cancellationToken);
     string fileName = $"G�rdsarbetesraport_{from:yyyyMMdd}_{to:yyyyMMdd}.pdf";
+    return Results.File(bytes, "application/pdf", fileName);
+});
+
+// HuntingTowerInspection: Filter PDF report
+app.MapGet("/api/huntingtowerinspection/todo-report", async (
+    HuntingPlaces? place,
+    IHuntingTowerInspectionPdfService pdfService,
+    CancellationToken cancellationToken) =>
+{
+    byte[] bytes = await pdfService.CreateTodoReportAsync(place, cancellationToken);
+    string fileName = place.HasValue
+        ? $"HuntingTowerInspectionTodoReport_{place.Value}_{DateTime.UtcNow:yyyyMMdd}.pdf"
+        : $"HuntingTowerInspectionTodoReport_Skog_Karlabo_{DateTime.UtcNow:yyyyMMdd}.pdf";
+
     return Results.File(bytes, "application/pdf", fileName);
 });
 

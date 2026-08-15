@@ -1,23 +1,22 @@
 ﻿@page "/HuntingTowerInspectionPage"
+@implements IAsyncDisposable
 
 @using Microsoft.EntityFrameworkCore
-@using MyPrivateApp.Client.ViewModels
 @using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Hunting.Classes
 @using MyPrivateApp.Components.ViewModels.HuntingViemModels
 @using MyPrivateApp.Data
-@using MyPrivateApp.Data.Models
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using MyPrivateApp.Data.Models.Hunting
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
-@using System.Linq.Expressions
 
-@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @inject NavigationManager Navigation
 @inject IHuntingTowerInspectionClass BackEndClass
 @inject IDbContextFactory<ApplicationDbContext> IDbContextFactory
 @inject ApplicationDbContext _db
+@inject IJSRuntime JS
 
 <PageTitle> Jakt </PageTitle>
 
@@ -69,6 +68,16 @@
 
         <div align="center">
             <button class="btn btn-outline-success btn-sm" @onclick="@ShowAddForm"> Ny inspektion </button>
+
+            <br /> <br />
+
+            <InputSelect @bind-Value="selectedPdfPlace" class="form-select form-select-sm d-inline-block w-auto ms-2">
+                <option value="">Skog + Karlabo</option>
+                <option value="@HuntingPlaces.Skog">Skog</option>
+                <option value="@HuntingPlaces.Karlabo">Karlabo</option>
+            </InputSelect>
+
+            <button class="btn btn-outline-primary btn-sm ms-2" @onclick="DownloadTodoPdf"> Ladda ner Att göra PDF </button>
         </div>
 
         <br />
@@ -250,6 +259,7 @@
 
                             <br />
                             <br />
+
                         </EditForm>
                     </div>
                 }
@@ -568,6 +578,9 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideDeleteInspectionsButton { get; set; } = false;
+    
+    // For the PDF file
+    private HuntingPlaces? selectedPdfPlace;
 
     // Navigation list
     private readonly (string Href, string Text)[] navList = new[]
@@ -1015,6 +1028,50 @@
         catch (Exception ex)
         {
             ShowErrorMessage($"Ta bort inspektioner! Felmeddelande: {ex.Message}");
+        }
+    }
+
+    // For PDF file download
+    public async ValueTask DisposeAsync()
+    {
+        if (_downloadModule is not null)
+            await _downloadModule.DisposeAsync();
+    }
+
+    private IJSObjectReference? _downloadModule;
+
+    private async Task<IJSObjectReference> GetDownloadModuleAsync()
+    {
+        return _downloadModule ??=
+            await JS.InvokeAsync<IJSObjectReference>("import", "./js/downloadFile.js");
+    }
+
+    private async Task DownloadTodoPdf()
+    {
+        try
+        {
+            ShowOrHideErrorMessage = false;
+
+            string url = "/api/huntingtowerinspection/todo-report";
+            if (selectedPdfPlace.HasValue)
+                url += $"?place={selectedPdfPlace.Value}";
+
+            string placeSuffix = selectedPdfPlace.HasValue
+                ? selectedPdfPlace.Value.ToString()
+                : "Skog_Karlabo";
+
+            string fileName = $"Jakttornsinspektioner_AttGora_{placeSuffix}_{DateTime.Today:yyyyMMdd}.pdf";
+
+            IJSObjectReference module = await GetDownloadModuleAsync();
+
+            await module.InvokeVoidAsync(
+                "downloadFileFromUrl",
+                url,
+                fileName);
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Kunde inte ladda ner PDF. Felmeddelande: {ex.Message}");
         }
     }
 }
