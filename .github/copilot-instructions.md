@@ -119,3 +119,4 @@ public sealed class HuntingTowerInspectionTodoPdfDocument : IDocument
 ## Project-Specific Rules
 - Ensure that all instructions and code examples are tailored to the Blazor framework, leveraging its features and best practices.
 - For the hunting tower inspection PDF feature, place the download button directly in `HuntingTowerInspectionPage.razor` instead of creating a separate page.
+- Implement new date search solutions in FarmWork pages to behave like the existing QuickGrid column filters for 'Plats' and 'Område', rather than as separate external filters.

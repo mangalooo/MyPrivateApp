@@ -147,9 +147,12 @@ namespace MyPrivateApp.Components.Enum
         Välj,
         Röjning,
         Förröjning,
-        Gallra,
+        Gallrat,
         Skotat,
-        Vindfällor
+        Vindfällor,
+        Service,
+        Repareration,
+        Smörjning,
     }
 
     public enum FarmWorkTools

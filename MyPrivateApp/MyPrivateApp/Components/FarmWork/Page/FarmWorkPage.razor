@@ -345,7 +345,13 @@
                 <div class="card-body">
                     <QuickGrid Class="farmwork-grid" Items="@queryable" Pagination="pagination">
 
-                        <PropertyColumn Class="width" Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true" />
+                        <PropertyColumn Class="width" Format="yyyy-MM-dd" Title="Datum" Property="@(c => c.Date)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="date" @onchange="SearchDate" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
 
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                             <ColumnOptions>
@@ -356,7 +362,15 @@
                         </PropertyColumn>
 
                         <PropertyColumn Title="Fastighetsbeteckning" Property="@(c => c.PropertyDesignation)" Sortable="true" />
-                        <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
+
+                        <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true">
+                            <ColumnOptions>
+                                <div class="search-box">
+                                    <input type="search" @onchange="SearchArea" />
+                                </div>
+                            </ColumnOptions>
+                        </PropertyColumn>
+
                         <PropertyColumn Title="Timmar" Property="@(c => c.Hours)" Sortable="true" />
                         <PropertyColumn Title="Beskrivning" Property="@(c => c.Note)" Sortable="true" />
 
@@ -979,5 +993,90 @@
         }
 
         return RefreshPage();
+    }
+
+    private async Task SearchArea(ChangeEventArgs e)
+    {
+        try
+        {
+            string searchValue = e.Value?.ToString()?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(searchValue))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+                ?? throw new Exception("SearchArea: db == null!");
+
+            List<FarmWorksViewModels> farmWorksList = await db.FarmWorks
+                .OrderByDescending(c => c.Date)
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .ToListAsync();
+
+            List<FarmWorksViewModels> filteredList = farmWorksList
+                .Where(c => ContainsArea(c.Area, searchValue))
+                .ToList();
+
+            queryable = filteredList.AsQueryable();
+
+            ShowOrHideInfoMessage = filteredList.Count == 0;
+            InfoMessage = filteredList.Count == 0
+                ? $"Hittade inget område för: {searchValue}!"
+                : string.Empty;
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök område. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private static bool ContainsArea(string? areaText, string searchValue)
+    {
+        if (string.IsNullOrWhiteSpace(areaText) || string.IsNullOrWhiteSpace(searchValue))
+            return false;
+
+        return areaText
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(area => area.Equals(searchValue, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task SearchDate(ChangeEventArgs e)
+    {
+        try
+        {
+            string? input = e.Value?.ToString()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+                ?? throw new Exception("SearchDate: db == null!");
+
+            List<FarmWorksViewModels> farmWorksList = await db.FarmWorks
+                .Where(c => c.Date == input)
+                .OrderByDescending(c => c.Date)
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .ToListAsync();
+
+            queryable = farmWorksList.AsQueryable();
+
+            ShowOrHideInfoMessage = farmWorksList.Count == 0;
+            InfoMessage = farmWorksList.Count == 0
+                ? $"Hittade inget gårdsarbete för datum: {input}!"
+                : string.Empty;
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök datum. Felmeddelande: {ex.Message}");
+        }
     }
 }

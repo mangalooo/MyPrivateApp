@@ -234,7 +234,7 @@
                                     {
                                         <div class="col-12">
                                             <div class="form-floating">
-                                                <InputTextArea rows="2" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
+                                                <InputTextArea rows="5" style="height:100%;" @bind-Value="pageViewModel.Notes" class="form-control" disabled="@DisabledForm" />
                                                 <label for="Notes"> Anteckningar </label>
                                             </div>
                                         </div>
@@ -821,7 +821,7 @@ catch (Exception ex)
             .Sum(x => x.Hours);
 
         double thinHours = relatedFarmWorks
-            .Where(x => x.Todo == FarmWorkTodo.Gallra)
+            .Where(x => x.Todo == FarmWorkTodo.Gallrat)
             .Sum(x => x.Hours);
 
         double toForwardHours = relatedFarmWorks

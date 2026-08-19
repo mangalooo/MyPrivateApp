@@ -300,7 +300,14 @@
                         <QuickGrid Class="farmwork-grid" Items="@queryable" Pagination="pagination">
 
                             <PropertyColumn Format="yyyy-MM-dd" Title="Startdatum" Property="@(c => c.StartDate)" Sortable="true" />
-                            <PropertyColumn Format="yyyy-MM-dd" Title="Slutdatum" Property="@(c => c.EndDate)" Sortable="true" />
+                            
+                            <PropertyColumn Format="yyyy-MM-dd" Title="Slutdatum" Property="@(c => c.EndDate)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" placeholder="År, t.ex. 2026" @onchange="SearchEndDateYear" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
 
                             <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                                 <ColumnOptions>
@@ -310,7 +317,14 @@
                                 </ColumnOptions>
                             </PropertyColumn>
 
-                            <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true" />
+                            <PropertyColumn Title="Område" Property="@(c => c.Area)" Sortable="true">
+                                <ColumnOptions>
+                                    <div class="search-box">
+                                        <input type="search" @onchange="SearchArea" />
+                                    </div>
+                                </ColumnOptions>
+                            </PropertyColumn>
+
                             <PropertyColumn Title="Hektar" Property="@(c => c.Hectare)" Sortable="true" />
                             <PropertyColumn Title="Anteckningar" Property="@(c => c.Notes)" Sortable="true" />
 
@@ -734,5 +748,99 @@ catch (Exception ex)
         {
             ShowErrorMessage($"Ladda färdigställd skogsplanering. Felmeddelande: {ex.Message}");
         }
+    }
+
+    private async Task SearchEndDateYear(ChangeEventArgs e)
+    {
+        try
+        {
+            string yearText = e.Value?.ToString()?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(yearText))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            if (!int.TryParse(yearText, out int year) || yearText.Length != 4)
+            {
+                queryable = Enumerable.Empty<FarmWorksPlanningViewModels>().AsQueryable();
+                ShowOrHideInfoMessage = true;
+                InfoMessage = "Skriv ett år med fyra siffror, till exempel 2026.";
+                StateHasChanged();
+                return;
+            }
+
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+                ?? throw new Exception("SearchEndDateYear: db == null!");
+
+            List<FarmWorksPlanningViewModels> farmWorksList = await db.FarmWorksPlanningCompleted
+                .Where(c => c.EndDate != null && c.EndDate.StartsWith($"{year}-"))
+                .OrderByDescending(c => c.EndDate)
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .ToListAsync();
+
+            queryable = farmWorksList.AsQueryable();
+
+            ShowOrHideInfoMessage = farmWorksList.Count == 0;
+            InfoMessage = farmWorksList.Count == 0
+                ? $"Hittade inget slutdatum för år: {year}!"
+                : string.Empty;
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök slutdatum. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private async Task SearchArea(ChangeEventArgs e)
+    {
+        try
+        {
+            string searchValue = e.Value?.ToString()?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(searchValue))
+            {
+                await RefreshPage();
+                return;
+            }
+
+            await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync()
+                ?? throw new Exception("SearchArea: db == null!");
+
+            List<FarmWorksPlanningViewModels> farmWorksList = await db.FarmWorksPlanningCompleted
+                .OrderByDescending(c => c.EndDate)
+                .Select(model => BackEndClass.ChangeFromModelToViewModel(model))
+                .ToListAsync();
+
+            List<FarmWorksPlanningViewModels> filteredList = farmWorksList
+                .Where(c => ContainsArea(c.Area, searchValue))
+                .ToList();
+
+            queryable = filteredList.AsQueryable();
+
+            ShowOrHideInfoMessage = filteredList.Count == 0;
+            InfoMessage = filteredList.Count == 0
+                ? $"Hittade inget område för: {searchValue}!"
+                : string.Empty;
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"Sök område. Felmeddelande: {ex.Message}");
+        }
+    }
+
+    private static bool ContainsArea(string? areaText, string searchValue)
+    {
+        if (string.IsNullOrWhiteSpace(areaText) || string.IsNullOrWhiteSpace(searchValue))
+            return false;
+
+        return areaText
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(area => area.Equals(searchValue, StringComparison.OrdinalIgnoreCase));
     }
 }
