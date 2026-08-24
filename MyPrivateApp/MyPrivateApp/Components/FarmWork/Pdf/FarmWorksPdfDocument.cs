@@ -44,9 +44,10 @@ public sealed class FarmWorksPdfDocument : IDocument
                     table.ColumnsDefinition(columns =>
                     {
                         columns.ConstantColumn(90);   // Datum
-                        columns.ConstantColumn(70);   // Plats
-                        columns.ConstantColumn(85);   // Område
-                        columns.ConstantColumn(65);   // Timmar
+                        columns.ConstantColumn(55);   // Plats
+                        columns.ConstantColumn(90);   // Område
+                        columns.ConstantColumn(60);   // Timmar
+                        columns.ConstantColumn(40);   // Mil
                         columns.RelativeColumn(1);    // Notering
                     });
 
@@ -56,11 +57,12 @@ public sealed class FarmWorksPdfDocument : IDocument
                         header.Cell().Element(HeaderCell).Text("Plats");
                         header.Cell().Element(HeaderCell).Text("Område");
                         header.Cell().Element(HeaderCell).Text("Timmar");
+                        header.Cell().Element(HeaderCell).Text("Mil");
                         header.Cell().Element(HeaderCell).Text("Notering");
 
                         static IContainer HeaderCell(IContainer container) => container
                             .DefaultTextStyle(x => x.SemiBold())
-                            .PaddingVertical(5)
+                            .PaddingVertical(6)
                             .BorderBottom(1)
                             .BorderColor(Colors.Grey.Lighten1);
                     });
@@ -71,6 +73,7 @@ public sealed class FarmWorksPdfDocument : IDocument
                         table.Cell().Element(RowCell).Text(item.Place.ToString());
                         table.Cell().Element(RowCell).Text(item.Area ?? string.Empty);
                         table.Cell().Element(RowCell).Text(item.Hours.ToString("0.##"));
+                        table.Cell().Element(RowCell).Text(item.Milage.ToString("0.##"));
                         table.Cell().Element(RowCell).Text(item.Note ?? string.Empty);
                     }
 
