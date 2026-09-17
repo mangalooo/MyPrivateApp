@@ -113,6 +113,16 @@ namespace MyPrivateApp.Components.Enum
         Ny
     }
 
+    public enum HuntingPrioritize
+    {
+        Välj,
+        Ett,
+        Två,
+        Tre,
+        Fyra,
+        Fem
+    }
+
     public enum FarmWorkPlaces
     {
         Välj,

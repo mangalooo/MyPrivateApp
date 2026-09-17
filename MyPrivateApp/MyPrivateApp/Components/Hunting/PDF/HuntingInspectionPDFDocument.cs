@@ -54,6 +54,12 @@ public sealed class HuntingTowerInspectionTodoPdfDocument : IDocument
 
                 col.Item().Table(table =>
                 {
+                    IReadOnlyList<HuntingTowerInspection> orderedItems = _items
+                        .OrderBy(x => x.Prioritize == HuntingPrioritize.Välj ? 1 : 0)
+                        .ThenBy(x => x.Prioritize)
+                        .ThenBy(x => x.LastInspected)
+                        .ToList();
+
                     table.ColumnsDefinition(columns =>
                     {
                         columns.ConstantColumn(90);
@@ -78,10 +84,10 @@ public sealed class HuntingTowerInspectionTodoPdfDocument : IDocument
                             .BorderColor(Colors.Grey.Lighten1);
                     });
 
-                    for (int i = 0; i < _items.Count; i++)
+                    for (int i = 0; i < orderedItems.Count; i++)
                     {
-                        HuntingTowerInspection item = _items[i];
-                        bool isLastRow = i == _items.Count - 1;
+                        HuntingTowerInspection item = orderedItems[i];
+                        bool isLastRow = i == orderedItems.Count - 1;
 
                         table.Cell().Element(c => RowCell(c, isLastRow)).Text(item.LastInspected ?? string.Empty);
                         table.Cell().Element(c => RowCell(c, isLastRow)).Text(item.Place.ToString());

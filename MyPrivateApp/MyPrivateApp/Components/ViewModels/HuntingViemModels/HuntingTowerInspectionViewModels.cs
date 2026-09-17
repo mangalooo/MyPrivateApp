@@ -20,6 +20,10 @@ namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
         [Display(Name = "Att göra")]
         public bool InspectedTodo { get; set; }
 
+        [Display(Name = "Prioritera")]
+        [DataType(DataType.Text)]
+        public HuntingPrioritize Prioritize { get; set; }
+
         [Display(Name = "Utdömd")]
         public bool NotBeUsed { get; set; }
 
@@ -41,6 +45,11 @@ namespace MyPrivateApp.Components.ViewModels.HuntingViemModels
         [Required(ErrorMessage = "Du måste fylla i vad som ska göras!")]
         [Display(Name = "Att göra")]
         public HuntingTodo Todo { get; set; }
+
+        [Required(ErrorMessage = "Du måste fylla i ett datum!")]
+        [Display(Name = "Bygg år")]
+        [DataType(DataType.DateTime)]
+        public DateTime YearOfConstruction { get; set; }
 
         [Display(Name = "Anteckningar")]
         [DataType(DataType.MultilineText)]

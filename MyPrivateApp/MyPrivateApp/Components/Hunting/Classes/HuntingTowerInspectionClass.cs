@@ -110,12 +110,14 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 LastInspected = model.LastInspected != null ? ParseDate(model.LastInspected) : DateTime.MinValue,
                 Inspected = model.Inspected,
                 InspectedTodo = model.InspectedTodo,
+                Prioritize = model.Prioritize,
                 NotBeUsed = model.NotBeUsed,
                 MooseTower = model.MooseTower,
                 WildBoarTower = model.WildBoarTower,
                 Place = model.Place,
                 Number = model.Number,
                 Todo = model.Todo,
+                YearOfConstruction = model.YearOfConstruction != null ? ParseDate(model.YearOfConstruction) : DateTime.MinValue,
                 Note = model.Note
             };
 
@@ -130,12 +132,14 @@ namespace MyPrivateApp.Components.Hunting.Classes
                 LastInspected = vm.LastInspected != DateTime.MinValue ? vm.LastInspected.ToString("yyyy-MM-dd") : null,
                 Inspected = vm.Inspected,
                 InspectedTodo = vm.InspectedTodo,
+                Prioritize = vm.Prioritize,
                 NotBeUsed = vm.NotBeUsed,
                 MooseTower = vm.MooseTower,
                 WildBoarTower = vm.WildBoarTower,
                 Place = vm.Place,
                 Number = vm.Number,
                 Todo = vm.Todo,
+                YearOfConstruction = vm.YearOfConstruction != DateTime.MinValue ? vm.YearOfConstruction.ToString("yyyy-MM-dd") : null,
                 Note = vm.Note
             };
 
@@ -147,12 +151,14 @@ namespace MyPrivateApp.Components.Hunting.Classes
             model.LastInspected = vm.LastInspected != DateTime.MinValue ? vm.LastInspected.ToString("yyyy-MM-dd") : null;
             model.Inspected = vm.Inspected;
             model.InspectedTodo = vm.InspectedTodo;
+            model.Prioritize = vm.Prioritize;
             model.NotBeUsed = vm.NotBeUsed;
             model.MooseTower = vm.MooseTower;
             model.WildBoarTower = vm.WildBoarTower;
             model.Place = vm.Place;
             model.Number = vm.Number;
             model.Todo = vm.Todo;
+            model.YearOfConstruction = vm.YearOfConstruction != DateTime.MinValue ? vm.YearOfConstruction.ToString("yyyy-MM-dd") : null;
             model.Note = vm.Note;
         }
     }

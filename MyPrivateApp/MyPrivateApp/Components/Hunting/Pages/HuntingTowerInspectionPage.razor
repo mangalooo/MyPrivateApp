@@ -120,20 +120,44 @@
                     <div class="card-header">
                         <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
-                            <div class="row">
+                            @if (pageViewModel != null)
+                            {
 
-                                <div id="mobile" class="col-3" />
-                                @if (pageViewModel != null)
-                                {
+                                <div class="row">
 
-                                    <div class="col-3">
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputSelect @bind-Value="pageViewModel.Prioritize" class="form-control" placeholder="" disabled="@DisabledForm">
+                                                @foreach (HuntingPrioritize prioritize in Enum.GetValues<HuntingPrioritize>())
+                                                {
+                                                    <option value="@prioritize">@GetPrioritizeText(prioritize)</option>
+                                                }
+                                            </InputSelect>
+                                            <label for="Prioritize"> Prioritera </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
                                         <div class="form-floating">
                                             <InputDate @bind-Value="pageViewModel.LastInspected" class="form-control" disabled="@DisabledForm" />
                                             <label for="LastInspected"> Senast besiktad </label>
                                         </div>
                                     </div>
 
-                                    <div class="col-3">
+                                
+                                    <div class="col-4">
+                                        <div class="form-floating">
+                                            <InputDate @bind-Value="pageViewModel.YearOfConstruction" class="form-control" disabled="@DisabledForm" />
+                                            <label for="YearOfConstruction"> Bygg år </label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <br />
+
+                                <div class="row">
+
+                                    <div class="col-4">
                                         <div class="form-floating">
                                             <InputSelect @bind-Value="pageViewModel.Place" class="form-control" placeholder="" disabled="@DisabledForm">
                                                 @foreach (object place in Enum.GetValues(typeof(HuntingPlaces)))
@@ -144,13 +168,15 @@
                                             <label for="Place"> Plats </label>
                                         </div>
                                     </div>
-                                    <div class="col-3">
+
+                                    <div class="col-4">
                                         <div class="form-floating">
                                             <InputText @bind-Value="pageViewModel.Number" class="form-control" placeholder="" disabled="@DisabledForm" />
                                             <label for="Number"> Nummer </label>
                                         </div>
                                     </div>
-                                    <div class="col-3">
+
+                                    <div class="col-4">
                                         <div class="form-floating">
                                             <InputSelect @bind-Value="pageViewModel.Todo" class="form-control" placeholder="" disabled="@DisabledForm">
                                                 @foreach (object Todo in Enum.GetValues(typeof(HuntingTodo)))
@@ -161,14 +187,12 @@
                                             <label for="Todo"> Att göra </label>
                                         </div>
                                     </div>
-                                }
-                            </div>
 
-                            <br />
+                                </div>
 
-                            <div class="row">
-                                @if (pageViewModel != null)
-                                {
+                                <br />
+
+                                <div class="row">
 
                                     <div class="col-12">
                                         <div class="form-floating">
@@ -176,8 +200,9 @@
                                             <label for="Note"> Beskrivning </label>
                                         </div>
                                     </div>
-                                }
-                            </div>
+
+                                </div>
+                            }
 
                             <br />
 
@@ -185,30 +210,38 @@
                             <div id="desktop">
                                 @if (pageViewModel != null)
                                 {
+                                    <div class="d-flex align-items-center gap-3 flex-nowrap">
+                                        <div class="form-check mb-0">
+                                            <InputCheckbox id="Inspected-d" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
+                                            <label class="form-check-label" for="Inspected-d"> Besiktad? </label>
+                                        </div>
 
-                                    <InputCheckbox id="Inspected-d" @bind-Value="pageViewModel.Inspected" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="Inspected-d"> Besiktad? </label>
-                                    <div>&nbsp; &nbsp;</div>
+                                        <div class="form-check mb-0">
+                                            <InputCheckbox id="InspectedTodo-d" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
+                                            <label class="form-check-label" for="InspectedTodo-d"> Att göra </label>
+                                        </div>
 
-                                    <InputCheckbox id="InspectedTodo-d" @bind-Value="pageViewModel.InspectedTodo" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="InspectedTodo-d"> Att göra </label>
-                                    <div>&nbsp; &nbsp;</div>
+                                        <div class="form-check mb-0">
+                                            <InputCheckbox id="NotBeUsed-d" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
+                                            <label class="form-check-label" for="NotBeUsed-d"> Utdömd </label>
+                                        </div>
 
-                                    <InputCheckbox id="NotBeUsed-d" @bind-Value="pageViewModel.NotBeUsed" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="NotBeUsed-d"> Utdömd </label>
-                                    <div>&nbsp; &nbsp;</div>
+                                        <div class="form-check mb-0">
+                                            <InputCheckbox id="MooseTower-d" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
+                                            <label class="form-check-label" for="MooseTower-d"> Älgtorn </label>
+                                        </div>
 
-                                    <InputCheckbox id="MooseTower-d" @bind-Value="pageViewModel.MooseTower" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="MooseTower-d"> Älgtorn </label>
-                                    <div>&nbsp; &nbsp;</div>
-
-                                    <InputCheckbox id="WildBoarTower-d" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
-                                    <label class="form-check-label" for="WildBoarTower-d"> Vildsvinstorn </label>
+                                        <div class="form-check mb-0">
+                                            <InputCheckbox id="WildBoarTower-d" @bind-Value="pageViewModel.WildBoarTower" class="form-check-input" disabled="@DisabledForm" />
+                                            <label class="form-check-label" for="WildBoarTower-d"> Vildsvinstorn </label>
+                                        </div>
+                                    </div>
                                 }
                             </div>
 
                             @* View - Mobile *@
                             <div id="mobile">
+
                                 @if (pageViewModel != null)
                                 {
 
@@ -308,7 +341,11 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
+                        <PropertyColumn Title="Prio" Property="@(c => c.Prioritize != HuntingPrioritize.Välj ? ((int)c.Prioritize).ToString() : string.Empty)" Sortable="true" />
+
                         <PropertyColumn Format="yyyy-MM-dd" Title="Senast besiktad" Property="@(c => c.LastInspected)" Sortable="true" />
+
+                        <PropertyColumn Format="yyyy-MM-dd" Title="Bygg år" Property="@(c => c.YearOfConstruction)" Sortable="true" />
 
                         <PropertyColumn Title="Plats" Property="@(c => c.Place)" Sortable="true">
                             <ColumnOptions>
@@ -456,6 +493,8 @@
                 <div class="card-body">
                     <QuickGrid Items="@queryable" Pagination="pagination">
 
+                        <PropertyColumn Title="Prio" Property="@(c => c.Prioritize != HuntingPrioritize.Välj ? ((int)c.Prioritize).ToString() : string.Empty)" Sortable="true" />
+
                         <PropertyColumn Title="Nr" Property="@(c => c.Number)" Sortable="true">
                             <ColumnOptions>
                                 <div class="search-box">
@@ -498,36 +537,6 @@
 
                         </TemplateColumn>
                     </QuickGrid>
-
-                    @if (ShowOrHideDeleteInspectionsButton)
-                    {
-                        <br />
-
-                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => { if (pageViewModel != null) OpenDeleteWindowInspection(pageViewModel); })"> Ta bort alla besiktningar </button>
-
-                        <div class="modal @ModalClassInspection" tabindex="-1" role="dialog" style="display:@ModalDisplayInspection">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"> Vill du ta bort alla besiktningar? </h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-danger" @onclick="@(() => RemoveInspections())"> Ta bort alla besiktningar </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @onclick="() => CloseWindowInspection()"> Ångra </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if (ShowBackdropInspection)
-                        {
-                            <div class="modal-backdrop fade show"></div>
-                        }
-                    }
-
-                    <br />
-                    <br />
-
                 </div>
             </div>
 
@@ -578,7 +587,7 @@
     private bool ShowOrHideAddNewButton { get; set; } = false;
     private bool DisabledForm { get; set; } = false;
     private bool ShowOrHideDeleteInspectionsButton { get; set; } = false;
-    
+
     // For the PDF file
     private HuntingPlaces? selectedPdfPlace;
 
@@ -611,7 +620,11 @@
         {
             await using ApplicationDbContext db = await IDbContextFactory.CreateDbContextAsync() ?? throw new Exception("ConvertListToQueryableAsync: db == null!");
 
-            List<HuntingTowerInspection> items = await db.HuntingTowerInspections.OrderBy(c => c.LastInspected).ToListAsync();
+            List<HuntingTowerInspection> items = await db.HuntingTowerInspections
+                .OrderBy(c => c.Prioritize == HuntingPrioritize.Välj ? 1 : 0)
+                .ThenBy(c => c.Prioritize)
+                .ThenBy(c => c.LastInspected)
+                .ToListAsync();
 
             if (!items.Any())
             {
@@ -1074,4 +1087,15 @@
             ShowErrorMessage($"Kunde inte ladda ner PDF. Felmeddelande: {ex.Message}");
         }
     }
+
+    private static string GetPrioritizeText(HuntingPrioritize prioritize) => prioritize switch
+    {
+        HuntingPrioritize.Välj => "Välj",
+        HuntingPrioritize.Ett => "1",
+        HuntingPrioritize.Två => "2",
+        HuntingPrioritize.Tre => "3",
+        HuntingPrioritize.Fyra => "4",
+        HuntingPrioritize.Fem => "5",
+        _ => "Välj"
+    };
 }
