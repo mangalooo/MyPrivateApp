@@ -102,12 +102,11 @@
                 <div>
                     @if (HideNewOrChangesFields)
                     {
-                        <div class="card-header">
+                        <div class="card-header mobile-form">
+
                             <EditForm Model="pageViewModel" Enhance>
 
                                 <div class="row">
-
-                                    <div id="mobile" class="col-4" />
 
                                     @if (pageViewModel != null)
                                     {
@@ -202,6 +201,7 @@
                                 <br />
 
                                 <div class="row">
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-12">
@@ -220,6 +220,7 @@
                                 </div>
 
                                 <br /><br />
+
                             </EditForm>
                         </div>
                     }

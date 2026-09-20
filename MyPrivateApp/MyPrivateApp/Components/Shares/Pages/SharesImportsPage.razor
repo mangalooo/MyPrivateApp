@@ -126,12 +126,11 @@
                 <div>
                     @if (ShowOrHideAddOrEditForm)
                     {
-                        <div class="card-header">
+                        <div class="card-header mobile-form">
                             <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-3" />
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-3">
@@ -167,6 +166,7 @@
                                 <br />
 
                                 <div class="row">
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-12">
@@ -181,6 +181,7 @@
                                 <br />
 
                                 <div class="row">
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-12">

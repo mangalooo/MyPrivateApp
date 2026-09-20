@@ -8,7 +8,7 @@
 @using MyPrivateApp.Data.Models.SharesModels
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
 
-@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @inject NavigationManager Navigation
 @inject ISharesPurchasedFundsClass BackEndClass
@@ -104,12 +104,12 @@
                 <div>
                     @if (ShowOrHideAddOrEditForm)
                     {
-                        <div class="card-header">
+                        <div class="card-header mobile-form">
+
                             <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-4" />
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-4">
@@ -139,7 +139,6 @@
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-4" />
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-4">
@@ -169,7 +168,6 @@
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-3" />
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-3">
@@ -205,6 +203,7 @@
                                 <br />
 
                                 <div class="row">
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-12">
@@ -214,6 +213,7 @@
                                             </div>
                                         </div>
                                     }
+
                                 </div>
 
                                 <br />
@@ -222,7 +222,6 @@
                                 {
                                     <div class="row">
 
-                                        <div id="mobile" class="col-3" />
                                         @if (pageViewModel != null)
                                         {
                                             <div class="col-3">
@@ -261,7 +260,6 @@
                                 {
                                     <div class="row">
 
-                                        <div id="mobile" class="col-3" />
                                         @if (pageViewModel != null)
                                         {
                                             <div class="col-3">
@@ -327,7 +325,7 @@
                                 @if (ShowOrHideSaleButton)
                                 {
                                     <div align="center">
-                                <button @onclick="@(() => { if (pageViewModel != null) OpenSaleWindow(pageViewModel); })" type="button" align="center" class="btn btn-outline-danger btn-sm"> Sälja </button>
+                                        <button @onclick="@(() => { if (pageViewModel != null) OpenSaleWindow(pageViewModel); })" type="button" align="center" class="btn btn-outline-danger btn-sm"> Sälja </button>
 
                                         <div class="modal @ModalClassSale" tabindex="-1" role="dialog" style="display:@ModalDisplaySale">
                                             <div class="modal-dialog" role="document" style="width:400px">
@@ -794,7 +792,7 @@ catch (Exception ex)
             ShowErrorMessage("Går inte att öppna säljfönstret. Fonden kunde inte hittas!");
             return;
         }
-        
+
         TemporaryId = vm.SharesPurchasedFundId;
         ToggleModal(ref ModalDisplaySale, ref ModalClassSale, ref ShowBackdropSale, true);
     }
