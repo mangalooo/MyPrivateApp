@@ -2,17 +2,10 @@
 
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using MyPrivateApp.Client.ViewModels
-@using MyPrivateApp.Components.Enum
 @using MyPrivateApp.Components.Farming.Classes
-@using MyPrivateApp.Components.Shares.Classes
 @using MyPrivateApp.Components.ViewModels
-@using MyPrivateApp.Components.ViewModels.FarmWork
-@using MyPrivateApp.Components.ViewModels.SharesViewModels
 @using MyPrivateApp.Data
-@using MyPrivateApp.Data.Models
 @using MyPrivateApp.Data.Models.Farming
-@using MyPrivateApp.Data.Models.SharesModels
 @using static Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions;
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
@@ -74,12 +67,11 @@
                 <div>
                     @if (ShowOrHideAddOrEditForm)
                     {
-                        <div class="card-header">
+                        <div class="card-header mobile-form">
+
                             <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                                 <div class="row">
-
-                                    <div id="mobile" class="col-4" />
 
                                     @if (pageViewModel != null)
                                     {
@@ -110,8 +102,6 @@
                                 <br />
 
                                 <div class="row">
-
-                                    <div id="mobile" class="col-3" />
 
                                     @if (pageViewModel != null)
                                     {
@@ -149,8 +139,6 @@
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-6" />
-
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-6">
@@ -172,6 +160,7 @@
                                 <br />
 
                                 <div class="row">
+
                                     @if (pageViewModel != null)
                                     {
                                         <div class="col-12">

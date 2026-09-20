@@ -72,7 +72,7 @@
                 <div>
                     @if (ShowOrHideAddOrEditForm)
                     {
-                        <div class="card-header">
+                        <div class="card-header mobile-form">
 
                             <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" FormName="AddOrEdit" Enhance>
 
@@ -81,8 +81,6 @@
                                 <ValidationSummary class="text-danger" role="alert" />
 
                                 <div class="row">
-
-                                    <div id="mobile" class="col-4" />
 
                                     <div class="col-4">
                                         <div class="form-floating">
@@ -121,8 +119,6 @@
                                 <br />
 
                                 <div class="row">
-
-                                    <div id="mobile" class="col-3" />
 
                                     @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.ChildOne))
                                     {
@@ -182,8 +178,6 @@
 
                                 <div class="row">
 
-                                    <div id="mobile" class="col-4" />
-
                                     <div class="col-4">
                                         <div class="form-floating">
                                             @if (pageViewModel != null)
@@ -216,8 +210,6 @@
                                 <br />
 
                                 <div class="row">
-
-                                    <div id="mobile" class="col-4" />
 
                                     @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.PrivateMail))
                                     {
@@ -263,8 +255,6 @@
                                 <br />
 
                                 <div class="row">
-
-                                    <div id="mobile" class="col-3" />
 
                                     @if (ShowAllFieldsWithAddForm || !string.IsNullOrWhiteSpace(pageViewModel?.PhoneNumber))
                                     {

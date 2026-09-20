@@ -117,12 +117,11 @@
             <div>
                 @if (ShowOrHideAddOrEditForm)
                 {
-                    <div class="card-header">
+                    <div class="card-header mobile-form">
                         <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                             @if (pageViewModel != null)
                             {
-
                                 <div class="row">
 
                                     <div class="col-4">
@@ -539,7 +538,6 @@
                     </QuickGrid>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

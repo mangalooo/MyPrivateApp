@@ -70,7 +70,8 @@
             <div>
                 @if (ShowOrHideAddOrEditForm)
                 {
-                    <div class="card-header">
+                    <div class="card-header mobile-form">
+
                         <EditForm Model="pageViewModel" OnSubmit="AddOrEdit" Enhance>
 
                             <DataAnnotationsValidator />
@@ -79,7 +80,6 @@
 
                             <div class="row">
 
-                                <div id="mobile" class="col-6" />
                                 @if (pageViewModel != null)
                                 {
                                     <div class="col-6">
@@ -101,7 +101,6 @@
 
                             <div class="row">
 
-                                <div id="mobile" class="col-6" />
                                 @if (pageViewModel != null)
                                 {
                                     <div class="col-6">
@@ -122,6 +121,7 @@
                             <br />
 
                             <div class="row">
+
                                 @if (pageViewModel != null)
                                 {
                                     <div class="col-12">

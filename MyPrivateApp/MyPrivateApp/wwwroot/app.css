@@ -143,8 +143,12 @@ h1:focus {
 }
 
 @media only screen and (max-width: 768px) {
-    div ~ [class*='col-'] {
+    .row > [class*='col-'] {
         width: 100%;
+    }
+
+    .mobile-form .row {
+        row-gap: 0.75rem;
     }
 }
 
