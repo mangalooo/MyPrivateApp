@@ -7,7 +7,6 @@ using Microsoft.Extensions.Primitives;
 using MyPrivateApp.Components.Account.Pages;
 using MyPrivateApp.Components.Account.Pages.Manage;
 using MyPrivateApp.Data;
-using System.Security.Claims;
 using System.Text.Json;
 
 namespace Microsoft.AspNetCore.Routing
@@ -41,12 +40,11 @@ namespace Microsoft.AspNetCore.Routing
             });
 
             accountGroup.MapPost("/Logout", async (
-                ClaimsPrincipal user,
                 SignInManager<ApplicationUser> signInManager,
-                [FromForm] string returnUrl) =>
+                [FromForm] IFormCollection form) =>
             {
                 await signInManager.SignOutAsync();
-                return TypedResults.LocalRedirect($"~/{returnUrl}");
+                return TypedResults.LocalRedirect("~/");
             });
 
             var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();

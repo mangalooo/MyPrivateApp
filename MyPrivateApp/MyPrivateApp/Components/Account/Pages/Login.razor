@@ -19,40 +19,37 @@
 }
 else
 {
-<PageTitle>Logga in</PageTitle>
+    <PageTitle>Logga in</PageTitle>
 
-<h1>Logga in</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
+    <div class="login-container">
+        <section class="login-form" aria-labelledby="login-heading">
+            <div class="login-icon" aria-hidden="true"><i class="bi bi-lock"></i></div>
+            <h1 id="login-heading">Välkommen</h1>
+            <p class="login-subtitle">Logga in för att fortsätta.</p>
             <StatusMessage Message="@errorMessage" />
             <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
                 <DataAnnotationsValidator />
-                <hr />
                 <ValidationSummary class="text-danger" role="alert" />
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label for="email" class="form-label"> E-post </label>
+                <div class="login-field">
+                    <label for="login-email">E-post</label>
+                    <InputText id="login-email" @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="namn@exempel.se" />
                     <ValidationMessage For="() => Input.Email" class="text-danger" />
                 </div>
-                <div class="form-floating mb-3">
-                    <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label for="password" class="form-label"> Lösenord </label>
+                <div class="login-field">
+                    <label for="login-password">Lösenord</label>
+                    <InputText id="login-password" type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Ange ditt lösenord" />
                     <ValidationMessage For="() => Input.Password" class="text-danger" />
                 </div>
-                <div class="checkbox mb-3">
-                    <label class="form-label">
+                <div class="login-remember">
+                    <label>
                         <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
                         Kom ihåg mig
                     </label>
                 </div>
-                <div>
-                    <button type="submit" class="w-100 btn btn-lg btn-Success"> Logga in </button>
-                </div>
+                <button type="submit" class="btn btn-success login-button">Logga in</button>
             </EditForm>
         </section>
     </div>
-</div>
 }
 
 @code {

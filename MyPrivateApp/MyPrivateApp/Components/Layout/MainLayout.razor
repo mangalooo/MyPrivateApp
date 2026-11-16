@@ -22,7 +22,18 @@
     }
 
     <main>
-        <div class="top-row px-4" />
+        @if (_isHomePage)
+        {
+            <AuthorizeView>
+                <Authorized>
+                    <div class="top-row px-4" />
+                </Authorized>
+            </AuthorizeView>
+        }
+        else if (!_isLoginPage)
+        {
+            <div class="top-row px-4" />
+        }
 
         <article class="content px-4">
             @Body
