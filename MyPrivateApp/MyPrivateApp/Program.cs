@@ -104,7 +104,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
     options.Cookie.SameSite = SameSiteMode.Lax;
 
-    options.LoginPath = "/Account/Login";
+    options.LoginPath = "/";
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ReturnUrlParameter = "returnUrl";
@@ -178,6 +178,18 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
+
+app.Use(async (context, next) =>
+{
+    if (HttpMethods.IsGet(context.Request.Method) &&
+        context.Request.Path.Equals(new PathString("/Account/Login"), StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Redirect($"{context.Request.PathBase}/{context.Request.QueryString}");
+        return;
+    }
+
+    await next();
+});
 
 // FarmWork: Filter PDF report
 app.MapGet("/api/farmworks/report", async (

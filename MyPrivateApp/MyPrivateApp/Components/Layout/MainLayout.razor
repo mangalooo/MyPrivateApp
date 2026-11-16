@@ -4,7 +4,17 @@
 @inject NavigationManager NavigationManager
 
 <div class="page">
-    @if (!_isLoginPage)
+    @if (_isHomePage)
+    {
+        <AuthorizeView>
+            <Authorized>
+                <div class="sidebar">
+                    <NavMenu />
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    }
+    else if (!_isLoginPage)
     {
         <div class="sidebar">
             <NavMenu />
@@ -28,6 +38,7 @@
 
 @code {
     private bool _isLoginPage;
+    private bool _isHomePage;
 
     protected override void OnInitialized()
     {
@@ -46,6 +57,7 @@
         string path = NavigationManager.ToBaseRelativePath(NavigationManager.Uri)
             .Split('?', '#')[0]
             .TrimEnd('/');
+        _isHomePage = path.Length == 0;
         _isLoginPage = string.Equals(path, "Account/Login", StringComparison.OrdinalIgnoreCase);
     }
 
