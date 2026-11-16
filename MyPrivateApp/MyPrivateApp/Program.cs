@@ -174,10 +174,10 @@ else
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-app.UseAntiforgery();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseAntiforgery();
 
 // FarmWork: Filter PDF report
 app.MapGet("/api/farmworks/report", async (

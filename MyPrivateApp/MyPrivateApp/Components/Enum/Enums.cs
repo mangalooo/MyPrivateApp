@@ -10,7 +10,8 @@ namespace MyPrivateApp.Components.Enum
         Skog,
         Smältryd,
         Österbyn,
-        Övrigt
+        Övrigt,
+        TBacka
     }
 
     public enum FreezerPlaces
@@ -68,7 +69,8 @@ namespace MyPrivateApp.Components.Enum
         Älg,
         Övrigt,
         Dovhjort,
-        Kronhjort
+        Kronhjort,
+        Grävling
     }
 
     public enum HuntingName
@@ -84,6 +86,7 @@ namespace MyPrivateApp.Components.Enum
         Vildsvinsjakt,
         Älgjakt,
         Övrigt,
+        Kronhjortsjakt
     }
 
     public enum HuntingForm
@@ -169,9 +172,9 @@ namespace MyPrivateApp.Components.Enum
     {
         Välj,
         ATV,
-        Kranman620SPro,
-        Kranman960Pro,
-        KranmanP25,
+        Skördaren620SPro,
+        Skotaren960Pro,
+        P25,
         Motorsåg,
         Röjsåg,
         Trimmern
@@ -181,8 +184,9 @@ namespace MyPrivateApp.Components.Enum
     {
         Välj,
         Griplastarvagn,
-        KranmanEnergiklipp155E,
-        KranmanDikesskopaDS55,
-        Slaghack
+        Energiklipp155E,
+        DikesskopaDS55,
+        Slaghack,
+        Gripklo
     }
 }
